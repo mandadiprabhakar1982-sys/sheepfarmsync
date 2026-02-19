@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -31,7 +30,7 @@ import {
 } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import type { MedicineExpense } from '@/lib/types';
+import { useFarm } from '@/context/FarmContext';
 
 const formSchema = z.object({
   shopName: z.string().min(1, 'Shop name is required'),
@@ -45,7 +44,8 @@ type MedicineFormData = z.infer<typeof formSchema>;
 
 export default function MedicinePage() {
   const { toast } = useToast();
-  const [expenses, setExpenses] = useState<MedicineExpense[]>([]);
+  const { medicineExpenses, addMedicineExpense, deleteMedicineExpense } = useFarm();
+  
   const form = useForm<MedicineFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -57,8 +57,8 @@ export default function MedicinePage() {
   });
 
   const onSubmit: SubmitHandler<MedicineFormData> = (data) => {
-    const newExpense = { ...data, id: crypto.randomUUID(), date: format(data.date, 'yyyy-MM-dd') };
-    setExpenses((prev) => [...prev, newExpense]);
+    const newExpense = { ...data, date: format(data.date, 'yyyy-MM-dd') };
+    addMedicineExpense(newExpense);
     form.reset();
     toast({
       title: 'Success!',
@@ -66,8 +66,8 @@ export default function MedicinePage() {
     });
   };
   
-  const deleteExpense = (id: string) => {
-    setExpenses(expenses.filter(e => e.id !== id));
+  const handleDeleteExpense = (id: string) => {
+    deleteMedicineExpense(id);
      toast({
       title: 'Deleted',
       description: 'Expense record has been deleted.',
@@ -211,8 +211,8 @@ export default function MedicinePage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {expenses.length > 0 ? (
-                    expenses.map((e) => (
+                  {medicineExpenses.length > 0 ? (
+                    medicineExpenses.map((e) => (
                       <TableRow key={e.id}>
                         <TableCell>{e.date}</TableCell>
                         <TableCell>{e.shopName}</TableCell>
@@ -222,7 +222,7 @@ export default function MedicinePage() {
                           ₹{e.outstandingDues.toFixed(2)}
                         </TableCell>
                          <TableCell className='text-right'>
-                            <Button variant="ghost" size="icon" onClick={() => deleteExpense(e.id)}>
+                            <Button variant="ghost" size="icon" onClick={() => handleDeleteExpense(e.id)}>
                                 <Trash2 className="h-4 w-4 text-destructive" />
                             </Button>
                         </TableCell>

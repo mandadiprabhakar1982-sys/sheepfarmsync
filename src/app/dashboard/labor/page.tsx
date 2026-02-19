@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -31,7 +31,7 @@ import {
 } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import type { LaborCost } from '@/lib/types';
+import { useFarm } from '@/context/FarmContext';
 
 const formSchema = z.object({
   employeeName: z.string().min(1, "Employee name is required"),
@@ -49,7 +49,8 @@ type LaborFormData = z.infer<typeof formSchema>;
 
 export default function LaborPage() {
   const { toast } = useToast();
-  const [costs, setCosts] = useState<LaborCost[]>([]);
+  const { laborCosts, addLaborCost, deleteLaborCost } = useFarm();
+  
   const form = useForm<LaborFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -81,8 +82,8 @@ export default function LaborPage() {
   }, [watchedFields, form]);
 
   const onSubmit: SubmitHandler<LaborFormData> = (data) => {
-    const newCost = { ...data, id: crypto.randomUUID(), date: format(data.date, 'yyyy-MM-dd') };
-    setCosts((prev) => [...prev, newCost]);
+    const newCost = { ...data, date: format(data.date, 'yyyy-MM-dd') };
+    addLaborCost(newCost);
     form.reset();
     toast({
       title: 'Success!',
@@ -90,8 +91,8 @@ export default function LaborPage() {
     });
   };
   
-   const deleteCost = (id: string) => {
-    setCosts(costs.filter(c => c.id !== id));
+   const handleDeleteCost = (id: string) => {
+    deleteLaborCost(id);
      toast({
       title: 'Deleted',
       description: 'Cost record has been deleted.',
@@ -235,8 +236,8 @@ export default function LaborPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {costs.length > 0 ? (
-                    costs.map((c) => (
+                  {laborCosts.length > 0 ? (
+                    laborCosts.map((c) => (
                       <TableRow key={c.id}>
                         <TableCell>{c.date}</TableCell>
                         <TableCell>{c.employeeName}</TableCell>
@@ -245,7 +246,7 @@ export default function LaborPage() {
                         <TableCell>₹{(c.foodCosts + c.fuelCosts).toFixed(2)}</TableCell>
                         <TableCell>₹{c.totalLaborCosts.toFixed(2)}</TableCell>
                          <TableCell className='text-right'>
-                            <Button variant="ghost" size="icon" onClick={() => deleteCost(c.id)}>
+                            <Button variant="ghost" size="icon" onClick={() => handleDeleteCost(c.id)}>
                                 <Trash2 className="h-4 w-4 text-destructive" />
                             </Button>
                         </TableCell>

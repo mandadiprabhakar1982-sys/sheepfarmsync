@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -38,7 +37,7 @@ import {
 } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import type { FeedCost } from '@/lib/types';
+import { useFarm } from '@/context/FarmContext';
 
 const feedTypes = ['TMR', 'Silage', 'Groundnut', 'Other'] as const;
 
@@ -53,7 +52,8 @@ type FeedFormData = z.infer<typeof formSchema>;
 
 export default function FeedPage() {
   const { toast } = useToast();
-  const [costs, setCosts] = useState<FeedCost[]>([]);
+  const { feedCosts, addFeedCost, deleteFeedCost } = useFarm();
+  
   const form = useForm<FeedFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -63,8 +63,8 @@ export default function FeedPage() {
   });
 
   const onSubmit: SubmitHandler<FeedFormData> = (data) => {
-    const newCost = { ...data, id: crypto.randomUUID(), date: format(data.date, 'yyyy-MM-dd') };
-    setCosts((prev) => [...prev, newCost]);
+    const newCost = { ...data, date: format(data.date, 'yyyy-MM-dd') };
+    addFeedCost(newCost);
     form.reset();
     toast({
       title: 'Success!',
@@ -72,8 +72,8 @@ export default function FeedPage() {
     });
   };
   
-  const deleteCost = (id: string) => {
-    setCosts(costs.filter(c => c.id !== id));
+  const handleDeleteCost = (id: string) => {
+    deleteFeedCost(id);
      toast({
       title: 'Deleted',
       description: 'Cost record has been deleted.',
@@ -214,15 +214,15 @@ export default function FeedPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {costs.length > 0 ? (
-                    costs.map((c) => (
+                  {feedCosts.length > 0 ? (
+                    feedCosts.map((c) => (
                       <TableRow key={c.id}>
                         <TableCell>{c.date}</TableCell>
                         <TableCell>{c.feedType}</TableCell>
                         <TableCell>₹{c.cost.toFixed(2)}</TableCell>
                         <TableCell>{c.quantity}</TableCell>
                          <TableCell className='text-right'>
-                            <Button variant="ghost" size="icon" onClick={() => deleteCost(c.id)}>
+                            <Button variant="ghost" size="icon" onClick={() => handleDeleteCost(c.id)}>
                                 <Trash2 className="h-4 w-4 text-destructive" />
                             </Button>
                         </TableCell>

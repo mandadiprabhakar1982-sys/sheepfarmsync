@@ -15,9 +15,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import type { TrackedAnimal } from '@/lib/types';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
+import { useFarm } from '@/context/FarmContext';
 
 // Schema for the flock tracking form
 const trackingFormSchema = z.object({
@@ -38,9 +38,8 @@ const chartConfig = {
 
 export default function LivestockPage() {
   const { toast } = useToast();
+  const { trackedAnimals, addTrackedAnimal, deleteTrackedAnimal } = useFarm();
   
-  // State for flock tracking
-  const [trackedAnimals, setTrackedAnimals] = useState<TrackedAnimal[]>([]);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
 
   // Camera state
@@ -123,7 +122,7 @@ export default function LivestockPage() {
   };
 
   const onTrackingSubmit: SubmitHandler<TrackingFormData> = (data) => {
-    setTrackedAnimals((prev) => [...prev, { ...data, id: crypto.randomUUID(), photoDataUrl: capturedImage || undefined }]);
+    addTrackedAnimal({ ...data, photoDataUrl: capturedImage || undefined });
     trackingForm.reset();
     setCapturedImage(null);
     toast({
@@ -132,8 +131,8 @@ export default function LivestockPage() {
     });
   };
 
-  const deleteTrackedAnimal = (id: string) => {
-    setTrackedAnimals(trackedAnimals.filter(a => a.id !== id));
+  const handleDeleteTrackedAnimal = (id: string) => {
+    deleteTrackedAnimal(id);
     toast({
       title: 'Deleted',
       description: 'Animal record has been deleted.',
@@ -251,7 +250,7 @@ export default function LivestockPage() {
                         <TableCell>{animal.weight} kg</TableCell>
                         <TableCell>{animal.age}</TableCell>
                         <TableCell className="text-right">
-                          <Button variant="ghost" size="icon" onClick={() => deleteTrackedAnimal(animal.id)}>
+                          <Button variant="ghost" size="icon" onClick={() => handleDeleteTrackedAnimal(animal.id)}>
                             <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
                         </TableCell>

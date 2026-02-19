@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { analyzeFarmCosts, type AnalyzeFarmCostsOutput } from '@/ai/flows/analyze-farm-costs';
 import { Loader2, Sparkles, AlertTriangle } from 'lucide-react';
-import { mockFeedCosts, mockLaborCosts, mockLivestockPurchases, mockMedicineExpenses } from '@/lib/data';
+import { useFarm } from '@/context/FarmContext';
 
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,7 @@ export default function AnalysisPage() {
   const [analysis, setAnalysis] = useState<AnalyzeFarmCostsOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { purchases, medicineExpenses, feedCosts, laborCosts } = useFarm();
 
   const handleAnalysis = async () => {
     setIsLoading(true);
@@ -21,10 +22,10 @@ export default function AnalysisPage() {
     setAnalysis(null);
     try {
       const input = {
-        livestockPurchases: mockLivestockPurchases,
-        medicineExpenses: mockMedicineExpenses,
-        feedCosts: mockFeedCosts,
-        laborCosts: mockLaborCosts,
+        livestockPurchases: purchases,
+        medicineExpenses: medicineExpenses,
+        feedCosts: feedCosts,
+        laborCosts: laborCosts,
       };
       const result = await analyzeFarmCosts(input);
       setAnalysis(result);
@@ -47,7 +48,7 @@ export default function AnalysisPage() {
           <CardHeader>
             <CardTitle>Start Your Analysis</CardTitle>
             <CardDescription>
-              Click the button below to analyze your farm's cost data using mock data.
+              Click the button below to analyze your farm's cost data.
               The AI will provide a summary, identify high-expenditure areas, and suggest optimizations.
             </CardDescription>
           </CardHeader>

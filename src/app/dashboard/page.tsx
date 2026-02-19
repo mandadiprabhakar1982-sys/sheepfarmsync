@@ -71,7 +71,7 @@ const menuItems = [
 
 
 export default function DashboardPage() {
-  const { flockSize } = useFarm();
+  const { flockSize, totalExpenses, totalSales } = useFarm();
   return (
     <>
       <section className="bg-primary text-primary-foreground">
@@ -98,13 +98,13 @@ export default function DashboardPage() {
             />
             <StatCard
                 title="Total Expenses"
-                value="₹0"
+                value={`₹${totalExpenses.toFixed(2)}`}
                 icon={IndianRupee}
                 description="Total expenses incurred"
             />
             <StatCard
                 title="Total Sales"
-                value="₹0"
+                value={`₹${totalSales.toFixed(2)}`}
                 icon={TrendingUp}
                 description="Total sales made"
             />
