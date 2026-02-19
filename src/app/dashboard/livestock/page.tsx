@@ -188,7 +188,7 @@ export default function LivestockPage() {
                         <TableCell>{p.animalCount}</TableCell>
                         <TableCell>₹{p.purchasePrice.toFixed(2)}</TableCell>
                         <TableCell>₹{p.amountPaid.toFixed(2)}</TableCell>
-                        <TableCell className={p.purchasePrice - p.amountPaid > 0 ? 'text-red-600' : ''}>
+                        <TableCell className={p.purchasePrice - p.amountPaid > 0 ? 'text-destructive' : ''}>
                           ₹{(p.purchasePrice - p.amountPaid).toFixed(2)}
                         </TableCell>
                         <TableCell className='text-right'>

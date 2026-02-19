@@ -198,7 +198,7 @@ export default function SalesPage() {
                         <TableCell>{t.buyerName}</TableCell>
                         <TableCell>₹{t.salePrice.toFixed(2)}</TableCell>
                         <TableCell>₹{t.totalAmountReceived.toFixed(2)}</TableCell>
-                        <TableCell className={t.outstandingDues > 0 ? 'text-red-600' : ''}>₹{t.outstandingDues.toFixed(2)}</TableCell>
+                        <TableCell className={t.outstandingDues > 0 ? 'text-destructive' : ''}>₹{t.outstandingDues.toFixed(2)}</TableCell>
                          <TableCell className='text-right'>
                             <Button variant="ghost" size="icon" onClick={() => deleteTransaction(t.id)}>
                                 <Trash2 className="h-4 w-4 text-destructive" />

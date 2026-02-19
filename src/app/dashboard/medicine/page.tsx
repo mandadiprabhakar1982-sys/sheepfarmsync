@@ -218,7 +218,7 @@ export default function MedicinePage() {
                         <TableCell>{e.shopName}</TableCell>
                         <TableCell>₹{e.costOfMedicines.toFixed(2)}</TableCell>
                         <TableCell>₹{e.totalAmountSpent.toFixed(2)}</TableCell>
-                        <TableCell className={e.outstandingDues > 0 ? 'text-red-600' : ''}>
+                        <TableCell className={e.outstandingDues > 0 ? 'text-destructive' : ''}>
                           ₹{e.outstandingDues.toFixed(2)}
                         </TableCell>
                          <TableCell className='text-right'>

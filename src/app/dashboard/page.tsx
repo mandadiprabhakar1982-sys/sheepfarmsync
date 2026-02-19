@@ -109,22 +109,22 @@ export default function DashboardPage() {
                 <TableRow>
                   <TableCell>Purchase</TableCell>
                   <TableCell>Bought 5 Sheep from J. Doe</TableCell>
-                  <TableCell className="text-right text-red-600">-₹2,800.00</TableCell>
+                  <TableCell className="text-right text-destructive">-₹2,800.00</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell>Feed</TableCell>
                   <TableCell>Purchased TMR feed</TableCell>
-                  <TableCell className="text-right text-red-600">-₹1,200.00</TableCell>
+                  <TableCell className="text-right text-destructive">-₹1,200.00</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell>Labor</TableCell>
                   <TableCell>Monthly wages for 1 laborer</TableCell>
-                  <TableCell className="text-right text-red-600">-₹3,000.00</TableCell>
+                  <TableCell className="text-right text-destructive">-₹3,000.00</TableCell>
                 </TableRow>
                  <TableRow>
                   <TableCell>Medicine</TableCell>
                   <TableCell>Vaccines from Farmacy</TableCell>
-                  <TableCell className="text-right text-red-600">-₹320.00</TableCell>
+                  <TableCell className="text-right text-destructive">-₹320.00</TableCell>
                 </TableRow>
               </TableBody>
             </Table>
