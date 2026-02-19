@@ -214,7 +214,7 @@ export default function FeedPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {feedCosts.length > 0 ? (
+                  {feedCosts && feedCosts.length > 0 ? (
                     feedCosts.map((c) => (
                       <TableRow key={c.id}>
                         <TableCell>{c.date}</TableCell>

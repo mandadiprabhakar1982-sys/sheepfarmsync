@@ -11,6 +11,7 @@ import {
   BadgeIndianRupee,
   LayoutDashboard,
   Package,
+  Loader2,
 } from 'lucide-react';
 import { SheepIcon } from '@/components/logo';
 import { Card, CardContent } from '@/components/ui/card';
@@ -26,7 +27,7 @@ const menuItems = [
       href: '/dashboard/analysis',
     },
     {
-      title: 'SHEEP TRACKING',
+      title: 'SHEEP MANAGEMENT',
       description: 'WEIGHT & GROWTH LOGS',
       icon: ListChecks,
       color: 'bg-green-500',
@@ -71,7 +72,16 @@ const menuItems = [
 
 
 export default function DashboardPage() {
-  const { totalSheep, totalExpenses, totalSales } = useFarm();
+  const { totalSheep, totalExpenses, totalSales, isLoading } = useFarm();
+  
+  if (isLoading) {
+    return (
+       <div className="flex h-[calc(100vh-80px)] w-full items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+  
   return (
     <>
       <section className="bg-primary text-primary-foreground">

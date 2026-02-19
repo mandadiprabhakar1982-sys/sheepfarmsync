@@ -166,7 +166,7 @@ export default function PurchasePage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {purchases.length > 0 ? (
+                  {purchases && purchases.length > 0 ? (
                     purchases.map((purchase) => (
                       <TableRow key={purchase.id}>
                         <TableCell>{purchase.villageName}</TableCell>

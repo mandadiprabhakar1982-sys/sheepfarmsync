@@ -211,7 +211,7 @@ export default function MedicinePage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {medicineExpenses.length > 0 ? (
+                  {medicineExpenses && medicineExpenses.length > 0 ? (
                     medicineExpenses.map((e) => (
                       <TableRow key={e.id}>
                         <TableCell>{e.date}</TableCell>

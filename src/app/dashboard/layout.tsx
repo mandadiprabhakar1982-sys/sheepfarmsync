@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Globe, Menu } from 'lucide-react';
+import { Globe, Menu, Loader2 } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { Nav } from '@/components/nav';
 import { UserNav } from '@/components/user-nav';
@@ -13,12 +13,32 @@ import {
 } from '@/components/ui/sheet';
 import { Toaster } from '@/components/ui/toaster';
 import { FarmProvider } from '@/context/FarmContext';
+import { useUser } from '@/firebase';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { user, isUserLoading } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isUserLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, isUserLoading, router]);
+
+  if (isUserLoading || !user) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <FarmProvider>
       <div className="flex min-h-screen w-full flex-col bg-background">

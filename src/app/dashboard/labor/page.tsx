@@ -236,7 +236,7 @@ export default function LaborPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {laborCosts.length > 0 ? (
+                  {laborCosts && laborCosts.length > 0 ? (
                     laborCosts.map((c) => (
                       <TableRow key={c.id}>
                         <TableCell>{c.date}</TableCell>

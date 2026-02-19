@@ -1,32 +1,37 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode, useMemo, useCallback, useEffect } from 'react';
+import { createContext, useContext, useState, ReactNode, useMemo, useCallback } from 'react';
 import type { LivestockPurchase, SalesTransaction, FeedCost, MedicineExpense, LaborCost, TrackedSheep } from '@/lib/types';
+import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { collection, doc } from 'firebase/firestore';
+import { setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 interface FarmContextType {
-  purchases: LivestockPurchase[];
+  purchases: LivestockPurchase[] | null;
   addPurchase: (purchase: Omit<LivestockPurchase, 'id'>) => void;
   deletePurchase: (id: string) => void;
   
-  sales: SalesTransaction[];
+  sales: SalesTransaction[] | null;
   addSale: (sale: Omit<SalesTransaction, 'id'>) => void;
   deleteSale: (id: string) => void;
   
-  feedCosts: FeedCost[];
+  feedCosts: FeedCost[] | null;
   addFeedCost: (cost: Omit<FeedCost, 'id'>) => void;
   deleteFeedCost: (id: string) => void;
 
-  medicineExpenses: MedicineExpense[];
+  medicineExpenses: MedicineExpense[] | null;
   addMedicineExpense: (expense: Omit<MedicineExpense, 'id'>) => void;
   deleteMedicineExpense: (id: string) => void;
 
-  laborCosts: LaborCost[];
+  laborCosts: LaborCost[] | null;
   addLaborCost: (cost: Omit<LaborCost, 'id'>) => void;
   deleteLaborCost: (id: string) => void;
 
-  trackedSheep: TrackedSheep[];
+  trackedSheep: TrackedSheep[] | null;
   addTrackedSheep: (sheep: Omit<TrackedSheep, 'id'>) => void;
   deleteTrackedSheep: (id: string) => void;
+  
+  isLoading: boolean;
 
   totalSheep: number;
   totalExpenses: number;
@@ -35,94 +40,87 @@ interface FarmContextType {
 
 const FarmContext = createContext<FarmContextType | undefined>(undefined);
 
-const FARM_DATA_KEY = 'farm-sync-data';
-
 export function FarmProvider({ children }: { children: ReactNode }) {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [purchases, setPurchases] = useState<LivestockPurchase[]>([]);
-  const [sales, setSales] = useState<SalesTransaction[]>([]);
-  const [feedCosts, setFeedCosts] = useState<FeedCost[]>([]);
-  const [medicineExpenses, setMedicineExpenses] = useState<MedicineExpense[]>([]);
-  const [laborCosts, setLaborCosts] = useState<LaborCost[]>([]);
+  const { user } = useUser();
+  const firestore = useFirestore();
+
+  const purchasesRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'livestockPurchases') : null, [firestore, user]);
+  const { data: purchases, isLoading: isLoadingPurchases } = useCollection<LivestockPurchase>(purchasesRef);
+
+  const salesRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'animalSales') : null, [firestore, user]);
+  const { data: sales, isLoading: isLoadingSales } = useCollection<SalesTransaction>(salesRef);
+  
+  const feedCostsRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'feedExpenses') : null, [firestore, user]);
+  const { data: feedCosts, isLoading: isLoadingFeedCosts } = useCollection<FeedCost>(feedCostsRef);
+
+  const medicineExpensesRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'medicineExpenses') : null, [firestore, user]);
+  const { data: medicineExpenses, isLoading: isLoadingMedicine } = useCollection<MedicineExpense>(medicineExpensesRef);
+
+  const laborCostsRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'laborExpenses') : null, [firestore, user]);
+  const { data: laborCosts, isLoading: isLoadingLabor } = useCollection<LaborCost>(laborCostsRef);
+  
+  // Note: trackedSheep is not a collection in firestore.rules
   const [trackedSheep, setTrackedSheep] = useState<TrackedSheep[]>([]);
 
-  useEffect(() => {
-    try {
-      const storedData = localStorage.getItem(FARM_DATA_KEY);
-      if (storedData) {
-        const data = JSON.parse(storedData);
-        setPurchases(data.purchases || []);
-        setSales(data.sales || []);
-        setFeedCosts(data.feedCosts || []);
-        setMedicineExpenses(data.medicineExpenses || []);
-        setLaborCosts(data.laborCosts || []);
-        setTrackedSheep(data.trackedSheep || []);
-      }
-    } catch (error) {
-      console.error("Failed to parse from localStorage", error);
-    } finally {
-      setIsLoaded(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (isLoaded) {
-      const dataToStore = JSON.stringify({
-        purchases,
-        sales,
-        feedCosts,
-        medicineExpenses,
-        laborCosts,
-        trackedSheep
-      });
-      localStorage.setItem(FARM_DATA_KEY, dataToStore);
-    }
-  }, [purchases, sales, feedCosts, medicineExpenses, laborCosts, trackedSheep, isLoaded]);
-
   const addPurchase = useCallback((purchase: Omit<LivestockPurchase, 'id'>) => {
-    const newPurchase = { ...purchase, id: crypto.randomUUID() };
-    setPurchases((prev) => [...prev, newPurchase]);
-  }, []);
+    if (!purchasesRef) return;
+    const newId = crypto.randomUUID();
+    const docRef = doc(purchasesRef, newId);
+    setDocumentNonBlocking(docRef, { ...purchase, id: newId }, {});
+  }, [purchasesRef]);
   
   const deletePurchase = useCallback((id: string) => {
-    setPurchases(currentPurchases => currentPurchases.filter(p => p.id !== id));
-  }, []);
+    if (!purchasesRef) return;
+    deleteDocumentNonBlocking(doc(purchasesRef, id));
+  }, [purchasesRef]);
 
   const addSale = useCallback((sale: Omit<SalesTransaction, 'id'>) => {
-    const newSale = { ...sale, id: crypto.randomUUID() };
-    setSales((prev) => [...prev, newSale]);
-  }, []);
+    if (!salesRef) return;
+    const newId = crypto.randomUUID();
+    const docRef = doc(salesRef, newId);
+    setDocumentNonBlocking(docRef, { ...sale, id: newId }, {});
+  }, [salesRef]);
   
   const deleteSale = useCallback((id: string) => {
-    setSales(currentSales => currentSales.filter(s => s.id !== id));
-  }, []);
+     if (!salesRef) return;
+    deleteDocumentNonBlocking(doc(salesRef, id));
+  }, [salesRef]);
   
   const addFeedCost = useCallback((cost: Omit<FeedCost, 'id'>) => {
-    const newCost = { ...cost, id: crypto.randomUUID() };
-    setFeedCosts(prev => [...prev, newCost]);
-  }, []);
+     if (!feedCostsRef) return;
+    const newId = crypto.randomUUID();
+    const docRef = doc(feedCostsRef, newId);
+    setDocumentNonBlocking(docRef, { ...cost, id: newId }, {});
+  }, [feedCostsRef]);
 
   const deleteFeedCost = useCallback((id: string) => {
-    setFeedCosts(prev => prev.filter(c => c.id !== id));
-  }, []);
+    if (!feedCostsRef) return;
+    deleteDocumentNonBlocking(doc(feedCostsRef, id));
+  }, [feedCostsRef]);
   
   const addMedicineExpense = useCallback((expense: Omit<MedicineExpense, 'id'>) => {
-    const newExpense = { ...expense, id: crypto.randomUUID() };
-    setMedicineExpenses(prev => [...prev, newExpense]);
-  }, []);
+    if (!medicineExpensesRef) return;
+    const newId = crypto.randomUUID();
+    const docRef = doc(medicineExpensesRef, newId);
+    setDocumentNonBlocking(docRef, { ...expense, id: newId }, {});
+  }, [medicineExpensesRef]);
 
   const deleteMedicineExpense = useCallback((id: string) => {
-    setMedicineExpenses(prev => prev.filter(e => e.id !== id));
-  }, []);
+    if (!medicineExpensesRef) return;
+    deleteDocumentNonBlocking(doc(medicineExpensesRef, id));
+  }, [medicineExpensesRef]);
   
   const addLaborCost = useCallback((cost: Omit<LaborCost, 'id'>) => {
-    const newCost = { ...cost, id: crypto.randomUUID() };
-    setLaborCosts(prev => [...prev, newCost]);
-  }, []);
+    if (!laborCostsRef) return;
+    const newId = crypto.randomUUID();
+    const docRef = doc(laborCostsRef, newId);
+    setDocumentNonBlocking(docRef, { ...cost, id: newId }, {});
+  }, [laborCostsRef]);
 
   const deleteLaborCost = useCallback((id: string) => {
-    setLaborCosts(prev => prev.filter(c => c.id !== id));
-  }, []);
+    if (!laborCostsRef) return;
+    deleteDocumentNonBlocking(doc(laborCostsRef, id));
+  }, [laborCostsRef]);
   
   const addTrackedSheep = useCallback((sheep: Omit<TrackedSheep, 'id'>) => {
     const newSheep = { ...sheep, id: crypto.randomUUID() };
@@ -133,23 +131,24 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     setTrackedSheep(prev => prev.filter(a => a.id !== id));
   }, []);
 
+  const isLoading = isLoadingPurchases || isLoadingSales || isLoadingFeedCosts || isLoadingMedicine || isLoadingLabor;
 
   const totalSheep = useMemo(() => {
-    const purchased = purchases.reduce((sum, p) => sum + p.animalCount, 0);
-    const sold = sales.reduce((sum, s) => sum + s.animalCount, 0);
+    const purchased = (purchases || []).reduce((sum, p) => sum + p.animalCount, 0);
+    const sold = (sales || []).reduce((sum, s) => sum + s.animalCount, 0);
     return purchased - sold;
   }, [purchases, sales]);
   
   const totalExpenses = useMemo(() => {
-    const purchaseExpense = purchases.reduce((sum, p) => sum + p.purchasePrice, 0);
-    const feedExpense = feedCosts.reduce((sum, f) => sum + f.cost, 0);
-    const medicineExpense = medicineExpenses.reduce((sum, m) => sum + m.totalAmountSpent, 0);
-    const laborExpense = laborCosts.reduce((sum, l) => sum + l.totalLaborCosts, 0);
+    const purchaseExpense = (purchases || []).reduce((sum, p) => sum + p.purchasePrice, 0);
+    const feedExpense = (feedCosts || []).reduce((sum, f) => sum + f.cost, 0);
+    const medicineExpense = (medicineExpenses || []).reduce((sum, m) => sum + m.totalAmountSpent, 0);
+    const laborExpense = (laborCosts || []).reduce((sum, l) => sum + l.totalLaborCosts, 0);
     return purchaseExpense + feedExpense + medicineExpense + laborExpense;
   }, [purchases, feedCosts, medicineExpenses, laborCosts]);
 
   const totalSales = useMemo(() => {
-    return sales.reduce((sum, s) => sum + s.totalAmountReceived, 0);
+    return (sales || []).reduce((sum, s) => sum + s.totalAmountReceived, 0);
   }, [sales]);
 
 
@@ -172,6 +171,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     trackedSheep,
     addTrackedSheep,
     deleteTrackedSheep,
+    isLoading,
     totalSheep,
     totalExpenses,
     totalSales,
@@ -179,7 +179,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
 
   return (
     <FarmContext.Provider value={value}>
-      {isLoaded ? children : null}
+      {children}
     </FarmContext.Provider>
   );
 }

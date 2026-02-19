@@ -14,7 +14,7 @@ export default function AnalysisPage() {
   const [analysis, setAnalysis] = useState<AnalyzeFarmCostsOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { purchases, medicineExpenses, feedCosts, laborCosts } = useFarm();
+  const { purchases, medicineExpenses, feedCosts, laborCosts, isLoading: isFarmDataLoading } = useFarm();
 
   const handleAnalysis = async () => {
     setIsLoading(true);
@@ -22,10 +22,10 @@ export default function AnalysisPage() {
     setAnalysis(null);
     try {
       const input = {
-        livestockPurchases: purchases,
-        medicineExpenses: medicineExpenses,
-        feedCosts: feedCosts,
-        laborCosts: laborCosts,
+        livestockPurchases: purchases || [],
+        medicineExpenses: medicineExpenses || [],
+        feedCosts: feedCosts || [],
+        laborCosts: laborCosts || [],
       };
       const result = await analyzeFarmCosts(input);
       setAnalysis(result);
@@ -55,14 +55,14 @@ export default function AnalysisPage() {
           <CardContent className="text-center">
             <Button
               onClick={handleAnalysis}
-              disabled={isLoading}
+              disabled={isLoading || isFarmDataLoading}
               size="lg"
               className="bg-accent text-accent-foreground hover:bg-accent/90"
             >
-              {isLoading ? (
+              {isLoading || isFarmDataLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Analyzing...
+                  {isFarmDataLoading ? 'Loading Farm Data...' : 'Analyzing...'}
                 </>
               ) : (
                 <>

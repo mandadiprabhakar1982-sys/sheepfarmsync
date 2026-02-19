@@ -201,7 +201,7 @@ export default function SalesPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {sales.length > 0 ? (
+                  {sales && sales.length > 0 ? (
                     sales.map((t) => (
                       <TableRow key={t.id}>
                         <TableCell>{t.date}</TableCell>
