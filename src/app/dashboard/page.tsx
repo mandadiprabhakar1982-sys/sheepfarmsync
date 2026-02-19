@@ -104,7 +104,7 @@ export default function DashboardPage() {
                 <TableRow>
                   <TableCell>Sale</TableCell>
                   <TableCell>Sold 2 Goats to B. Smith</TableCell>
-                  <TableCell className="text-right text-green-600">+₹1,500.00</TableCell>
+                  <TableCell className="text-right text-primary">+₹1,500.00</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell>Purchase</TableCell>

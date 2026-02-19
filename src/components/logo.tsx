@@ -5,7 +5,7 @@ export function Logo({ className }: { className?: string }) {
   return (
     <div className={cn('flex items-center gap-2', className)}>
       <Leaf className="h-6 w-6 text-primary" />
-      <h1 className="text-lg font-bold text-primary">SheepFarmSync</h1>
+      <h1 className="text-lg font-bold text-primary">FarmSync</h1>
     </div>
   );
 }
