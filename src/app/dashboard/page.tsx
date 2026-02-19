@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/table';
 import {
   Users,
-  Tractor,
+  Leaf,
   Syringe,
   Wheat,
   DollarSign,
@@ -35,9 +35,9 @@ export default function DashboardPage() {
       />
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          title="Total Animals"
+          title="Total Livestock"
           value="15"
-          icon={Tractor}
+          icon={Leaf}
           description="Total livestock count"
         />
         <StatCard
@@ -103,12 +103,12 @@ export default function DashboardPage() {
               <TableBody>
                 <TableRow>
                   <TableCell>Sale</TableCell>
-                  <TableCell>Sold 2 Goats to B. Smith</TableCell>
+                  <TableCell>Sold 2 Livestock to B. Smith</TableCell>
                   <TableCell className="text-right text-primary">+₹1,500.00</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell>Purchase</TableCell>
-                  <TableCell>Bought 5 Sheep from J. Doe</TableCell>
+                  <TableCell>Bought 5 Livestock from J. Doe</TableCell>
                   <TableCell className="text-right text-destructive">-₹2,800.00</TableCell>
                 </TableRow>
                 <TableRow>

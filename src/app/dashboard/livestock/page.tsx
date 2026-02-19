@@ -75,7 +75,7 @@ export default function LivestockPage() {
     <>
       <PageHeader
         title="Livestock Purchases"
-        description="Log the purchase of new animals for your farm."
+        description="Log the purchase of new livestock for your farm."
       />
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="lg:col-span-1">
