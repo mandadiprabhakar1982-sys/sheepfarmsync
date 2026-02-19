@@ -2,7 +2,6 @@ import Link from 'next/link';
 import {
   BarChart,
   ListChecks,
-  ShoppingBag,
   HeartPulse,
   Wheat,
   Users,
@@ -29,13 +28,6 @@ const menuItems = [
       description: 'WEIGHT & GROWTH LOGS',
       icon: ListChecks,
       color: 'bg-green-500',
-      href: '/dashboard/livestock',
-    },
-    {
-      title: 'PURCHASE ANIMALS',
-      description: 'NEW STOCK ACQUISITIONS',
-      icon: ShoppingBag,
-      color: 'bg-orange-400',
       href: '/dashboard/livestock',
     },
     {
