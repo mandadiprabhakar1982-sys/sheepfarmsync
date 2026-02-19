@@ -1,8 +1,8 @@
 'use client';
-import { useState } from 'react';
-import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { doc } from 'firebase/firestore';
+import { Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,11 +10,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Logo } from '@/components/logo';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useAuth, useFirestore } from '@/firebase';
+import { useAuth, useFirestore, useUser } from '@/firebase';
 import { initiateEmailSignIn, initiateEmailSignUp } from '@/firebase/non-blocking-login';
 import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { useToast } from '@/hooks/use-toast';
-import { onAuthStateChanged } from 'firebase/auth';
 
 
 export default function LoginPage() {
@@ -22,6 +21,7 @@ export default function LoginPage() {
     const firestore = useFirestore();
     const router = useRouter();
     const { toast } = useToast();
+    const { user, isUserLoading } = useUser();
 
     const [loginEmail, setLoginEmail] = useState('');
     const [loginPassword, setLoginPassword] = useState('');
@@ -29,9 +29,31 @@ export default function LoginPage() {
     const [signupPassword, setSignupPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    useEffect(() => {
+        if (!isUserLoading && user) {
+            // This is a new user if creation time and last sign in time are the same.
+            if (user.metadata.creationTime === user.metadata.lastSignInTime) {
+                const userDocRef = doc(firestore, `users/${user.uid}`);
+                setDocumentNonBlocking(userDocRef, { email: user.email, createdAt: new Date() }, {});
+                toast({
+                    title: 'Welcome!',
+                    description: 'Your account has been created.',
+                });
+            }
+            router.push('/dashboard');
+        }
+    }, [user, isUserLoading, firestore, router, toast]);
+
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
-        initiateEmailSignIn(auth, loginEmail, loginPassword);
+        setIsSubmitting(true);
+        initiateEmailSignIn(auth, loginEmail, loginPassword)
+            .catch(() => {
+                // On failure, the error toast is shown by initiateEmailSignIn, just reset the form state.
+                setIsSubmitting(false);
+            });
     };
 
     const handleSignUp = (e: React.FormEvent) => {
@@ -44,25 +66,22 @@ export default function LoginPage() {
             });
             return;
         }
-        initiateEmailSignUp(auth, signupEmail, signupPassword);
+        setIsSubmitting(true);
+        initiateEmailSignUp(auth, signupEmail, signupPassword)
+            .catch(() => {
+                 // On failure, the error toast is shown by initiateEmailSignUp, just reset the form state.
+                setIsSubmitting(false);
+            });
     };
-    
-    // Listen for auth state changes to create user doc and redirect
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            // Check if this is a new user (first login)
-            if (user.metadata.creationTime === user.metadata.lastSignInTime) {
-                const userDocRef = doc(firestore, `users/${user.uid}`);
-                setDocumentNonBlocking(userDocRef, { email: user.email, createdAt: new Date() }, {});
-                 toast({
-                    title: 'Welcome!',
-                    description: 'Your account has been created.',
-                });
-            }
-            router.push('/dashboard');
-        }
-    });
 
+    if (isUserLoading) {
+        return (
+            <div className="flex h-screen w-full items-center justify-center bg-background">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        );
+    }
+    
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
@@ -76,21 +95,24 @@ export default function LoginPage() {
         <CardContent>
             <Tabs defaultValue="login">
                 <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="login">Login</TabsTrigger>
-                    <TabsTrigger value="signup">Sign Up</TabsTrigger>
+                    <TabsTrigger value="login" disabled={isSubmitting}>Login</TabsTrigger>
+                    <TabsTrigger value="signup" disabled={isSubmitting}>Sign Up</TabsTrigger>
                 </TabsList>
                 <TabsContent value="login">
                     <form onSubmit={handleLogin}>
                         <div className="grid gap-4 py-4">
                             <div className="grid gap-2">
                                 <Label htmlFor="login-email">Email</Label>
-                                <Input id="login-email" type="email" placeholder="m@example.com" required value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} />
+                                <Input id="login-email" type="email" placeholder="m@example.com" required value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} disabled={isSubmitting} />
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="login-password">Password</Label>
-                                <Input id="login-password" type="password" required value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} />
+                                <Input id="login-password" type="password" required value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} disabled={isSubmitting} />
                             </div>
-                            <Button type="submit" className="w-full">Login</Button>
+                            <Button type="submit" className="w-full" disabled={isSubmitting}>
+                                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                Login
+                            </Button>
                         </div>
                     </form>
                 </TabsContent>
@@ -99,17 +121,20 @@ export default function LoginPage() {
                         <div className="grid gap-4 py-4">
                             <div className="grid gap-2">
                                 <Label htmlFor="signup-email">Email</Label>
-                                <Input id="signup-email" type="email" placeholder="m@example.com" required value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} />
+                                <Input id="signup-email" type="email" placeholder="m@example.com" required value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} disabled={isSubmitting} />
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="signup-password">Password</Label>
-                                <Input id="signup-password" type="password" required value={signupPassword} onChange={(e) => setSignupPassword(e.target.value)} />
+                                <Input id="signup-password" type="password" required value={signupPassword} onChange={(e) => setSignupPassword(e.target.value)} disabled={isSubmitting} />
                             </div>
                              <div className="grid gap-2">
                                 <Label htmlFor="confirm-password">Confirm Password</Label>
-                                <Input id="confirm-password" type="password" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+                                <Input id="confirm-password" type="password" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} disabled={isSubmitting} />
                             </div>
-                            <Button type="submit" className="w-full">Sign Up</Button>
+                            <Button type="submit" className="w-full" disabled={isSubmitting}>
+                                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                Sign Up
+                            </Button>
                         </div>
                     </form>
                 </TabsContent>
