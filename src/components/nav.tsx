@@ -11,11 +11,13 @@ import {
   BarChart,
   BadgeIndianRupee,
   Skull,
+  LayoutDashboard,
 } from 'lucide-react';
 import { SheepIcon } from '@/components/logo';
 
 const links = [
   { href: '/dashboard', label: 'Home', icon: Home },
+  { href: '/dashboard/overview', label: 'Overview', icon: LayoutDashboard },
   { href: '/dashboard/livestock', label: 'Sheep Management', icon: SheepIcon },
   { href: '/dashboard/purchase', label: 'Purchase Sheep', icon: Package },
   { href: '/dashboard/medicine', label: 'Medicine Cost', icon: Syringe },
