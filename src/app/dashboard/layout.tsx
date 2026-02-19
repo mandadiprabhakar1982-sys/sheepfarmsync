@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import {
   Sheet,
   SheetContent,
+  SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { Toaster } from '@/components/ui/toaster';
@@ -64,6 +65,7 @@ export default function DashboardLayout({
                 </Button>
               </SheetTrigger>
               <SheetContent side="left">
+                <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
                 <nav className="grid gap-6 text-lg font-medium">
                   <Link
                     href="/dashboard"
