@@ -142,7 +142,7 @@ export default function SalesPage() {
                   />
                   <FormField control={form.control} name="salePrice" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Sale Price ($)</FormLabel>
+                        <FormLabel>Sale Price (₹)</FormLabel>
                         <FormControl><Input type="number" step="0.01" {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
@@ -150,7 +150,7 @@ export default function SalesPage() {
                   />
                   <FormField control={form.control} name="totalAmountReceived" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Amount Received ($)</FormLabel>
+                        <FormLabel>Amount Received (₹)</FormLabel>
                         <FormControl><Input type="number" step="0.01" {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
@@ -158,7 +158,7 @@ export default function SalesPage() {
                   />
                    <FormField control={form.control} name="outstandingDues" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Outstanding Dues ($)</FormLabel>
+                        <FormLabel>Outstanding Dues (₹)</FormLabel>
                         <FormControl><Input type="number" step="0.01" {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
@@ -196,9 +196,9 @@ export default function SalesPage() {
                       <TableRow key={t.id}>
                         <TableCell>{t.date}</TableCell>
                         <TableCell>{t.buyerName}</TableCell>
-                        <TableCell>${t.salePrice.toFixed(2)}</TableCell>
-                        <TableCell>${t.totalAmountReceived.toFixed(2)}</TableCell>
-                        <TableCell className={t.outstandingDues > 0 ? 'text-red-600' : ''}>${t.outstandingDues.toFixed(2)}</TableCell>
+                        <TableCell>₹{t.salePrice.toFixed(2)}</TableCell>
+                        <TableCell>₹{t.totalAmountReceived.toFixed(2)}</TableCell>
+                        <TableCell className={t.outstandingDues > 0 ? 'text-red-600' : ''}>₹{t.outstandingDues.toFixed(2)}</TableCell>
                          <TableCell className='text-right'>
                             <Button variant="ghost" size="icon" onClick={() => deleteTransaction(t.id)}>
                                 <Trash2 className="h-4 w-4 text-destructive" />

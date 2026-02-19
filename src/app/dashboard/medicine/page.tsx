@@ -150,7 +150,7 @@ export default function MedicinePage() {
                     name="costOfMedicines"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Cost of Medicines ($)</FormLabel>
+                        <FormLabel>Cost of Medicines (₹)</FormLabel>
                         <FormControl>
                           <Input type="number" step="0.01" {...field} />
                         </FormControl>
@@ -163,7 +163,7 @@ export default function MedicinePage() {
                     name="totalAmountSpent"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Total Amount Spent ($)</FormLabel>
+                        <FormLabel>Total Amount Spent (₹)</FormLabel>
                         <FormControl>
                           <Input type="number" step="0.01" {...field} />
                         </FormControl>
@@ -176,7 +176,7 @@ export default function MedicinePage() {
                     name="outstandingDues"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Outstanding Dues ($)</FormLabel>
+                        <FormLabel>Outstanding Dues (₹)</FormLabel>
                         <FormControl>
                           <Input type="number" step="0.01" {...field} />
                         </FormControl>
@@ -216,10 +216,10 @@ export default function MedicinePage() {
                       <TableRow key={e.id}>
                         <TableCell>{e.date}</TableCell>
                         <TableCell>{e.shopName}</TableCell>
-                        <TableCell>${e.costOfMedicines.toFixed(2)}</TableCell>
-                        <TableCell>${e.totalAmountSpent.toFixed(2)}</TableCell>
+                        <TableCell>₹{e.costOfMedicines.toFixed(2)}</TableCell>
+                        <TableCell>₹{e.totalAmountSpent.toFixed(2)}</TableCell>
                         <TableCell className={e.outstandingDues > 0 ? 'text-red-600' : ''}>
-                          ${e.outstandingDues.toFixed(2)}
+                          ₹{e.outstandingDues.toFixed(2)}
                         </TableCell>
                          <TableCell className='text-right'>
                             <Button variant="ghost" size="icon" onClick={() => deleteExpense(e.id)}>

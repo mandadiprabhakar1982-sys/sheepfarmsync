@@ -162,7 +162,7 @@ export default function LaborPage() {
                   </div>
                   <FormField control={form.control} name="advancePayments" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Advance Payments ($)</FormLabel>
+                        <FormLabel>Advance Payments (₹)</FormLabel>
                         <FormControl><Input type="number" step="0.01" {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
@@ -170,7 +170,7 @@ export default function LaborPage() {
                   />
                   <FormField control={form.control} name="foodCosts" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Food Costs ($)</FormLabel>
+                        <FormLabel>Food Costs (₹)</FormLabel>
                         <FormControl><Input type="number" step="0.01" {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
@@ -178,7 +178,7 @@ export default function LaborPage() {
                   />
                   <FormField control={form.control} name="fuelCosts" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Fuel Costs ($)</FormLabel>
+                        <FormLabel>Fuel Costs (₹)</FormLabel>
                         <FormControl><Input type="number" step="0.01" {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
@@ -186,7 +186,7 @@ export default function LaborPage() {
                   />
                   <FormField control={form.control} name="totalLaborCosts" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Total Labor Costs ($)</FormLabel>
+                        <FormLabel>Total Labor Costs (₹)</FormLabel>
                         <FormControl><Input type="number" step="0.01" {...field} readOnly className="bg-muted" /></FormControl>
                         <FormMessage />
                       </FormItem>
@@ -224,9 +224,9 @@ export default function LaborPage() {
                       <TableRow key={c.id}>
                         <TableCell>{c.date}</TableCell>
                         <TableCell>{c.numberOfLaborers}</TableCell>
-                        <TableCell>${c.advancePayments.toFixed(2)}</TableCell>
-                        <TableCell>${(c.foodCosts + c.fuelCosts).toFixed(2)}</TableCell>
-                        <TableCell>${c.totalLaborCosts.toFixed(2)}</TableCell>
+                        <TableCell>₹{c.advancePayments.toFixed(2)}</TableCell>
+                        <TableCell>₹{(c.foodCosts + c.fuelCosts).toFixed(2)}</TableCell>
+                        <TableCell>₹{c.totalLaborCosts.toFixed(2)}</TableCell>
                          <TableCell className='text-right'>
                             <Button variant="ghost" size="icon" onClick={() => deleteCost(c.id)}>
                                 <Trash2 className="h-4 w-4 text-destructive" />

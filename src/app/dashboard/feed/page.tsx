@@ -167,7 +167,7 @@ export default function FeedPage() {
                     name="cost"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Cost ($)</FormLabel>
+                        <FormLabel>Cost (₹)</FormLabel>
                         <FormControl>
                           <Input type="number" step="0.01" {...field} />
                         </FormControl>
@@ -219,7 +219,7 @@ export default function FeedPage() {
                       <TableRow key={c.id}>
                         <TableCell>{c.date}</TableCell>
                         <TableCell>{c.feedType}</TableCell>
-                        <TableCell>${c.cost.toFixed(2)}</TableCell>
+                        <TableCell>₹{c.cost.toFixed(2)}</TableCell>
                         <TableCell>{c.quantity}</TableCell>
                          <TableCell className='text-right'>
                             <Button variant="ghost" size="icon" onClick={() => deleteCost(c.id)}>

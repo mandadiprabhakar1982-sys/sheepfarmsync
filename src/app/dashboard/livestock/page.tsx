@@ -131,7 +131,7 @@ export default function LivestockPage() {
                     name="purchasePrice"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Purchase Price ($)</FormLabel>
+                        <FormLabel>Purchase Price (₹)</FormLabel>
                         <FormControl>
                           <Input type="number" step="0.01" {...field} />
                         </FormControl>
@@ -144,7 +144,7 @@ export default function LivestockPage() {
                     name="amountPaid"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Amount Paid ($)</FormLabel>
+                        <FormLabel>Amount Paid (₹)</FormLabel>
                         <FormControl>
                           <Input type="number" step="0.01" {...field} />
                         </FormControl>
@@ -186,10 +186,10 @@ export default function LivestockPage() {
                         <TableCell>{p.villageName}</TableCell>
                         <TableCell>{p.farmerName}</TableCell>
                         <TableCell>{p.animalCount}</TableCell>
-                        <TableCell>${p.purchasePrice.toFixed(2)}</TableCell>
-                        <TableCell>${p.amountPaid.toFixed(2)}</TableCell>
+                        <TableCell>₹{p.purchasePrice.toFixed(2)}</TableCell>
+                        <TableCell>₹{p.amountPaid.toFixed(2)}</TableCell>
                         <TableCell className={p.purchasePrice - p.amountPaid > 0 ? 'text-red-600' : ''}>
-                          ${(p.purchasePrice - p.amountPaid).toFixed(2)}
+                          ₹{(p.purchasePrice - p.amountPaid).toFixed(2)}
                         </TableCell>
                         <TableCell className='text-right'>
                             <Button variant="ghost" size="icon" onClick={() => deletePurchase(p.id)}>
