@@ -18,12 +18,12 @@ import { SheepIcon } from '@/components/logo';
 const links = [
   { href: '/dashboard', label: 'Home', icon: Home },
   { href: '/dashboard/overview', label: 'Overview', icon: LayoutDashboard },
-  { href: '/dashboard/livestock', label: 'Sheep Management', icon: SheepIcon },
-  { href: '/dashboard/purchase', label: 'Purchase Sheep', icon: Package },
-  { href: '/dashboard/medicine', label: 'Medicine Cost', icon: Syringe },
-  { href: '/dashboard/feed', label: 'Feed Cost', icon: Wheat },
-  { href: '/dashboard/labor', label: 'Employee Cost', icon: Users },
-  { href: '/dashboard/sales', label: 'Sheep Sale', icon: BadgeIndianRupee },
+  { href: '/dashboard/livestock', label: 'Sheep', icon: SheepIcon },
+  { href: '/dashboard/purchase', label: 'Purchase', icon: Package },
+  { href: '/dashboard/medicine', label: 'Medicine', icon: Syringe },
+  { href: '/dashboard/feed', label: 'Feed', icon: Wheat },
+  { href: '/dashboard/labor', label: 'Labor', icon: Users },
+  { href: '/dashboard/sales', label: 'Sales', icon: BadgeIndianRupee },
   { href: '/dashboard/mortality', label: 'Mortality', icon: Skull },
   { href: '/dashboard/analysis', label: 'Reports', icon: BarChart },
 ];
