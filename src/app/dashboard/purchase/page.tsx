@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -26,6 +26,7 @@ const purchaseFormSchema = z.object({
   farmerName: z.string().min(1, 'Farmer name is required'),
   animalCount: z.coerce.number().int().positive('Must be a positive number'),
   purchasePrice: z.coerce.number().positive('Must be a positive number'),
+  transportCost: z.coerce.number().nonnegative('Cannot be negative').optional(),
   amountPaid: z.coerce.number().nonnegative('Cannot be negative'),
   dueAmount: z.coerce.number().nonnegative(),
   payingTimePeriod: z.string().optional(),
@@ -37,6 +38,11 @@ export default function PurchasePage() {
   const { toast } = useToast();
   const { purchases, addPurchase, deletePurchase } = useFarm();
 
+  const sortedPurchases = useMemo(() => {
+    if (!purchases) return [];
+    return [...purchases].sort((a, b) => new Date(b.purchaseDate).getTime() - new Date(a.purchaseDate).getTime());
+  }, [purchases]);
+
   const purchaseForm = useForm<PurchaseFormData>({
     resolver: zodResolver(purchaseFormSchema),
     defaultValues: {
@@ -44,6 +50,7 @@ export default function PurchasePage() {
       farmerName: '',
       animalCount: 1,
       purchasePrice: 0,
+      transportCost: 0,
       amountPaid: 0,
       dueAmount: 0,
       payingTimePeriod: '',
@@ -174,6 +181,13 @@ export default function PurchasePage() {
                       </FormItem>
                     )} />
                   </div>
+                  <FormField control={purchaseForm.control} name="transportCost" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Transport Cost (₹)</FormLabel>
+                      <FormControl><Input type="number" step="0.01" placeholder="e.g., 500" {...field} value={field.value ?? ''} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
                   <FormField control={purchaseForm.control} name="dueAmount" render={({ field }) => (
                     <FormItem>
                       <FormLabel>Due Amount (₹)</FormLabel>
@@ -211,20 +225,22 @@ export default function PurchasePage() {
                     <TableHead>Farmer</TableHead>
                     <TableHead>Sheep</TableHead>
                     <TableHead>Price</TableHead>
+                    <TableHead>Transport</TableHead>
                     <TableHead>Paid</TableHead>
                     <TableHead>Due</TableHead>
                     <TableHead className="text-right">Action</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {purchases && purchases.length > 0 ? (
-                    purchases.map((purchase) => (
+                  {sortedPurchases && sortedPurchases.length > 0 ? (
+                    sortedPurchases.map((purchase) => (
                       <TableRow key={purchase.id}>
                         <TableCell>{purchase.purchaseDate}</TableCell>
                         <TableCell>{purchase.villageName}</TableCell>
                         <TableCell>{purchase.farmerName}</TableCell>
                         <TableCell>{purchase.animalCount}</TableCell>
                         <TableCell>₹{purchase.purchasePrice.toFixed(2)}</TableCell>
+                        <TableCell>₹{(purchase.transportCost || 0).toFixed(2)}</TableCell>
                         <TableCell>₹{purchase.amountPaid.toFixed(2)}</TableCell>
                         <TableCell className={purchase.dueAmount > 0 ? 'text-destructive' : ''}>₹{purchase.dueAmount.toFixed(2)}</TableCell>
                         <TableCell className="text-right">
@@ -236,7 +252,7 @@ export default function PurchasePage() {
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={8} className="text-center">No purchases recorded yet.</TableCell>
+                      <TableCell colSpan={9} className="text-center">No purchases recorded yet.</TableCell>
                     </TableRow>
                   )}
                 </TableBody>
@@ -248,3 +264,5 @@ export default function PurchasePage() {
     </div>
   );
 }
+
+    

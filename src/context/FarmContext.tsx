@@ -140,7 +140,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   }, [purchases, sales]);
   
   const totalExpenses = useMemo(() => {
-    const purchaseExpense = (purchases || []).reduce((sum, p) => sum + p.purchasePrice, 0);
+    const purchaseExpense = (purchases || []).reduce((sum, p) => sum + p.purchasePrice + (p.transportCost || 0), 0);
     const feedExpense = (feedCosts || []).reduce((sum, f) => sum + f.cost, 0);
     const medicineExpense = (medicineExpenses || []).reduce((sum, m) => sum + m.totalAmountSpent, 0);
     const laborExpense = (laborCosts || []).reduce((sum, l) => sum + l.totalLaborCosts, 0);
@@ -191,3 +191,5 @@ export function useFarm() {
   }
   return context;
 }
+
+    
