@@ -76,7 +76,7 @@ export default function LaborPage() {
 
   useEffect(() => {
     const [daily, monthly, num, advance, food, fuel] = watchedFields;
-    const totalWages = (daily || 0) * (num || 1) + (monthly || 0);
+    const totalWages = ((daily || 0) + (monthly || 0)) * (num || 1);
     const total = totalWages + (advance || 0) + (food || 0) + (fuel || 0);
     form.setValue('totalLaborCosts', total);
   }, [watchedFields, form]);
@@ -161,7 +161,7 @@ export default function LaborPage() {
                   <div className="grid grid-cols-2 gap-4">
                     <FormField control={form.control} name="dailyWages" render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Daily Wages</FormLabel>
+                          <FormLabel>Daily Wages per Employee</FormLabel>
                           <FormControl><Input type="number" step="0.01" {...field} /></FormControl>
                           <FormMessage />
                         </FormItem>
@@ -169,7 +169,7 @@ export default function LaborPage() {
                     />
                     <FormField control={form.control} name="monthlyWages" render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Monthly Wages</FormLabel>
+                          <FormLabel>Monthly Wages per Employee</FormLabel>
                           <FormControl><Input type="number" step="0.01" {...field} /></FormControl>
                           <FormMessage />
                         </FormItem>
