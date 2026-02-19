@@ -38,6 +38,7 @@ interface FarmContextType {
   deadAnimals: DeadAnimal[] | null;
   addDeadAnimal: (animal: Omit<DeadAnimal, 'id'>) => void;
   deleteDeadAnimal: (id: string) => void;
+  updateDeadAnimal: (id: string, data: Omit<DeadAnimal, 'id'>) => void;
 
   farmExpenses: FarmExpense[] | null;
   addFarmExpense: (expense: Omit<FarmExpense, 'id'>) => void;
@@ -195,6 +196,12 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     deleteDocumentNonBlocking(doc(deadAnimalsRef, id));
   }, [deadAnimalsRef]);
 
+  const updateDeadAnimal = useCallback((id: string, data: Omit<DeadAnimal, 'id'>) => {
+    if (!deadAnimalsRef) return;
+    const docRef = doc(deadAnimalsRef, id);
+    updateDocumentNonBlocking(docRef, data);
+  }, [deadAnimalsRef]);
+
   const addFarmExpense = useCallback((expense: Omit<FarmExpense, 'id'>) => {
     if (!farmExpensesRef) return;
     const newId = crypto.randomUUID();
@@ -281,6 +288,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     deadAnimals,
     addDeadAnimal,
     deleteDeadAnimal,
+    updateDeadAnimal,
     farmExpenses,
     addFarmExpense,
     deleteFarmExpense,

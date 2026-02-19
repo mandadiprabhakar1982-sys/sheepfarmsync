@@ -3,8 +3,9 @@
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { PlusCircle, Calendar as CalendarIcon, Trash2 } from 'lucide-react';
+import { PlusCircle, Calendar as CalendarIcon, Trash2, Pencil } from 'lucide-react';
 import { format } from 'date-fns';
+import { useState, useEffect, useMemo } from 'react';
 
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
@@ -28,10 +29,20 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useFarm } from '@/context/FarmContext';
 import { Textarea } from '@/components/ui/textarea';
+import type { DeadAnimal } from '@/lib/types';
+
 
 const formSchema = z.object({
   dateOfDeath: z.date({ required_error: 'A date is required.' }),
@@ -45,7 +56,10 @@ type MortalityFormData = z.infer<typeof formSchema>;
 
 export default function MortalityPage() {
   const { toast } = useToast();
-  const { deadAnimals, addDeadAnimal, deleteDeadAnimal } = useFarm();
+  const { deadAnimals, addDeadAnimal, deleteDeadAnimal, updateDeadAnimal } = useFarm();
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingDeadAnimal, setEditingDeadAnimal] = useState<DeadAnimal | null>(null);
+
   
   const form = useForm<MortalityFormData>({
     resolver: zodResolver(formSchema),
@@ -57,6 +71,25 @@ export default function MortalityPage() {
     },
   });
 
+  const editForm = useForm<MortalityFormData>({
+    resolver: zodResolver(formSchema),
+  });
+
+  const sortedDeadAnimals = useMemo(() => {
+    if (!deadAnimals) return [];
+    return [...deadAnimals].sort((a, b) => new Date(b.dateOfDeath).getTime() - new Date(a.dateOfDeath).getTime());
+  }, [deadAnimals]);
+
+  useEffect(() => {
+    if (editingDeadAnimal) {
+      editForm.reset({
+        ...editingDeadAnimal,
+        dateOfDeath: new Date(editingDeadAnimal.dateOfDeath),
+      });
+    }
+  }, [editingDeadAnimal, editForm]);
+
+
   const onSubmit: SubmitHandler<MortalityFormData> = (data) => {
     const newRecord = { ...data, dateOfDeath: format(data.dateOfDeath, 'yyyy-MM-dd') };
     addDeadAnimal(newRecord);
@@ -67,6 +100,18 @@ export default function MortalityPage() {
     });
   };
   
+  const onEditSubmit: SubmitHandler<MortalityFormData> = (data) => {
+    if (!editingDeadAnimal) return;
+    const updatedData = { ...data, dateOfDeath: format(data.dateOfDeath, 'yyyy-MM-dd') };
+    updateDeadAnimal(editingDeadAnimal.id, updatedData);
+    setIsEditDialogOpen(false);
+    setEditingDeadAnimal(null);
+    toast({
+      title: 'Updated!',
+      description: 'Mortality record has been updated successfully.',
+    });
+  };
+
   const handleDeleteRecord = (id: string) => {
     deleteDeadAnimal(id);
      toast({
@@ -75,6 +120,12 @@ export default function MortalityPage() {
       variant: 'destructive'
     });
   }
+
+  const handleEditClick = (animal: DeadAnimal) => {
+    setEditingDeadAnimal(animal);
+    setIsEditDialogOpen(true);
+  };
+
 
   return (
     <div className="container mx-auto py-8">
@@ -212,8 +263,8 @@ export default function MortalityPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {deadAnimals && deadAnimals.length > 0 ? (
-                    deadAnimals.map((animal) => (
+                  {sortedDeadAnimals && sortedDeadAnimals.length > 0 ? (
+                    sortedDeadAnimals.map((animal) => (
                       <TableRow key={animal.id}>
                         <TableCell>{animal.dateOfDeath}</TableCell>
                         <TableCell>{animal.sheepCount}</TableCell>
@@ -221,9 +272,14 @@ export default function MortalityPage() {
                         <TableCell>{animal.causeOfDeath}</TableCell>
                         <TableCell>{animal.notes || 'N/A'}</TableCell>
                          <TableCell className='text-right'>
-                            <Button variant="ghost" size="icon" onClick={() => handleDeleteRecord(animal.id)}>
-                                <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
+                            <div className="flex items-center justify-end">
+                              <Button variant="ghost" size="icon" onClick={() => handleEditClick(animal)}>
+                                  <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button variant="ghost" size="icon" onClick={() => handleDeleteRecord(animal.id)}>
+                                  <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </div>
                         </TableCell>
                       </TableRow>
                     ))
@@ -240,6 +296,110 @@ export default function MortalityPage() {
           </Card>
         </div>
       </div>
+       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Mortality Record</DialogTitle>
+            <DialogDescription>
+              Update the details of the mortality record. Click save when you're done.
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...editForm}>
+            <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-4 py-4">
+              <FormField
+                control={editForm.control}
+                name="dateOfDeath"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Date of Death</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={'outline'}
+                            className={cn(
+                              'w-full pl-3 text-left font-normal',
+                              !field.value && 'text-muted-foreground'
+                            )}
+                          >
+                            {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={editForm.control}
+                name="sheepCount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Sheep Count</FormLabel>
+                    <FormControl>
+                      <Input type="number" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={editForm.control}
+                name="tagId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tag ID (Optional)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., A-001" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={editForm.control}
+                name="causeOfDeath"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Cause of Death</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., Illness, predator" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={editForm.control}
+                name="notes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Notes (Optional)</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="Any additional details..." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <DialogFooter>
+                <Button type="submit">Save Changes</Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
