@@ -210,14 +210,16 @@ export function FarmProvider({ children }: { children: ReactNode }) {
 
   const isLoading = isLoadingPurchases || isLoadingSales || isLoadingFeedCosts || isLoadingMedicine || isLoadingLabor || isLoadingDeadAnimals || isLoadingTrackedSheep || isLoadingFarmExpenses;
 
+  const totalDead = useMemo(() => {
+    return (deadAnimals || []).reduce((sum, a) => sum + (a.sheepCount ?? 1), 0);
+  }, [deadAnimals]);
+
   const totalSheep = useMemo(() => {
     const purchased = (purchases || []).reduce((sum, p) => sum + p.animalCount, 0);
     const sold = (sales || []).reduce((sum, s) => sum + s.animalCount, 0);
-    const dead = deadAnimals?.length || 0;
-    return purchased - sold - dead;
-  }, [purchases, sales, deadAnimals]);
+    return purchased - sold - totalDead;
+  }, [purchases, sales, totalDead]);
 
-  const totalDead = useMemo(() => deadAnimals?.length || 0, [deadAnimals]);
   
   const totalFeedCost = useMemo(() => {
     return (feedCosts || []).reduce((sum, f) => sum + f.cost, 0);

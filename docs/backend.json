@@ -260,6 +260,10 @@
           "description": "The date when the animal died.",
           "format": "date-time"
         },
+        "sheepCount": {
+          "type": "number",
+          "description": "The number of animals that died."
+        },
         "tagId": {
           "type": "string",
           "description": "The tag ID of the deceased animal, if available."
@@ -276,6 +280,7 @@
       "required": [
         "id",
         "dateOfDeath",
+        "sheepCount",
         "causeOfDeath"
       ]
     },

@@ -35,6 +35,7 @@ import { Textarea } from '@/components/ui/textarea';
 
 const formSchema = z.object({
   dateOfDeath: z.date({ required_error: 'A date is required.' }),
+  sheepCount: z.coerce.number().int().positive('Must be a positive number.'),
   tagId: z.string().optional(),
   causeOfDeath: z.string().min(1, 'Cause of death is required.'),
   notes: z.string().optional(),
@@ -49,6 +50,7 @@ export default function MortalityPage() {
   const form = useForm<MortalityFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      sheepCount: 1,
       tagId: '',
       causeOfDeath: '',
       notes: '',
@@ -133,6 +135,19 @@ export default function MortalityPage() {
                   />
                   <FormField
                     control={form.control}
+                    name="sheepCount"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Sheep Count</FormLabel>
+                        <FormControl>
+                          <Input type="number" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
                     name="tagId"
                     render={({ field }) => (
                       <FormItem>
@@ -189,6 +204,7 @@ export default function MortalityPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Date</TableHead>
+                    <TableHead>Count</TableHead>
                     <TableHead>Tag ID</TableHead>
                     <TableHead>Cause of Death</TableHead>
                     <TableHead>Notes</TableHead>
@@ -200,6 +216,7 @@ export default function MortalityPage() {
                     deadAnimals.map((animal) => (
                       <TableRow key={animal.id}>
                         <TableCell>{animal.dateOfDeath}</TableCell>
+                        <TableCell>{animal.sheepCount}</TableCell>
                         <TableCell>{animal.tagId || 'N/A'}</TableCell>
                         <TableCell>{animal.causeOfDeath}</TableCell>
                         <TableCell>{animal.notes || 'N/A'}</TableCell>
@@ -212,7 +229,7 @@ export default function MortalityPage() {
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center">
+                      <TableCell colSpan={6} className="text-center">
                         No mortality records yet.
                       </TableCell>
                     </TableRow>

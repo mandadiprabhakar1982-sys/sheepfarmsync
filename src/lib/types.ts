@@ -32,6 +32,7 @@ export type TrackedSheep = {
 export type DeadAnimal = {
   id: string;
   dateOfDeath: string;
+  sheepCount: number;
   tagId?: string;
   causeOfDeath: string;
   notes?: string;
