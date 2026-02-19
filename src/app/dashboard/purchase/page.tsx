@@ -304,12 +304,14 @@ export default function PurchasePage() {
                         <TableCell>₹{purchase.amountPaid.toFixed(2)}</TableCell>
                         <TableCell className={purchase.dueAmount > 0 ? 'text-destructive' : ''}>₹{purchase.dueAmount.toFixed(2)}</TableCell>
                         <TableCell className="text-right">
-                          <Button variant="ghost" size="icon" onClick={() => handleEditClick(purchase)}>
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon" onClick={() => handleDeletePurchase(purchase.id)}>
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
+                          <div className="flex items-center justify-end">
+                            <Button variant="ghost" size="icon" onClick={() => handleEditClick(purchase)}>
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => handleDeletePurchase(purchase.id)}>
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))
