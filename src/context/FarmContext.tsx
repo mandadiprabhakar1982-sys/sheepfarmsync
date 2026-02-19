@@ -45,6 +45,8 @@ interface FarmContextType {
   totalFeedCost: number;
   totalLaborCost: number;
   totalMedicineCost: number;
+  totalReceivables: number;
+  totalPayables: number;
 }
 
 const FarmContext = createContext<FarmContextType | undefined>(undefined);
@@ -194,6 +196,14 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     return (sales || []).reduce((sum, s) => sum + s.totalAmountReceived, 0);
   }, [sales]);
 
+  const totalReceivables = useMemo(() => {
+    return (sales || []).reduce((sum, s) => sum + s.outstandingDues, 0);
+  }, [sales]);
+
+  const totalPayables = useMemo(() => {
+    return (purchases || []).reduce((sum, p) => sum + p.dueAmount, 0);
+  }, [purchases]);
+
 
   const value = {
     purchases,
@@ -226,6 +236,8 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     totalFeedCost,
     totalLaborCost,
     totalMedicineCost,
+    totalReceivables,
+    totalPayables,
   };
 
   return (

@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -60,6 +61,15 @@ export default function SalesPage() {
       totalAmountReceived: 0,
     },
   });
+  
+  const watchedSalesFields = form.watch(['salePrice', 'totalAmountReceived']);
+
+  useEffect(() => {
+    const [salePrice, amountReceived] = watchedSalesFields;
+    const due = (salePrice || 0) - (amountReceived || 0);
+    form.setValue('outstandingDues', due >= 0 ? due : 0);
+  }, [watchedSalesFields, form]);
+
 
   const onSubmit: SubmitHandler<SalesFormData> = (data) => {
     const newTransaction = { ...data, date: format(data.date, 'yyyy-MM-dd') };
@@ -168,7 +178,7 @@ export default function SalesPage() {
                    <FormField control={form.control} name="outstandingDues" render={({ field }) => (
                       <FormItem>
                         <FormLabel>Outstanding Dues (₹)</FormLabel>
-                        <FormControl><Input type="number" step="0.01" {...field} /></FormControl>
+                        <FormControl><Input type="number" step="0.01" {...field} readOnly className="bg-muted" /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )}

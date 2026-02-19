@@ -8,6 +8,7 @@ import {
   Skull,
   Loader2,
   Syringe,
+  TrendingDown,
 } from 'lucide-react';
 import { SheepIcon } from '@/components/logo';
 import { StatCard } from '@/components/stat-card';
@@ -15,7 +16,7 @@ import { useFarm } from '@/context/FarmContext';
 import { PageHeader } from '@/components/page-header';
 
 export default function OverviewPage() {
-  const { totalSheep, totalExpenses, totalSales, isLoading, totalFeedCost, totalLaborCost, totalDead, totalMedicineCost } = useFarm();
+  const { totalSheep, totalExpenses, totalSales, isLoading, totalFeedCost, totalLaborCost, totalDead, totalMedicineCost, totalReceivables, totalPayables } = useFarm();
   
   if (isLoading) {
     return (
@@ -73,6 +74,18 @@ export default function OverviewPage() {
             value={`₹${totalMedicineCost.toFixed(2)}`}
             icon={Syringe}
             description="Total medicine expenses"
+        />
+         <StatCard
+          title="Receivables"
+          value={`₹${totalReceivables.toFixed(2)}`}
+          icon={TrendingUp}
+          description="Money owed to you from sales"
+        />
+        <StatCard
+          title="Payables"
+          value={`₹${totalPayables.toFixed(2)}`}
+          icon={TrendingDown}
+          description="Money you owe for purchases"
         />
       </div>
     </div>
