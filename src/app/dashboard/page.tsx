@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import {
-  BarChart,
   ListChecks,
   HeartPulse,
   Wheat,
@@ -87,18 +86,12 @@ export default function DashboardPage() {
       </section>
       
       <section className="container mx-auto px-4 py-8 md:py-12 -mt-16 md:-mt-24">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-8">
             <StatCard
                 title="Total Flock Size"
                 value="1,250"
                 icon={SheepIcon}
                 description="Total sheep in your flock"
-            />
-            <StatCard
-                title="Average Weight"
-                value="55 kg"
-                icon={BarChart}
-                description="Across the entire flock"
             />
             <StatCard
                 title="Total Expenses"
