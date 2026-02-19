@@ -58,7 +58,7 @@ export default function LivestockPage() {
   });
 
   const chartData = useMemo(() => {
-    if (trackedSheep.length === 0) {
+    if (!trackedSheep || trackedSheep.length === 0) {
       return [];
     }
 
@@ -234,7 +234,7 @@ export default function LivestockPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {trackedSheep.length > 0 ? (
+                  {trackedSheep && trackedSheep.length > 0 ? (
                     trackedSheep.map((sheep) => (
                       <TableRow key={sheep.id}>
                         <TableCell>
