@@ -26,7 +26,7 @@ export function UserNav() {
           </Avatar>
           <div className="text-left">
             <p className="text-sm font-medium">Admin</p>
-            <p className="text-xs text-muted-foreground">admin@shepfarm.com</p>
+            <p className="text-xs text-muted-foreground">admin@sheepfarmsync.com</p>
           </div>
         </Button>
       </DropdownMenuTrigger>
@@ -35,7 +35,7 @@ export function UserNav() {
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">Admin</p>
             <p className="text-xs leading-none text-muted-foreground">
-              admin@shepfarm.com
+              admin@sheepfarmsync.com
             </p>
           </div>
         </DropdownMenuLabel>
