@@ -19,15 +19,11 @@ export function UserNav() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-10 w-full justify-start gap-2 p-2">
+        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
             <AvatarImage src={userAvatar?.imageUrl} alt="User avatar" data-ai-hint={userAvatar?.imageHint} />
             <AvatarFallback>U</AvatarFallback>
           </Avatar>
-          <div className="text-left">
-            <p className="text-sm font-medium">Admin</p>
-            <p className="text-xs text-muted-foreground">admin@sheepfarmsync.com</p>
-          </div>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
