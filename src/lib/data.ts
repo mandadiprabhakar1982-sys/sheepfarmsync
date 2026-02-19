@@ -1,8 +1,8 @@
 import type { LivestockPurchase, MedicineExpense, FeedCost, LaborCost } from './types';
 
 export const mockLivestockPurchases: LivestockPurchase[] = [
-  { villageName: 'Green Valley', farmerName: 'John Doe', animalCount: 10, purchasePrice: 5000, amountPaid: 4500 },
-  { villageName: 'Sunny Creek', farmerName: 'Jane Smith', animalCount: 5, purchasePrice: 2800, amountPaid: 2800 },
+  { villageName: 'Green Valley', farmerName: 'John Doe', animalCount: 10, purchasePrice: 5000, amountPaid: 4500, dueAmount: 500, payingTimePeriod: '30 days' },
+  { villageName: 'Sunny Creek', farmerName: 'Jane Smith', animalCount: 5, purchasePrice: 2800, amountPaid: 2800, dueAmount: 0, payingTimePeriod: 'On Delivery' },
 ];
 
 export const mockMedicineExpenses: MedicineExpense[] = [

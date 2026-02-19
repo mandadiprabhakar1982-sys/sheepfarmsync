@@ -16,6 +16,8 @@ const LivestockPurchaseSchema = z.object({
   animalCount: z.number().int().describe('Number of animals purchased.'),
   purchasePrice: z.number().describe('Total purchase price for the animals.'),
   amountPaid: z.number().describe('Amount paid at the time of purchase.'),
+  dueAmount: z.number().describe('Calculated due amount for the purchase.'),
+  payingTimePeriod: z.string().optional().describe('Agreed payment period.'),
 });
 
 const MedicineExpenseSchema = z.object({
@@ -79,7 +81,7 @@ Farm Cost Data:
 {{#if livestockPurchases}}
 ## Livestock Purchases:
 {{#each livestockPurchases}}
-- Village: {{{this.villageName}}}, Farmer: {{{this.farmerName}}}, Animals: {{{this.animalCount}}}, Purchase Price: {{{this.purchasePrice}}}, Amount Paid: {{{this.amountPaid}}}
+- Village: {{{this.villageName}}}, Farmer: {{{this.farmerName}}}, Animals: {{{this.animalCount}}}, Purchase Price: {{{this.purchasePrice}}}, Amount Paid: {{{this.amountPaid}}}, Due: {{{this.dueAmount}}}, Payment Period: {{{this.payingTimePeriod}}}
 {{/each}}
 {{else}}
 No livestock purchase data available.

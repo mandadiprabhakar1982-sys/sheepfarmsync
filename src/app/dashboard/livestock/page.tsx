@@ -25,6 +25,8 @@ const purchaseFormSchema = z.object({
   animalCount: z.coerce.number().int().positive('Must be a positive number'),
   purchasePrice: z.coerce.number().positive('Must be a positive number'),
   amountPaid: z.coerce.number().nonnegative('Cannot be negative'),
+  dueAmount: z.coerce.number().nonnegative('Due amount is calculated and cannot be negative'),
+  payingTimePeriod: z.string().optional(),
 });
 
 type PurchaseFormData = z.infer<typeof purchaseFormSchema>;
@@ -63,6 +65,8 @@ export default function LivestockPage() {
       animalCount: 0,
       purchasePrice: 0,
       amountPaid: 0,
+      dueAmount: 0,
+      payingTimePeriod: '',
     },
   });
 
@@ -74,6 +78,14 @@ export default function LivestockPage() {
       age: 0,
     },
   });
+  
+  const purchasePrice = purchaseForm.watch('purchasePrice');
+  const amountPaid = purchaseForm.watch('amountPaid');
+
+  useEffect(() => {
+    const due = (purchasePrice || 0) - (amountPaid || 0);
+    purchaseForm.setValue('dueAmount', due > 0 ? due : 0);
+  }, [purchasePrice, amountPaid, purchaseForm]);
 
   // Effect to get camera permission
   useEffect(() => {
@@ -322,7 +334,7 @@ export default function LivestockPage() {
                         )} />
                       <FormField control={purchaseForm.control} name="purchasePrice" render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Purchase Price (₹)</FormLabel>
+                            <FormLabel>Purchase Cost (₹)</FormLabel>
                             <FormControl><Input type="number" step="0.01" {...field} /></FormControl>
                             <FormMessage />
                           </FormItem>
@@ -331,6 +343,20 @@ export default function LivestockPage() {
                           <FormItem>
                             <FormLabel>Amount Paid (₹)</FormLabel>
                             <FormControl><Input type="number" step="0.01" {...field} /></FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )} />
+                       <FormField control={purchaseForm.control} name="dueAmount" render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Due Amount (₹)</FormLabel>
+                            <FormControl><Input type="number" {...field} readOnly className="bg-muted" /></FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )} />
+                      <FormField control={purchaseForm.control} name="payingTimePeriod" render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Paying Time Period</FormLabel>
+                            <FormControl><Input placeholder="e.g., 30 days" {...field} /></FormControl>
                             <FormMessage />
                           </FormItem>
                         )} />
@@ -358,6 +384,7 @@ export default function LivestockPage() {
                         <TableHead>Price</TableHead>
                         <TableHead>Paid</TableHead>
                         <TableHead>Due</TableHead>
+                        <TableHead>Payment Period</TableHead>
                         <TableHead className='text-right'>Action</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -370,9 +397,10 @@ export default function LivestockPage() {
                             <TableCell>{p.animalCount}</TableCell>
                             <TableCell>₹{p.purchasePrice.toFixed(2)}</TableCell>
                             <TableCell>₹{p.amountPaid.toFixed(2)}</TableCell>
-                            <TableCell className={p.purchasePrice - p.amountPaid > 0 ? 'text-destructive' : ''}>
-                              ₹{(p.purchasePrice - p.amountPaid).toFixed(2)}
+                            <TableCell className={p.dueAmount > 0 ? 'text-destructive' : ''}>
+                              ₹{(p.dueAmount).toFixed(2)}
                             </TableCell>
+                            <TableCell>{p.payingTimePeriod}</TableCell>
                             <TableCell className='text-right'>
                                 <Button variant="ghost" size="icon" onClick={() => deletePurchase(p.id)}>
                                     <Trash2 className="h-4 w-4 text-destructive" />
@@ -382,7 +410,7 @@ export default function LivestockPage() {
                         ))
                       ) : (
                         <TableRow>
-                          <TableCell colSpan={7} className="text-center">
+                          <TableCell colSpan={8} className="text-center">
                             No purchases recorded yet.
                           </TableCell>
                         </TableRow>
