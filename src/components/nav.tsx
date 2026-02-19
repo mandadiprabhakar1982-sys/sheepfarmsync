@@ -24,8 +24,8 @@ export function Nav() {
           key={link.href}
           href={link.href}
           className={cn(
-            'transition-colors hover:text-foreground',
-            pathname === link.href ? 'text-foreground' : 'text-muted-foreground'
+            'transition-colors hover:text-primary',
+            pathname === link.href ? 'font-semibold text-primary' : 'text-muted-foreground'
           )}
         >
           {link.label}
