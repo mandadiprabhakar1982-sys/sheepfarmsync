@@ -37,6 +37,7 @@ const formSchema = z.object({
   date: z.date({ required_error: 'A date is required.' }),
   buyerName: z.string().min(1, 'Buyer name is required'),
   village: z.string().min(1, 'Village name is required'),
+  animalCount: z.coerce.number().int().positive('Must be a positive number'),
   animalWeight: z.coerce.number().positive('Must be a positive number'),
   salePrice: z.coerce.number().positive('Must be a positive number'),
   outstandingDues: z.coerce.number().nonnegative('Cannot be negative'),
@@ -53,6 +54,7 @@ export default function SalesPage() {
     defaultValues: {
       buyerName: '',
       village: '',
+      animalCount: 1,
       animalWeight: 0,
       salePrice: 0,
       outstandingDues: 0,
@@ -132,6 +134,14 @@ export default function SalesPage() {
                       </FormItem>
                     )}
                   />
+                  <FormField control={form.control} name="animalCount" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Animal Count</FormLabel>
+                        <FormControl><Input type="number" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                   <FormField control={form.control} name="animalWeight" render={({ field }) => (
                       <FormItem>
                         <FormLabel>Animal Weight (kg)</FormLabel>
@@ -184,6 +194,7 @@ export default function SalesPage() {
                   <TableRow>
                     <TableHead>Date</TableHead>
                     <TableHead>Buyer</TableHead>
+                    <TableHead>Count</TableHead>
                     <TableHead>Price</TableHead>
                     <TableHead>Received</TableHead>
                     <TableHead>Dues</TableHead>
@@ -196,6 +207,7 @@ export default function SalesPage() {
                       <TableRow key={t.id}>
                         <TableCell>{t.date}</TableCell>
                         <TableCell>{t.buyerName}</TableCell>
+                        <TableCell>{t.animalCount}</TableCell>
                         <TableCell>₹{t.salePrice.toFixed(2)}</TableCell>
                         <TableCell>₹{t.totalAmountReceived.toFixed(2)}</TableCell>
                         <TableCell className={t.outstandingDues > 0 ? 'text-destructive' : ''}>₹{t.outstandingDues.toFixed(2)}</TableCell>
@@ -208,7 +220,7 @@ export default function SalesPage() {
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center">
+                      <TableCell colSpan={7} className="text-center">
                         No sales recorded yet.
                       </TableCell>
                     </TableRow>

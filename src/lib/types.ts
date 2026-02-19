@@ -13,6 +13,7 @@ export type SalesTransaction = {
   date: string;
   buyerName: string;
   village: string;
+  animalCount: number;
   animalWeight: number;
   salePrice: number;
   outstandingDues: number;

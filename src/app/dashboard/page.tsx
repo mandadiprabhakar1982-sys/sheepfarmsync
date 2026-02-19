@@ -10,6 +10,7 @@ import {
   IndianRupee,
   TrendingUp,
   BadgeIndianRupee,
+  LayoutDashboard,
 } from 'lucide-react';
 import { SheepIcon } from '@/components/logo';
 import { Card, CardContent } from '@/components/ui/card';
@@ -19,7 +20,7 @@ const menuItems = [
     {
       title: 'REPORTS & ANALYSIS',
       description: 'AI-POWERED INSIGHTS',
-      icon: BarChart,
+      icon: LayoutDashboard,
       color: 'bg-blue-500',
       href: '/dashboard/analysis',
     },
