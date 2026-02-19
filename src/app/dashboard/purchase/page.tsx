@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -13,7 +13,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import type { LivestockPurchase } from '@/lib/types';
+import { useFarm } from '@/context/FarmContext';
 
 // Schema for the purchase form
 const purchaseFormSchema = z.object({
@@ -30,7 +30,7 @@ type PurchaseFormData = z.infer<typeof purchaseFormSchema>;
 
 export default function PurchasePage() {
   const { toast } = useToast();
-  const [purchases, setPurchases] = useState<LivestockPurchase[]>([]);
+  const { purchases, addPurchase, deletePurchase } = useFarm();
 
   const purchaseForm = useForm<PurchaseFormData>({
     resolver: zodResolver(purchaseFormSchema),
@@ -54,7 +54,7 @@ export default function PurchasePage() {
   }, [watchedPurchaseFields, purchaseForm]);
 
   const onPurchaseSubmit: SubmitHandler<PurchaseFormData> = (data) => {
-    setPurchases((prev) => [...prev, { ...data, id: crypto.randomUUID() }]);
+    addPurchase(data);
     purchaseForm.reset();
     toast({
       title: 'Success!',
@@ -62,8 +62,8 @@ export default function PurchasePage() {
     });
   };
 
-  const deletePurchase = (id: string) => {
-    setPurchases(purchases.filter(p => p.id !== id));
+  const handleDeletePurchase = (id: string) => {
+    deletePurchase(id);
     toast({
       title: 'Deleted',
       description: 'Purchase record has been deleted.',
@@ -176,7 +176,7 @@ export default function PurchasePage() {
                         <TableCell>₹{purchase.amountPaid.toFixed(2)}</TableCell>
                         <TableCell className={purchase.dueAmount > 0 ? 'text-destructive' : ''}>₹{purchase.dueAmount.toFixed(2)}</TableCell>
                         <TableCell className="text-right">
-                          <Button variant="ghost" size="icon" onClick={() => deletePurchase(purchase.id)}>
+                          <Button variant="ghost" size="icon" onClick={() => handleDeletePurchase(purchase.id)}>
                             <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
                         </TableCell>

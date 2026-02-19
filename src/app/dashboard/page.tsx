@@ -1,3 +1,4 @@
+'use client';
 import Link from 'next/link';
 import {
   ListChecks,
@@ -14,6 +15,7 @@ import {
 import { SheepIcon } from '@/components/logo';
 import { Card, CardContent } from '@/components/ui/card';
 import { StatCard } from '@/components/stat-card';
+import { useFarm } from '@/context/FarmContext';
 
 const menuItems = [
     {
@@ -69,6 +71,7 @@ const menuItems = [
 
 
 export default function DashboardPage() {
+  const { flockSize } = useFarm();
   return (
     <>
       <section className="bg-primary text-primary-foreground">
@@ -89,7 +92,7 @@ export default function DashboardPage() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-8">
             <StatCard
                 title="Total Flock Size"
-                value="0"
+                value={flockSize.toString()}
                 icon={SheepIcon}
                 description="Total sheep in your flock"
             />

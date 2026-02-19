@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -31,7 +30,7 @@ import {
 } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import type { SalesTransaction } from '@/lib/types';
+import { useFarm } from '@/context/FarmContext';
 
 const formSchema = z.object({
   date: z.date({ required_error: 'A date is required.' }),
@@ -48,7 +47,7 @@ type SalesFormData = z.infer<typeof formSchema>;
 
 export default function SalesPage() {
   const { toast } = useToast();
-  const [transactions, setTransactions] = useState<SalesTransaction[]>([]);
+  const { sales, addSale, deleteSale } = useFarm();
   const form = useForm<SalesFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -63,8 +62,8 @@ export default function SalesPage() {
   });
 
   const onSubmit: SubmitHandler<SalesFormData> = (data) => {
-    const newTransaction = { ...data, id: crypto.randomUUID(), date: format(data.date, 'yyyy-MM-dd') };
-    setTransactions((prev) => [...prev, newTransaction]);
+    const newTransaction = { ...data, date: format(data.date, 'yyyy-MM-dd') };
+    addSale(newTransaction);
     form.reset();
     toast({
       title: 'Success!',
@@ -72,8 +71,8 @@ export default function SalesPage() {
     });
   };
   
-  const deleteTransaction = (id: string) => {
-    setTransactions(transactions.filter(t => t.id !== id));
+  const handleDeleteTransaction = (id: string) => {
+    deleteSale(id);
      toast({
       title: 'Deleted',
       description: 'Transaction record has been deleted.',
@@ -202,8 +201,8 @@ export default function SalesPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {transactions.length > 0 ? (
-                    transactions.map((t) => (
+                  {sales.length > 0 ? (
+                    sales.map((t) => (
                       <TableRow key={t.id}>
                         <TableCell>{t.date}</TableCell>
                         <TableCell>{t.buyerName}</TableCell>
@@ -212,7 +211,7 @@ export default function SalesPage() {
                         <TableCell>₹{t.totalAmountReceived.toFixed(2)}</TableCell>
                         <TableCell className={t.outstandingDues > 0 ? 'text-destructive' : ''}>₹{t.outstandingDues.toFixed(2)}</TableCell>
                          <TableCell className='text-right'>
-                            <Button variant="ghost" size="icon" onClick={() => deleteTransaction(t.id)}>
+                            <Button variant="ghost" size="icon" onClick={() => handleDeleteTransaction(t.id)}>
                                 <Trash2 className="h-4 w-4 text-destructive" />
                             </Button>
                         </TableCell>
