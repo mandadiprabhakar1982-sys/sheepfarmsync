@@ -1,0 +1,364 @@
+{
+  "entities": {
+    "LivestockPurchase": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "LivestockPurchase",
+      "type": "object",
+      "description": "Records details of animals purchased for the farm.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the LivestockPurchase entity."
+        },
+        "purchaseDate": {
+          "type": "string",
+          "description": "The date when the animals were purchased.",
+          "format": "date-time"
+        },
+        "villageName": {
+          "type": "string",
+          "description": "The name of the village where the animals were purchased."
+        },
+        "farmerName": {
+          "type": "string",
+          "description": "The name of the farmer from whom the animals were purchased."
+        },
+        "animalCount": {
+          "type": "number",
+          "description": "The total number of animals purchased in this transaction."
+        },
+        "totalPurchasePrice": {
+          "type": "number",
+          "description": "The total purchase price for all animals in this transaction."
+        },
+        "amountPaid": {
+          "type": "number",
+          "description": "The amount paid to the farmer at the time of purchase."
+        },
+        "outstandingDuesToFarmer": {
+          "type": "number",
+          "description": "Any amount still owed to the farmer for this livestock purchase."
+        }
+      },
+      "required": [
+        "id",
+        "purchaseDate",
+        "villageName",
+        "farmerName",
+        "animalCount",
+        "totalPurchasePrice",
+        "amountPaid",
+        "outstandingDuesToFarmer"
+      ]
+    },
+    "MedicineExpense": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "MedicineExpense",
+      "type": "object",
+      "description": "Tracks expenses related to medicine purchases for animals.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the MedicineExpense entity."
+        },
+        "expenseDate": {
+          "type": "string",
+          "description": "The date when the medicine expense was incurred.",
+          "format": "date-time"
+        },
+        "medicineShopName": {
+          "type": "string",
+          "description": "The name of the medicine shop where the purchase was made."
+        },
+        "totalCost": {
+          "type": "number",
+          "description": "The total cost of medicines purchased in this transaction."
+        },
+        "amountPaid": {
+          "type": "number",
+          "description": "The amount paid to the medicine shop at the time of purchase."
+        },
+        "outstandingDuesToShop": {
+          "type": "number",
+          "description": "Any amount still owed to the medicine shop for this expense."
+        }
+      },
+      "required": [
+        "id",
+        "expenseDate",
+        "medicineShopName",
+        "totalCost",
+        "amountPaid",
+        "outstandingDuesToShop"
+      ]
+    },
+    "FeedExpense": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "FeedExpense",
+      "type": "object",
+      "description": "Manages expenses related to animal feed purchases.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the FeedExpense entity."
+        },
+        "expenseDate": {
+          "type": "string",
+          "description": "The date when the feed expense was recorded.",
+          "format": "date-time"
+        },
+        "tmrCost": {
+          "type": "number",
+          "description": "The cost incurred for Total Mixed Ration (TMR) feed."
+        },
+        "silageCost": {
+          "type": "number",
+          "description": "The cost incurred for silage feed."
+        },
+        "groundnutCost": {
+          "type": "number",
+          "description": "The cost incurred for groundnut feed."
+        },
+        "otherFeedCost": {
+          "type": "number",
+          "description": "The cost incurred for other types of animal feed not specified."
+        },
+        "totalFeedCost": {
+          "type": "number",
+          "description": "The sum of all feed type costs for this expense record."
+        }
+      },
+      "required": [
+        "id",
+        "expenseDate",
+        "tmrCost",
+        "silageCost",
+        "groundnutCost",
+        "otherFeedCost",
+        "totalFeedCost"
+      ]
+    },
+    "LaborExpense": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "LaborExpense",
+      "type": "object",
+      "description": "Records expenses related to farm labor.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the LaborExpense entity."
+        },
+        "expenseDate": {
+          "type": "string",
+          "description": "The date when this labor expense was recorded or paid.",
+          "format": "date-time"
+        },
+        "description": {
+          "type": "string",
+          "description": "An optional description for the labor expense, e.g., 'Monthly wages for June', 'Daily labor for harvest'."
+        },
+        "numberOfLaborers": {
+          "type": "number",
+          "description": "The number of laborers covered by this expense record."
+        },
+        "dailyWagesCost": {
+          "type": "number",
+          "description": "The total cost paid for daily wages in this expense period."
+        },
+        "monthlyWagesCost": {
+          "type": "number",
+          "description": "The total cost paid for monthly wages in this expense period."
+        },
+        "advancePayments": {
+          "type": "number",
+          "description": "The total amount given as advance payments to laborers for this expense."
+        },
+        "foodCosts": {
+          "type": "number",
+          "description": "The cost incurred for food provided to laborers."
+        },
+        "fuelCosts": {
+          "type": "number",
+          "description": "The cost incurred for fuel related to labor activities (e.g., transport)."
+        },
+        "totalLaborCost": {
+          "type": "number",
+          "description": "The sum of all labor-related costs for this entry."
+        }
+      },
+      "required": [
+        "id",
+        "expenseDate",
+        "numberOfLaborers",
+        "dailyWagesCost",
+        "monthlyWagesCost",
+        "advancePayments",
+        "foodCosts",
+        "fuelCosts",
+        "totalLaborCost"
+      ]
+    },
+    "AnimalSale": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "AnimalSale",
+      "type": "object",
+      "description": "Records details of animals sold from the farm.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the AnimalSale entity."
+        },
+        "saleDate": {
+          "type": "string",
+          "description": "The date when the animal(s) were sold.",
+          "format": "date-time"
+        },
+        "buyerName": {
+          "type": "string",
+          "description": "The name of the buyer."
+        },
+        "buyerVillage": {
+          "type": "string",
+          "description": "The village of the buyer."
+        },
+        "animalWeightKg": {
+          "type": "number",
+          "description": "The total weight of the animal(s) sold in kilograms."
+        },
+        "salePrice": {
+          "type": "number",
+          "description": "The total sale price of the animal(s)."
+        },
+        "amountReceived": {
+          "type": "number",
+          "description": "The amount received from the buyer at the time of sale."
+        },
+        "outstandingDuesFromBuyer": {
+          "type": "number",
+          "description": "Any amount still owed by the buyer for this sale transaction."
+        }
+      },
+      "required": [
+        "id",
+        "saleDate",
+        "buyerName",
+        "buyerVillage",
+        "animalWeightKg",
+        "salePrice",
+        "amountReceived",
+        "outstandingDuesFromBuyer"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}/livestockPurchases/{livestockPurchaseId}",
+        "definition": {
+          "entityName": "LivestockPurchase",
+          "schema": {
+            "$ref": "#/backend/entities/LivestockPurchase"
+          },
+          "description": "Collection of individual livestock purchase records for a specific user. This path ensures Authorization Independence by including the userId directly. Includes denormalized 'ownerId' implicitly via the path.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user (farm owner) who owns these livestock purchase records."
+            },
+            {
+              "name": "livestockPurchaseId",
+              "description": "The unique identifier for a specific livestock purchase record."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/medicineExpenses/{medicineExpenseId}",
+        "definition": {
+          "entityName": "MedicineExpense",
+          "schema": {
+            "$ref": "#/backend/entities/MedicineExpense"
+          },
+          "description": "Collection of medicine expense records for a specific user. This path ensures Authorization Independence by including the userId directly. Includes denormalized 'ownerId' implicitly via the path.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user (farm owner) who owns these medicine expense records."
+            },
+            {
+              "name": "medicineExpenseId",
+              "description": "The unique identifier for a specific medicine expense record."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/feedExpenses/{feedExpenseId}",
+        "definition": {
+          "entityName": "FeedExpense",
+          "schema": {
+            "$ref": "#/backend/entities/FeedExpense"
+          },
+          "description": "Collection of feed expense records for a specific user. This path ensures Authorization Independence by including the userId directly. Includes denormalized 'ownerId' implicitly via the path.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user (farm owner) who owns these feed expense records."
+            },
+            {
+              "name": "feedExpenseId",
+              "description": "The unique identifier for a specific feed expense record."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/laborExpenses/{laborExpenseId}",
+        "definition": {
+          "entityName": "LaborExpense",
+          "schema": {
+            "$ref": "#/backend/entities/LaborExpense"
+          },
+          "description": "Collection of labor expense records for a specific user. This path ensures Authorization Independence by including the userId directly. Includes denormalized 'ownerId' implicitly via the path.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user (farm owner) who owns these labor expense records."
+            },
+            {
+              "name": "laborExpenseId",
+              "description": "The unique identifier for a specific labor expense record."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/animalSales/{animalSaleId}",
+        "definition": {
+          "entityName": "AnimalSale",
+          "schema": {
+            "$ref": "#/backend/entities/AnimalSale"
+          },
+          "description": "Collection of animal sale records for a specific user. This path ensures Authorization Independence by including the userId directly. Includes denormalized 'ownerId' implicitly via the path.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user (farm owner) who owns these animal sale records."
+            },
+            {
+              "name": "animalSaleId",
+              "description": "The unique identifier for a specific animal sale record."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The recommended Firestore structure for Shepfarmsycpro strictly adheres to the core design principles, prioritizing Authorization Independence and QAPs (Queries as Permissions) through a user-centric, path-based ownership model. Each user's data is isolated within their dedicated subcollection, making security rules simple, robust, and debuggable.\n\n**Authorization Independence:** This is achieved by embedding the `userId` directly into the path for all user-owned data. For example, a livestock purchase record will be stored at `/users/{userId}/livestockPurchases/{livestockPurchaseId}`. This structure allows security rules to evaluate ownership by simply comparing `request.auth.uid` with the `{userId}` wildcard in the path. This eliminates the need for expensive and complex `get()` calls to parent documents or other collections, thereby supporting atomic operations (transactions/batches) and preventing security rule dependencies that are hard to debug.\n\n**QAPs (Queries as Permissions):** By segregating data under the user's ID, any `list` operation performed on a collection like `/users/{userId}/livestockPurchases` will inherently return only the records belonging to the authenticated user. Firestore's security rules can enforce that `{userId}` matches `request.auth.uid`, ensuring that users can only query their own data. This means the database structure itself acts as a primary filter, simplifying query patterns and drastically reducing the risk of data leakage or over-fetching, as rules are not used as filters but as validators of already scoped requests.\n\n**Structural Segregation:** Each type of financial record (Livestock Purchases, Medicine Expenses, Feed Expenses, Labor Expenses, Animal Sales) is stored in its own dedicated subcollection under the respective user's path. For instance, `livestockPurchases` will only contain `LivestockPurchase` documents. This ensures a homogeneous security posture for all documents within a given collection, simplifying security rules (e.g., all documents in `/users/{userId}/livestockPurchases` have the same owner and access requirements). This separation also enhances clarity and predictability of the data schema within each collection.\n\n**Access Modeling:** The design primarily uses Path-Based ownership for all transactional data. Since all core features (purchase tracking, expense recording, sales recording) revolve around a single farm owner's data, this model perfectly suits the requirement for private, user-specific records. The `userId` in the path clearly denotes who owns the data.\n\n**Data Clarity and Predictability:** All path wildcards are semantically descriptive (e.g., `{userId}`, `{livestockPurchaseId}`). The schema for each entity is consistent within its collection. No dynamic keys are used, and state modeling (if any were required beyond what's in the entities) would rely on explicit fields.\n\nIn summary, this structure provides a secure, scalable, and highly debuggable foundation for Shepfarmsycpro by leveraging Firebase's strengths in path-based security and denormalization for authorization context."
+  }
+}
