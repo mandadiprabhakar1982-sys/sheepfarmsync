@@ -108,7 +108,7 @@ export default function DashboardPage() {
       <section className="bg-primary text-primary-foreground">
         <div className="container mx-auto text-center py-12 md:py-20">
             <div className="inline-block bg-white/10 rounded-2xl p-4">
-                <SheepIcon className="h-12 w-12 text-white" />
+                <SheepIcon className="h-10 w-10 md:h-12 md:w-12 text-white" />
             </div>
           <h1 className="mt-4 text-4xl md:text-5xl font-bold tracking-tight">
             SHEEPSYNC PRO
@@ -128,7 +128,7 @@ export default function DashboardPage() {
                 <Card className="group h-full transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
                   <CardContent className="flex flex-col items-center justify-center p-8 text-center">
                     <div className={`mb-6 rounded-2xl p-4 ${item.color}`}>
-                      <Icon className="h-8 w-8 text-white" />
+                      <Icon className="h-6 w-6 md:h-8 md:w-8 text-white" />
                     </div>
                     <h3 className="text-sm font-bold tracking-wider uppercase">{item.title}</h3>
                     <p className="mt-1 text-xs text-muted-foreground">{item.description}</p>
