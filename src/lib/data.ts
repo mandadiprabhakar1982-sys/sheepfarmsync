@@ -17,6 +17,6 @@ export const mockFeedCosts: FeedCost[] = [
 ];
 
 export const mockLaborCosts: LaborCost[] = [
-  { date: '2023-10-31', dailyWages: 150, numberOfLaborers: 2, advancePayments: 100, foodCosts: 50, fuelCosts: 20, totalLaborCosts: 520 },
-  { date: '2023-11-30', monthlyWages: 3000, numberOfLaborers: 1, advancePayments: 500, foodCosts: 200, fuelCosts: 80, totalLaborCosts: 3780 },
+  { employeeName: 'Ram Singh', date: '2023-10-31', dailyWages: 150, numberOfLaborers: 2, advancePayments: 100, foodCosts: 50, fuelCosts: 20, totalLaborCosts: 520 },
+  { employeeName: 'Sita Devi', date: '2023-11-30', monthlyWages: 3000, numberOfLaborers: 1, advancePayments: 500, foodCosts: 200, fuelCosts: 80, totalLaborCosts: 3780 },
 ];

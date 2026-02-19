@@ -36,22 +36,22 @@ const FeedCostSchema = z.object({
 });
 
 const LaborCostSchema = z.object({
-  laborerName: z.string().describe('Name of the laborer.'),
-  date: z.string().describe('Date of labor expense (YYYY-MM-DD format).'),
+  employeeName: z.string().describe('Name of the employee.'),
+  date: z.string().describe('Date of employee expense (YYYY-MM-DD format).'),
   dailyWages: z.number().optional().describe('Daily wage amount paid.'),
   monthlyWages: z.number().optional().describe('Monthly wage amount paid.'),
-  numberOfLaborers: z.number().int().describe('Number of laborers.'),
-  advancePayments: z.number().describe('Advance payments made to laborers.'),
-  foodCosts: z.number().describe('Cost of food provided to laborers.'),
-  fuelCosts: z.number().describe('Cost of fuel for transport related to labor.'),
-  totalLaborCosts: z.number().describe('Total calculated labor costs for this entry.'),
+  numberOfLaborers: z.number().int().describe('Number of employees.'),
+  advancePayments: z.number().describe('Advance payments made to employees.'),
+  foodCosts: z.number().describe('Cost of food provided to employees.'),
+  fuelCosts: z.number().describe('Cost of fuel for transport related to employees.'),
+  totalLaborCosts: z.number().describe('Total calculated employee costs for this entry.'),
 });
 
 const AnalyzeFarmCostsInputSchema = z.object({
   livestockPurchases: z.array(LivestockPurchaseSchema).describe('List of livestock purchase records.'),
   medicineExpenses: z.array(MedicineExpenseSchema).describe('List of medicine expense records.'),
   feedCosts: z.array(FeedCostSchema).describe('List of animal feed cost records.'),
-  laborCosts: z.array(LaborCostSchema).describe('List of labor cost records.'),
+  laborCosts: z.array(LaborCostSchema).describe('List of employee cost records.'),
 });
 export type AnalyzeFarmCostsInput = z.infer<typeof AnalyzeFarmCostsInputSchema>;
 
@@ -107,12 +107,12 @@ No feed cost data available.
 {{/if}}
 
 {{#if laborCosts}}
-## Labor Costs:
+## Employee Costs:
 {{#each laborCosts}}
-- Laborer: {{{this.laborerName}}}, Date: {{{this.date}}}, Daily Wages: {{{this.dailyWages}}}, Monthly Wages: {{{this.monthlyWages}}}, Laborers: {{{this.numberOfLaborers}}}, Advance Payments: {{{this.advancePayments}}}, Food Costs: {{{this.foodCosts}}}, Fuel Costs: {{{this.fuelCosts}}}, Total: {{{this.totalLaborCosts}}}
+- Employee: {{{this.employeeName}}}, Date: {{{this.date}}}, Daily Wages: {{{this.dailyWages}}}, Monthly Wages: {{{this.monthlyWages}}}, Employees: {{{this.numberOfLaborers}}}, Advance Payments: {{{this.advancePayments}}}, Food Costs: {{{this.foodCosts}}}, Fuel Costs: {{{this.fuelCosts}}}, Total: {{{this.totalLaborCosts}}}
 {{/each}}
 {{else}}
-No labor cost data available.
+No employee cost data available.
 {{/if}}
 
 Based on this data, please provide your analysis and insights following the requested JSON format.`,

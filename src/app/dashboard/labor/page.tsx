@@ -34,7 +34,7 @@ import { cn } from '@/lib/utils';
 import type { LaborCost } from '@/lib/types';
 
 const formSchema = z.object({
-  laborerName: z.string().min(1, "Laborer name is required"),
+  employeeName: z.string().min(1, "Employee name is required"),
   date: z.date({ required_error: 'A date is required.' }),
   dailyWages: z.coerce.number().nonnegative().optional(),
   monthlyWages: z.coerce.number().nonnegative().optional(),
@@ -53,7 +53,7 @@ export default function LaborPage() {
   const form = useForm<LaborFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      laborerName: '',
+      employeeName: '',
       dailyWages: 0,
       monthlyWages: 0,
       numberOfLaborers: 1,
@@ -86,7 +86,7 @@ export default function LaborPage() {
     form.reset();
     toast({
       title: 'Success!',
-      description: 'Labor cost has been recorded.',
+      description: 'Employee cost has been recorded.',
     });
   };
   
@@ -103,14 +103,14 @@ export default function LaborPage() {
   return (
     <div className="container mx-auto py-8">
       <PageHeader
-        title="Labour Costs"
-        description="Document all expenses related to farm labor."
+        title="Employee Costs"
+        description="Document all expenses related to farm employees."
       />
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="lg:col-span-1">
           <Card>
             <CardHeader>
-              <CardTitle>Add New Labor Cost</CardTitle>
+              <CardTitle>Add New Employee Cost</CardTitle>
                <CardDescription>Fill out the form below.</CardDescription>
             </CardHeader>
             <CardContent>
@@ -118,10 +118,10 @@ export default function LaborPage() {
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                   <FormField
                     control={form.control}
-                    name="laborerName"
+                    name="employeeName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Laborer Name</FormLabel>
+                        <FormLabel>Employee Name</FormLabel>
                         <FormControl>
                           <Input placeholder="e.g., Ram Singh" {...field} />
                         </FormControl>
@@ -151,7 +151,7 @@ export default function LaborPage() {
                   />
                    <FormField control={form.control} name="numberOfLaborers" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Number of Laborers</FormLabel>
+                        <FormLabel>Number of Employees</FormLabel>
                         <FormControl><Input type="number" {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
@@ -201,7 +201,7 @@ export default function LaborPage() {
                   />
                   <FormField control={form.control} name="totalLaborCosts" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Total Labor Costs (₹)</FormLabel>
+                        <FormLabel>Total Employee Costs (₹)</FormLabel>
                         <FormControl><Input type="number" step="0.01" {...field} readOnly className="bg-muted" /></FormControl>
                         <FormMessage />
                       </FormItem>
@@ -209,7 +209,7 @@ export default function LaborPage() {
                   />
                   <Button type="submit" className="w-full">
                     <PlusCircle className="mr-2 h-4 w-4" />
-                    Add Labor Cost
+                    Add Employee Cost
                   </Button>
                 </form>
               </Form>
@@ -219,15 +219,15 @@ export default function LaborPage() {
         <div className="lg:col-span-2">
           <Card>
             <CardHeader>
-              <CardTitle>Labor Cost History</CardTitle>
+              <CardTitle>Employee Cost History</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Date</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Laborers</TableHead>
+                    <TableHead>Employee</TableHead>
+                    <TableHead>Count</TableHead>
                     <TableHead>Advances</TableHead>
                     <TableHead>Food/Fuel</TableHead>
                     <TableHead>Total</TableHead>
@@ -239,7 +239,7 @@ export default function LaborPage() {
                     costs.map((c) => (
                       <TableRow key={c.id}>
                         <TableCell>{c.date}</TableCell>
-                        <TableCell>{c.laborerName}</TableCell>
+                        <TableCell>{c.employeeName}</TableCell>
                         <TableCell>{c.numberOfLaborers}</TableCell>
                         <TableCell>₹{c.advancePayments.toFixed(2)}</TableCell>
                         <TableCell>₹{(c.foodCosts + c.fuelCosts).toFixed(2)}</TableCell>
@@ -254,7 +254,7 @@ export default function LaborPage() {
                   ) : (
                     <TableRow>
                       <TableCell colSpan={7} className="text-center">
-                        No labor costs recorded yet.
+                        No employee costs recorded yet.
                       </TableCell>
                     </TableRow>
                   )}

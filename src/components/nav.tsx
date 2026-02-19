@@ -19,7 +19,7 @@ const links = [
   { href: '/dashboard/purchase', label: 'Purchase Animals', icon: Package },
   { href: '/dashboard/medicine', label: 'Medicine Cost', icon: Syringe },
   { href: '/dashboard/feed', label: 'Feed Cost', icon: Wheat },
-  { href: '/dashboard/labor', label: 'Labour Cost', icon: Users },
+  { href: '/dashboard/labor', label: 'Employee Cost', icon: Users },
   { href: '/dashboard/sales', label: 'Animal Sale', icon: BadgeIndianRupee },
   { href: '/dashboard/analysis', label: 'Reports', icon: BarChart },
 ];

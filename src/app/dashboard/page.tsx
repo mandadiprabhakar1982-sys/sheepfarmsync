@@ -59,8 +59,8 @@ const menuItems = [
       href: '/dashboard/feed',
     },
     {
-      title: 'LABOUR COST',
-      description: 'MANAGE WORKFORCE',
+      title: 'EMPLOYEE COST',
+      description: 'MANAGE EMPLOYEES',
       icon: Users,
       color: 'bg-indigo-500',
       href: '/dashboard/labor',
