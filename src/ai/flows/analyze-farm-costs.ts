@@ -11,6 +11,7 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const LivestockPurchaseSchema = z.object({
+  purchaseDate: z.string().describe('Date of purchase (YYYY-MM-DD format).'),
   villageName: z.string().describe('Name of the village where the animal was purchased.'),
   farmerName: z.string().describe('Name of the farmer from whom the animal was purchased.'),
   animalCount: z.number().int().describe('Number of animals purchased.'),
@@ -82,7 +83,7 @@ Farm Cost Data:
 {{#if livestockPurchases}}
 ## Livestock Purchases:
 {{#each livestockPurchases}}
-- Village: {{{this.villageName}}}, Farmer: {{{this.farmerName}}}, Sheep: {{{this.animalCount}}}, Purchase Price: {{{this.purchasePrice}}}, Amount Paid: {{{this.amountPaid}}}, Due: {{{this.dueAmount}}}, Payment Period: {{{this.payingTimePeriod}}}
+- Date: {{{this.purchaseDate}}}, Village: {{{this.villageName}}}, Farmer: {{{this.farmerName}}}, Sheep: {{{this.animalCount}}}, Purchase Price: {{{this.purchasePrice}}}, Amount Paid: {{{this.amountPaid}}}, Due: {{{this.dueAmount}}}, Payment Period: {{{this.payingTimePeriod}}}
 {{/each}}
 {{else}}
 No livestock purchase data available.
