@@ -76,9 +76,9 @@ export default function MedicinePage() {
   }
 
   return (
-    <>
+    <div className="container mx-auto py-8">
       <PageHeader
-        title="Medicine Expenses"
+        title="Medicine Costs"
         description="Track costs for animal health and medicine."
       />
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
@@ -241,6 +241,6 @@ export default function MedicinePage() {
           </Card>
         </div>
       </div>
-    </>
+    </div>
   );
 }

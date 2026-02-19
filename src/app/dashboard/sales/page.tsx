@@ -81,9 +81,9 @@ export default function SalesPage() {
 
 
   return (
-    <>
+    <div className="container mx-auto py-8">
       <PageHeader
-        title="Sales Transactions"
+        title="Animal Sales"
         description="Log all your animal sales transactions here."
       />
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
@@ -219,6 +219,6 @@ export default function SalesPage() {
           </Card>
         </div>
       </div>
-    </>
+    </div>
   );
 }

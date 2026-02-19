@@ -37,9 +37,9 @@ export default function AnalysisPage() {
   };
 
   return (
-    <>
+    <div className="container mx-auto py-8">
       <PageHeader
-        title="AI-Powered Cost Optimization"
+        title="AI-Powered Reports & Analysis"
         description="Get actionable insights to improve your farm's financial health."
       />
       <div className="flex flex-col items-center">
@@ -120,6 +120,6 @@ export default function AnalysisPage() {
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 }

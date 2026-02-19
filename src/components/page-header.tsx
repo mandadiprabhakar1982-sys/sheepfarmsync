@@ -10,7 +10,7 @@ export function PageHeader({ title, description, className, children }: PageHead
     <div className={cn('mb-8', className)}>
       <div className="flex items-center justify-between">
         <div>
-            <h1 className="text-3xl font-bold tracking-tight font-headline">{title}</h1>
+            <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
             {description && <p className="mt-1 text-muted-foreground">{description}</p>}
         </div>
         {children}

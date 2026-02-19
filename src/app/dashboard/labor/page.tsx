@@ -99,9 +99,9 @@ export default function LaborPage() {
 
 
   return (
-    <>
+    <div className="container mx-auto py-8">
       <PageHeader
-        title="Labor Costs"
+        title="Labour Costs"
         description="Document all expenses related to farm labor."
       />
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
@@ -247,6 +247,6 @@ export default function LaborPage() {
           </Card>
         </div>
       </div>
-    </>
+    </div>
   );
 }

@@ -82,7 +82,7 @@ export default function FeedPage() {
   }
 
   return (
-    <>
+    <div className="container mx-auto py-8">
       <PageHeader
         title="Feed Costs"
         description="Record expenses for all types of animal feed."
@@ -241,6 +241,6 @@ export default function FeedPage() {
           </Card>
         </div>
       </div>
-    </>
+    </div>
   );
 }

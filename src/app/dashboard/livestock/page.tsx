@@ -72,10 +72,10 @@ export default function LivestockPage() {
   }
 
   return (
-    <>
+    <div className="container mx-auto py-8">
       <PageHeader
-        title="Livestock Purchases"
-        description="Log the purchase of new livestock for your farm."
+        title="Flock Tracking & Purchases"
+        description="Log the purchase of new livestock and track your flock."
       />
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="lg:col-span-1">
@@ -211,6 +211,6 @@ export default function LivestockPage() {
           </Card>
         </div>
       </div>
-    </>
+    </div>
   );
 }

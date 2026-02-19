@@ -3,8 +3,8 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'FarmSync',
-  description: 'Farm management application',
+  title: 'SheepSync Pro',
+  description: 'Precision management for modern shepherds',
 };
 
 export default function RootLayout({

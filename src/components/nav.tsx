@@ -1,36 +1,55 @@
 'use client';
-
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import {
+  LayoutGrid,
+  Package,
+  Syringe,
+  Wheat,
+  Users,
+  BarChart,
+  BadgeIndianRupee,
+} from 'lucide-react';
+import { SheepIcon } from '@/components/logo';
 
 const links = [
-  { href: '/dashboard', label: 'Dashboard' },
-  { href: '/dashboard/livestock', label: 'Livestock' },
-  { href: '/dashboard/medicine', label: 'Medicine' },
-  { href: '/dashboard/feed', label: 'Feed' },
-  { href: '/dashboard/labor', label: 'Labor' },
-  { href: '/dashboard/sales', label: 'Sales' },
-  { href: '/dashboard/analysis', label: 'AI Analysis' },
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutGrid },
+  { href: '/dashboard/livestock', label: 'Flock Tracking', icon: SheepIcon },
+  { href: '/dashboard/livestock', label: 'Purchase Animals', icon: Package },
+  { href: '/dashboard/medicine', label: 'Medicine Cost', icon: Syringe },
+  { href: '/dashboard/feed', label: 'Feed Cost', icon: Wheat },
+  { href: '/dashboard/labor', label: 'Labour Cost', icon: Users },
+  { href: '/dashboard/sales', label: 'Animal Sale', icon: BadgeIndianRupee },
+  { href: '/dashboard/analysis', label: 'Reports', icon: BarChart },
 ];
 
 export function Nav() {
   const pathname = usePathname();
 
   return (
-    <>
-      {links.map((link) => (
-        <Link
-          key={link.href}
-          href={link.href}
-          className={cn(
-            'transition-colors hover:text-primary',
-            pathname === link.href ? 'font-semibold text-primary' : 'text-muted-foreground'
-          )}
-        >
-          {link.label}
-        </Link>
-      ))}
-    </>
+    <nav className="flex items-center gap-1">
+      {links.map((link) => {
+        const Icon = link.icon;
+        const isActive = pathname === link.href;
+
+        return (
+          <Link
+            key={link.label}
+            href={link.href}
+            className={cn(
+              'flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+              'hover:text-foreground',
+              isActive
+                ? 'bg-primary text-primary-foreground'
+                : 'text-muted-foreground'
+            )}
+          >
+            <Icon className="h-4 w-4" />
+            <span className="whitespace-nowrap">{link.label}</span>
+          </Link>
+        );
+      })}
+    </nav>
   );
 }
