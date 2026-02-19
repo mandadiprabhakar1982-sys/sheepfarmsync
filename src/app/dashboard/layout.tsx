@@ -48,7 +48,7 @@ export default function DashboardLayout({
             <Logo showManager={true} />
           </div>
           
-          <div className="hidden flex-1 items-center justify-center md:flex">
+          <div className="hidden flex-1 items-center justify-center gap-1 md:flex">
               <Nav />
           </div>
 
