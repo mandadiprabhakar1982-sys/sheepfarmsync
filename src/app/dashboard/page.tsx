@@ -23,6 +23,7 @@ import {
   DollarSign,
   Receipt,
   AlertCircle,
+  TrendingUp,
 } from 'lucide-react';
 
 export default function DashboardPage() {
