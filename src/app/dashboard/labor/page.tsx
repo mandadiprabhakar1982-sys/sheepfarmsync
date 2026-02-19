@@ -36,13 +36,12 @@ import { useFarm } from '@/context/FarmContext';
 const formSchema = z.object({
   employeeName: z.string().min(1, "Employee name is required"),
   date: z.date({ required_error: 'A date is required.' }),
-  dailyWages: z.coerce.number().nonnegative().optional(),
-  monthlyWages: z.coerce.number().nonnegative().optional(),
+  wages: z.coerce.number().nonnegative('Wages per employee must be a non-negative number.'),
   numberOfLaborers: z.coerce.number().int().positive('Must be a positive number'),
-  advancePayments: z.coerce.number().nonnegative('Cannot be negative'),
-  foodCosts: z.coerce.number().nonnegative('Cannot be negative'),
-  fuelCosts: z.coerce.number().nonnegative('Cannot be negative'),
-  totalLaborCosts: z.coerce.number().positive('Total must be calculated and positive'),
+  advancePayments: z.coerce.number().nonnegative('Cannot be negative').optional(),
+  foodCosts: z.coerce.number().nonnegative('Cannot be negative').optional(),
+  fuelCosts: z.coerce.number().nonnegative('Cannot be negative').optional(),
+  totalLaborCosts: z.coerce.number().min(0, 'Total must be non-negative'),
 });
 
 type LaborFormData = z.infer<typeof formSchema>;
@@ -55,8 +54,7 @@ export default function LaborPage() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       employeeName: '',
-      dailyWages: 0,
-      monthlyWages: 0,
+      wages: 0,
       numberOfLaborers: 1,
       advancePayments: 0,
       foodCosts: 0,
@@ -66,8 +64,7 @@ export default function LaborPage() {
   });
 
   const watchedFields = form.watch([
-    'dailyWages',
-    'monthlyWages',
+    'wages',
     'numberOfLaborers',
     'advancePayments',
     'foodCosts',
@@ -75,8 +72,8 @@ export default function LaborPage() {
   ]);
 
   useEffect(() => {
-    const [daily, monthly, num, advance, food, fuel] = watchedFields;
-    const totalWages = ((daily || 0) + (monthly || 0)) * (num || 1);
+    const [wages, num, advance, food, fuel] = watchedFields;
+    const totalWages = (wages || 0) * (num || 1);
     const total = totalWages + (advance || 0) + (food || 0) + (fuel || 0);
     form.setValue('totalLaborCosts', total);
   }, [watchedFields, form]);
@@ -158,24 +155,19 @@ export default function LaborPage() {
                       </FormItem>
                     )}
                   />
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField control={form.control} name="dailyWages" render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Daily Wages per Employee</FormLabel>
-                          <FormControl><Input type="number" step="0.01" {...field} /></FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField control={form.control} name="monthlyWages" render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Monthly Wages per Employee</FormLabel>
-                          <FormControl><Input type="number" step="0.01" {...field} /></FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                  <FormField
+                    control={form.control}
+                    name="wages"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Wages per Employee (₹)</FormLabel>
+                        <FormControl>
+                          <Input type="number" step="0.01" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                   <FormField control={form.control} name="advancePayments" render={({ field }) => (
                       <FormItem>
                         <FormLabel>Advance Payments (₹)</FormLabel>
@@ -268,3 +260,5 @@ export default function LaborPage() {
     </div>
   );
 }
+
+    

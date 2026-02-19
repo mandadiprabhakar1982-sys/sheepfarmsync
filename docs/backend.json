@@ -156,26 +156,22 @@
           "type": "string",
           "description": "Unique identifier for the LaborExpense entity."
         },
-        "expenseDate": {
+        "employeeName": {
+          "type": "string",
+          "description": "The name of the employee."
+        },
+        "date": {
           "type": "string",
           "description": "The date when this labor expense was recorded or paid.",
           "format": "date-time"
         },
-        "description": {
-          "type": "string",
-          "description": "An optional description for the labor expense, e.g., 'Monthly wages for June', 'Daily labor for harvest'."
+        "wages": {
+          "type": "number",
+          "description": "Wages per employee."
         },
         "numberOfLaborers": {
           "type": "number",
           "description": "The number of laborers covered by this expense record."
-        },
-        "dailyWagesCost": {
-          "type": "number",
-          "description": "The total cost paid for daily wages in this expense period."
-        },
-        "monthlyWagesCost": {
-          "type": "number",
-          "description": "The total cost paid for monthly wages in this expense period."
         },
         "advancePayments": {
           "type": "number",
@@ -189,21 +185,18 @@
           "type": "number",
           "description": "The cost incurred for fuel related to labor activities (e.g., transport)."
         },
-        "totalLaborCost": {
+        "totalLaborCosts": {
           "type": "number",
           "description": "The sum of all labor-related costs for this entry."
         }
       },
       "required": [
         "id",
-        "expenseDate",
+        "date",
+        "employeeName",
+        "wages",
         "numberOfLaborers",
-        "dailyWagesCost",
-        "monthlyWagesCost",
-        "advancePayments",
-        "foodCosts",
-        "fuelCosts",
-        "totalLaborCost"
+        "totalLaborCosts"
       ]
     },
     "AnimalSale": {

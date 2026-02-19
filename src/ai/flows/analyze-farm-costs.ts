@@ -40,8 +40,7 @@ const FeedCostSchema = z.object({
 const LaborCostSchema = z.object({
   employeeName: z.string().describe('Name of the employee.'),
   date: z.string().describe('Date of employee expense (YYYY-MM-DD format).'),
-  dailyWages: z.number().optional().describe('Daily wage amount paid.'),
-  monthlyWages: z.number().optional().describe('Monthly wage amount paid.'),
+  wages: z.number().describe('Wages per employee.'),
   numberOfLaborers: z.number().int().describe('Number of employees.'),
   advancePayments: z.number().describe('Advance payments made to employees.'),
   foodCosts: z.number().describe('Cost of food provided to employees.'),
@@ -118,7 +117,7 @@ No feed cost data available.
 {{#if laborCosts}}
 ## Employee Costs:
 {{#each laborCosts}}
-- Employee: {{{this.employeeName}}}, Date: {{{this.date}}}, Daily Wages: {{{this.dailyWages}}}, Monthly Wages: {{{this.monthlyWages}}}, Employees: {{{this.numberOfLaborers}}}, Advance Payments: {{{this.advancePayments}}}, Food Costs: {{{this.foodCosts}}}, Fuel Costs: {{{this.fuelCosts}}}, Total: {{{this.totalLaborCosts}}}
+- Employee: {{{this.employeeName}}}, Date: {{{this.date}}}, Wages: {{{this.wages}}}, Employees: {{{this.numberOfLaborers}}}, Advance Payments: {{{this.advancePayments}}}, Food Costs: {{{this.foodCosts}}}, Fuel Costs: {{{this.fuelCosts}}}, Total: {{{this.totalLaborCosts}}}
 {{/each}}
 {{else}}
 No employee cost data available.
@@ -147,6 +146,8 @@ const analyzeFarmCostsFlow = ai.defineFlow(
     return output!;
   }
 );
+
+    
 
     
 
