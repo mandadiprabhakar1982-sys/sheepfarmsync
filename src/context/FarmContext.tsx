@@ -4,12 +4,13 @@ import { createContext, useContext, useState, ReactNode, useMemo, useCallback } 
 import type { LivestockPurchase, SalesTransaction, FeedCost, MedicineExpense, LaborCost, TrackedSheep } from '@/lib/types';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
-import { setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { setDocumentNonBlocking, deleteDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 interface FarmContextType {
   purchases: LivestockPurchase[] | null;
   addPurchase: (purchase: Omit<LivestockPurchase, 'id'>) => void;
   deletePurchase: (id: string) => void;
+  updatePurchase: (id: string, data: Omit<LivestockPurchase, 'id'>) => void;
   
   sales: SalesTransaction[] | null;
   addSale: (sale: Omit<SalesTransaction, 'id'>) => void;
@@ -72,6 +73,12 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const deletePurchase = useCallback((id: string) => {
     if (!purchasesRef) return;
     deleteDocumentNonBlocking(doc(purchasesRef, id));
+  }, [purchasesRef]);
+
+  const updatePurchase = useCallback((id: string, data: Omit<LivestockPurchase, 'id'>) => {
+    if (!purchasesRef) return;
+    const docRef = doc(purchasesRef, id);
+    updateDocumentNonBlocking(docRef, data);
   }, [purchasesRef]);
 
   const addSale = useCallback((sale: Omit<SalesTransaction, 'id'>) => {
@@ -156,6 +163,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     purchases,
     addPurchase,
     deletePurchase,
+    updatePurchase,
     sales,
     addSale,
     deleteSale,
@@ -191,5 +199,3 @@ export function useFarm() {
   }
   return context;
 }
-
-    

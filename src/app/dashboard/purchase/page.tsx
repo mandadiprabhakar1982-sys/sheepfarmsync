@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { PlusCircle, Trash2, Calendar as CalendarIcon } from 'lucide-react';
+import { PlusCircle, Trash2, Calendar as CalendarIcon, Pencil } from 'lucide-react';
 import { format } from 'date-fns';
 
 import { PageHeader } from '@/components/page-header';
@@ -18,6 +18,16 @@ import { useFarm } from '@/context/FarmContext';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import type { LivestockPurchase } from '@/lib/types';
+
 
 // Schema for the purchase form
 const purchaseFormSchema = z.object({
@@ -36,7 +46,10 @@ type PurchaseFormData = z.infer<typeof purchaseFormSchema>;
 
 export default function PurchasePage() {
   const { toast } = useToast();
-  const { purchases, addPurchase, deletePurchase } = useFarm();
+  const { purchases, addPurchase, deletePurchase, updatePurchase } = useFarm();
+  
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingPurchase, setEditingPurchase] = useState<LivestockPurchase | null>(null);
 
   const sortedPurchases = useMemo(() => {
     if (!purchases) return [];
@@ -57,6 +70,10 @@ export default function PurchasePage() {
     },
   });
 
+  const editForm = useForm<PurchaseFormData>({
+    resolver: zodResolver(purchaseFormSchema),
+  });
+
   const watchedPurchaseFields = purchaseForm.watch(['purchasePrice', 'amountPaid']);
 
   useEffect(() => {
@@ -64,6 +81,26 @@ export default function PurchasePage() {
     const due = (purchasePrice || 0) - (amountPaid || 0);
     purchaseForm.setValue('dueAmount', due >= 0 ? due : 0);
   }, [watchedPurchaseFields, purchaseForm]);
+
+  const watchedEditPurchaseFields = editForm.watch(['purchasePrice', 'amountPaid']);
+
+  useEffect(() => {
+    if (!isEditDialogOpen) return;
+    const [purchasePrice, amountPaid] = watchedEditPurchaseFields;
+    const due = (purchasePrice || 0) - (amountPaid || 0);
+    editForm.setValue('dueAmount', due >= 0 ? due : 0);
+  }, [watchedEditPurchaseFields, editForm, isEditDialogOpen]);
+
+  useEffect(() => {
+    if (editingPurchase) {
+      editForm.reset({
+        ...editingPurchase,
+        purchaseDate: new Date(editingPurchase.purchaseDate),
+        transportCost: editingPurchase.transportCost || 0,
+      });
+    }
+  }, [editingPurchase, editForm]);
+
 
   const onPurchaseSubmit: SubmitHandler<PurchaseFormData> = (data) => {
     const newPurchase = {
@@ -78,6 +115,24 @@ export default function PurchasePage() {
     });
   };
 
+  const onEditSubmit: SubmitHandler<PurchaseFormData> = (data) => {
+    if (!editingPurchase) return;
+
+    const updatedData = {
+      ...data,
+      purchaseDate: format(data.purchaseDate, 'yyyy-MM-dd'),
+    };
+
+    updatePurchase(editingPurchase.id, updatedData);
+    
+    setIsEditDialogOpen(false);
+    setEditingPurchase(null);
+    toast({
+      title: 'Updated!',
+      description: 'Purchase record has been updated successfully.',
+    });
+  };
+
   const handleDeletePurchase = (id: string) => {
     deletePurchase(id);
     toast({
@@ -85,6 +140,11 @@ export default function PurchasePage() {
       description: 'Purchase record has been deleted.',
       variant: 'destructive'
     });
+  };
+
+  const handleEditClick = (purchase: LivestockPurchase) => {
+    setEditingPurchase(purchase);
+    setIsEditDialogOpen(true);
   };
 
   return (
@@ -198,7 +258,7 @@ export default function PurchasePage() {
                   <FormField control={purchaseForm.control} name="payingTimePeriod" render={({ field }) => (
                     <FormItem>
                       <FormLabel>Paying Time Period</FormLabel>
-                      <FormControl><Input placeholder="e.g., 30 days" {...field} /></FormControl>
+                      <FormControl><Input placeholder="e.g., 30 days" {...field} value={field.value ?? ''} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
@@ -244,6 +304,9 @@ export default function PurchasePage() {
                         <TableCell>₹{purchase.amountPaid.toFixed(2)}</TableCell>
                         <TableCell className={purchase.dueAmount > 0 ? 'text-destructive' : ''}>₹{purchase.dueAmount.toFixed(2)}</TableCell>
                         <TableCell className="text-right">
+                          <Button variant="ghost" size="icon" onClick={() => handleEditClick(purchase)}>
+                            <Pencil className="h-4 w-4" />
+                          </Button>
                           <Button variant="ghost" size="icon" onClick={() => handleDeletePurchase(purchase.id)}>
                             <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
@@ -261,8 +324,117 @@ export default function PurchasePage() {
           </Card>
         </div>
       </div>
+
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Purchase Record</DialogTitle>
+            <DialogDescription>
+              Update the details of your purchase. Click save when you're done.
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...editForm}>
+            <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-4">
+              <FormField
+                control={editForm.control}
+                name="purchaseDate"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Purchase Date</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={'outline'}
+                            className={cn(
+                              'w-full pl-3 text-left font-normal',
+                              !field.value && 'text-muted-foreground'
+                            )}
+                          >
+                            {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField control={editForm.control} name="villageName" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Village Name</FormLabel>
+                  <FormControl><Input {...field} /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              <FormField control={editForm.control} name="farmerName" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Farmer's Name</FormLabel>
+                  <FormControl><Input {...field} /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              <FormField control={editForm.control} name="animalCount" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Number of Sheep</FormLabel>
+                  <FormControl><Input type="number" {...field} /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              <div className="grid grid-cols-2 gap-4">
+                <FormField control={editForm.control} name="purchasePrice" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Purchase Price (₹)</FormLabel>
+                    <FormControl><Input type="number" step="0.01" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                <FormField control={editForm.control} name="amountPaid" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Amount Paid (₹)</FormLabel>
+                    <FormControl><Input type="number" step="0.01" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+              </div>
+              <FormField control={editForm.control} name="transportCost" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Transport Cost (₹)</FormLabel>
+                  <FormControl><Input type="number" step="0.01" {...field} value={field.value ?? ''} /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              <FormField control={editForm.control} name="dueAmount" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Due Amount (₹)</FormLabel>
+                  <FormControl><Input type="number" {...field} readOnly className="bg-muted" /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              <FormField control={editForm.control} name="payingTimePeriod" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Paying Time Period</FormLabel>
+                  <FormControl><Input {...field} value={field.value ?? ''} /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              <DialogFooter>
+                <Button type="submit">Save Changes</Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
-
-    
