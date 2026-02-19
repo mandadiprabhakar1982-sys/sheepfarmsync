@@ -15,8 +15,7 @@ import { SheepIcon } from '@/components/logo';
 
 const links = [
   { href: '/dashboard', label: 'Home', icon: Home },
-  { href: '/dashboard/livestock', label: 'Flock Tracking', icon: SheepIcon },
-  { href: '/dashboard/livestock', label: 'Purchase Animals', icon: Package },
+  { href: '/dashboard/livestock', label: 'Flock Management', icon: SheepIcon },
   { href: '/dashboard/medicine', label: 'Medicine Cost', icon: Syringe },
   { href: '/dashboard/feed', label: 'Feed Cost', icon: Wheat },
   { href: '/dashboard/labor', label: 'Labour Cost', icon: Users },
