@@ -69,35 +69,35 @@
           "type": "string",
           "description": "Unique identifier for the MedicineExpense entity."
         },
-        "expenseDate": {
+        "date": {
           "type": "string",
           "description": "The date when the medicine expense was incurred.",
           "format": "date-time"
         },
-        "medicineShopName": {
+        "shopName": {
           "type": "string",
           "description": "The name of the medicine shop where the purchase was made."
         },
-        "totalCost": {
+        "costOfMedicines": {
           "type": "number",
-          "description": "The total cost of medicines purchased in this transaction."
+          "description": "The cost of the medicines."
         },
-        "amountPaid": {
+        "totalAmountSpent": {
           "type": "number",
-          "description": "The amount paid to the medicine shop at the time of purchase."
+          "description": "The total amount spent including other charges."
         },
-        "outstandingDuesToShop": {
+        "outstandingDues": {
           "type": "number",
           "description": "Any amount still owed to the medicine shop for this expense."
         }
       },
       "required": [
         "id",
-        "expenseDate",
-        "medicineShopName",
-        "totalCost",
-        "amountPaid",
-        "outstandingDuesToShop"
+        "date",
+        "shopName",
+        "costOfMedicines",
+        "totalAmountSpent",
+        "outstandingDues"
       ]
     },
     "FeedExpense": {
@@ -110,40 +110,30 @@
           "type": "string",
           "description": "Unique identifier for the FeedExpense entity."
         },
-        "expenseDate": {
+        "date": {
           "type": "string",
           "description": "The date when the feed expense was recorded.",
           "format": "date-time"
         },
-        "tmrCost": {
-          "type": "number",
-          "description": "The cost incurred for Total Mixed Ration (TMR) feed."
+        "feedType": {
+          "type": "string",
+          "description": "Type of feed (e.g., TMR, Silage, Groundnut, Other)."
         },
-        "silageCost": {
+        "cost": {
           "type": "number",
-          "description": "The cost incurred for silage feed."
+          "description": "The cost of the feed."
         },
-        "groundnutCost": {
+        "quantity": {
           "type": "number",
-          "description": "The cost incurred for groundnut feed."
-        },
-        "otherFeedCost": {
-          "type": "number",
-          "description": "The cost incurred for other types of animal feed not specified."
-        },
-        "totalFeedCost": {
-          "type": "number",
-          "description": "The sum of all feed type costs for this expense record."
+          "description": "The quantity of feed purchased in kg."
         }
       },
       "required": [
         "id",
-        "expenseDate",
-        "tmrCost",
-        "silageCost",
-        "groundnutCost",
-        "otherFeedCost",
-        "totalFeedCost"
+        "date",
+        "feedType",
+        "cost",
+        "quantity"
       ]
     },
     "LaborExpense": {
@@ -527,5 +517,3 @@
     "reasoning": "The recommended Firestore structure for Shepfarmsycpro strictly adheres to the core design principles, prioritizing Authorization Independence and QAPs (Queries as Permissions) through a user-centric, path-based ownership model. Each user's data is isolated within their dedicated subcollection, making security rules simple, robust, and debuggable.\n\n**Authorization Independence:** This is achieved by embedding the `userId` directly into the path for all user-owned data. For example, a livestock purchase record will be stored at `/users/{userId}/livestockPurchases/{livestockPurchaseId}`. This structure allows security rules to evaluate ownership by simply comparing `request.auth.uid` with the `{userId}` wildcard in the path. This eliminates the need for expensive and complex `get()` calls to parent documents or other collections, thereby supporting atomic operations (transactions/batches) and preventing security rule dependencies that are hard to debug.\n\n**QAPs (Queries as Permissions):** By segregating data under the user's ID, any `list` operation performed on a collection like `/users/{userId}/livestockPurchases` will inherently return only the records belonging to the authenticated user. Firestore's security rules can enforce that `{userId}` matches `request.auth.uid`, ensuring that users can only query their own data. This means the database structure itself acts as a primary filter, simplifying query patterns and drastically reducing the risk of data leakage or over-fetching, as rules are not used as filters but as validators of already scoped requests.\n\n**Structural Segregation:** Each type of financial record (Livestock Purchases, Medicine Expenses, Feed Expenses, Labor Expenses, Animal Sales) is stored in its own dedicated subcollection under the respective user's path. For instance, `livestockPurchases` will only contain `LivestockPurchase` documents. This ensures a homogeneous security posture for all documents within a given collection, simplifying security rules (e.g., all documents in `/users/{userId}/livestockPurchases` have the same owner and access requirements). This separation also enhances clarity and predictability of the data schema within each collection.\n\n**Access Modeling:** The design primarily uses Path-Based ownership for all transactional data. Since all core features (purchase tracking, expense recording, sales recording) revolve around a single farm owner's data, this model perfectly suits the requirement for private, user-specific records. The `userId` in the path clearly denotes who owns the data.\n\n**Data Clarity and Predictability:** All path wildcards are semantically descriptive (e.g., `{userId}`, `{livestockPurchaseId}`). The schema for each entity is consistent within its collection. No dynamic keys are used, and state modeling (if any were required beyond what's in the entities) would rely on explicit fields.\n\nIn summary, this structure provides a secure, scalable, and highly debuggable foundation for Shepfarmsycpro by leveraging Firebase's strengths in path-based security and denormalization for authorization context."
   }
 }
-
-    

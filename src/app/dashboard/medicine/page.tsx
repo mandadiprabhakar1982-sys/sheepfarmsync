@@ -3,8 +3,9 @@
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { PlusCircle, Calendar as CalendarIcon, Trash2 } from 'lucide-react';
+import { PlusCircle, Calendar as CalendarIcon, Trash2, Pencil } from 'lucide-react';
 import { format } from 'date-fns';
+import { useState, useEffect, useMemo } from 'react';
 
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
@@ -28,9 +29,19 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useFarm } from '@/context/FarmContext';
+import type { MedicineExpense } from '@/lib/types';
+
 
 const formSchema = z.object({
   shopName: z.string().min(1, 'Shop name is required'),
@@ -44,8 +55,10 @@ type MedicineFormData = z.infer<typeof formSchema>;
 
 export default function MedicinePage() {
   const { toast } = useToast();
-  const { medicineExpenses, addMedicineExpense, deleteMedicineExpense } = useFarm();
-  
+  const { medicineExpenses, addMedicineExpense, deleteMedicineExpense, updateMedicineExpense } = useFarm();
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingMedicineExpense, setEditingMedicineExpense] = useState<MedicineExpense | null>(null);
+
   const form = useForm<MedicineFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -55,6 +68,24 @@ export default function MedicinePage() {
       outstandingDues: 0,
     },
   });
+  
+  const editForm = useForm<MedicineFormData>({
+    resolver: zodResolver(formSchema),
+  });
+
+  const sortedMedicineExpenses = useMemo(() => {
+    if (!medicineExpenses) return [];
+    return [...medicineExpenses].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }, [medicineExpenses]);
+
+  useEffect(() => {
+    if (editingMedicineExpense) {
+      editForm.reset({
+        ...editingMedicineExpense,
+        date: new Date(editingMedicineExpense.date),
+      });
+    }
+  }, [editingMedicineExpense, editForm]);
 
   const onSubmit: SubmitHandler<MedicineFormData> = (data) => {
     const newExpense = { ...data, date: format(data.date, 'yyyy-MM-dd') };
@@ -63,6 +94,18 @@ export default function MedicinePage() {
     toast({
       title: 'Success!',
       description: 'Medicine expense has been recorded.',
+    });
+  };
+
+  const onEditSubmit: SubmitHandler<MedicineFormData> = (data) => {
+    if (!editingMedicineExpense) return;
+    const updatedData = { ...data, date: format(data.date, 'yyyy-MM-dd') };
+    updateMedicineExpense(editingMedicineExpense.id, updatedData);
+    setIsEditDialogOpen(false);
+    setEditingMedicineExpense(null);
+    toast({
+      title: 'Updated!',
+      description: 'Medicine expense record has been updated successfully.',
     });
   };
   
@@ -74,6 +117,11 @@ export default function MedicinePage() {
       variant: 'destructive'
     });
   }
+
+  const handleEditClick = (expense: MedicineExpense) => {
+    setEditingMedicineExpense(expense);
+    setIsEditDialogOpen(true);
+  };
 
   return (
     <div className="container mx-auto py-8">
@@ -211,8 +259,8 @@ export default function MedicinePage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {medicineExpenses && medicineExpenses.length > 0 ? (
-                    medicineExpenses.map((e) => (
+                  {sortedMedicineExpenses && sortedMedicineExpenses.length > 0 ? (
+                    sortedMedicineExpenses.map((e) => (
                       <TableRow key={e.id}>
                         <TableCell>{e.date}</TableCell>
                         <TableCell>{e.shopName}</TableCell>
@@ -222,9 +270,14 @@ export default function MedicinePage() {
                           ₹{e.outstandingDues.toFixed(2)}
                         </TableCell>
                          <TableCell className='text-right'>
+                          <div className="flex items-center justify-end">
+                            <Button variant="ghost" size="icon" onClick={() => handleEditClick(e)}>
+                                <Pencil className="h-4 w-4" />
+                            </Button>
                             <Button variant="ghost" size="icon" onClick={() => handleDeleteExpense(e.id)}>
                                 <Trash2 className="h-4 w-4 text-destructive" />
                             </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))
@@ -241,6 +294,117 @@ export default function MedicinePage() {
           </Card>
         </div>
       </div>
+
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Medicine Expense</DialogTitle>
+            <DialogDescription>
+              Update the details of your medicine expense. Click save when you're done.
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...editForm}>
+            <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-4 py-4">
+               <FormField
+                    control={editForm.control}
+                    name="shopName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Medicine Shop</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={editForm.control}
+                    name="date"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Date of Purchase</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={'outline'}
+                                className={cn(
+                                  'w-full pl-3 text-left font-normal',
+                                  !field.value && 'text-muted-foreground'
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, 'PPP')
+                                ) : (
+                                  <span>Pick a date</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              disabled={(date) =>
+                                date > new Date() || date < new Date('1900-01-01')
+                              }
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={editForm.control}
+                    name="costOfMedicines"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Cost of Medicines (₹)</FormLabel>
+                        <FormControl>
+                          <Input type="number" step="0.01" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={editForm.control}
+                    name="totalAmountSpent"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Total Amount Spent (₹)</FormLabel>
+                        <FormControl>
+                          <Input type="number" step="0.01" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={editForm.control}
+                    name="outstandingDues"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Outstanding Dues (₹)</FormLabel>
+                        <FormControl>
+                          <Input type="number" step="0.01" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+              <DialogFooter>
+                <Button type="submit">Save Changes</Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
