@@ -8,16 +8,16 @@ export type MedicineExpense = AnalyzeFarmCostsInput['medicineExpenses'][0] & { i
 export type FeedCost = AnalyzeFarmCostsInput['feedCosts'][0] & { id: string };
 export type LaborCost = AnalyzeFarmCostsInput['laborCosts'][0] & { id: string };
 
-export type SalesTransaction = {
+export type AnimalSale = {
   id: string;
-  date: string;
+  saleDate: string;
   buyerName: string;
-  village: string;
+  buyerVillage: string;
   animalCount: number;
-  animalWeight: number;
+  animalWeightKg: number;
   salePrice: number;
-  outstandingDues: number;
-  totalAmountReceived: number;
+  amountReceived: number;
+  outstandingDuesFromBuyer: number;
 };
 
 export type TrackedSheep = {
@@ -35,3 +35,4 @@ export type DeadAnimal = {
   causeOfDeath: string;
   notes?: string;
 };
+

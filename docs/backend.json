@@ -229,6 +229,10 @@
           "type": "string",
           "description": "The village of the buyer."
         },
+        "animalCount": {
+          "type": "number",
+          "description": "The number of animals sold."
+        },
         "animalWeightKg": {
           "type": "number",
           "description": "The total weight of the animal(s) sold in kilograms."
@@ -251,6 +255,7 @@
         "saleDate",
         "buyerName",
         "buyerVillage",
+        "animalCount",
         "animalWeightKg",
         "salePrice",
         "amountReceived",
@@ -289,6 +294,40 @@
         "id",
         "dateOfDeath",
         "causeOfDeath"
+      ]
+    },
+    "TrackedSheep": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "TrackedSheep",
+      "description": "Records details of individual sheep being tracked.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the tracked sheep."
+        },
+        "tagId": {
+          "type": "string",
+          "description": "The tag ID of the sheep."
+        },
+        "weight": {
+          "type": "number",
+          "description": "The weight of the sheep in kg."
+        },
+        "age": {
+          "type": "number",
+          "description": "The age of the sheep in months."
+        },
+        "photoDataUrl": {
+          "type": "string",
+          "description": "A data URI of a photo of the sheep."
+        }
+      },
+      "required": [
+        "id",
+        "tagId",
+        "weight",
+        "age"
       ]
     }
   },
@@ -419,9 +458,28 @@
             }
           ]
         }
+      },
+      {
+        "path": "/users/{userId}/trackedSheep/{trackedSheepId}",
+        "definition": {
+          "entityName": "TrackedSheep",
+          "schema": {
+            "$ref": "#/backend/entities/TrackedSheep"
+          },
+          "description": "Collection of tracked sheep for a specific user.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user (farm owner) who owns these records."
+            },
+            {
+              "name": "trackedSheepId",
+              "description": "The unique identifier for a specific tracked sheep record."
+            }
+          ]
+        }
       }
     ],
     "reasoning": "The recommended Firestore structure for Shepfarmsycpro strictly adheres to the core design principles, prioritizing Authorization Independence and QAPs (Queries as Permissions) through a user-centric, path-based ownership model. Each user's data is isolated within their dedicated subcollection, making security rules simple, robust, and debuggable.\n\n**Authorization Independence:** This is achieved by embedding the `userId` directly into the path for all user-owned data. For example, a livestock purchase record will be stored at `/users/{userId}/livestockPurchases/{livestockPurchaseId}`. This structure allows security rules to evaluate ownership by simply comparing `request.auth.uid` with the `{userId}` wildcard in the path. This eliminates the need for expensive and complex `get()` calls to parent documents or other collections, thereby supporting atomic operations (transactions/batches) and preventing security rule dependencies that are hard to debug.\n\n**QAPs (Queries as Permissions):** By segregating data under the user's ID, any `list` operation performed on a collection like `/users/{userId}/livestockPurchases` will inherently return only the records belonging to the authenticated user. Firestore's security rules can enforce that `{userId}` matches `request.auth.uid`, ensuring that users can only query their own data. This means the database structure itself acts as a primary filter, simplifying query patterns and drastically reducing the risk of data leakage or over-fetching, as rules are not used as filters but as validators of already scoped requests.\n\n**Structural Segregation:** Each type of financial record (Livestock Purchases, Medicine Expenses, Feed Expenses, Labor Expenses, Animal Sales) is stored in its own dedicated subcollection under the respective user's path. For instance, `livestockPurchases` will only contain `LivestockPurchase` documents. This ensures a homogeneous security posture for all documents within a given collection, simplifying security rules (e.g., all documents in `/users/{userId}/livestockPurchases` have the same owner and access requirements). This separation also enhances clarity and predictability of the data schema within each collection.\n\n**Access Modeling:** The design primarily uses Path-Based ownership for all transactional data. Since all core features (purchase tracking, expense recording, sales recording) revolve around a single farm owner's data, this model perfectly suits the requirement for private, user-specific records. The `userId` in the path clearly denotes who owns the data.\n\n**Data Clarity and Predictability:** All path wildcards are semantically descriptive (e.g., `{userId}`, `{livestockPurchaseId}`). The schema for each entity is consistent within its collection. No dynamic keys are used, and state modeling (if any were required beyond what's in the entities) would rely on explicit fields.\n\nIn summary, this structure provides a secure, scalable, and highly debuggable foundation for Shepfarmsycpro by leveraging Firebase's strengths in path-based security and denormalization for authorization context."
   }
 }
-    

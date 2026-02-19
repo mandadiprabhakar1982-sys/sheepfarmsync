@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useMemo, useCallback } from 'react';
-import type { LivestockPurchase, SalesTransaction, FeedCost, MedicineExpense, LaborCost, TrackedSheep, DeadAnimal } from '@/lib/types';
+import type { LivestockPurchase, AnimalSale, FeedCost, MedicineExpense, LaborCost, TrackedSheep, DeadAnimal } from '@/lib/types';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
 import { setDocumentNonBlocking, deleteDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase/non-blocking-updates';
@@ -12,8 +12,8 @@ interface FarmContextType {
   deletePurchase: (id: string) => void;
   updatePurchase: (id: string, data: Omit<LivestockPurchase, 'id'>) => void;
   
-  sales: SalesTransaction[] | null;
-  addSale: (sale: Omit<SalesTransaction, 'id'>) => void;
+  sales: AnimalSale[] | null;
+  addSale: (sale: Omit<AnimalSale, 'id'>) => void;
   deleteSale: (id: string) => void;
   
   feedCosts: FeedCost[] | null;
@@ -59,7 +59,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const { data: purchases, isLoading: isLoadingPurchases } = useCollection<LivestockPurchase>(purchasesRef);
 
   const salesRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'animalSales') : null, [firestore, user]);
-  const { data: sales, isLoading: isLoadingSales } = useCollection<SalesTransaction>(salesRef);
+  const { data: sales, isLoading: isLoadingSales } = useCollection<AnimalSale>(salesRef);
   
   const feedCostsRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'feedExpenses') : null, [firestore, user]);
   const { data: feedCosts, isLoading: isLoadingFeedCosts } = useCollection<FeedCost>(feedCostsRef);
@@ -73,8 +73,8 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const deadAnimalsRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'deadAnimals') : null, [firestore, user]);
   const { data: deadAnimals, isLoading: isLoadingDeadAnimals } = useCollection<DeadAnimal>(deadAnimalsRef);
 
-  // Note: trackedSheep is not a collection in firestore.rules
-  const [trackedSheep, setTrackedSheep] = useState<TrackedSheep[]>([]);
+  const trackedSheepRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'trackedSheep') : null, [firestore, user]);
+  const { data: trackedSheep, isLoading: isLoadingTrackedSheep } = useCollection<TrackedSheep>(trackedSheepRef);
 
   const addPurchase = useCallback((purchase: Omit<LivestockPurchase, 'id'>) => {
     if (!purchasesRef) return;
@@ -94,7 +94,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     updateDocumentNonBlocking(docRef, data);
   }, [purchasesRef]);
 
-  const addSale = useCallback((sale: Omit<SalesTransaction, 'id'>) => {
+  const addSale = useCallback((sale: Omit<AnimalSale, 'id'>) => {
     if (!salesRef) return;
     const newId = crypto.randomUUID();
     const docRef = doc(salesRef, newId);
@@ -143,13 +143,16 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   }, [laborCostsRef]);
   
   const addTrackedSheep = useCallback((sheep: Omit<TrackedSheep, 'id'>) => {
-    const newSheep = { ...sheep, id: crypto.randomUUID() };
-    setTrackedSheep(prev => [...prev, newSheep]);
-  }, []);
+    if (!trackedSheepRef) return;
+    const newId = crypto.randomUUID();
+    const docRef = doc(trackedSheepRef, newId);
+    setDocumentNonBlocking(docRef, { ...sheep, id: newId }, {});
+  }, [trackedSheepRef]);
 
   const deleteTrackedSheep = useCallback((id: string) => {
-    setTrackedSheep(prev => prev.filter(a => a.id !== id));
-  }, []);
+    if (!trackedSheepRef) return;
+    deleteDocumentNonBlocking(doc(trackedSheepRef, id));
+  }, [trackedSheepRef]);
   
   const addDeadAnimal = useCallback((animal: Omit<DeadAnimal, 'id'>) => {
     if (!deadAnimalsRef) return;
@@ -164,7 +167,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   }, [deadAnimalsRef]);
 
 
-  const isLoading = isLoadingPurchases || isLoadingSales || isLoadingFeedCosts || isLoadingMedicine || isLoadingLabor || isLoadingDeadAnimals;
+  const isLoading = isLoadingPurchases || isLoadingSales || isLoadingFeedCosts || isLoadingMedicine || isLoadingLabor || isLoadingDeadAnimals || isLoadingTrackedSheep;
 
   const totalSheep = useMemo(() => {
     const purchased = (purchases || []).reduce((sum, p) => sum + p.animalCount, 0);
@@ -193,11 +196,11 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   }, [purchases, totalFeedCost, totalMedicineCost, totalLaborCost]);
 
   const totalSales = useMemo(() => {
-    return (sales || []).reduce((sum, s) => sum + s.totalAmountReceived, 0);
+    return (sales || []).reduce((sum, s) => sum + s.amountReceived, 0);
   }, [sales]);
 
   const totalReceivables = useMemo(() => {
-    return (sales || []).reduce((sum, s) => sum + s.outstandingDues, 0);
+    return (sales || []).reduce((sum, s) => sum + s.outstandingDuesFromBuyer, 0);
   }, [sales]);
 
   const totalPayables = useMemo(() => {
@@ -254,3 +257,4 @@ export function useFarm() {
   }
   return context;
 }
+

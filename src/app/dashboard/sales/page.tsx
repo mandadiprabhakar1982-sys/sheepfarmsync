@@ -34,14 +34,14 @@ import { cn } from '@/lib/utils';
 import { useFarm } from '@/context/FarmContext';
 
 const formSchema = z.object({
-  date: z.date({ required_error: 'A date is required.' }),
+  saleDate: z.date({ required_error: 'A date is required.' }),
   buyerName: z.string().min(1, 'Buyer name is required'),
-  village: z.string().min(1, 'Village name is required'),
+  buyerVillage: z.string().min(1, 'Village name is required'),
   animalCount: z.coerce.number().int().positive('Must be a positive number'),
-  animalWeight: z.coerce.number().positive('Must be a positive number'),
+  animalWeightKg: z.coerce.number().positive('Must be a positive number'),
   salePrice: z.coerce.number().positive('Must be a positive number'),
-  outstandingDues: z.coerce.number().nonnegative('Cannot be negative'),
-  totalAmountReceived: z.coerce.number().nonnegative('Cannot be negative'),
+  outstandingDuesFromBuyer: z.coerce.number().nonnegative('Cannot be negative'),
+  amountReceived: z.coerce.number().nonnegative('Cannot be negative'),
 });
 
 type SalesFormData = z.infer<typeof formSchema>;
@@ -53,26 +53,26 @@ export default function SalesPage() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       buyerName: '',
-      village: '',
+      buyerVillage: '',
       animalCount: 1,
-      animalWeight: 0,
+      animalWeightKg: 0,
       salePrice: 0,
-      outstandingDues: 0,
-      totalAmountReceived: 0,
+      outstandingDuesFromBuyer: 0,
+      amountReceived: 0,
     },
   });
   
-  const watchedSalesFields = form.watch(['salePrice', 'totalAmountReceived']);
+  const watchedSalesFields = form.watch(['salePrice', 'amountReceived']);
 
   useEffect(() => {
     const [salePrice, amountReceived] = watchedSalesFields;
     const due = (salePrice || 0) - (amountReceived || 0);
-    form.setValue('outstandingDues', due >= 0 ? due : 0);
+    form.setValue('outstandingDuesFromBuyer', due >= 0 ? due : 0);
   }, [watchedSalesFields, form]);
 
 
   const onSubmit: SubmitHandler<SalesFormData> = (data) => {
-    const newTransaction = { ...data, date: format(data.date, 'yyyy-MM-dd') };
+    const newTransaction = { ...data, saleDate: format(data.saleDate, 'yyyy-MM-dd') };
     addSale(newTransaction);
     form.reset();
     toast({
@@ -107,7 +107,7 @@ export default function SalesPage() {
             <CardContent>
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  <FormField control={form.control} name="date" render={({ field }) => (
+                  <FormField control={form.control} name="saleDate" render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <FormLabel>Date of Sale</FormLabel>
                         <Popover>
@@ -135,7 +135,7 @@ export default function SalesPage() {
                       </FormItem>
                     )}
                   />
-                  <FormField control={form.control} name="village" render={({ field }) => (
+                  <FormField control={form.control} name="buyerVillage" render={({ field }) => (
                       <FormItem>
                         <FormLabel>Village</FormLabel>
                         <FormControl><Input placeholder="e.g., River Town" {...field} /></FormControl>
@@ -151,7 +151,7 @@ export default function SalesPage() {
                       </FormItem>
                     )}
                   />
-                  <FormField control={form.control} name="animalWeight" render={({ field }) => (
+                  <FormField control={form.control} name="animalWeightKg" render={({ field }) => (
                       <FormItem>
                         <FormLabel>Total Weight (kg)</FormLabel>
                         <FormControl><Input type="number" step="0.1" {...field} /></FormControl>
@@ -167,7 +167,7 @@ export default function SalesPage() {
                       </FormItem>
                     )}
                   />
-                  <FormField control={form.control} name="totalAmountReceived" render={({ field }) => (
+                  <FormField control={form.control} name="amountReceived" render={({ field }) => (
                       <FormItem>
                         <FormLabel>Amount Received (₹)</FormLabel>
                         <FormControl><Input type="number" step="0.01" {...field} /></FormControl>
@@ -175,7 +175,7 @@ export default function SalesPage() {
                       </FormItem>
                     )}
                   />
-                   <FormField control={form.control} name="outstandingDues" render={({ field }) => (
+                   <FormField control={form.control} name="outstandingDuesFromBuyer" render={({ field }) => (
                       <FormItem>
                         <FormLabel>Outstanding Dues (₹)</FormLabel>
                         <FormControl><Input type="number" step="0.01" {...field} readOnly className="bg-muted" /></FormControl>
@@ -214,12 +214,12 @@ export default function SalesPage() {
                   {sales && sales.length > 0 ? (
                     sales.map((t) => (
                       <TableRow key={t.id}>
-                        <TableCell>{t.date}</TableCell>
+                        <TableCell>{t.saleDate}</TableCell>
                         <TableCell>{t.buyerName}</TableCell>
                         <TableCell>{t.animalCount}</TableCell>
                         <TableCell>₹{t.salePrice.toFixed(2)}</TableCell>
-                        <TableCell>₹{t.totalAmountReceived.toFixed(2)}</TableCell>
-                        <TableCell className={t.outstandingDues > 0 ? 'text-destructive' : ''}>₹{t.outstandingDues.toFixed(2)}</TableCell>
+                        <TableCell>₹{t.amountReceived.toFixed(2)}</TableCell>
+                        <TableCell className={t.outstandingDuesFromBuyer > 0 ? 'text-destructive' : ''}>₹{t.outstandingDuesFromBuyer.toFixed(2)}</TableCell>
                          <TableCell className='text-right'>
                             <Button variant="ghost" size="icon" onClick={() => handleDeleteTransaction(t.id)}>
                                 <Trash2 className="h-4 w-4 text-destructive" />
@@ -243,3 +243,4 @@ export default function SalesPage() {
     </div>
   );
 }
+

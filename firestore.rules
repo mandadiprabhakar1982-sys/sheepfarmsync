@@ -190,6 +190,19 @@ service cloud.firestore {
         allow update: if isExistingOwner(userId) && isIdImmutable();
         allow delete: if isExistingOwner(userId);
       }
+
+      /**
+       * @description Secures tracked sheep records. Only the owner can manage their records.
+       * @path        /users/{userId}/trackedSheep/{trackedSheepId}
+       * @principle   Enforces document ownership for all operations.
+       */
+      match /trackedSheep/{trackedSheepId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && isCreatingWithMatchingId(trackedSheepId);
+        allow update: if isExistingOwner(userId) && isIdImmutable();
+        allow delete: if isExistingOwner(userId);
+      }
     }
   }
 }
