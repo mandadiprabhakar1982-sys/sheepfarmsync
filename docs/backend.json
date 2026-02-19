@@ -256,6 +256,40 @@
         "amountReceived",
         "outstandingDuesFromBuyer"
       ]
+    },
+    "DeadAnimal": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "DeadAnimal",
+      "type": "object",
+      "description": "Records details of animals that have died.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the DeadAnimal entity."
+        },
+        "dateOfDeath": {
+          "type": "string",
+          "description": "The date when the animal died.",
+          "format": "date-time"
+        },
+        "tagId": {
+          "type": "string",
+          "description": "The tag ID of the deceased animal, if available."
+        },
+        "causeOfDeath": {
+          "type": "string",
+          "description": "The suspected cause of death."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Any additional notes about the death."
+        }
+      },
+      "required": [
+        "id",
+        "dateOfDeath",
+        "causeOfDeath"
+      ]
     }
   },
   "auth": {
@@ -362,6 +396,26 @@
             {
               "name": "animalSaleId",
               "description": "The unique identifier for a specific animal sale record."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/deadAnimals/{deadAnimalId}",
+        "definition": {
+          "entityName": "DeadAnimal",
+          "schema": {
+            "$ref": "#/backend/entities/DeadAnimal"
+          },
+          "description": "Collection of dead animal records for a specific user.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user (farm owner) who owns these records."
+            },
+            {
+              "name": "deadAnimalId",
+              "description": "The unique identifier for a specific dead animal record."
             }
           ]
         }

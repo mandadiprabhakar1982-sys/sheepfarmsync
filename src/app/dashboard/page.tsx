@@ -12,6 +12,7 @@ import {
   LayoutDashboard,
   Package,
   Loader2,
+  Skull,
 } from 'lucide-react';
 import { SheepIcon } from '@/components/logo';
 import { Card, CardContent } from '@/components/ui/card';
@@ -68,11 +69,18 @@ const menuItems = [
       color: 'bg-indigo-500',
       href: '/dashboard/labor',
     },
+    {
+      title: 'MORTALITY',
+      description: 'TRACK ANIMAL DEATHS',
+      icon: Skull,
+      color: 'bg-gray-500',
+      href: '/dashboard/mortality',
+    },
   ];
 
 
 export default function DashboardPage() {
-  const { totalSheep, totalExpenses, totalSales, isLoading } = useFarm();
+  const { totalSheep, totalExpenses, totalSales, isLoading, totalFeedCost, totalLaborCost, totalDead } = useFarm();
   
   if (isLoading) {
     return (
@@ -101,10 +109,22 @@ export default function DashboardPage() {
       <section className="container mx-auto px-4 py-8 md:py-12 -mt-16 md:-mt-24">
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-8">
             <StatCard
-                title="Total Sheep"
+                title="Live Sheep"
                 value={totalSheep.toString()}
                 icon={SheepIcon}
-                description="Total sheep in your farm"
+                description="Total live sheep in your farm"
+            />
+             <StatCard
+                title="Dead Sheep"
+                value={totalDead.toString()}
+                icon={Skull}
+                description="Total recorded deaths"
+            />
+            <StatCard
+                title="Total Sales"
+                value={`₹${totalSales.toFixed(2)}`}
+                icon={TrendingUp}
+                description="Total sales made"
             />
             <StatCard
                 title="Total Expenses"
@@ -113,14 +133,20 @@ export default function DashboardPage() {
                 description="Total expenses incurred"
             />
             <StatCard
-                title="Total Sales"
-                value={`₹${totalSales.toFixed(2)}`}
-                icon={TrendingUp}
-                description="Total sales made"
+                title="Feed Cost"
+                value={`₹${totalFeedCost.toFixed(2)}`}
+                icon={Wheat}
+                description="Total feed expenses"
+            />
+            <StatCard
+                title="Employee Cost"
+                value={`₹${totalLaborCost.toFixed(2)}`}
+                icon={Users}
+                description="Total employee expenses"
             />
         </div>
 
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
           {menuItems.map((item) => {
             const Icon = item.icon;
             return (

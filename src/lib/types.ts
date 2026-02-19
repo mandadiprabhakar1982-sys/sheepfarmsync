@@ -27,3 +27,11 @@ export type TrackedSheep = {
   age: number; // in months
   photoDataUrl?: string;
 };
+
+export type DeadAnimal = {
+  id: string;
+  dateOfDeath: string;
+  tagId?: string;
+  causeOfDeath: string;
+  notes?: string;
+};

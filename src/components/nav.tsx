@@ -10,6 +10,7 @@ import {
   Users,
   BarChart,
   BadgeIndianRupee,
+  Skull,
 } from 'lucide-react';
 import { SheepIcon } from '@/components/logo';
 
@@ -21,6 +22,7 @@ const links = [
   { href: '/dashboard/feed', label: 'Feed Cost', icon: Wheat },
   { href: '/dashboard/labor', label: 'Employee Cost', icon: Users },
   { href: '/dashboard/sales', label: 'Sheep Sale', icon: BadgeIndianRupee },
+  { href: '/dashboard/mortality', label: 'Mortality', icon: Skull },
   { href: '/dashboard/analysis', label: 'Reports', icon: BarChart },
 ];
 

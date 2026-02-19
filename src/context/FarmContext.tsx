@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useMemo, useCallback } from 'react';
-import type { LivestockPurchase, SalesTransaction, FeedCost, MedicineExpense, LaborCost, TrackedSheep } from '@/lib/types';
+import type { LivestockPurchase, SalesTransaction, FeedCost, MedicineExpense, LaborCost, TrackedSheep, DeadAnimal } from '@/lib/types';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
 import { setDocumentNonBlocking, deleteDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase/non-blocking-updates';
@@ -31,12 +31,19 @@ interface FarmContextType {
   trackedSheep: TrackedSheep[] | null;
   addTrackedSheep: (sheep: Omit<TrackedSheep, 'id'>) => void;
   deleteTrackedSheep: (id: string) => void;
+
+  deadAnimals: DeadAnimal[] | null;
+  addDeadAnimal: (animal: Omit<DeadAnimal, 'id'>) => void;
+  deleteDeadAnimal: (id: string) => void;
   
   isLoading: boolean;
 
   totalSheep: number;
   totalExpenses: number;
   totalSales: number;
+  totalDead: number;
+  totalFeedCost: number;
+  totalLaborCost: number;
 }
 
 const FarmContext = createContext<FarmContextType | undefined>(undefined);
@@ -60,6 +67,9 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const laborCostsRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'laborExpenses') : null, [firestore, user]);
   const { data: laborCosts, isLoading: isLoadingLabor } = useCollection<LaborCost>(laborCostsRef);
   
+  const deadAnimalsRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'deadAnimals') : null, [firestore, user]);
+  const { data: deadAnimals, isLoading: isLoadingDeadAnimals } = useCollection<DeadAnimal>(deadAnimalsRef);
+
   // Note: trackedSheep is not a collection in firestore.rules
   const [trackedSheep, setTrackedSheep] = useState<TrackedSheep[]>([]);
 
@@ -137,22 +147,44 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const deleteTrackedSheep = useCallback((id: string) => {
     setTrackedSheep(prev => prev.filter(a => a.id !== id));
   }, []);
+  
+  const addDeadAnimal = useCallback((animal: Omit<DeadAnimal, 'id'>) => {
+    if (!deadAnimalsRef) return;
+    const newId = crypto.randomUUID();
+    const docRef = doc(deadAnimalsRef, newId);
+    setDocumentNonBlocking(docRef, { ...animal, id: newId }, {});
+  }, [deadAnimalsRef]);
 
-  const isLoading = isLoadingPurchases || isLoadingSales || isLoadingFeedCosts || isLoadingMedicine || isLoadingLabor;
+  const deleteDeadAnimal = useCallback((id: string) => {
+    if (!deadAnimalsRef) return;
+    deleteDocumentNonBlocking(doc(deadAnimalsRef, id));
+  }, [deadAnimalsRef]);
+
+
+  const isLoading = isLoadingPurchases || isLoadingSales || isLoadingFeedCosts || isLoadingMedicine || isLoadingLabor || isLoadingDeadAnimals;
 
   const totalSheep = useMemo(() => {
     const purchased = (purchases || []).reduce((sum, p) => sum + p.animalCount, 0);
     const sold = (sales || []).reduce((sum, s) => sum + s.animalCount, 0);
-    return purchased - sold;
-  }, [purchases, sales]);
+    const dead = deadAnimals?.length || 0;
+    return purchased - sold - dead;
+  }, [purchases, sales, deadAnimals]);
+
+  const totalDead = useMemo(() => deadAnimals?.length || 0, [deadAnimals]);
+  
+  const totalFeedCost = useMemo(() => {
+    return (feedCosts || []).reduce((sum, f) => sum + f.cost, 0);
+  }, [feedCosts]);
+
+  const totalLaborCost = useMemo(() => {
+      return (laborCosts || []).reduce((sum, l) => sum + l.totalLaborCosts, 0);
+  }, [laborCosts]);
   
   const totalExpenses = useMemo(() => {
     const purchaseExpense = (purchases || []).reduce((sum, p) => sum + p.purchasePrice + (p.transportCost || 0), 0);
-    const feedExpense = (feedCosts || []).reduce((sum, f) => sum + f.cost, 0);
     const medicineExpense = (medicineExpenses || []).reduce((sum, m) => sum + m.totalAmountSpent, 0);
-    const laborExpense = (laborCosts || []).reduce((sum, l) => sum + l.totalLaborCosts, 0);
-    return purchaseExpense + feedExpense + medicineExpense + laborExpense;
-  }, [purchases, feedCosts, medicineExpenses, laborCosts]);
+    return purchaseExpense + totalFeedCost + medicineExpense + totalLaborCost;
+  }, [purchases, totalFeedCost, medicineExpenses, totalLaborCost]);
 
   const totalSales = useMemo(() => {
     return (sales || []).reduce((sum, s) => sum + s.totalAmountReceived, 0);
@@ -179,10 +211,16 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     trackedSheep,
     addTrackedSheep,
     deleteTrackedSheep,
+    deadAnimals,
+    addDeadAnimal,
+    deleteDeadAnimal,
     isLoading,
     totalSheep,
     totalExpenses,
     totalSales,
+    totalDead,
+    totalFeedCost,
+    totalLaborCost,
   };
 
   return (
