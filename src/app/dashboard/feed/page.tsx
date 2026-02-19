@@ -3,7 +3,7 @@
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { PlusCircle, Calendar as CalendarIcon, Trash2 } from 'lucide-react';
+import { PlusCircle, Calendar as CalendarIcon, Trash2, Pencil } from 'lucide-react';
 import { format } from 'date-fns';
 
 import { PageHeader } from '@/components/page-header';
@@ -38,6 +38,17 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useFarm } from '@/context/FarmContext';
+import { useState, useEffect, useMemo } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import type { FeedCost } from '@/lib/types';
+
 
 const feedTypes = ['TMR', 'Silage', 'Groundnut', 'Other'] as const;
 
@@ -52,7 +63,9 @@ type FeedFormData = z.infer<typeof formSchema>;
 
 export default function FeedPage() {
   const { toast } = useToast();
-  const { feedCosts, addFeedCost, deleteFeedCost } = useFarm();
+  const { feedCosts, addFeedCost, deleteFeedCost, updateFeedCost } = useFarm();
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingFeedCost, setEditingFeedCost] = useState<FeedCost | null>(null);
   
   const form = useForm<FeedFormData>({
     resolver: zodResolver(formSchema),
@@ -62,6 +75,24 @@ export default function FeedPage() {
     },
   });
 
+  const editForm = useForm<FeedFormData>({
+    resolver: zodResolver(formSchema),
+  });
+
+  const sortedFeedCosts = useMemo(() => {
+    if (!feedCosts) return [];
+    return [...feedCosts].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }, [feedCosts]);
+
+  useEffect(() => {
+    if (editingFeedCost) {
+      editForm.reset({
+        ...editingFeedCost,
+        date: new Date(editingFeedCost.date),
+      });
+    }
+  }, [editingFeedCost, editForm]);
+
   const onSubmit: SubmitHandler<FeedFormData> = (data) => {
     const newCost = { ...data, date: format(data.date, 'yyyy-MM-dd') };
     addFeedCost(newCost);
@@ -69,6 +100,18 @@ export default function FeedPage() {
     toast({
       title: 'Success!',
       description: 'Feed cost has been recorded.',
+    });
+  };
+
+  const onEditSubmit: SubmitHandler<FeedFormData> = (data) => {
+    if (!editingFeedCost) return;
+    const updatedData = { ...data, date: format(data.date, 'yyyy-MM-dd') };
+    updateFeedCost(editingFeedCost.id, updatedData);
+    setIsEditDialogOpen(false);
+    setEditingFeedCost(null);
+    toast({
+      title: 'Updated!',
+      description: 'Feed cost record has been updated successfully.',
     });
   };
   
@@ -80,6 +123,12 @@ export default function FeedPage() {
       variant: 'destructive'
     });
   }
+
+  const handleEditClick = (cost: FeedCost) => {
+    setEditingFeedCost(cost);
+    setIsEditDialogOpen(true);
+  };
+
 
   return (
     <div className="container mx-auto py-8">
@@ -214,17 +263,22 @@ export default function FeedPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {feedCosts && feedCosts.length > 0 ? (
-                    feedCosts.map((c) => (
+                  {sortedFeedCosts && sortedFeedCosts.length > 0 ? (
+                    sortedFeedCosts.map((c) => (
                       <TableRow key={c.id}>
                         <TableCell>{c.date}</TableCell>
                         <TableCell>{c.feedType}</TableCell>
                         <TableCell>₹{c.cost.toFixed(2)}</TableCell>
                         <TableCell>{c.quantity}</TableCell>
                          <TableCell className='text-right'>
-                            <Button variant="ghost" size="icon" onClick={() => handleDeleteCost(c.id)}>
-                                <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
+                            <div className="flex items-center justify-end">
+                              <Button variant="ghost" size="icon" onClick={() => handleEditClick(c)}>
+                                  <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button variant="ghost" size="icon" onClick={() => handleDeleteCost(c.id)}>
+                                  <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </div>
                         </TableCell>
                       </TableRow>
                     ))
@@ -241,6 +295,108 @@ export default function FeedPage() {
           </Card>
         </div>
       </div>
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Feed Cost Record</DialogTitle>
+            <DialogDescription>
+              Update the details of your feed cost. Click save when you're done.
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...editForm}>
+            <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-4">
+              <FormField
+                control={editForm.control}
+                name="feedType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Feed Type</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a feed type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {feedTypes.map((type) => (
+                          <SelectItem key={type} value={type}>
+                            {type}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={editForm.control}
+                name="date"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Date of Purchase</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={'outline'}
+                            className={cn(
+                              'w-full pl-3 text-left font-normal',
+                              !field.value && 'text-muted-foreground'
+                            )}
+                          >
+                            {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={editForm.control}
+                name="cost"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Cost (₹)</FormLabel>
+                    <FormControl>
+                      <Input type="number" step="0.01" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={editForm.control}
+                name="quantity"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Quantity (kg)</FormLabel>
+                    <FormControl>
+                      <Input type="number" step="0.01" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <DialogFooter>
+                <Button type="submit">Save Changes</Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

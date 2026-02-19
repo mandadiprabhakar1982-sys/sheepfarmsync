@@ -19,6 +19,7 @@ interface FarmContextType {
   feedCosts: FeedCost[] | null;
   addFeedCost: (cost: Omit<FeedCost, 'id'>) => void;
   deleteFeedCost: (id: string) => void;
+  updateFeedCost: (id: string, data: Omit<FeedCost, 'id'>) => void;
 
   medicineExpenses: MedicineExpense[] | null;
   addMedicineExpense: (expense: Omit<MedicineExpense, 'id'>) => void;
@@ -124,6 +125,12 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const deleteFeedCost = useCallback((id: string) => {
     if (!feedCostsRef) return;
     deleteDocumentNonBlocking(doc(feedCostsRef, id));
+  }, [feedCostsRef]);
+
+  const updateFeedCost = useCallback((id: string, data: Omit<FeedCost, 'id'>) => {
+    if (!feedCostsRef) return;
+    const docRef = doc(feedCostsRef, id);
+    updateDocumentNonBlocking(docRef, data);
   }, [feedCostsRef]);
   
   const addMedicineExpense = useCallback((expense: Omit<MedicineExpense, 'id'>) => {
@@ -243,6 +250,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     feedCosts,
     addFeedCost,
     deleteFeedCost,
+    updateFeedCost,
     medicineExpenses,
     addMedicineExpense,
     deleteMedicineExpense,
@@ -285,5 +293,3 @@ export function useFarm() {
   }
   return context;
 }
-
-    
