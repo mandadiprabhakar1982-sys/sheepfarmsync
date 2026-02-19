@@ -36,6 +36,7 @@ const FeedCostSchema = z.object({
 });
 
 const LaborCostSchema = z.object({
+  laborerName: z.string().describe('Name of the laborer.'),
   date: z.string().describe('Date of labor expense (YYYY-MM-DD format).'),
   dailyWages: z.number().optional().describe('Daily wage amount paid.'),
   monthlyWages: z.number().optional().describe('Monthly wage amount paid.'),
@@ -108,7 +109,7 @@ No feed cost data available.
 {{#if laborCosts}}
 ## Labor Costs:
 {{#each laborCosts}}
-- Date: {{{this.date}}}, Daily Wages: {{{this.dailyWages}}}, Monthly Wages: {{{this.monthlyWages}}}, Laborers: {{{this.numberOfLaborers}}}, Advance Payments: {{{this.advancePayments}}}, Food Costs: {{{this.foodCosts}}}, Fuel Costs: {{{this.fuelCosts}}}, Total: {{{this.totalLaborCosts}}}
+- Laborer: {{{this.laborerName}}}, Date: {{{this.date}}}, Daily Wages: {{{this.dailyWages}}}, Monthly Wages: {{{this.monthlyWages}}}, Laborers: {{{this.numberOfLaborers}}}, Advance Payments: {{{this.advancePayments}}}, Food Costs: {{{this.foodCosts}}}, Fuel Costs: {{{this.fuelCosts}}}, Total: {{{this.totalLaborCosts}}}
 {{/each}}
 {{else}}
 No labor cost data available.

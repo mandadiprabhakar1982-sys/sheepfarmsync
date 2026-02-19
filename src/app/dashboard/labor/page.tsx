@@ -34,6 +34,7 @@ import { cn } from '@/lib/utils';
 import type { LaborCost } from '@/lib/types';
 
 const formSchema = z.object({
+  laborerName: z.string().min(1, "Laborer name is required"),
   date: z.date({ required_error: 'A date is required.' }),
   dailyWages: z.coerce.number().nonnegative().optional(),
   monthlyWages: z.coerce.number().nonnegative().optional(),
@@ -52,6 +53,7 @@ export default function LaborPage() {
   const form = useForm<LaborFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      laborerName: '',
       dailyWages: 0,
       monthlyWages: 0,
       numberOfLaborers: 1,
@@ -114,6 +116,19 @@ export default function LaborPage() {
             <CardContent>
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="laborerName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Laborer Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g., Ram Singh" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                   <FormField control={form.control} name="date" render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <FormLabel>Date</FormLabel>
@@ -211,6 +226,7 @@ export default function LaborPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Date</TableHead>
+                    <TableHead>Name</TableHead>
                     <TableHead>Laborers</TableHead>
                     <TableHead>Advances</TableHead>
                     <TableHead>Food/Fuel</TableHead>
@@ -223,6 +239,7 @@ export default function LaborPage() {
                     costs.map((c) => (
                       <TableRow key={c.id}>
                         <TableCell>{c.date}</TableCell>
+                        <TableCell>{c.laborerName}</TableCell>
                         <TableCell>{c.numberOfLaborers}</TableCell>
                         <TableCell>₹{c.advancePayments.toFixed(2)}</TableCell>
                         <TableCell>₹{(c.foodCosts + c.fuelCosts).toFixed(2)}</TableCell>
@@ -236,7 +253,7 @@ export default function LaborPage() {
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center">
+                      <TableCell colSpan={7} className="text-center">
                         No labor costs recorded yet.
                       </TableCell>
                     </TableRow>
