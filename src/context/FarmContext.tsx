@@ -28,6 +28,7 @@ interface FarmContextType {
   laborCosts: LaborCost[] | null;
   addLaborCost: (cost: Omit<LaborCost, 'id'>) => void;
   deleteLaborCost: (id: string) => void;
+  updateLaborCost: (id: string, data: Omit<LaborCost, 'id'>) => void;
 
   trackedSheep: TrackedSheep[] | null;
   addTrackedSheep: (sheep: Omit<TrackedSheep, 'id'>) => void;
@@ -156,6 +157,12 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     if (!laborCostsRef) return;
     deleteDocumentNonBlocking(doc(laborCostsRef, id));
   }, [laborCostsRef]);
+
+  const updateLaborCost = useCallback((id: string, data: Omit<LaborCost, 'id'>) => {
+    if (!laborCostsRef) return;
+    const docRef = doc(laborCostsRef, id);
+    updateDocumentNonBlocking(docRef, data);
+  }, [laborCostsRef]);
   
   const addTrackedSheep = useCallback((sheep: Omit<TrackedSheep, 'id'>) => {
     if (!trackedSheepRef) return;
@@ -257,6 +264,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     laborCosts,
     addLaborCost,
     deleteLaborCost,
+    updateLaborCost,
     trackedSheep,
     addTrackedSheep,
     deleteTrackedSheep,

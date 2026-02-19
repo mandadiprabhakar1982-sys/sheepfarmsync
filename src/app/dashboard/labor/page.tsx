@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { PlusCircle, Calendar as CalendarIcon, Trash2 } from 'lucide-react';
+import { PlusCircle, Calendar as CalendarIcon, Trash2, Pencil } from 'lucide-react';
 import { format } from 'date-fns';
 
 import { PageHeader } from '@/components/page-header';
@@ -32,6 +32,16 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useFarm } from '@/context/FarmContext';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import type { LaborCost } from '@/lib/types';
+
 
 const formSchema = z.object({
   employeeName: z.string().min(1, "Employee name is required"),
@@ -48,7 +58,9 @@ type LaborFormData = z.infer<typeof formSchema>;
 
 export default function LaborPage() {
   const { toast } = useToast();
-  const { laborCosts, addLaborCost, deleteLaborCost } = useFarm();
+  const { laborCosts, addLaborCost, deleteLaborCost, updateLaborCost } = useFarm();
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingLaborCost, setEditingLaborCost] = useState<LaborCost | null>(null);
   
   const form = useForm<LaborFormData>({
     resolver: zodResolver(formSchema),
@@ -62,6 +74,15 @@ export default function LaborPage() {
       totalLaborCosts: 0,
     },
   });
+
+  const editForm = useForm<LaborFormData>({
+    resolver: zodResolver(formSchema),
+  });
+
+  const sortedLaborCosts = useMemo(() => {
+    if (!laborCosts) return [];
+    return [...laborCosts].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }, [laborCosts]);
 
   const watchedFields = form.watch([
     'wages',
@@ -77,6 +98,32 @@ export default function LaborPage() {
     const total = totalWages + (advance || 0) + (food || 0) + (fuel || 0);
     form.setValue('totalLaborCosts', total);
   }, [watchedFields, form]);
+  
+  const watchedEditFields = editForm.watch([
+    'wages',
+    'numberOfLaborers',
+    'advancePayments',
+    'foodCosts',
+    'fuelCosts',
+  ]);
+
+  useEffect(() => {
+    if (!isEditDialogOpen) return;
+    const [wages, num, advance, food, fuel] = watchedEditFields;
+    const totalWages = (wages || 0) * (num || 1);
+    const total = totalWages + (advance || 0) + (food || 0) + (fuel || 0);
+    editForm.setValue('totalLaborCosts', total);
+  }, [watchedEditFields, editForm, isEditDialogOpen]);
+
+  useEffect(() => {
+    if (editingLaborCost) {
+      editForm.reset({
+        ...editingLaborCost,
+        date: new Date(editingLaborCost.date),
+      });
+    }
+  }, [editingLaborCost, editForm]);
+
 
   const onSubmit: SubmitHandler<LaborFormData> = (data) => {
     const newCost = { ...data, date: format(data.date, 'yyyy-MM-dd') };
@@ -85,6 +132,18 @@ export default function LaborPage() {
     toast({
       title: 'Success!',
       description: 'Employee cost has been recorded.',
+    });
+  };
+
+  const onEditSubmit: SubmitHandler<LaborFormData> = (data) => {
+    if (!editingLaborCost) return;
+    const updatedData = { ...data, date: format(data.date, 'yyyy-MM-dd') };
+    updateLaborCost(editingLaborCost.id, updatedData);
+    setIsEditDialogOpen(false);
+    setEditingLaborCost(null);
+    toast({
+      title: 'Updated!',
+      description: 'Employee cost record has been updated successfully.',
     });
   };
   
@@ -96,6 +155,11 @@ export default function LaborPage() {
       variant: 'destructive'
     });
   }
+
+  const handleEditClick = (cost: LaborCost) => {
+    setEditingLaborCost(cost);
+    setIsEditDialogOpen(true);
+  };
 
 
   return (
@@ -228,8 +292,8 @@ export default function LaborPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {laborCosts && laborCosts.length > 0 ? (
-                    laborCosts.map((c) => (
+                  {sortedLaborCosts && sortedLaborCosts.length > 0 ? (
+                    sortedLaborCosts.map((c) => (
                       <TableRow key={c.id}>
                         <TableCell>{c.date}</TableCell>
                         <TableCell>{c.employeeName}</TableCell>
@@ -238,9 +302,14 @@ export default function LaborPage() {
                         <TableCell>₹{(c.foodCosts + c.fuelCosts).toFixed(2)}</TableCell>
                         <TableCell>₹{c.totalLaborCosts.toFixed(2)}</TableCell>
                          <TableCell className='text-right'>
-                            <Button variant="ghost" size="icon" onClick={() => handleDeleteCost(c.id)}>
+                            <div className="flex items-center justify-end">
+                              <Button variant="ghost" size="icon" onClick={() => handleEditClick(c)}>
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button variant="ghost" size="icon" onClick={() => handleDeleteCost(c.id)}>
                                 <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
+                              </Button>
+                            </div>
                         </TableCell>
                       </TableRow>
                     ))
@@ -257,8 +326,109 @@ export default function LaborPage() {
           </Card>
         </div>
       </div>
+       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Employee Cost Record</DialogTitle>
+            <DialogDescription>
+              Update the details of your employee cost. Click save when you're done.
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...editForm}>
+            <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-4 py-4">
+              <FormField
+                control={editForm.control}
+                name="employeeName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Employee Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField control={editForm.control} name="date" render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Date</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button variant={'outline'} className={cn('w-full pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}>
+                            {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField control={editForm.control} name="numberOfLaborers" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Number of Employees</FormLabel>
+                    <FormControl><Input type="number" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={editForm.control}
+                name="wages"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Wages per Employee (₹)</FormLabel>
+                    <FormControl>
+                      <Input type="number" step="0.01" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField control={editForm.control} name="advancePayments" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Advance Payments (₹)</FormLabel>
+                    <FormControl><Input type="number" step="0.01" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField control={editForm.control} name="foodCosts" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Food Costs (₹)</FormLabel>
+                    <FormControl><Input type="number" step="0.01" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField control={editForm.control} name="fuelCosts" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Fuel Costs (₹)</FormLabel>
+                    <FormControl><Input type="number" step="0.01" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField control={editForm.control} name="totalLaborCosts" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Total Employee Costs (₹)</FormLabel>
+                    <FormControl><Input type="number" step="0.01" {...field} readOnly className="bg-muted" /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <DialogFooter>
+                <Button type="submit">Save Changes</Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
-
-    
