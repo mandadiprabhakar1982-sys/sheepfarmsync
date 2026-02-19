@@ -10,6 +10,7 @@ import {
   TrendingUp,
   BadgeIndianRupee,
   LayoutDashboard,
+  Package,
 } from 'lucide-react';
 import { SheepIcon } from '@/components/logo';
 import { Card, CardContent } from '@/components/ui/card';
@@ -29,6 +30,13 @@ const menuItems = [
       icon: ListChecks,
       color: 'bg-green-500',
       href: '/dashboard/livestock',
+    },
+    {
+      title: 'PURCHASE ANIMALS',
+      description: 'RECORD LIVESTOCK PURCHASES',
+      icon: Package,
+      color: 'bg-cyan-500',
+      href: '/dashboard/purchase',
     },
     {
       title: 'ANIMAL SALES',
