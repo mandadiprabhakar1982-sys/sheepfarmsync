@@ -6,10 +6,13 @@ import {
   HeartPulse,
   Wheat,
   Users,
-  ChevronRight
+  ChevronRight,
+  IndianRupee,
+  TrendingUp,
 } from 'lucide-react';
 import { SheepIcon } from '@/components/logo';
 import { Card, CardContent } from '@/components/ui/card';
+import { StatCard } from '@/components/stat-card';
 
 const menuItems = [
     {
@@ -75,6 +78,33 @@ export default function DashboardPage() {
       </section>
       
       <section className="container mx-auto px-4 py-8 md:py-12 -mt-16 md:-mt-24">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
+            <StatCard
+                title="Total Flock Size"
+                value="1,250"
+                icon={SheepIcon}
+                description="Total sheep in your flock"
+            />
+            <StatCard
+                title="Average Weight"
+                value="55 kg"
+                icon={BarChart}
+                description="Across the entire flock"
+            />
+            <StatCard
+                title="Total Expenses"
+                value="₹2,50,000"
+                icon={IndianRupee}
+                description="+15% from last month"
+            />
+            <StatCard
+                title="Total Sales"
+                value="₹1,25,000"
+                icon={TrendingUp}
+                description="+5% from last month"
+            />
+        </div>
+
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           {menuItems.map((item) => {
             const Icon = item.icon;
