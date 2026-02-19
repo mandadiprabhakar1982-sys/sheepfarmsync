@@ -49,11 +49,18 @@ const LaborCostSchema = z.object({
   totalLaborCosts: z.number().describe('Total calculated employee costs for this entry.'),
 });
 
+const FarmExpenseSchema = z.object({
+  expenseDate: z.string().describe('Date of expense (YYYY-MM-DD format).'),
+  description: z.string().describe('Description of the expense.'),
+  amount: z.number().describe('Amount of the expense.'),
+});
+
 const AnalyzeFarmCostsInputSchema = z.object({
   livestockPurchases: z.array(LivestockPurchaseSchema).describe('List of livestock purchase records.'),
   medicineExpenses: z.array(MedicineExpenseSchema).describe('List of medicine expense records.'),
   feedCosts: z.array(FeedCostSchema).describe('List of animal feed cost records.'),
   laborCosts: z.array(LaborCostSchema).describe('List of employee cost records.'),
+  farmExpenses: z.array(FarmExpenseSchema).describe('List of general farm expense records.'),
 });
 export type AnalyzeFarmCostsInput = z.infer<typeof AnalyzeFarmCostsInputSchema>;
 
@@ -117,6 +124,15 @@ No feed cost data available.
 No employee cost data available.
 {{/if}}
 
+{{#if farmExpenses}}
+## Other Farm Expenses:
+{{#each farmExpenses}}
+- Date: {{{this.expenseDate}}}, Description: {{{this.description}}}, Amount: {{{this.amount}}}
+{{/each}}
+{{else}}
+No other farm expense data available.
+{{/if}}
+
 Based on this data, please provide your analysis and insights following the requested JSON format.`,
 });
 
@@ -131,5 +147,7 @@ const analyzeFarmCostsFlow = ai.defineFlow(
     return output!;
   }
 );
+
+    
 
     

@@ -14,7 +14,7 @@ export default function AnalysisPage() {
   const [analysis, setAnalysis] = useState<AnalyzeFarmCostsOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { purchases, medicineExpenses, feedCosts, laborCosts, isLoading: isFarmDataLoading } = useFarm();
+  const { purchases, medicineExpenses, feedCosts, laborCosts, farmExpenses, isLoading: isFarmDataLoading } = useFarm();
 
   const handleAnalysis = async () => {
     setIsLoading(true);
@@ -26,6 +26,7 @@ export default function AnalysisPage() {
         medicineExpenses: medicineExpenses || [],
         feedCosts: feedCosts || [],
         laborCosts: laborCosts || [],
+        farmExpenses: farmExpenses || [],
       };
       const result = await analyzeFarmCosts(input);
       setAnalysis(result);
@@ -124,3 +125,5 @@ export default function AnalysisPage() {
     </div>
   );
 }
+
+    

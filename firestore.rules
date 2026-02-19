@@ -203,6 +203,21 @@ service cloud.firestore {
         allow update: if isExistingOwner(userId) && isIdImmutable();
         allow delete: if isExistingOwner(userId);
       }
+      
+      /**
+       * @description Secures farm expense records. Only the owner can manage their records.
+       * @path        /users/{userId}/farmExpenses/{farmExpenseId}
+       * @principle   Enforces document ownership for all operations.
+       */
+      match /farmExpenses/{farmExpenseId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && isCreatingWithMatchingId(farmExpenseId);
+        allow update: if isExistingOwner(userId) && isIdImmutable();
+        allow delete: if isExistingOwner(userId);
+      }
     }
   }
 }
+
+    

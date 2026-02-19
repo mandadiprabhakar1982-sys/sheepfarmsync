@@ -12,6 +12,7 @@ import {
   Loader2,
   Skull,
   BarChart,
+  Receipt,
 } from 'lucide-react';
 import { SheepIcon } from '@/components/logo';
 import { Card, CardContent } from '@/components/ui/card';
@@ -75,6 +76,13 @@ const menuItems = [
       href: '/dashboard/labor',
     },
     {
+      title: 'FARM EXPENSES',
+      description: 'MISCELLANEOUS COSTS',
+      icon: Receipt,
+      color: 'bg-orange-500',
+      href: '/dashboard/expenses',
+    },
+    {
       title: 'MORTALITY',
       description: 'TRACK ANIMAL DEATHS',
       icon: Skull,
@@ -135,3 +143,5 @@ export default function DashboardPage() {
     </>
   );
 }
+
+    

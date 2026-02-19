@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useMemo, useCallback } from 'react';
-import type { LivestockPurchase, AnimalSale, FeedCost, MedicineExpense, LaborCost, TrackedSheep, DeadAnimal } from '@/lib/types';
+import type { LivestockPurchase, AnimalSale, FeedCost, MedicineExpense, LaborCost, TrackedSheep, DeadAnimal, FarmExpense } from '@/lib/types';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
 import { setDocumentNonBlocking, deleteDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase/non-blocking-updates';
@@ -35,6 +35,10 @@ interface FarmContextType {
   deadAnimals: DeadAnimal[] | null;
   addDeadAnimal: (animal: Omit<DeadAnimal, 'id'>) => void;
   deleteDeadAnimal: (id: string) => void;
+
+  farmExpenses: FarmExpense[] | null;
+  addFarmExpense: (expense: Omit<FarmExpense, 'id'>) => void;
+  deleteFarmExpense: (id: string) => void;
   
   isLoading: boolean;
 
@@ -45,6 +49,7 @@ interface FarmContextType {
   totalFeedCost: number;
   totalLaborCost: number;
   totalMedicineCost: number;
+  totalFarmExpenses: number;
   totalReceivables: number;
   totalPayables: number;
 }
@@ -75,6 +80,9 @@ export function FarmProvider({ children }: { children: ReactNode }) {
 
   const trackedSheepRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'trackedSheep') : null, [firestore, user]);
   const { data: trackedSheep, isLoading: isLoadingTrackedSheep } = useCollection<TrackedSheep>(trackedSheepRef);
+
+  const farmExpensesRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'farmExpenses') : null, [firestore, user]);
+  const { data: farmExpenses, isLoading: isLoadingFarmExpenses } = useCollection<FarmExpense>(farmExpensesRef);
 
   const addPurchase = useCallback((purchase: Omit<LivestockPurchase, 'id'>) => {
     if (!purchasesRef) return;
@@ -166,8 +174,20 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     deleteDocumentNonBlocking(doc(deadAnimalsRef, id));
   }, [deadAnimalsRef]);
 
+  const addFarmExpense = useCallback((expense: Omit<FarmExpense, 'id'>) => {
+    if (!farmExpensesRef) return;
+    const newId = crypto.randomUUID();
+    const docRef = doc(farmExpensesRef, newId);
+    setDocumentNonBlocking(docRef, { ...expense, id: newId }, {});
+  }, [farmExpensesRef]);
 
-  const isLoading = isLoadingPurchases || isLoadingSales || isLoadingFeedCosts || isLoadingMedicine || isLoadingLabor || isLoadingDeadAnimals || isLoadingTrackedSheep;
+  const deleteFarmExpense = useCallback((id: string) => {
+    if (!farmExpensesRef) return;
+    deleteDocumentNonBlocking(doc(farmExpensesRef, id));
+  }, [farmExpensesRef]);
+
+
+  const isLoading = isLoadingPurchases || isLoadingSales || isLoadingFeedCosts || isLoadingMedicine || isLoadingLabor || isLoadingDeadAnimals || isLoadingTrackedSheep || isLoadingFarmExpenses;
 
   const totalSheep = useMemo(() => {
     const purchased = (purchases || []).reduce((sum, p) => sum + p.animalCount, 0);
@@ -190,10 +210,14 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     return (medicineExpenses || []).reduce((sum, m) => sum + m.totalAmountSpent, 0);
   }, [medicineExpenses]);
 
+  const totalFarmExpenses = useMemo(() => {
+    return (farmExpenses || []).reduce((sum, e) => sum + e.amount, 0);
+  }, [farmExpenses]);
+
   const totalExpenses = useMemo(() => {
     const purchaseExpense = (purchases || []).reduce((sum, p) => sum + p.purchasePrice + (p.transportCost || 0), 0);
-    return purchaseExpense + totalFeedCost + totalMedicineCost + totalLaborCost;
-  }, [purchases, totalFeedCost, totalMedicineCost, totalLaborCost]);
+    return purchaseExpense + totalFeedCost + totalMedicineCost + totalLaborCost + totalFarmExpenses;
+  }, [purchases, totalFeedCost, totalMedicineCost, totalLaborCost, totalFarmExpenses]);
 
   const totalSales = useMemo(() => {
     return (sales || []).reduce((sum, s) => sum + s.amountReceived, 0);
@@ -231,6 +255,9 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     deadAnimals,
     addDeadAnimal,
     deleteDeadAnimal,
+    farmExpenses,
+    addFarmExpense,
+    deleteFarmExpense,
     isLoading,
     totalSheep,
     totalExpenses,
@@ -239,6 +266,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     totalFeedCost,
     totalLaborCost,
     totalMedicineCost,
+    totalFarmExpenses,
     totalReceivables,
     totalPayables,
   };
@@ -258,3 +286,4 @@ export function useFarm() {
   return context;
 }
 
+    

@@ -7,6 +7,7 @@ export type LivestockPurchase = AnalyzeFarmCostsInput['livestockPurchases'][0] &
 export type MedicineExpense = AnalyzeFarmCostsInput['medicineExpenses'][0] & { id: string };
 export type FeedCost = AnalyzeFarmCostsInput['feedCosts'][0] & { id: string };
 export type LaborCost = AnalyzeFarmCostsInput['laborCosts'][0] & { id: string };
+export type FarmExpense = AnalyzeFarmCostsInput['farmExpenses'][0] & { id: string };
 
 export type AnimalSale = {
   id: string;
@@ -36,3 +37,4 @@ export type DeadAnimal = {
   notes?: string;
 };
 
+    
