@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { PlusCircle, Trash2, Camera as CameraIcon } from 'lucide-react';
 import Image from 'next/image';
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
@@ -16,6 +17,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useToast } from '@/hooks/use-toast';
 import type { TrackedAnimal } from '@/lib/types';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
 
 // Schema for the flock tracking form
 const trackingFormSchema = z.object({
@@ -25,6 +27,13 @@ const trackingFormSchema = z.object({
 });
 
 type TrackingFormData = z.infer<typeof trackingFormSchema>;
+
+const chartConfig = {
+  averageWeight: {
+    label: 'Average Weight (kg)',
+    color: 'hsl(var(--primary))',
+  },
+} satisfies ChartConfig;
 
 
 export default function LivestockPage() {
@@ -48,6 +57,29 @@ export default function LivestockPage() {
       age: 0,
     },
   });
+
+  const chartData = useMemo(() => {
+    if (trackedAnimals.length === 0) {
+      return [];
+    }
+
+    const weightByAge = trackedAnimals.reduce((acc, animal) => {
+      const age = animal.age;
+      if (!acc[age]) {
+        acc[age] = { totalWeight: 0, count: 0 };
+      }
+      acc[age].totalWeight += animal.weight;
+      acc[age].count += 1;
+      return acc;
+    }, {} as Record<number, { totalWeight: number; count: number }>);
+
+    return Object.entries(weightByAge)
+      .map(([age, { totalWeight, count }]) => ({
+        age: `${age} mo`,
+        averageWeight: parseFloat((totalWeight / count).toFixed(2)),
+      }))
+      .sort((a, b) => parseInt(a.age) - parseInt(b.age));
+  }, [trackedAnimals]);
   
   // Effect to get camera permission
   useEffect(() => {
@@ -186,7 +218,7 @@ export default function LivestockPage() {
             </CardContent>
           </Card>
         </div>
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 space-y-8">
           <Card>
             <CardHeader>
               <CardTitle>Tracked Animals</CardTitle>
@@ -232,6 +264,51 @@ export default function LivestockPage() {
                   )}
                 </TableBody>
               </Table>
+            </CardContent>
+          </Card>
+           <Card>
+            <CardHeader>
+              <CardTitle>Monthly Weight Analysis</CardTitle>
+              <CardDescription>
+                Average weight of your flock by age (in months).
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {chartData.length > 0 ? (
+                <ChartContainer config={chartConfig} className="h-[300px] w-full">
+                  <ResponsiveContainer>
+                    <BarChart data={chartData} margin={{ top: 20, right: 20, bottom: 5, left: 0 }}>
+                      <CartesianGrid vertical={false} />
+                      <XAxis
+                        dataKey="age"
+                        tickLine={false}
+                        tickMargin={10}
+                        axisLine={false}
+                        stroke="hsl(var(--muted-foreground))"
+                      />
+                      <YAxis
+                        stroke="hsl(var(--muted-foreground))"
+                        tickFormatter={(value) => `${value} kg`}
+                      />
+                      <Tooltip
+                        cursor={{ fill: 'hsl(var(--accent))' }}
+                        content={<ChartTooltipContent hideLabel />}
+                      />
+                      <Bar
+                        dataKey="averageWeight"
+                        fill="var(--color-averageWeight)"
+                        radius={4}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              ) : (
+                <div className="flex h-[300px] items-center justify-center">
+                  <p className="text-muted-foreground">
+                    Not enough data to display the chart. Add animals to your flock to get started.
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
