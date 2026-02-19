@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import {
-  LayoutGrid,
+  Home,
   Package,
   Syringe,
   Wheat,
@@ -14,7 +14,7 @@ import {
 import { SheepIcon } from '@/components/logo';
 
 const links = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutGrid },
+  { href: '/dashboard', label: 'Home', icon: Home },
   { href: '/dashboard/livestock', label: 'Flock Tracking', icon: SheepIcon },
   { href: '/dashboard/livestock', label: 'Purchase Animals', icon: Package },
   { href: '/dashboard/medicine', label: 'Medicine Cost', icon: Syringe },

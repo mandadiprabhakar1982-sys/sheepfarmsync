@@ -9,6 +9,7 @@ import {
   ChevronRight,
   IndianRupee,
   TrendingUp,
+  BadgeIndianRupee,
 } from 'lucide-react';
 import { SheepIcon } from '@/components/logo';
 import { Card, CardContent } from '@/components/ui/card';
@@ -16,11 +17,11 @@ import { StatCard } from '@/components/stat-card';
 
 const menuItems = [
     {
-      title: 'DASHBOARD',
-      description: 'REAL-TIME FLOCK ANALYTICS',
+      title: 'REPORTS & ANALYSIS',
+      description: 'AI-POWERED INSIGHTS',
       icon: BarChart,
       color: 'bg-blue-500',
-      href: '/dashboard',
+      href: '/dashboard/analysis',
     },
     {
       title: 'FLOCK TRACKING',
@@ -35,6 +36,13 @@ const menuItems = [
       icon: ShoppingBag,
       color: 'bg-orange-400',
       href: '/dashboard/livestock',
+    },
+    {
+      title: 'ANIMAL SALES',
+      description: 'RECORD LIVESTOCK SALES',
+      icon: BadgeIndianRupee,
+      color: 'bg-purple-500',
+      href: '/dashboard/sales',
     },
     {
       title: 'MEDICINE',
