@@ -89,21 +89,21 @@ export default function DashboardPage() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-8">
             <StatCard
                 title="Total Flock Size"
-                value="1,250"
+                value="0"
                 icon={SheepIcon}
                 description="Total sheep in your flock"
             />
             <StatCard
                 title="Total Expenses"
-                value="₹2,50,000"
+                value="₹0"
                 icon={IndianRupee}
-                description="+15% from last month"
+                description="Total expenses incurred"
             />
             <StatCard
                 title="Total Sales"
-                value="₹1,25,000"
+                value="₹0"
                 icon={TrendingUp}
-                description="+5% from last month"
+                description="Total sales made"
             />
         </div>
 
