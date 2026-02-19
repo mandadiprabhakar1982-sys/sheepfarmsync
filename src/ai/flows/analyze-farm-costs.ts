@@ -82,7 +82,7 @@ Farm Cost Data:
 {{#if livestockPurchases}}
 ## Livestock Purchases:
 {{#each livestockPurchases}}
-- Village: {{{this.villageName}}}, Farmer: {{{this.farmerName}}}, Animals: {{{this.animalCount}}}, Purchase Price: {{{this.purchasePrice}}}, Amount Paid: {{{this.amountPaid}}}, Due: {{{this.dueAmount}}}, Payment Period: {{{this.payingTimePeriod}}}
+- Village: {{{this.villageName}}}, Farmer: {{{this.farmerName}}}, Sheep: {{{this.animalCount}}}, Purchase Price: {{{this.purchasePrice}}}, Amount Paid: {{{this.amountPaid}}}, Due: {{{this.dueAmount}}}, Payment Period: {{{this.payingTimePeriod}}}
 {{/each}}
 {{else}}
 No livestock purchase data available.

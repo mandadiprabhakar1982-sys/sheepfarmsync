@@ -38,7 +38,7 @@ const chartConfig = {
 
 export default function LivestockPage() {
   const { toast } = useToast();
-  const { trackedAnimals, addTrackedAnimal, deleteTrackedAnimal } = useFarm();
+  const { trackedSheep, addTrackedSheep, deleteTrackedSheep } = useFarm();
   
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
 
@@ -58,16 +58,16 @@ export default function LivestockPage() {
   });
 
   const chartData = useMemo(() => {
-    if (trackedAnimals.length === 0) {
+    if (trackedSheep.length === 0) {
       return [];
     }
 
-    const weightByAge = trackedAnimals.reduce((acc, animal) => {
-      const age = animal.age;
+    const weightByAge = trackedSheep.reduce((acc, sheep) => {
+      const age = sheep.age;
       if (!acc[age]) {
         acc[age] = { totalWeight: 0, count: 0 };
       }
-      acc[age].totalWeight += animal.weight;
+      acc[age].totalWeight += sheep.weight;
       acc[age].count += 1;
       return acc;
     }, {} as Record<number, { totalWeight: number; count: number }>);
@@ -78,7 +78,7 @@ export default function LivestockPage() {
         averageWeight: parseFloat((totalWeight / count).toFixed(2)),
       }))
       .sort((a, b) => parseInt(a.age) - parseInt(b.age));
-  }, [trackedAnimals]);
+  }, [trackedSheep]);
   
   // Effect to get camera permission
   useEffect(() => {
@@ -122,20 +122,20 @@ export default function LivestockPage() {
   };
 
   const onTrackingSubmit: SubmitHandler<TrackingFormData> = (data) => {
-    addTrackedAnimal({ ...data, photoDataUrl: capturedImage || undefined });
+    addTrackedSheep({ ...data, photoDataUrl: capturedImage || undefined });
     trackingForm.reset();
     setCapturedImage(null);
     toast({
       title: 'Success!',
-      description: 'Animal has been added to your flock.',
+      description: 'Sheep has been added to your farm.',
     });
   };
 
-  const handleDeleteTrackedAnimal = (id: string) => {
-    deleteTrackedAnimal(id);
+  const handleDeleteTrackedSheep = (id: string) => {
+    deleteTrackedSheep(id);
     toast({
       title: 'Deleted',
-      description: 'Animal record has been deleted.',
+      description: 'Sheep record has been deleted.',
       variant: 'destructive'
     });
   }
@@ -143,15 +143,15 @@ export default function LivestockPage() {
   return (
     <div className="container mx-auto py-8">
       <PageHeader
-        title="Flock Management"
-        description="Track individual animals in your flock."
+        title="Sheep Management"
+        description="Track individual sheep in your farm."
       />
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="lg:col-span-1">
           <Card>
             <CardHeader>
-              <CardTitle>Add Animal to Flock</CardTitle>
-              <CardDescription>Fill out the form to add a new animal.</CardDescription>
+              <CardTitle>Add Sheep to Farm</CardTitle>
+              <CardDescription>Fill out the form to add a new sheep.</CardDescription>
             </CardHeader>
             <CardContent>
               <Form {...trackingForm}>
@@ -184,7 +184,7 @@ export default function LivestockPage() {
                           {!capturedImage ? (
                               <video ref={videoRef} className="h-full w-full object-cover" autoPlay muted playsInline />
                           ) : (
-                              <Image src={capturedImage} alt="Captured photo of an animal" layout="fill" objectFit="cover" />
+                              <Image src={capturedImage} alt="Captured photo of a sheep" layout="fill" objectFit="cover" />
                           )}
                       </div>
                       {hasCameraPermission === false && (
@@ -210,7 +210,7 @@ export default function LivestockPage() {
 
                   <Button type="submit" className="w-full">
                     <PlusCircle className="mr-2 h-4 w-4" />
-                    Add Animal
+                    Add Sheep
                   </Button>
                 </form>
               </Form>
@@ -220,7 +220,7 @@ export default function LivestockPage() {
         <div className="lg:col-span-2 space-y-8">
           <Card>
             <CardHeader>
-              <CardTitle>Tracked Animals</CardTitle>
+              <CardTitle>Tracked Sheep</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
@@ -234,23 +234,23 @@ export default function LivestockPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {trackedAnimals.length > 0 ? (
-                    trackedAnimals.map((animal) => (
-                      <TableRow key={animal.id}>
+                  {trackedSheep.length > 0 ? (
+                    trackedSheep.map((sheep) => (
+                      <TableRow key={sheep.id}>
                         <TableCell>
                           <div className="relative h-12 w-16 overflow-hidden rounded-md">
-                            {animal.photoDataUrl ? (
-                              <Image src={animal.photoDataUrl} alt={`Photo of ${animal.tagId}`} layout="fill" objectFit="cover" />
+                            {sheep.photoDataUrl ? (
+                              <Image src={sheep.photoDataUrl} alt={`Photo of ${sheep.tagId}`} layout="fill" objectFit="cover" />
                             ) : (
                               <div className="flex h-full w-full items-center justify-center bg-muted text-xs text-muted-foreground">No Photo</div>
                             )}
                           </div>
                         </TableCell>
-                        <TableCell>{animal.tagId}</TableCell>
-                        <TableCell>{animal.weight} kg</TableCell>
-                        <TableCell>{animal.age}</TableCell>
+                        <TableCell>{sheep.tagId}</TableCell>
+                        <TableCell>{sheep.weight} kg</TableCell>
+                        <TableCell>{sheep.age}</TableCell>
                         <TableCell className="text-right">
-                          <Button variant="ghost" size="icon" onClick={() => handleDeleteTrackedAnimal(animal.id)}>
+                          <Button variant="ghost" size="icon" onClick={() => handleDeleteTrackedSheep(sheep.id)}>
                             <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
                         </TableCell>
@@ -258,7 +258,7 @@ export default function LivestockPage() {
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center">No animals tracked yet.</TableCell>
+                      <TableCell colSpan={5} className="text-center">No sheep tracked yet.</TableCell>
                     </TableRow>
                   )}
                 </TableBody>
@@ -269,7 +269,7 @@ export default function LivestockPage() {
             <CardHeader>
               <CardTitle>Monthly Weight Analysis</CardTitle>
               <CardDescription>
-                Average weight of your flock by age (in months).
+                Average weight of your sheep by age (in months).
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -304,7 +304,7 @@ export default function LivestockPage() {
               ) : (
                 <div className="flex h-[300px] items-center justify-center">
                   <p className="text-muted-foreground">
-                    Not enough data to display the chart. Add animals to your flock to get started.
+                    Not enough data to display the chart. Add sheep to your farm to get started.
                   </p>
                 </div>
               )}

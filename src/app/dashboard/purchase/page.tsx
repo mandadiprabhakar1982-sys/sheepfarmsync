@@ -58,7 +58,7 @@ export default function PurchasePage() {
     purchaseForm.reset();
     toast({
       title: 'Success!',
-      description: 'Animal purchase has been recorded.',
+      description: 'Sheep purchase has been recorded.',
     });
   };
 
@@ -74,8 +74,8 @@ export default function PurchasePage() {
   return (
     <div className="container mx-auto py-8">
       <PageHeader
-        title="Purchase Animals"
-        description="Record new livestock purchases."
+        title="Purchase Sheep"
+        description="Record new sheep purchases."
       />
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="lg:col-span-1">
@@ -103,7 +103,7 @@ export default function PurchasePage() {
                   )} />
                   <FormField control={purchaseForm.control} name="animalCount" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Number of Animals</FormLabel>
+                      <FormLabel>Number of Sheep</FormLabel>
                       <FormControl><Input type="number" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
@@ -158,7 +158,7 @@ export default function PurchasePage() {
                   <TableRow>
                     <TableHead>Village</TableHead>
                     <TableHead>Farmer</TableHead>
-                    <TableHead>Animals</TableHead>
+                    <TableHead>Sheep</TableHead>
                     <TableHead>Price</TableHead>
                     <TableHead>Paid</TableHead>
                     <TableHead>Due</TableHead>

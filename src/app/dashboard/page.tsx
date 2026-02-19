@@ -26,22 +26,22 @@ const menuItems = [
       href: '/dashboard/analysis',
     },
     {
-      title: 'FLOCK TRACKING',
+      title: 'SHEEP TRACKING',
       description: 'WEIGHT & GROWTH LOGS',
       icon: ListChecks,
       color: 'bg-green-500',
       href: '/dashboard/livestock',
     },
     {
-      title: 'PURCHASE ANIMALS',
-      description: 'RECORD LIVESTOCK PURCHASES',
+      title: 'PURCHASE SHEEP',
+      description: 'RECORD SHEEP PURCHASES',
       icon: Package,
       color: 'bg-cyan-500',
       href: '/dashboard/purchase',
     },
     {
-      title: 'ANIMAL SALES',
-      description: 'RECORD LIVESTOCK SALES',
+      title: 'SHEEP SALES',
+      description: 'RECORD SHEEP SALES',
       icon: BadgeIndianRupee,
       color: 'bg-purple-500',
       href: '/dashboard/sales',
@@ -71,7 +71,7 @@ const menuItems = [
 
 
 export default function DashboardPage() {
-  const { flockSize, totalExpenses, totalSales } = useFarm();
+  const { totalSheep, totalExpenses, totalSales } = useFarm();
   return (
     <>
       <section className="bg-primary text-primary-foreground">
@@ -91,10 +91,10 @@ export default function DashboardPage() {
       <section className="container mx-auto px-4 py-8 md:py-12 -mt-16 md:-mt-24">
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-8">
             <StatCard
-                title="Total Flock Size"
-                value={flockSize.toString()}
+                title="Total Sheep"
+                value={totalSheep.toString()}
                 icon={SheepIcon}
-                description="Total sheep in your flock"
+                description="Total sheep in your farm"
             />
             <StatCard
                 title="Total Expenses"

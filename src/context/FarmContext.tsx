@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useMemo, useCallback, useEffect } from 'react';
-import type { LivestockPurchase, SalesTransaction, FeedCost, MedicineExpense, LaborCost, TrackedAnimal } from '@/lib/types';
+import type { LivestockPurchase, SalesTransaction, FeedCost, MedicineExpense, LaborCost, TrackedSheep } from '@/lib/types';
 
 interface FarmContextType {
   purchases: LivestockPurchase[];
@@ -24,11 +24,11 @@ interface FarmContextType {
   addLaborCost: (cost: Omit<LaborCost, 'id'>) => void;
   deleteLaborCost: (id: string) => void;
 
-  trackedAnimals: TrackedAnimal[];
-  addTrackedAnimal: (animal: Omit<TrackedAnimal, 'id'>) => void;
-  deleteTrackedAnimal: (id: string) => void;
+  trackedSheep: TrackedSheep[];
+  addTrackedSheep: (sheep: Omit<TrackedSheep, 'id'>) => void;
+  deleteTrackedSheep: (id: string) => void;
 
-  flockSize: number;
+  totalSheep: number;
   totalExpenses: number;
   totalSales: number;
 }
@@ -44,7 +44,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const [feedCosts, setFeedCosts] = useState<FeedCost[]>([]);
   const [medicineExpenses, setMedicineExpenses] = useState<MedicineExpense[]>([]);
   const [laborCosts, setLaborCosts] = useState<LaborCost[]>([]);
-  const [trackedAnimals, setTrackedAnimals] = useState<TrackedAnimal[]>([]);
+  const [trackedSheep, setTrackedSheep] = useState<TrackedSheep[]>([]);
 
   useEffect(() => {
     try {
@@ -56,7 +56,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
         setFeedCosts(data.feedCosts || []);
         setMedicineExpenses(data.medicineExpenses || []);
         setLaborCosts(data.laborCosts || []);
-        setTrackedAnimals(data.trackedAnimals || []);
+        setTrackedSheep(data.trackedSheep || []);
       }
     } catch (error) {
       console.error("Failed to parse from localStorage", error);
@@ -73,11 +73,11 @@ export function FarmProvider({ children }: { children: ReactNode }) {
         feedCosts,
         medicineExpenses,
         laborCosts,
-        trackedAnimals
+        trackedSheep
       });
       localStorage.setItem(FARM_DATA_KEY, dataToStore);
     }
-  }, [purchases, sales, feedCosts, medicineExpenses, laborCosts, trackedAnimals, isLoaded]);
+  }, [purchases, sales, feedCosts, medicineExpenses, laborCosts, trackedSheep, isLoaded]);
 
   const addPurchase = useCallback((purchase: Omit<LivestockPurchase, 'id'>) => {
     const newPurchase = { ...purchase, id: crypto.randomUUID() };
@@ -124,17 +124,17 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     setLaborCosts(prev => prev.filter(c => c.id !== id));
   }, []);
   
-  const addTrackedAnimal = useCallback((animal: Omit<TrackedAnimal, 'id'>) => {
-    const newAnimal = { ...animal, id: crypto.randomUUID() };
-    setTrackedAnimals(prev => [...prev, newAnimal]);
+  const addTrackedSheep = useCallback((sheep: Omit<TrackedSheep, 'id'>) => {
+    const newSheep = { ...sheep, id: crypto.randomUUID() };
+    setTrackedSheep(prev => [...prev, newSheep]);
   }, []);
 
-  const deleteTrackedAnimal = useCallback((id: string) => {
-    setTrackedAnimals(prev => prev.filter(a => a.id !== id));
+  const deleteTrackedSheep = useCallback((id: string) => {
+    setTrackedSheep(prev => prev.filter(a => a.id !== id));
   }, []);
 
 
-  const flockSize = useMemo(() => {
+  const totalSheep = useMemo(() => {
     const purchased = purchases.reduce((sum, p) => sum + p.animalCount, 0);
     const sold = sales.reduce((sum, s) => sum + s.animalCount, 0);
     return purchased - sold;
@@ -169,10 +169,10 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     laborCosts,
     addLaborCost,
     deleteLaborCost,
-    trackedAnimals,
-    addTrackedAnimal,
-    deleteTrackedAnimal,
-    flockSize,
+    trackedSheep,
+    addTrackedSheep,
+    deleteTrackedSheep,
+    totalSheep,
     totalExpenses,
     totalSales,
   };

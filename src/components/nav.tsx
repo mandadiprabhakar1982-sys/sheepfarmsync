@@ -15,12 +15,12 @@ import { SheepIcon } from '@/components/logo';
 
 const links = [
   { href: '/dashboard', label: 'Home', icon: Home },
-  { href: '/dashboard/livestock', label: 'Flock Management', icon: SheepIcon },
-  { href: '/dashboard/purchase', label: 'Purchase Animals', icon: Package },
+  { href: '/dashboard/livestock', label: 'Sheep Management', icon: SheepIcon },
+  { href: '/dashboard/purchase', label: 'Purchase Sheep', icon: Package },
   { href: '/dashboard/medicine', label: 'Medicine Cost', icon: Syringe },
   { href: '/dashboard/feed', label: 'Feed Cost', icon: Wheat },
   { href: '/dashboard/labor', label: 'Employee Cost', icon: Users },
-  { href: '/dashboard/sales', label: 'Animal Sale', icon: BadgeIndianRupee },
+  { href: '/dashboard/sales', label: 'Sheep Sale', icon: BadgeIndianRupee },
   { href: '/dashboard/analysis', label: 'Reports', icon: BarChart },
 ];
 

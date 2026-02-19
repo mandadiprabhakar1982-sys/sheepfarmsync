@@ -20,7 +20,7 @@ export type SalesTransaction = {
   totalAmountReceived: number;
 };
 
-export type TrackedAnimal = {
+export type TrackedSheep = {
   id: string;
   tagId: string;
   weight: number;

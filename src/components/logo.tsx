@@ -27,7 +27,7 @@ export function Logo({ className, showManager = false }: { className?: string; s
       </div>
       <div>
         <h1 className="text-xl font-bold text-foreground">SheepSync Pro</h1>
-        {showManager && <p className="text-sm text-muted-foreground">FLOCK MANAGER</p>}
+        {showManager && <p className="text-sm text-muted-foreground">SHEEP MANAGER</p>}
       </div>
     </div>
   );

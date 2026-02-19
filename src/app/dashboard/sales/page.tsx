@@ -84,8 +84,8 @@ export default function SalesPage() {
   return (
     <div className="container mx-auto py-8">
       <PageHeader
-        title="Animal Sales"
-        description="Log all your animal sales transactions here."
+        title="Sheep Sales"
+        description="Log all your sheep sales transactions here."
       />
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="lg:col-span-1">
@@ -135,7 +135,7 @@ export default function SalesPage() {
                   />
                   <FormField control={form.control} name="animalCount" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Animal Count</FormLabel>
+                        <FormLabel>Number of Sheep</FormLabel>
                         <FormControl><Input type="number" {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
@@ -143,7 +143,7 @@ export default function SalesPage() {
                   />
                   <FormField control={form.control} name="animalWeight" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Animal Weight (kg)</FormLabel>
+                        <FormLabel>Total Weight (kg)</FormLabel>
                         <FormControl><Input type="number" step="0.1" {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
