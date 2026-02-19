@@ -44,6 +44,7 @@ interface FarmContextType {
   totalDead: number;
   totalFeedCost: number;
   totalLaborCost: number;
+  totalMedicineCost: number;
 }
 
 const FarmContext = createContext<FarmContextType | undefined>(undefined);
@@ -180,11 +181,14 @@ export function FarmProvider({ children }: { children: ReactNode }) {
       return (laborCosts || []).reduce((sum, l) => sum + l.totalLaborCosts, 0);
   }, [laborCosts]);
   
+  const totalMedicineCost = useMemo(() => {
+    return (medicineExpenses || []).reduce((sum, m) => sum + m.totalAmountSpent, 0);
+  }, [medicineExpenses]);
+
   const totalExpenses = useMemo(() => {
     const purchaseExpense = (purchases || []).reduce((sum, p) => sum + p.purchasePrice + (p.transportCost || 0), 0);
-    const medicineExpense = (medicineExpenses || []).reduce((sum, m) => sum + m.totalAmountSpent, 0);
-    return purchaseExpense + totalFeedCost + medicineExpense + totalLaborCost;
-  }, [purchases, totalFeedCost, medicineExpenses, totalLaborCost]);
+    return purchaseExpense + totalFeedCost + totalMedicineCost + totalLaborCost;
+  }, [purchases, totalFeedCost, totalMedicineCost, totalLaborCost]);
 
   const totalSales = useMemo(() => {
     return (sales || []).reduce((sum, s) => sum + s.totalAmountReceived, 0);
@@ -221,6 +225,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     totalDead,
     totalFeedCost,
     totalLaborCost,
+    totalMedicineCost,
   };
 
   return (

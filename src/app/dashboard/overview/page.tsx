@@ -7,6 +7,7 @@ import {
   Users,
   Skull,
   Loader2,
+  Syringe,
 } from 'lucide-react';
 import { SheepIcon } from '@/components/logo';
 import { StatCard } from '@/components/stat-card';
@@ -14,7 +15,7 @@ import { useFarm } from '@/context/FarmContext';
 import { PageHeader } from '@/components/page-header';
 
 export default function OverviewPage() {
-  const { totalSheep, totalExpenses, totalSales, isLoading, totalFeedCost, totalLaborCost, totalDead } = useFarm();
+  const { totalSheep, totalExpenses, totalSales, isLoading, totalFeedCost, totalLaborCost, totalDead, totalMedicineCost } = useFarm();
   
   if (isLoading) {
     return (
@@ -66,6 +67,12 @@ export default function OverviewPage() {
             value={`₹${totalLaborCost.toFixed(2)}`}
             icon={Users}
             description="Total employee expenses"
+        />
+        <StatCard
+            title="Medicine Cost"
+            value={`₹${totalMedicineCost.toFixed(2)}`}
+            icon={Syringe}
+            description="Total medicine expenses"
         />
       </div>
     </div>
