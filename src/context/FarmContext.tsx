@@ -34,6 +34,7 @@ interface FarmContextType {
   trackedSheep: TrackedSheep[] | null;
   addTrackedSheep: (sheep: Omit<TrackedSheep, 'id'>) => void;
   deleteTrackedSheep: (id: string) => void;
+  updateTrackedSheep: (id: string, data: Omit<TrackedSheep, 'id'>) => void;
 
   deadAnimals: DeadAnimal[] | null;
   addDeadAnimal: (animal: Omit<DeadAnimal, 'id'>) => void;
@@ -184,6 +185,12 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     deleteDocumentNonBlocking(doc(trackedSheepRef, id));
   }, [trackedSheepRef]);
   
+  const updateTrackedSheep = useCallback((id: string, data: Omit<TrackedSheep, 'id'>) => {
+    if (!trackedSheepRef) return;
+    const docRef = doc(trackedSheepRef, id);
+    updateDocumentNonBlocking(docRef, data);
+  }, [trackedSheepRef]);
+
   const addDeadAnimal = useCallback((animal: Omit<DeadAnimal, 'id'>) => {
     if (!deadAnimalsRef) return;
     const newId = crypto.randomUUID();
@@ -285,6 +292,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     trackedSheep,
     addTrackedSheep,
     deleteTrackedSheep,
+    updateTrackedSheep,
     deadAnimals,
     addDeadAnimal,
     deleteDeadAnimal,

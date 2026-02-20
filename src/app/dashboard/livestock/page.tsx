@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useMemo } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { PlusCircle, Trash2, Camera as CameraIcon } from 'lucide-react';
+import { PlusCircle, Trash2, Camera as CameraIcon, Pencil } from 'lucide-react';
 import Image from 'next/image';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
@@ -18,6 +18,15 @@ import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
 import { useFarm } from '@/context/FarmContext';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import type { TrackedSheep } from '@/lib/types';
 
 // Schema for the flock tracking form
 const trackingFormSchema = z.object({
@@ -38,9 +47,12 @@ const chartConfig = {
 
 export default function LivestockPage() {
   const { toast } = useToast();
-  const { trackedSheep, addTrackedSheep, deleteTrackedSheep } = useFarm();
+  const { trackedSheep, addTrackedSheep, deleteTrackedSheep, updateTrackedSheep } = useFarm();
   
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingSheep, setEditingSheep] = useState<TrackedSheep | null>(null);
+
 
   // Camera state
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
@@ -56,6 +68,21 @@ export default function LivestockPage() {
       age: 0,
     },
   });
+
+  const editForm = useForm<TrackingFormData>({
+    resolver: zodResolver(trackingFormSchema),
+  });
+
+  useEffect(() => {
+    if (editingSheep) {
+      editForm.reset({
+        tagId: editingSheep.tagId,
+        weight: editingSheep.weight,
+        age: editingSheep.age,
+      });
+    }
+  }, [editingSheep, editForm]);
+
 
   const chartData = useMemo(() => {
     if (!trackedSheep || trackedSheep.length === 0) {
@@ -131,6 +158,17 @@ export default function LivestockPage() {
     });
   };
 
+  const onEditSubmit: SubmitHandler<TrackingFormData> = (data) => {
+    if (!editingSheep) return;
+    updateTrackedSheep(editingSheep.id, { ...data, photoDataUrl: editingSheep.photoDataUrl });
+    setIsEditDialogOpen(false);
+    setEditingSheep(null);
+    toast({
+      title: 'Updated!',
+      description: 'Sheep record has been updated.',
+    });
+  };
+
   const handleDeleteTrackedSheep = (id: string) => {
     deleteTrackedSheep(id);
     toast({
@@ -139,6 +177,11 @@ export default function LivestockPage() {
       variant: 'destructive'
     });
   }
+
+  const handleEditClick = (sheep: TrackedSheep) => {
+    setEditingSheep(sheep);
+    setIsEditDialogOpen(true);
+  };
 
   return (
     <div className="container mx-auto py-8">
@@ -250,9 +293,14 @@ export default function LivestockPage() {
                         <TableCell>{sheep.weight} kg</TableCell>
                         <TableCell>{sheep.age}</TableCell>
                         <TableCell className="text-right">
-                          <Button variant="ghost" size="icon" onClick={() => handleDeleteTrackedSheep(sheep.id)}>
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
+                           <div className="flex items-center justify-end">
+                              <Button variant="ghost" size="icon" onClick={() => handleEditClick(sheep)}>
+                                  <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button variant="ghost" size="icon" onClick={() => handleDeleteTrackedSheep(sheep.id)}>
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </div>
                         </TableCell>
                       </TableRow>
                     ))
@@ -312,6 +360,62 @@ export default function LivestockPage() {
           </Card>
         </div>
       </div>
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Sheep Record</DialogTitle>
+            <DialogDescription>
+              Update the details of your sheep. Click save when you're done.
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...editForm}>
+            <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-4 py-4">
+              <FormField
+                control={editForm.control}
+                name="tagId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tag ID</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={editForm.control}
+                name="weight"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Weight (kg)</FormLabel>
+                    <FormControl>
+                      <Input type="number" step="0.1" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={editForm.control}
+                name="age"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Age (months)</FormLabel>
+                    <FormControl>
+                      <Input type="number" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <DialogFooter>
+                <Button type="submit">Save Changes</Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
