@@ -4,6 +4,8 @@ import {
   signInAnonymously,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
 } from 'firebase/auth';
 import { FirebaseError } from 'firebase/app';
 import { toast } from '@/hooks/use-toast';
@@ -13,6 +15,9 @@ const handleAuthError = (error: any) => {
     let errorMessage = 'An unknown error occurred.';
     if (error instanceof FirebaseError) {
         switch (error.code) {
+            case 'auth/popup-closed-by-user':
+                errorMessage = 'The sign-in popup was closed before completion.';
+                break;
             case 'auth/wrong-password':
                 errorMessage = 'Incorrect password. Please try again.';
                 break;
@@ -43,6 +48,17 @@ const handleAuthError = (error: any) => {
 /** Initiate anonymous sign-in (non-blocking). */
 export function initiateAnonymousSignIn(authInstance: Auth): void {
   signInAnonymously(authInstance).catch(handleAuthError);
+}
+
+/** Initiate Google sign-in (non-blocking). */
+export function initiateGoogleSignIn(authInstance: Auth): Promise<void> {
+  const provider = new GoogleAuthProvider();
+  return signInWithPopup(authInstance, provider)
+    .then(() => {}) // Success is handled by onAuthStateChanged
+    .catch(error => {
+        handleAuthError(error);
+        return Promise.reject(error);
+    });
 }
 
 /** Initiate email/password sign-up (non-blocking). */
