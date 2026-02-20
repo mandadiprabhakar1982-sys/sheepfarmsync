@@ -1,7 +1,6 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { doc } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -10,18 +9,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Logo } from '@/components/logo';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useAuth, useFirestore, useUser } from '@/firebase';
+import { useAuth } from '@/firebase';
 import { initiateEmailSignIn, initiateEmailSignUp } from '@/firebase/non-blocking-login';
-import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { useToast } from '@/hooks/use-toast';
 
 
 export default function LoginPage() {
     const auth = useAuth();
-    const firestore = useFirestore();
-    const router = useRouter();
     const { toast } = useToast();
-    const { user, isUserLoading } = useUser();
 
     const [loginEmail, setLoginEmail] = useState('');
     const [loginPassword, setLoginPassword] = useState('');
@@ -30,21 +25,6 @@ export default function LoginPage() {
     const [confirmPassword, setConfirmPassword] = useState('');
 
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-    useEffect(() => {
-        if (!isUserLoading && user) {
-            // This is a new user if creation time and last sign in time are the same.
-            if (user.metadata.creationTime === user.metadata.lastSignInTime) {
-                const userDocRef = doc(firestore, `users/${user.uid}`);
-                setDocumentNonBlocking(userDocRef, { email: user.email, createdAt: new Date() }, {});
-                toast({
-                    title: 'Welcome!',
-                    description: 'Your account has been created.',
-                });
-            }
-            router.push('/dashboard');
-        }
-    }, [user, isUserLoading, firestore, router, toast]);
 
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
@@ -74,14 +54,6 @@ export default function LoginPage() {
             });
     };
 
-    if (isUserLoading) {
-        return (
-            <div className="flex h-screen w-full items-center justify-center bg-background">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-        );
-    }
-    
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
