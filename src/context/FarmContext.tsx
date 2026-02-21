@@ -44,6 +44,7 @@ interface FarmContextType {
   farmExpenses: FarmExpense[] | null;
   addFarmExpense: (expense: Omit<FarmExpense, 'id'>) => void;
   deleteFarmExpense: (id: string) => void;
+  updateFarmExpense: (id: string, data: Omit<FarmExpense, 'id'>) => void;
   
   isLoading: boolean;
 
@@ -221,6 +222,12 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     deleteDocumentNonBlocking(doc(farmExpensesRef, id));
   }, [farmExpensesRef]);
 
+  const updateFarmExpense = useCallback((id: string, data: Omit<FarmExpense, 'id'>) => {
+    if (!farmExpensesRef) return;
+    const docRef = doc(farmExpensesRef, id);
+    updateDocumentNonBlocking(docRef, data);
+  }, [farmExpensesRef]);
+
 
   const isLoading = isLoadingPurchases || isLoadingSales || isLoadingFeedCosts || isLoadingMedicine || isLoadingLabor || isLoadingDeadAnimals || isLoadingTrackedSheep || isLoadingFarmExpenses;
 
@@ -300,6 +307,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     farmExpenses,
     addFarmExpense,
     deleteFarmExpense,
+    updateFarmExpense,
     isLoading,
     totalSheep,
     totalExpenses,
