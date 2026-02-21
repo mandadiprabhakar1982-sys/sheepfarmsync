@@ -1,29 +1,35 @@
 'use client';
 
 import Link from 'next/link';
-import { Globe, Menu } from 'lucide-react';
-import { Logo } from '@/components/logo';
+import { usePathname } from 'next/navigation';
+import { Globe, Home, LayoutDashboard, BarChart, BadgeIndianRupee } from 'lucide-react';
+import { Logo, SheepIcon } from '@/components/logo';
 import { Nav } from '@/components/nav';
 import { UserNav } from '@/components/user-nav';
 import { Button } from '@/components/ui/button';
-import {
-  Sheet,
-  SheetContent,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet';
 import { Toaster } from '@/components/ui/toaster';
 import { FarmProvider } from '@/context/FarmContext';
+import { cn } from '@/lib/utils';
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+
+  const mobileNavLinks = [
+    { href: '/dashboard', label: 'Home', icon: Home },
+    { href: '/dashboard/overview', label: 'Overview', icon: LayoutDashboard },
+    { href: '/dashboard/livestock', label: 'Sheep', icon: SheepIcon },
+    { href: '/dashboard/sales', label: 'Sales', icon: BadgeIndianRupee },
+    { href: '/dashboard/analysis', label: 'Reports', icon: BarChart },
+  ];
+
   return (
     <FarmProvider>
       <div className="flex min-h-screen w-full flex-col bg-background">
-        <header className="sticky top-0 z-40 flex h-20 items-center gap-4 border-b bg-card px-4 md:px-6">
+        <header className="sticky top-0 z-40 flex h-20 items-center justify-between gap-4 border-b bg-card px-4 md:px-6">
           <div className="flex-none">
             <Logo showManager={true} />
           </div>
@@ -31,34 +37,17 @@ export default function DashboardLayout({
           <div className="hidden flex-1 items-center justify-center gap-1 md:flex">
               <Nav />
           </div>
-
-          <div className="flex flex-1 items-center justify-end md:hidden">
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="shrink-0"
-                >
-                  <Menu className="h-5 w-5" />
-                  <span className="sr-only">Toggle navigation menu</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left">
-                <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
-                <nav className="grid gap-6 text-lg font-medium">
-                  <Link
-                    href="/dashboard"
-                    className="flex items-center gap-2 text-lg font-semibold"
-                  >
-                    <Logo />
-                  </Link>
-                  <Nav />
-                </nav>
-              </SheetContent>
-            </Sheet>
-          </div>
           
+          {/* Mobile Header right side */}
+          <div className="flex items-center gap-2 md:hidden">
+            <Button variant="ghost" size="icon">
+              <Globe className="h-5 w-5" />
+              <span className="sr-only">Language</span>
+            </Button>
+            <UserNav />
+          </div>
+
+          {/* Desktop Header right side */}
           <div className="hidden items-center gap-2 justify-end md:flex">
             <Button variant="ghost" size="icon">
                 <Globe className="h-5 w-5" />
@@ -67,9 +56,33 @@ export default function DashboardLayout({
             <UserNav />
           </div>
         </header>
-        <main className="flex-1">
+        <main className="flex-1 pb-20 md:pb-0">
           {children}
         </main>
+        
+        {/* Bottom Navigation for Mobile */}
+        <footer className="fixed bottom-0 left-0 right-0 z-40 border-t bg-card md:hidden">
+          <nav className="grid h-16 grid-cols-5 items-center justify-items-center text-xs">
+            {mobileNavLinks.map((link) => {
+              const Icon = link.icon;
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    'flex h-full w-full flex-col items-center justify-center gap-1 p-1',
+                    isActive ? 'text-primary bg-accent' : 'text-muted-foreground'
+                  )}
+                >
+                  <Icon className="h-5 w-5" />
+                  <span className="text-[10px] font-medium">{link.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
+        </footer>
+
         <Toaster />
       </div>
     </FarmProvider>
