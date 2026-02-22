@@ -23,6 +23,7 @@ import type { MedicineExpense, HealthTask } from '@/lib/types';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 
 const expenseFormSchema = z.object({
@@ -37,6 +38,7 @@ type MedicineFormData = z.infer<typeof expenseFormSchema>;
 
 const frequencies = ['Once', 'Daily', 'Monthly', 'Every 2 Months', 'Every 6 Months', 'Annually'] as const;
 const dewormerNames = ['Albendazole', 'Fenbendazole', 'Ivermectin'] as const;
+const vaccineTypes = ['ET + TT', 'PPR', 'Sheep Pox', 'HS', 'FMD', 'Bluetongue'] as const;
 
 const healthTaskNames = [
     'Deworming',
@@ -49,9 +51,17 @@ const healthTaskFormSchema = z.object({
   lastAdministered: z.date({ required_error: 'A date is required.' }),
   frequency: z.enum(frequencies),
   notes: z.string().optional(),
+  
   // Deworming specific fields
   dewormerName: z.enum(dewormerNames).optional(),
   dosePerKg: z.coerce.number().positive().optional(),
+  
+  // Vaccination specific fields
+  vaccineType: z.enum(vaccineTypes).optional(),
+  boosterRequired: z.boolean().optional(),
+  batchNumber: z.string().optional(),
+  
+  // Common field
   totalSheepTreated: z.coerce.number().int().positive().optional(),
 }).refine(data => {
     if (data.taskName === 'Deworming') {
@@ -77,7 +87,40 @@ const healthTaskFormSchema = z.object({
 }, {
     message: 'Total sheep treated is required.',
     path: ['totalSheepTreated'],
+}).refine(data => {
+    if (data.taskName === 'VACCINATION') {
+        return !!data.vaccineType;
+    }
+    return true;
+}, {
+    message: 'Vaccine type is required.',
+    path: ['vaccineType'],
+}).refine(data => {
+    if (data.taskName === 'VACCINATION') {
+        return data.boosterRequired !== undefined;
+    }
+    return true;
+}, {
+    message: 'Please specify if a booster is required.',
+    path: ['boosterRequired'],
+}).refine(data => {
+    if (data.taskName === 'VACCINATION') {
+        return !!data.batchNumber && data.batchNumber.length > 0;
+    }
+    return true;
+}, {
+    message: 'Batch number is required.',
+    path: ['batchNumber'],
+}).refine(data => {
+    if (data.taskName === 'VACCINATION') {
+        return data.totalSheepTreated !== undefined && data.totalSheepTreated > 0;
+    }
+    return true;
+}, {
+    message: 'Treated count is required.',
+    path: ['totalSheepTreated'],
 });
+
 
 type HealthTaskFormData = z.infer<typeof healthTaskFormSchema>;
 
@@ -319,10 +362,43 @@ export default function MedicinePage() {
                         </>
                       )}
 
-                      <FormField control={healthTaskForm.control} name="lastAdministered" render={({ field }) => ( <FormItem className="flex flex-col"><FormLabel>Date</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={'outline'} className={cn('w-full pl-3 text-left font-normal',!field.value && 'text-muted-foreground')}>{field.value ? (format(field.value, 'PPP')) : (<span>Pick a date</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem> )} />
+                       {watchedTaskName === 'VACCINATION' && (
+                        <>
+                          <FormField control={healthTaskForm.control} name="vaccineType" render={({ field }) => (
+                            <FormItem><FormLabel>Vaccine Type</FormLabel>
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <FormControl><SelectTrigger><SelectValue placeholder="Select a vaccine" /></SelectTrigger></FormControl>
+                                <SelectContent>{vaccineTypes.map((name) => (<SelectItem key={name} value={name}>{name}</SelectItem>))}</SelectContent>
+                              </Select><FormMessage />
+                            </FormItem>)} />
+                          
+                           <FormField control={healthTaskForm.control} name="boosterRequired" render={({ field }) => (
+                            <FormItem className="space-y-2"><FormLabel>Booster Required?</FormLabel>
+                              <FormControl>
+                                <RadioGroup onValueChange={(value) => field.onChange(value === 'true')} value={String(field.value)} className="flex items-center gap-4">
+                                  <FormItem className="flex items-center space-x-2 space-y-0">
+                                    <FormControl><RadioGroupItem value="true" /></FormControl>
+                                    <FormLabel className="font-normal">Yes</FormLabel>
+                                  </FormItem>
+                                  <FormItem className="flex items-center space-x-2 space-y-0">
+                                    <FormControl><RadioGroupItem value="false" /></FormControl>
+                                    <FormLabel className="font-normal">No</FormLabel>
+                                  </FormItem>
+                                </RadioGroup>
+                              </FormControl><FormMessage />
+                            </FormItem>)} />
+
+                          <div className="grid grid-cols-2 gap-4">
+                            <FormField control={healthTaskForm.control} name="batchNumber" render={({ field }) => (<FormItem><FormLabel>Batch Number</FormLabel><FormControl><Input placeholder="e.g., V-123" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                            <FormField control={healthTaskForm.control} name="totalSheepTreated" render={({ field }) => (<FormItem><FormLabel>Treated Count</FormLabel><FormControl><Input type="number" placeholder="e.g., 80" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                          </div>
+                        </>
+                      )}
+
+                      <FormField control={healthTaskForm.control} name="lastAdministered" render={({ field }) => ( <FormItem className="flex flex-col"><FormLabel>Date Given</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={'outline'} className={cn('w-full pl-3 text-left font-normal',!field.value && 'text-muted-foreground')}>{field.value ? (format(field.value, 'PPP')) : (<span>Pick a date</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem> )} />
                        
                        {watchedTaskName !== 'Deworming' && (
-                         <FormField control={healthTaskForm.control} name="frequency" render={({ field }) => ( <FormItem><FormLabel>Frequency</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select frequency" /></SelectTrigger></FormControl><SelectContent>{frequencies.map((f) => (<SelectItem key={f} value={f}>{f}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem> )} />
+                         <FormField control={healthTaskForm.control} name="frequency" render={({ field }) => ( <FormItem><FormLabel>Next Due Date</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select frequency" /></SelectTrigger></FormControl><SelectContent>{frequencies.map((f) => (<SelectItem key={f} value={f}>{f}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem> )} />
                        )}
 
                      <FormField control={healthTaskForm.control} name="notes" render={({ field }) => ( <FormItem><FormLabel>Remarks (Optional)</FormLabel><FormControl><Textarea placeholder="e.g., B-Complex, 2ml injection" {...field} /></FormControl><FormMessage /></FormItem> )} />
@@ -344,10 +420,17 @@ export default function MedicinePage() {
                             <TableCell className="font-medium">
                                 <div className="flex flex-col">
                                     <span>{task.taskName}</span>
-                                    {task.taskName === 'Deworming' && (
+                                     {task.taskName === 'Deworming' && (
                                         <div className="text-xs text-muted-foreground">
                                           {task.dewormerName && <p>{task.dewormerName}</p>}
                                           {task.dosePerKg && <p>Dose: {task.dosePerKg}ml/kg</p>}
+                                          {task.totalSheepTreated && <p>Treated: {task.totalSheepTreated}</p>}
+                                        </div>
+                                    )}
+                                     {task.taskName === 'VACCINATION' && (
+                                        <div className="text-xs text-muted-foreground">
+                                          {task.vaccineType && <p>{task.vaccineType}</p>}
+                                          {task.batchNumber && <p>Batch: {task.batchNumber}</p>}
                                           {task.totalSheepTreated && <p>Treated: {task.totalSheepTreated}</p>}
                                         </div>
                                     )}
@@ -411,11 +494,44 @@ export default function MedicinePage() {
                     </div>
                   </>
               )}
+              
+               {watchedEditTaskName === 'VACCINATION' && (
+                <>
+                  <FormField control={editHealthTaskForm.control} name="vaccineType" render={({ field }) => (
+                    <FormItem><FormLabel>Vaccine Type</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl><SelectTrigger><SelectValue placeholder="Select a vaccine" /></SelectTrigger></FormControl>
+                        <SelectContent>{vaccineTypes.map((name) => (<SelectItem key={name} value={name}>{name}</SelectItem>))}</SelectContent>
+                      </Select><FormMessage />
+                    </FormItem>)} />
+                  
+                   <FormField control={editHealthTaskForm.control} name="boosterRequired" render={({ field }) => (
+                    <FormItem className="space-y-2"><FormLabel>Booster Required?</FormLabel>
+                      <FormControl>
+                        <RadioGroup onValueChange={(value) => field.onChange(value === 'true')} value={String(field.value)} className="flex items-center gap-4">
+                          <FormItem className="flex items-center space-x-2 space-y-0">
+                            <FormControl><RadioGroupItem value="true" /></FormControl>
+                            <FormLabel className="font-normal">Yes</FormLabel>
+                          </FormItem>
+                          <FormItem className="flex items-center space-x-2 space-y-0">
+                            <FormControl><RadioGroupItem value="false" /></FormControl>
+                            <FormLabel className="font-normal">No</FormLabel>
+                          </FormItem>
+                        </RadioGroup>
+                      </FormControl><FormMessage />
+                    </FormItem>)} />
 
-              <FormField control={editHealthTaskForm.control} name="lastAdministered" render={({ field }) => ( <FormItem className="flex flex-col"><FormLabel>Date</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={'outline'} className={cn('w-full pl-3 text-left font-normal',!field.value && 'text-muted-foreground')}>{field.value ? (format(field.value, 'PPP')) : (<span>Pick a date</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem> )} />
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField control={editHealthTaskForm.control} name="batchNumber" render={({ field }) => (<FormItem><FormLabel>Batch Number</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={editHealthTaskForm.control} name="totalSheepTreated" render={({ field }) => (<FormItem><FormLabel>Treated Count</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                  </div>
+                </>
+              )}
+
+              <FormField control={editHealthTaskForm.control} name="lastAdministered" render={({ field }) => ( <FormItem className="flex flex-col"><FormLabel>Date Given</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={'outline'} className={cn('w-full pl-3 text-left font-normal',!field.value && 'text-muted-foreground')}>{field.value ? (format(field.value, 'PPP')) : (<span>Pick a date</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem> )} />
               
               {watchedEditTaskName !== 'Deworming' && (
-                <FormField control={editHealthTaskForm.control} name="frequency" render={({ field }) => ( <FormItem><FormLabel>Frequency</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent>{frequencies.map((f) => (<SelectItem key={f} value={f}>{f}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem> )} />
+                <FormField control={editHealthTaskForm.control} name="frequency" render={({ field }) => ( <FormItem><FormLabel>Next Due Date</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent>{frequencies.map((f) => (<SelectItem key={f} value={f}>{f}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem> )} />
               )}
 
               <FormField control={editHealthTaskForm.control} name="notes" render={({ field }) => ( <FormItem><FormLabel>Remarks (Optional)</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem> )} />

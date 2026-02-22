@@ -42,8 +42,14 @@ export type DeadAnimal = {
 export type HealthTask = {
   id: string;
   taskName: string;
+  // Deworming
   dewormerName?: 'Albendazole' | 'Fenbendazole' | 'Ivermectin';
   dosePerKg?: number;
+  // Vaccination
+  vaccineType?: 'ET + TT' | 'PPR' | 'Sheep Pox' | 'HS' | 'FMD' | 'Bluetongue';
+  boosterRequired?: boolean;
+  batchNumber?: string;
+  // Common
   totalSheepTreated?: number;
   lastAdministered: string;
   nextDueDate: string;
@@ -52,3 +58,4 @@ export type HealthTask = {
 };
 
     
+

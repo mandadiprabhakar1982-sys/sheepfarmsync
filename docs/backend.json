@@ -380,6 +380,26 @@
           "type": "number",
           "description": "The dosage of the dewormer per kg."
         },
+        "vaccineType": {
+          "type": "string",
+          "description": "The type of vaccine administered.",
+          "enum": [
+            "ET + TT",
+            "PPR",
+            "Sheep Pox",
+            "HS",
+            "FMD",
+            "Bluetongue"
+          ]
+        },
+        "boosterRequired": {
+          "type": "boolean",
+          "description": "Indicates if a booster shot is required for this vaccination."
+        },
+        "batchNumber": {
+          "type": "string",
+          "description": "The batch number of the vaccine used."
+        },
         "totalSheepTreated": {
           "type": "number",
           "description": "The total number of sheep treated."
