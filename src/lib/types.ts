@@ -44,7 +44,7 @@ export type HealthTask = {
   taskName: string;
   lastAdministered: string;
   nextDueDate: string;
-  frequency: 'Once' | 'Monthly' | 'Every 6 Months' | 'Annually';
+  frequency: 'Once' | 'Daily' | 'Monthly' | 'Every 6 Months' | 'Annually';
   notes?: string;
 };
 

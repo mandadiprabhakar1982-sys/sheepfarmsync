@@ -4,7 +4,7 @@ import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { PlusCircle, Calendar as CalendarIcon, Trash2, Pencil, ShieldCheck } from 'lucide-react';
-import { format, addMonths, differenceInDays } from 'date-fns';
+import { format, addMonths, differenceInDays, addDays } from 'date-fns';
 import { useState, useEffect, useMemo } from 'react';
 
 import { PageHeader } from '@/components/page-header';
@@ -35,7 +35,7 @@ const expenseFormSchema = z.object({
 
 type MedicineFormData = z.infer<typeof expenseFormSchema>;
 
-const frequencies = ['Once', 'Monthly', 'Every 6 Months', 'Annually'] as const;
+const frequencies = ['Once', 'Daily', 'Monthly', 'Every 6 Months', 'Annually'] as const;
 
 const healthTaskFormSchema = z.object({
   taskName: z.string().min(1, 'Task name is required.'),
@@ -128,6 +128,7 @@ export default function MedicinePage() {
 
   const getNextDueDate = (lastDate: Date, freq: HealthTask['frequency']) => {
     switch (freq) {
+      case 'Daily': return addDays(lastDate, 1);
       case 'Monthly': return addMonths(lastDate, 1);
       case 'Every 6 Months': return addMonths(lastDate, 6);
       case 'Annually': return addMonths(lastDate, 12);
@@ -301,4 +302,3 @@ export default function MedicinePage() {
     </div>
   );
 }
-    

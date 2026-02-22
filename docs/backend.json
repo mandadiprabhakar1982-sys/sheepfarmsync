@@ -382,6 +382,7 @@
           "description": "How often the task should be repeated.",
           "enum": [
             "Once",
+            "Daily",
             "Monthly",
             "Every 6 Months",
             "Annually"
