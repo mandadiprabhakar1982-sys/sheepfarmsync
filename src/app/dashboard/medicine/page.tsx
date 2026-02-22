@@ -232,12 +232,12 @@ export default function MedicinePage() {
               <CardContent>
                 <Form {...healthTaskForm}>
                   <form onSubmit={healthTaskForm.handleSubmit(onHealthTaskSubmit)} className="space-y-4">
-                     <FormField control={healthTaskForm.control} name="taskName" render={({ field }) => ( <FormItem><FormLabel>Task Name</FormLabel><FormControl><Input placeholder="e.g., Deworming, PPR Vaccine" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                     <FormField control={healthTaskForm.control} name="taskName" render={({ field }) => ( <FormItem><FormLabel>Task Name</FormLabel><FormControl><Input placeholder="e.g., Deworming, Vitamin & Liver Support" {...field} /></FormControl><FormMessage /></FormItem> )} />
                      <div className="grid grid-cols-2 gap-4">
                        <FormField control={healthTaskForm.control} name="lastAdministered" render={({ field }) => ( <FormItem className="flex flex-col"><FormLabel>Last Administered</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={'outline'} className={cn('w-full pl-3 text-left font-normal',!field.value && 'text-muted-foreground')}>{field.value ? (format(field.value, 'PPP')) : (<span>Pick a date</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem> )} />
                        <FormField control={healthTaskForm.control} name="frequency" render={({ field }) => ( <FormItem><FormLabel>Frequency</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select frequency" /></SelectTrigger></FormControl><SelectContent>{frequencies.map((f) => (<SelectItem key={f} value={f}>{f}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem> )} />
                      </div>
-                     <FormField control={healthTaskForm.control} name="notes" render={({ field }) => ( <FormItem><FormLabel>Notes (Optional)</FormLabel><FormControl><Textarea placeholder="e.g., Dewormer name: Albendazole, Dosage: 5ml" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                     <FormField control={healthTaskForm.control} name="notes" render={({ field }) => ( <FormItem><FormLabel>Notes (Optional)</FormLabel><FormControl><Textarea placeholder="e.g., Albendazole, 5ml dose or B-Complex, 2ml injection" {...field} /></FormControl><FormMessage /></FormItem> )} />
                      <Button type="submit" className="w-full"><PlusCircle className="mr-2 h-4 w-4" />Schedule Task</Button>
                   </form>
                 </Form>
