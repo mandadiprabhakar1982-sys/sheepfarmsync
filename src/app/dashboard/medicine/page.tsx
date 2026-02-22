@@ -37,8 +37,19 @@ type MedicineFormData = z.infer<typeof expenseFormSchema>;
 
 const frequencies = ['Once', 'Daily', 'Monthly', 'Every 6 Months', 'Annually'] as const;
 
+const healthTaskNames = [
+    'Deworming',
+    'Vitamin & Liver Support',
+    'Enterotoxemia (ET+TT)',
+    'PPR Vaccine',
+    'Sheep Pox',
+    'HS (Haemorrhagic Septicaemia)',
+    'FMD (Foot-and-Mouth Disease)',
+    'Bluetongue',
+] as const;
+
 const healthTaskFormSchema = z.object({
-  taskName: z.string().min(1, 'Task name is required.'),
+  taskName: z.enum(healthTaskNames, { required_error: 'Please select a task.' }),
   lastAdministered: z.date({ required_error: 'A date is required.' }),
   frequency: z.enum(frequencies),
   notes: z.string().optional(),
@@ -69,7 +80,7 @@ export default function MedicinePage() {
 
   const healthTaskForm = useForm<HealthTaskFormData>({
     resolver: zodResolver(healthTaskFormSchema),
-    defaultValues: { taskName: '', notes: '' },
+    defaultValues: { notes: '' },
   });
 
   const editHealthTaskForm = useForm<HealthTaskFormData>({
@@ -95,7 +106,12 @@ export default function MedicinePage() {
 
   useEffect(() => {
     if (editingHealthTask) {
-      editHealthTaskForm.reset({ ...editingHealthTask, lastAdministered: new Date(editingHealthTask.lastAdministered) });
+      const taskData = {
+        ...editingHealthTask,
+        lastAdministered: new Date(editingHealthTask.lastAdministered),
+        taskName: healthTaskNames.includes(editingHealthTask.taskName as any) ? editingHealthTask.taskName as typeof healthTaskNames[number] : undefined,
+      };
+      editHealthTaskForm.reset(taskData as any);
     }
   }, [editingHealthTask, editHealthTaskForm]);
 
@@ -176,10 +192,13 @@ export default function MedicinePage() {
 
   const getTaskStatus = (dueDate: string) => {
     const today = new Date();
+    today.setHours(0,0,0,0);
     const date = new Date(dueDate);
+     date.setHours(0,0,0,0);
     const daysDiff = differenceInDays(date, today);
 
     if (daysDiff < 0) return { label: 'Overdue', variant: 'destructive' as const };
+    if (daysDiff === 0) return { label: 'Due Today', variant: 'default' as const };
     if (daysDiff <= 7) return { label: 'Due Soon', variant: 'secondary' as const };
     return null;
   };
@@ -232,7 +251,30 @@ export default function MedicinePage() {
               <CardContent>
                 <Form {...healthTaskForm}>
                   <form onSubmit={healthTaskForm.handleSubmit(onHealthTaskSubmit)} className="space-y-4">
-                     <FormField control={healthTaskForm.control} name="taskName" render={({ field }) => ( <FormItem><FormLabel>Task Name</FormLabel><FormControl><Input placeholder="e.g., Deworming, Vitamin & Liver Support" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                     <FormField
+                        control={healthTaskForm.control}
+                        name="taskName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Task Name</FormLabel>
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select a task" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {healthTaskNames.map((task) => (
+                                  <SelectItem key={task} value={task}>
+                                    {task}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                      <div className="grid grid-cols-2 gap-4">
                        <FormField control={healthTaskForm.control} name="lastAdministered" render={({ field }) => ( <FormItem className="flex flex-col"><FormLabel>Last Administered</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={'outline'} className={cn('w-full pl-3 text-left font-normal',!field.value && 'text-muted-foreground')}>{field.value ? (format(field.value, 'PPP')) : (<span>Pick a date</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem> )} />
                        <FormField control={healthTaskForm.control} name="frequency" render={({ field }) => ( <FormItem><FormLabel>Frequency</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select frequency" /></SelectTrigger></FormControl><SelectContent>{frequencies.map((f) => (<SelectItem key={f} value={f}>{f}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem> )} />
@@ -255,9 +297,9 @@ export default function MedicinePage() {
                           <TableRow key={task.id}>
                             <TableCell className="font-medium">{task.taskName}</TableCell>
                             <TableCell>
-                              <div className="flex flex-col">
+                              <div className="flex flex-col gap-1">
                                 <span>{format(new Date(task.nextDueDate), 'PPP')}</span>
-                                {status && <Badge variant={status.variant} className="w-fit mt-1">{status.label}</Badge>}
+                                {status && <Badge variant={status.variant} className="w-fit">{status.label}</Badge>}
                               </div>
                             </TableCell>
                             <TableCell>{task.notes || 'N/A'}</TableCell>
@@ -289,7 +331,30 @@ export default function MedicinePage() {
       <Dialog open={isTaskEditDialogOpen} onOpenChange={setIsTaskEditDialogOpen}>
         <DialogContent className="sm:max-w-md"><DialogHeader><DialogTitle>Edit Health Task</DialogTitle><DialogDescription>Update the details of your scheduled task.</DialogDescription></DialogHeader>
           <Form {...editHealthTaskForm}><form onSubmit={editHealthTaskForm.handleSubmit(onEditHealthTaskSubmit)} className="space-y-4 py-4">
-              <FormField control={editHealthTaskForm.control} name="taskName" render={({ field }) => ( <FormItem><FormLabel>Task Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )} />
+              <FormField
+                control={editHealthTaskForm.control}
+                name="taskName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Task Name</FormLabel>
+                     <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a task" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {healthTaskNames.map((task) => (
+                            <SelectItem key={task} value={task}>
+                              {task}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <div className="grid grid-cols-2 gap-4">
                 <FormField control={editHealthTaskForm.control} name="lastAdministered" render={({ field }) => ( <FormItem className="flex flex-col"><FormLabel>Last Administered</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={'outline'} className={cn('w-full pl-3 text-left font-normal',!field.value && 'text-muted-foreground')}>{field.value ? (format(field.value, 'PPP')) : (<span>Pick a date</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem> )} />
                 <FormField control={editHealthTaskForm.control} name="frequency" render={({ field }) => ( <FormItem><FormLabel>Frequency</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent>{frequencies.map((f) => (<SelectItem key={f} value={f}>{f}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem> )} />
