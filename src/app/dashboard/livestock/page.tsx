@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { PlusCircle, Trash2, Camera as CameraIcon, Pencil } from 'lucide-react';
 import Image from 'next/image';
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { Bar, ComposedChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, Line } from 'recharts';
 
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
@@ -16,7 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
+import { ChartContainer, ChartTooltipContent, type ChartConfig, ChartLegend, ChartLegendContent } from '@/components/ui/chart';
 import { useFarm } from '@/context/FarmContext';
 import {
   Dialog,
@@ -39,8 +39,12 @@ type TrackingFormData = z.infer<typeof trackingFormSchema>;
 
 const chartConfig = {
   averageWeight: {
-    label: 'Average Weight (kg)',
+    label: 'Avg. Weight',
     color: 'hsl(var(--primary))',
+  },
+  growth: {
+    label: 'Monthly Growth',
+    color: 'hsl(var(--chart-2))',
   },
 } satisfies ChartConfig;
 
@@ -85,7 +89,7 @@ export default function LivestockPage() {
 
 
   const chartData = useMemo(() => {
-    if (!trackedSheep || trackedSheep.length === 0) {
+    if (!trackedSheep || trackedSheep.length < 2) {
       return [];
     }
 
@@ -99,13 +103,35 @@ export default function LivestockPage() {
       return acc;
     }, {} as Record<number, { totalWeight: number; count: number }>);
 
-    return Object.entries(weightByAge)
+    const sortedAverageWeights = Object.entries(weightByAge)
       .map(([age, { totalWeight, count }]) => ({
-        age: `${age} mo`,
+        age: parseInt(age),
         averageWeight: parseFloat((totalWeight / count).toFixed(2)),
       }))
-      .sort((a, b) => parseInt(a.age) - parseInt(b.age));
+      .sort((a, b) => a.age - b.age);
+
+    if (sortedAverageWeights.length < 2) {
+      return [];
+    }
+    
+    return sortedAverageWeights.map((current, index) => {
+      let growth = 0;
+      if (index > 0) {
+        const previous = sortedAverageWeights[index - 1];
+        const weightDiff = current.averageWeight - previous.averageWeight;
+        const ageDiff = current.age - previous.age;
+        if (ageDiff > 0) {
+          growth = parseFloat((weightDiff / ageDiff).toFixed(2));
+        }
+      }
+      return {
+        age: `${current.age} mo`,
+        averageWeight: current.averageWeight,
+        growth: growth,
+      };
+    });
   }, [trackedSheep]);
+
   
   // Effect to get camera permission
   useEffect(() => {
@@ -315,44 +341,70 @@ export default function LivestockPage() {
           </Card>
            <Card>
             <CardHeader>
-              <CardTitle>Monthly Weight Analysis</CardTitle>
+              <CardTitle>Weight Progress Summary</CardTitle>
               <CardDescription>
-                Average weight of your sheep by age (in months).
+                Average weight and estimated monthly growth of your tracked sheep.
               </CardDescription>
             </CardHeader>
             <CardContent>
               {chartData.length > 0 ? (
                 <ChartContainer config={chartConfig} className="h-[300px] w-full">
-                  <ResponsiveContainer>
-                    <BarChart data={chartData} margin={{ top: 20, right: 20, bottom: 5, left: 0 }}>
-                      <CartesianGrid vertical={false} />
-                      <XAxis
-                        dataKey="age"
-                        tickLine={false}
-                        tickMargin={10}
-                        axisLine={false}
-                        stroke="hsl(var(--muted-foreground))"
-                      />
-                      <YAxis
-                        stroke="hsl(var(--muted-foreground))"
-                        tickFormatter={(value) => `${value} kg`}
-                      />
-                      <Tooltip
-                        cursor={{ fill: 'hsl(var(--accent))' }}
-                        content={<ChartTooltipContent hideLabel />}
-                      />
-                      <Bar
+                  <ComposedChart data={chartData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
+                    <CartesianGrid vertical={false} />
+                    <XAxis
+                      dataKey="age"
+                      tickLine={false}
+                      tickMargin={10}
+                      axisLine={false}
+                      stroke="hsl(var(--muted-foreground))"
+                    />
+                    <YAxis
+                        yAxisId="left"
+                        stroke="var(--color-averageWeight)"
+                        tickFormatter={(value) => `${value}kg`}
+                        domain={['dataMin - 5', 'dataMax + 5']}
+                    />
+                    <YAxis
+                        yAxisId="right"
+                        orientation="right"
+                        stroke="var(--color-growth)"
+                        tickFormatter={(value) => `${value}kg`}
+                        domain={['dataMin - 1', 'dataMax + 1']}
+                    />
+                    <Tooltip
+                        content={<ChartTooltipContent indicator="dot" />}
+                    />
+                    <Legend content={<ChartLegendContent />} />
+                    <Bar
                         dataKey="averageWeight"
+                        yAxisId="left"
                         fill="var(--color-averageWeight)"
                         radius={4}
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
+                        name="Avg. Weight"
+                    />
+                    <Line
+                        type="monotone"
+                        dataKey="growth"
+                        yAxisId="right"
+                        stroke="var(--color-growth)"
+                        strokeWidth={2}
+                        dot={{
+                            r: 4,
+                            fill: "var(--color-growth)",
+                            stroke: "hsl(var(--background))",
+                            strokeWidth: 2,
+                        }}
+                        activeDot={{
+                            r: 6,
+                        }}
+                        name="Monthly Growth"
+                    />
+                  </ComposedChart>
                 </ChartContainer>
               ) : (
-                <div className="flex h-[300px] items-center justify-center">
+                <div className="flex h-[300px] items-center justify-center p-4 text-center">
                   <p className="text-muted-foreground">
-                    Not enough data to display the chart. Add sheep to your farm to get started.
+                    Not enough data to display growth chart. Add at least two sheep records with different ages to see progress.
                   </p>
                 </div>
               )}
