@@ -369,7 +369,20 @@
         },
         "dewormerName": {
           "type": "string",
-          "description": "The name of the dewormer used, if the task is Deworming."
+          "description": "The name of the dewormer used, if the task is Deworming.",
+          "enum": [
+            "Albendazole",
+            "Fenbendazole",
+            "Ivermectin"
+          ]
+        },
+        "dosePerKg": {
+          "type": "number",
+          "description": "The dosage of the dewormer per kg."
+        },
+        "totalSheepTreated": {
+          "type": "number",
+          "description": "The total number of sheep treated."
         },
         "lastAdministered": {
           "type": "string",
@@ -388,13 +401,14 @@
             "Once",
             "Daily",
             "Monthly",
+            "Every 2 Months",
             "Every 6 Months",
             "Annually"
           ]
         },
         "notes": {
           "type": "string",
-          "description": "Additional notes, such as medicine names or dosages."
+          "description": "Remarks or additional notes about the task."
         }
       },
       "required": [

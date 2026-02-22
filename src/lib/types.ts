@@ -42,10 +42,12 @@ export type DeadAnimal = {
 export type HealthTask = {
   id: string;
   taskName: string;
-  dewormerName?: string;
+  dewormerName?: 'Albendazole' | 'Fenbendazole' | 'Ivermectin';
+  dosePerKg?: number;
+  totalSheepTreated?: number;
   lastAdministered: string;
   nextDueDate: string;
-  frequency: 'Once' | 'Daily' | 'Monthly' | 'Every 6 Months' | 'Annually';
+  frequency: 'Once' | 'Daily' | 'Monthly' | 'Every 2 Months' | 'Every 6 Months' | 'Annually';
   notes?: string;
 };
 
