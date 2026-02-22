@@ -25,6 +25,7 @@ const LivestockPurchaseSchema = z.object({
 const MedicineExpenseSchema = z.object({
   shopName: z.string().describe('Name of the medicine shop.'),
   date: z.string().describe('Date of medicine purchase (YYYY-MM-DD format).'),
+  description: z.string().optional().describe('A description of the medicine or expense.'),
   costOfMedicines: z.number().describe('Cost of the medicines.'),
   totalAmountSpent: z.number().describe('Total amount spent including other charges.'),
   outstandingDues: z.number().describe('Any outstanding dues for this medicine purchase.'),
@@ -99,7 +100,7 @@ No livestock purchase data available.
 {{#if medicineExpenses}}
 ## Medicine Expenses:
 {{#each medicineExpenses}}
-- Shop: {{{this.shopName}}}, Date: {{{this.date}}}, Cost of Medicines: {{{this.costOfMedicines}}}, Total Spent: {{{this.totalAmountSpent}}}, Outstanding Dues: {{{this.outstandingDues}}}
+- Shop: {{{this.shopName}}}, Date: {{{this.date}}}, Description: {{{this.description}}}, Cost of Medicines: {{{this.costOfMedicines}}}, Total Spent: {{{this.totalAmountSpent}}}, Outstanding Dues: {{{this.outstandingDues}}}
 {{/each}}
 {{else}}
 No medicine expense data available.
@@ -146,9 +147,5 @@ const analyzeFarmCostsFlow = ai.defineFlow(
     return output!;
   }
 );
-
-    
-
-    
 
     

@@ -29,6 +29,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const expenseFormSchema = z.object({
   shopName: z.string().min(1, 'Shop name is required'),
+  description: z.string().optional(),
   date: z.date({ required_error: 'A date is required.' }),
   costOfMedicines: z.coerce.number().positive('Must be a positive number'),
   totalAmountSpent: z.coerce.number().positive('Must be a positive number'),
@@ -155,7 +156,7 @@ export default function MedicinePage() {
 
   const expenseForm = useForm<MedicineFormData>({
     resolver: zodResolver(expenseFormSchema),
-    defaultValues: { shopName: '', costOfMedicines: 0, totalAmountSpent: 0, outstandingDues: 0 },
+    defaultValues: { shopName: '', description: '', costOfMedicines: 0, totalAmountSpent: 0, outstandingDues: 0 },
   });
   
   const editExpenseForm = useForm<MedicineFormData>({
@@ -417,6 +418,22 @@ export default function MedicinePage() {
                  <Form {...expenseForm}>
                   <form onSubmit={expenseForm.handleSubmit(onExpenseSubmit)} className="space-y-4">
                     <FormField control={expenseForm.control} name="shopName" render={({ field }) => ( <FormItem><FormLabel>Medicine Shop</FormLabel><FormControl><Input placeholder="e.g., Farmacy" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                    <FormField
+                      control={expenseForm.control}
+                      name="description"
+                      render={({ field }) => (
+                          <FormItem>
+                              <FormLabel>Description (Optional)</FormLabel>
+                              <FormControl>
+                              <Textarea
+                                  placeholder="e.g., Anti-parasitic medicine, wound spray"
+                                  {...field}
+                              />
+                              </FormControl>
+                              <FormMessage />
+                          </FormItem>
+                      )}
+                    />
                     <FormField control={expenseForm.control} name="date" render={({ field }) => ( <FormItem className="flex flex-col"><FormLabel>Date of Purchase</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={'outline'} className={cn('w-full pl-3 text-left font-normal',!field.value && 'text-muted-foreground')}>{field.value ? (format(field.value, 'PPP')) : (<span>Pick a date</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date() || date < new Date('1900-01-01')} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem> )} />
                     <FormField control={expenseForm.control} name="costOfMedicines" render={({ field }) => ( <FormItem><FormLabel>Cost of Medicines (₹)</FormLabel><FormControl><Input type="number" step="0.01" {...field} /></FormControl><FormMessage /></FormItem> )} />
                     <FormField control={expenseForm.control} name="totalAmountSpent" render={({ field }) => ( <FormItem><FormLabel>Total Amount Spent (₹)</FormLabel><FormControl><Input type="number" step="0.01" {...field} /></FormControl><FormMessage /></FormItem> )} />
@@ -485,18 +502,20 @@ export default function MedicinePage() {
         <Card>
           <CardHeader><CardTitle>Expense History</CardTitle></CardHeader>
           <CardContent>
-            <Table><TableHeader><TableRow><TableHead>Date</TableHead><TableHead>Shop</TableHead><TableHead>Total</TableHead><TableHead>Dues</TableHead><TableHead className='text-right'>Action</TableHead></TableRow></TableHeader>
+            <Table><TableHeader><TableRow><TableHead>Date</TableHead><TableHead>Shop</TableHead><TableHead>Description</TableHead><TableHead>Total</TableHead><TableHead>Dues</TableHead><TableHead className='text-right'>Action</TableHead></TableRow></TableHeader>
               <TableBody>
                 {sortedMedicineExpenses && sortedMedicineExpenses.length > 0 ? (
                   sortedMedicineExpenses.map((e) => (
                     <TableRow key={e.id}>
-                      <TableCell>{format(new Date(e.date), 'PPP')}</TableCell><TableCell>{e.shopName}</TableCell>
+                      <TableCell>{format(new Date(e.date), 'PPP')}</TableCell>
+                      <TableCell>{e.shopName}</TableCell>
+                      <TableCell>{e.description || 'N/A'}</TableCell>
                       <TableCell>₹{e.totalAmountSpent.toFixed(2)}</TableCell>
                       <TableCell className={e.outstandingDues > 0 ? 'text-destructive' : ''}>₹{e.outstandingDues.toFixed(2)}</TableCell>
                        <TableCell className='text-right'><div className="flex items-center justify-end"><Button variant="ghost" size="icon" onClick={() => handleEditExpenseClick(e)}><Pencil className="h-4 w-4" /></Button><Button variant="ghost" size="icon" onClick={() => handleDeleteExpense(e.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button></div></TableCell>
                     </TableRow>
                   ))
-                ) : ( <TableRow><TableCell colSpan={5} className="text-center">No expenses recorded yet.</TableCell></TableRow> )}
+                ) : ( <TableRow><TableCell colSpan={6} className="text-center">No expenses recorded yet.</TableCell></TableRow> )}
               </TableBody>
             </Table>
           </CardContent>
@@ -507,6 +526,23 @@ export default function MedicinePage() {
         <DialogContent className="sm:max-w-md"><DialogHeader><DialogTitle>Edit Medicine Expense</DialogTitle><DialogDescription>Update the details of your medicine expense. Click save when you're done.</DialogDescription></DialogHeader>
           <Form {...editExpenseForm}><form onSubmit={editExpenseForm.handleSubmit(onEditExpenseSubmit)} className="space-y-4 py-4">
               <FormField control={editExpenseForm.control} name="shopName" render={({ field }) => (<FormItem><FormLabel>Medicine Shop</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+              <FormField
+                control={editExpenseForm.control}
+                name="description"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Description (Optional)</FormLabel>
+                    <FormControl>
+                        <Textarea
+                        placeholder="e.g., Anti-parasitic medicine, wound spray"
+                        {...field}
+                        value={field.value || ''}
+                        />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
               <FormField control={editExpenseForm.control} name="date" render={({ field }) => (<FormItem className="flex flex-col"><FormLabel>Date of Purchase</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={'outline'} className={cn('w-full pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}>{field.value ? (format(field.value, 'PPP')) : (<span>Pick a date</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date() || date < new Date('1900-01-01')} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>)} />
               <FormField control={editExpenseForm.control} name="costOfMedicines" render={({ field }) => (<FormItem><FormLabel>Cost of Medicines (₹)</FormLabel><FormControl><Input type="number" step="0.01" {...field} /></FormControl><FormMessage /></FormItem>)} />
               <FormField control={editExpenseForm.control} name="totalAmountSpent" render={({ field }) => (<FormItem><FormLabel>Total Amount Spent (₹)</FormLabel><FormControl><Input type="number" step="0.01" {...field} /></FormControl><FormMessage /></FormItem>)} />
@@ -607,3 +643,5 @@ export default function MedicinePage() {
     </div>
   );
 }
+
+    
