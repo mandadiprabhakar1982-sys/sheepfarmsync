@@ -400,6 +400,21 @@
           "type": "string",
           "description": "The batch number of the vaccine used."
         },
+        "supplementType": {
+          "type": "string",
+          "description": "The type of vitamin or supplement administered.",
+          "enum": [
+            "B-Complex",
+            "Liver Tonic",
+            "Calcium",
+            "Multivitamin",
+            "Mineral Mixture"
+          ]
+        },
+        "dosage": {
+          "type": "string",
+          "description": "The dosage administered, e.g., '5ml'."
+        },
         "totalSheepTreated": {
           "type": "number",
           "description": "The total number of sheep treated."

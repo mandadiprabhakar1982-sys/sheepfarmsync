@@ -49,6 +49,9 @@ export type HealthTask = {
   vaccineType?: 'ET + TT' | 'PPR' | 'Sheep Pox' | 'HS' | 'FMD' | 'Bluetongue';
   boosterRequired?: boolean;
   batchNumber?: string;
+  // Vitamin & Supplement
+  supplementType?: 'B-Complex' | 'Liver Tonic' | 'Calcium' | 'Multivitamin' | 'Mineral Mixture';
+  dosage?: string;
   // Common
   totalSheepTreated?: number;
   lastAdministered: string;
@@ -58,4 +61,3 @@ export type HealthTask = {
 };
 
     
-
