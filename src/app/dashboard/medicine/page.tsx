@@ -24,6 +24,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 
 const expenseFormSchema = z.object({
@@ -308,13 +309,23 @@ export default function MedicinePage() {
 
   return (
     <div className="container mx-auto py-8">
-      <PageHeader title="Medicine & Health" description="Track medicine costs and manage your flock's health schedule." />
+      <PageHeader title="Medicine &amp; Health" description="Manage health tasks and medicine expenses in one place." />
       
       <div className="space-y-8">
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-            <Card>
-              <CardHeader><CardTitle className="flex items-center gap-2"><ShieldCheck className="h-6 w-6" />Health Tracker</CardTitle><CardDescription>Schedule and track recurring health tasks for your flock.</CardDescription></CardHeader>
-              <CardContent>
+        <Card>
+          <CardHeader>
+            <CardTitle>Health &amp; Medicine Management</CardTitle>
+            <CardDescription>
+              Schedule a new health task for your flock or record a medicine purchase.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <Tabs defaultValue="schedule" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="schedule">Schedule Task</TabsTrigger>
+                <TabsTrigger value="expense">Record Expense</TabsTrigger>
+              </TabsList>
+              <TabsContent value="schedule" className="mt-6">
                 <Form {...healthTaskForm}>
                   <form onSubmit={healthTaskForm.handleSubmit(onHealthTaskSubmit)} className="space-y-4">
                      <FormField control={healthTaskForm.control} name="taskName" render={({ field }) => (
@@ -401,13 +412,9 @@ export default function MedicinePage() {
                      <Button type="submit" className="w-full"><PlusCircle className="mr-2 h-4 w-4" />Schedule Task</Button>
                   </form>
                 </Form>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader><CardTitle>Add New Expense</CardTitle><CardDescription>Fill out the form below.</CardDescription></CardHeader>
-              <CardContent>
-                <Form {...expenseForm}>
+              </TabsContent>
+              <TabsContent value="expense" className="mt-6">
+                 <Form {...expenseForm}>
                   <form onSubmit={expenseForm.handleSubmit(onExpenseSubmit)} className="space-y-4">
                     <FormField control={expenseForm.control} name="shopName" render={({ field }) => ( <FormItem><FormLabel>Medicine Shop</FormLabel><FormControl><Input placeholder="e.g., Farmacy" {...field} /></FormControl><FormMessage /></FormItem> )} />
                     <FormField control={expenseForm.control} name="date" render={({ field }) => ( <FormItem className="flex flex-col"><FormLabel>Date of Purchase</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={'outline'} className={cn('w-full pl-3 text-left font-normal',!field.value && 'text-muted-foreground')}>{field.value ? (format(field.value, 'PPP')) : (<span>Pick a date</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date() || date < new Date('1900-01-01')} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem> )} />
@@ -417,9 +424,10 @@ export default function MedicinePage() {
                     <Button type="submit" className="w-full"><PlusCircle className="mr-2 h-4 w-4" />Add Expense</Button>
                   </form>
                 </Form>
-              </CardContent>
-            </Card>
-        </div>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader><CardTitle>Scheduled Tasks</CardTitle></CardHeader>
