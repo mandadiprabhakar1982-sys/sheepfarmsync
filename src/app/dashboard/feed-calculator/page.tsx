@@ -6,43 +6,76 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/page-header';
-import { Calculator } from 'lucide-react';
+import { Calculator, Wheat, Leaf } from 'lucide-react';
 
 export default function FeedCalculatorPage() {
+  // Input states
   const [sheepCount, setSheepCount] = useState('80');
   const [weight, setWeight] = useState('15');
   const [feedPercent, setFeedPercent] = useState('4');
+  
+  // Cost states
   const [tmrCost, setTmrCost] = useState('21');
   const [groundnutCost, setGroundnutCost] = useState('10');
 
+  // Mix percentage states
+  const [tmrMix, setTmrMix] = useState('70');
+  const [groundnutMix, setGroundnutMix] = useState('30');
+
   const [results, setResults] = useState({
-    perSheepFeed: '',
     totalFeed: '',
-    dailyCost: '',
-    monthlyCost: '',
+    dailyTmrUsage: '',
+    dailyGroundnutUsage: '',
+    totalDailyCost: '',
+    totalMonthlyCost: '',
   });
 
   const calculateFeed = () => {
     const numSheep = parseFloat(sheepCount);
     const avgWeight = parseFloat(weight);
     const percent = parseFloat(feedPercent);
-    const tmr = parseFloat(tmrCost);
-    const groundnut = parseFloat(groundnutCost);
+    const tmrCostVal = parseFloat(tmrCost);
+    const groundnutCostVal = parseFloat(groundnutCost);
+    const tmrMixPercent = parseFloat(tmrMix);
+    const groundnutMixPercent = parseFloat(groundnutMix);
 
-    if (isNaN(numSheep) || isNaN(avgWeight) || isNaN(percent) || isNaN(tmr) || isNaN(groundnut)) {
+    if (
+      isNaN(numSheep) || isNaN(avgWeight) || isNaN(percent) ||
+      isNaN(tmrCostVal) || isNaN(groundnutCostVal) ||
+      isNaN(tmrMixPercent) || isNaN(groundnutMixPercent)
+    ) {
       return;
     }
-    
+
+    if (tmrMixPercent + groundnutMixPercent !== 100) {
+      setResults({
+        totalFeed: 'Mix percentages must add up to 100%',
+        dailyTmrUsage: '',
+        dailyGroundnutUsage: '',
+        totalDailyCost: '',
+        totalMonthlyCost: '',
+      });
+      return;
+    }
+
     const feedPerSheep = avgWeight * (percent / 100);
     const totalDailyFeed = feedPerSheep * numSheep;
-    const totalDailyCost = totalDailyFeed * tmr; // Using TMR cost for calculation
+
+    const dailyTmr = totalDailyFeed * (tmrMixPercent / 100);
+    const dailyGroundnut = totalDailyFeed * (groundnutMixPercent / 100);
+
+    const dailyTmrCost = dailyTmr * tmrCostVal;
+    const dailyGroundnutCost = dailyGroundnut * groundnutCostVal;
+    
+    const totalDailyCost = dailyTmrCost + dailyGroundnutCost;
     const totalMonthlyCost = totalDailyCost * 30;
 
     setResults({
-      perSheepFeed: `Feed per Sheep: ${feedPerSheep.toFixed(2)} kg/day`,
-      totalFeed: `Total Daily Feed: ${totalDailyFeed.toFixed(2)} kg/day`,
-      dailyCost: `Total Daily Cost (TMR): ₹${totalDailyCost.toFixed(2)}`,
-      monthlyCost: `Total Monthly Cost (TMR): ₹${totalMonthlyCost.toFixed(2)}`,
+      totalFeed: `Total Daily Feed: ${totalDailyFeed.toFixed(2)} kg`,
+      dailyTmrUsage: `Daily TMR usage: ${dailyTmr.toFixed(2)} kgs`,
+      dailyGroundnutUsage: `🌿 Groundnut usage: ${dailyGroundnut.toFixed(2)} kgs`,
+      totalDailyCost: `Total Daily Cost: ₹${totalDailyCost.toFixed(2)}`,
+      totalMonthlyCost: `Total Monthly Cost: ₹${totalMonthlyCost.toFixed(2)}`,
     });
   };
 
@@ -50,13 +83,13 @@ export default function FeedCalculatorPage() {
     <div className="container mx-auto py-8">
       <PageHeader
         title="Weight Based Feed Calculator"
-        description="Calculate feed requirements and costs based on sheep weight."
+        description="Calculate feed requirements and costs based on sheep weight and feed mix."
       />
       <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-        <div className="md:col-span-1">
-          <Card>
+        <div className="md:col-span-1 space-y-8">
+           <Card>
             <CardHeader>
-              <CardTitle>Enter Details</CardTitle>
+              <CardTitle>Farm Details</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -71,15 +104,35 @@ export default function FeedCalculatorPage() {
                 <Label htmlFor="feedPercent">Feeding % of Body Weight</Label>
                 <Input id="feedPercent" type="number" value={feedPercent} onChange={(e) => setFeedPercent(e.target.value)} />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="tmrCost">TMR Cost per kg (₹)</Label>
-                <Input id="tmrCost" type="number" value={tmrCost} onChange={(e) => setTmrCost(e.target.value)} />
+            </CardContent>
+          </Card>
+           <Card>
+            <CardHeader>
+              <CardTitle>Feed Mix & Cost</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+               <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="tmrMix">TMR Mix (%)</Label>
+                  <Input id="tmrMix" type="number" value={tmrMix} onChange={(e) => setTmrMix(e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="groundnutMix">Groundnut Mix (%)</Label>
+                  <Input id="groundnutMix" type="number" value={groundnutMix} onChange={(e) => setGroundnutMix(e.target.value)} />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="groundnutCost">Groundnut Cost per kg (₹)</Label>
-                <Input id="groundnutCost" type="number" value={groundnutCost} onChange={(e) => setGroundnutCost(e.target.value)} />
+               <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                    <Label htmlFor="tmrCost">TMR Cost per kg (₹)</Label>
+                    <Input id="tmrCost" type="number" value={tmrCost} onChange={(e) => setTmrCost(e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="groundnutCost">Groundnut Cost per kg (₹)</Label>
+                    <Input id="groundnutCost" type="number" value={groundnutCost} onChange={(e) => setGroundnutCost(e.target.value)} />
+                </div>
               </div>
-              <Button onClick={calculateFeed} className="w-full">
+
+               <Button onClick={calculateFeed} className="w-full">
                 <Calculator className="mr-2 h-4 w-4" />
                 Calculate
               </Button>
@@ -90,13 +143,33 @@ export default function FeedCalculatorPage() {
           {results.totalFeed && (
             <Card>
               <CardHeader>
-                <CardTitle>Results</CardTitle>
+                <CardTitle>Calculation Results</CardTitle>
+                <CardDescription>
+                  Based on your inputs, here are the estimated feed requirements and costs.
+                </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4 text-lg">
-                <p className="text-muted-foreground">{results.perSheepFeed}</p>
-                <p className="text-muted-foreground">{results.totalFeed}</p>
-                <p className="text-muted-foreground">{results.dailyCost}</p>
-                <p className="text-muted-foreground">{results.monthlyCost}</p>
+              <CardContent className="space-y-6 text-lg">
+                <div>
+                  <h3 className="font-semibold text-xl mb-2">{results.totalFeed}</h3>
+                  <div className="space-y-2 pl-4 border-l-2">
+                    <p className="text-muted-foreground flex items-center gap-2">
+                      <Wheat className="h-5 w-5 text-primary" />
+                      <span>{results.dailyTmrUsage}</span>
+                    </p>
+                    <p className="text-muted-foreground flex items-center gap-2">
+                      <Leaf className="h-5 w-5 text-green-600" />
+                      <span>{results.dailyGroundnutUsage}</span>
+                    </p>
+                  </div>
+                </div>
+                 <div>
+                  <h3 className="font-semibold text-xl mb-2">{results.totalDailyCost}</h3>
+                   <div className="space-y-2 pl-4 border-l-2">
+                    <p className="text-muted-foreground">
+                      <span className="font-medium text-foreground">Monthly Total:</span> {results.totalMonthlyCost}
+                    </p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           )}
