@@ -20,73 +20,63 @@ import { useFarm } from '@/context/FarmContext';
 
 const menuItems = [
     {
-      title: 'OVERVIEW',
-      description: 'FARM AT A GLANCE',
+      title: 'Overview',
+      description: 'Farm at a glance',
       icon: LayoutDashboard,
-      color: 'bg-teal-500',
       href: '/dashboard/overview',
     },
     {
-      title: 'REPORTS & ANALYSIS',
-      description: 'AI-POWERED INSIGHTS',
+      title: 'Reports & Analysis',
+      description: 'AI-powered insights',
       icon: BarChart,
-      color: 'bg-blue-500',
       href: '/dashboard/analysis',
     },
     {
-      title: 'SHEEP MANAGEMENT',
-      description: 'WEIGHT & GROWTH LOGS',
+      title: 'Sheep Management',
+      description: 'Weight & growth logs',
       icon: ListChecks,
-      color: 'bg-green-500',
       href: '/dashboard/livestock',
     },
     {
-      title: 'PURCHASE SHEEP',
-      description: 'RECORD SHEEP PURCHASES',
+      title: 'Purchase Sheep',
+      description: 'Record sheep purchases',
       icon: Package,
-      color: 'bg-cyan-500',
       href: '/dashboard/purchase',
     },
     {
-      title: 'SHEEP SALES',
-      description: 'RECORD SHEEP SALES',
+      title: 'Sheep Sales',
+      description: 'Record sheep sales',
       icon: BadgeIndianRupee,
-      color: 'bg-purple-500',
       href: '/dashboard/sales',
     },
     {
-      title: 'MEDICINE',
-      description: 'VACCINATIONS & TREATMENTS',
+      title: 'Medicine',
+      description: 'Vaccinations & treatments',
       icon: HeartPulse,
-      color: 'bg-red-500',
       href: '/dashboard/medicine',
     },
     {
-      title: 'FEED COST',
-      description: 'NUTRITION MANAGEMENT',
+      title: 'Feed Cost',
+      description: 'Nutrition management',
       icon: Wheat,
-      color: 'bg-yellow-500',
       href: '/dashboard/feed',
     },
     {
-      title: 'EMPLOYEE COST',
-      description: 'MANAGE EMPLOYEES',
+      title: 'Employee Cost',
+      description: 'Manage employees',
       icon: Users,
-      color: 'bg-indigo-500',
       href: '/dashboard/labor',
     },
     {
-      title: 'FARM EXPENSES',
-      description: 'MISCELLANEOUS COSTS',
+      title: 'Farm Expenses',
+      description: 'Miscellaneous costs',
       icon: Receipt,
-      color: 'bg-orange-500',
       href: '/dashboard/expenses',
     },
     {
-      title: 'MORTALITY',
-      description: 'TRACK ANIMAL DEATHS',
+      title: 'Mortality',
+      description: 'Track animal deaths',
       icon: Skull,
-      color: 'bg-gray-500',
       href: '/dashboard/mortality',
     },
   ];
@@ -111,28 +101,30 @@ export default function DashboardPage() {
                 <SheepIcon className="h-10 w-10 md:h-12 md:w-12 text-white" />
             </div>
           <h1 className="mt-4 text-4xl md:text-5xl font-bold tracking-tight">
-            SHEEPSYNC PRO
+            SheepSync Pro
           </h1>
           <p className="mt-2 text-lg md:text-xl text-primary-foreground/80">
-            PRECISION MANAGEMENT FOR MODERN SHEPHERDS
+            Precision Management for Modern Shepherds
           </p>
         </div>
       </section>
       
       <section className="container mx-auto px-0 md:px-4 py-8 md:py-12 -mt-16 md:-mt-24">
-        <div className="grid grid-flow-col auto-cols-[12rem] gap-4 overflow-x-auto pb-4 px-4 md:grid-cols-2 lg:grid-cols-4 md:auto-cols-auto md:gap-8 md:px-0 md:pb-0">
+        <div className="grid grid-flow-col auto-cols-[16rem] gap-4 overflow-x-auto pb-4 px-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:auto-cols-auto md:gap-6 md:px-0 md:pb-0">
           {menuItems.map((item) => {
             const Icon = item.icon;
             return (
-              <Link href={item.href} key={item.title} className="block">
-                <Card className="group h-full transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
-                  <CardContent className="flex flex-col items-center justify-center p-6 text-center">
-                    <div className={`mb-4 rounded-2xl p-3 ${item.color}`}>
-                      <Icon className="h-7 w-7 text-white" />
+              <Link href={item.href} key={item.title} className="block group rounded-lg">
+                <Card className="h-full transition-all duration-200 group-hover:border-primary group-hover:shadow-lg">
+                  <CardContent className="flex items-center gap-4 p-4">
+                    <div className="rounded-lg bg-accent p-3">
+                       <Icon className="h-6 w-6 text-accent-foreground" />
                     </div>
-                    <h3 className="text-sm font-bold tracking-wider uppercase">{item.title}</h3>
-                    <p className="mt-1 text-xs text-muted-foreground">{item.description}</p>
-                    <ChevronRight className="mt-3 h-5 w-5 text-muted-foreground/30 transition-transform group-hover:translate-x-1" />
+                    <div className="flex-1">
+                      <h3 className="font-semibold">{item.title}</h3>
+                      <p className="text-sm text-muted-foreground">{item.description}</p>
+                    </div>
+                    <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1" />
                   </CardContent>
                 </Card>
               </Link>
