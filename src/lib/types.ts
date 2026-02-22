@@ -39,5 +39,13 @@ export type DeadAnimal = {
   notes?: string;
 };
 
-    
+export type HealthTask = {
+  id: string;
+  taskName: string;
+  lastAdministered: string;
+  nextDueDate: string;
+  frequency: 'Once' | 'Monthly' | 'Every 6 Months' | 'Annually';
+  notes?: string;
+};
 
+    

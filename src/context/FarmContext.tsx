@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useMemo, useCallback } from 'react';
-import type { LivestockPurchase, AnimalSale, FeedCost, MedicineExpense, LaborCost, TrackedSheep, DeadAnimal, FarmExpense } from '@/lib/types';
+import type { LivestockPurchase, AnimalSale, FeedCost, MedicineExpense, LaborCost, TrackedSheep, DeadAnimal, FarmExpense, HealthTask } from '@/lib/types';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
 import { setDocumentNonBlocking, deleteDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase/non-blocking-updates';
@@ -46,6 +46,11 @@ interface FarmContextType {
   deleteFarmExpense: (id: string) => void;
   updateFarmExpense: (id: string, data: Omit<FarmExpense, 'id'>) => void;
   
+  healthTasks: HealthTask[] | null;
+  addHealthTask: (task: Omit<HealthTask, 'id'>) => void;
+  deleteHealthTask: (id: string) => void;
+  updateHealthTask: (id: string, data: Omit<HealthTask, 'id'>) => void;
+
   isLoading: boolean;
 
   totalSheep: number;
@@ -89,6 +94,9 @@ export function FarmProvider({ children }: { children: ReactNode }) {
 
   const farmExpensesRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'farmExpenses') : null, [firestore, user]);
   const { data: farmExpenses, isLoading: isLoadingFarmExpenses } = useCollection<FarmExpense>(farmExpensesRef);
+  
+  const healthTasksRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'healthTasks') : null, [firestore, user]);
+  const { data: healthTasks, isLoading: isLoadingHealthTasks } = useCollection<HealthTask>(healthTasksRef);
 
   const addPurchase = useCallback((purchase: Omit<LivestockPurchase, 'id'>) => {
     if (!purchasesRef) return;
@@ -228,8 +236,25 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     updateDocumentNonBlocking(docRef, data);
   }, [farmExpensesRef]);
 
+  const addHealthTask = useCallback((task: Omit<HealthTask, 'id'>) => {
+    if (!healthTasksRef) return;
+    const newId = crypto.randomUUID();
+    const docRef = doc(healthTasksRef, newId);
+    setDocumentNonBlocking(docRef, { ...task, id: newId }, {});
+  }, [healthTasksRef]);
 
-  const isLoading = isLoadingPurchases || isLoadingSales || isLoadingFeedCosts || isLoadingMedicine || isLoadingLabor || isLoadingDeadAnimals || isLoadingTrackedSheep || isLoadingFarmExpenses;
+  const deleteHealthTask = useCallback((id: string) => {
+    if (!healthTasksRef) return;
+    deleteDocumentNonBlocking(doc(healthTasksRef, id));
+  }, [healthTasksRef]);
+
+  const updateHealthTask = useCallback((id: string, data: Omit<HealthTask, 'id'>) => {
+    if (!healthTasksRef) return;
+    const docRef = doc(healthTasksRef, id);
+    updateDocumentNonBlocking(docRef, data);
+  }, [healthTasksRef]);
+
+  const isLoading = isLoadingPurchases || isLoadingSales || isLoadingFeedCosts || isLoadingMedicine || isLoadingLabor || isLoadingDeadAnimals || isLoadingTrackedSheep || isLoadingFarmExpenses || isLoadingHealthTasks;
 
   const totalDead = useMemo(() => {
     return (deadAnimals || []).reduce((sum, a) => sum + (a.sheepCount ?? 1), 0);
@@ -308,6 +333,10 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     addFarmExpense,
     deleteFarmExpense,
     updateFarmExpense,
+    healthTasks,
+    addHealthTask,
+    deleteHealthTask,
+    updateHealthTask,
     isLoading,
     totalSheep,
     totalExpenses,
@@ -335,3 +364,5 @@ export function useFarm() {
   }
   return context;
 }
+
+    

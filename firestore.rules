@@ -217,6 +217,21 @@ service cloud.firestore {
         allow update: if isExistingOwner(userId) && isIdImmutable();
         allow delete: if isExistingOwner(userId);
       }
+
+      /**
+       * @description Secures health task records. Only the owner can manage their records.
+       * @path        /users/{userId}/healthTasks/{healthTaskId}
+       * @principle   Enforces document ownership for all operations.
+       */
+      match /healthTasks/{healthTaskId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && isCreatingWithMatchingId(healthTaskId);
+        allow update: if isExistingOwner(userId) && isIdImmutable();
+        allow delete: if isExistingOwner(userId);
+      }
     }
   }
 }
+
+    

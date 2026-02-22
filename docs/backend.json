@@ -352,6 +352,53 @@
         "description",
         "amount"
       ]
+    },
+    "HealthTask": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "HealthTask",
+      "type": "object",
+      "description": "Records a recurring or one-time health task for the flock.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the HealthTask entity."
+        },
+        "taskName": {
+          "type": "string",
+          "description": "The name of the health task (e.g., Deworming, PPR Vaccine)."
+        },
+        "lastAdministered": {
+          "type": "string",
+          "description": "The date the task was last performed.",
+          "format": "date-time"
+        },
+        "nextDueDate": {
+          "type": "string",
+          "description": "The calculated next due date for this task.",
+          "format": "date-time"
+        },
+        "frequency": {
+          "type": "string",
+          "description": "How often the task should be repeated.",
+          "enum": [
+            "Once",
+            "Monthly",
+            "Every 6 Months",
+            "Annually"
+          ]
+        },
+        "notes": {
+          "type": "string",
+          "description": "Additional notes, such as medicine names or dosages."
+        }
+      },
+      "required": [
+        "id",
+        "taskName",
+        "lastAdministered",
+        "nextDueDate",
+        "frequency"
+      ]
     }
   },
   "auth": {
@@ -522,8 +569,30 @@
             }
           ]
         }
+      },
+      {
+        "path": "/users/{userId}/healthTasks/{healthTaskId}",
+        "definition": {
+          "entityName": "HealthTask",
+          "schema": {
+            "$ref": "#/backend/entities/HealthTask"
+          },
+          "description": "Collection of health schedule tasks for a specific user.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user (farm owner) who owns these records."
+            },
+            {
+              "name": "healthTaskId",
+              "description": "The unique identifier for a specific health task record."
+            }
+          ]
+        }
       }
     ],
     "reasoning": "The recommended Firestore structure for Shepfarmsycpro strictly adheres to the core design principles, prioritizing Authorization Independence and QAPs (Queries as Permissions) through a user-centric, path-based ownership model. Each user's data is isolated within their dedicated subcollection, making security rules simple, robust, and debuggable.\n\n**Authorization Independence:** This is achieved by embedding the `userId` directly into the path for all user-owned data. For example, a livestock purchase record will be stored at `/users/{userId}/livestockPurchases/{livestockPurchaseId}`. This structure allows security rules to evaluate ownership by simply comparing `request.auth.uid` with the `{userId}` wildcard in the path. This eliminates the need for expensive and complex `get()` calls to parent documents or other collections, thereby supporting atomic operations (transactions/batches) and preventing security rule dependencies that are hard to debug.\n\n**QAPs (Queries as Permissions):** By segregating data under the user's ID, any `list` operation performed on a collection like `/users/{userId}/livestockPurchases` will inherently return only the records belonging to the authenticated user. Firestore's security rules can enforce that `{userId}` matches `request.auth.uid`, ensuring that users can only query their own data. This means the database structure itself acts as a primary filter, simplifying query patterns and drastically reducing the risk of data leakage or over-fetching, as rules are not used as filters but as validators of already scoped requests.\n\n**Structural Segregation:** Each type of financial record (Livestock Purchases, Medicine Expenses, Feed Expenses, Labor Expenses, Animal Sales) is stored in its own dedicated subcollection under the respective user's path. For instance, `livestockPurchases` will only contain `LivestockPurchase` documents. This ensures a homogeneous security posture for all documents within a given collection, simplifying security rules (e.g., all documents in `/users/{userId}/livestockPurchases` have the same owner and access requirements). This separation also enhances clarity and predictability of the data schema within each collection.\n\n**Access Modeling:** The design primarily uses Path-Based ownership for all transactional data. Since all core features (purchase tracking, expense recording, sales recording) revolve around a single farm owner's data, this model perfectly suits the requirement for private, user-specific records. The `userId` in the path clearly denotes who owns the data.\n\n**Data Clarity and Predictability:** All path wildcards are semantically descriptive (e.g., `{userId}`, `{livestockPurchaseId}`). The schema for each entity is consistent within its collection. No dynamic keys are used, and state modeling (if any were required beyond what's in the entities) would rely on explicit fields.\n\nIn summary, this structure provides a secure, scalable, and highly debuggable foundation for Shepfarmsycpro by leveraging Firebase's strengths in path-based security and denormalization for authorization context."
   }
 }
+
+    
