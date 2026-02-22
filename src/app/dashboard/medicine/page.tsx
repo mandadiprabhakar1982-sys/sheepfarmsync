@@ -3,7 +3,7 @@
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { PlusCircle, Calendar as CalendarIcon, Trash2, Pencil } from 'lucide-react';
+import { PlusCircle, Calendar as CalendarIcon, Trash2, Pencil, ShieldCheck, Pill, Droplets, BellRing } from 'lucide-react';
 import { format } from 'date-fns';
 import { useState, useEffect, useMemo } from 'react';
 
@@ -41,6 +41,12 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useFarm } from '@/context/FarmContext';
 import type { MedicineExpense } from '@/lib/types';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 
 
 const formSchema = z.object({
@@ -126,8 +132,8 @@ export default function MedicinePage() {
   return (
     <div className="container mx-auto py-8">
       <PageHeader
-        title="Medicine Costs"
-        description="Track costs for animal health and medicine."
+        title="Medicine Costs & Health"
+        description="Track costs for animal health and view vaccination schedules."
       />
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="lg:col-span-1">
@@ -241,7 +247,7 @@ export default function MedicinePage() {
             </CardContent>
           </Card>
         </div>
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 space-y-8">
           <Card>
             <CardHeader>
               <CardTitle>Expense History</CardTitle>
@@ -290,6 +296,71 @@ export default function MedicinePage() {
                   )}
                 </TableBody>
               </Table>
+            </CardContent>
+          </Card>
+
+           <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                  <ShieldCheck className="h-6 w-6" />
+                  Health & Vaccination Schedule
+              </CardTitle>
+              <CardDescription>
+                  Recommended health schedule for your flock. Consult a veterinarian for specific needs.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Accordion type="single" collapsible className="w-full">
+                    <AccordionItem value="deworming">
+                        <AccordionTrigger className="text-lg font-semibold">
+                            <div className="flex items-center gap-2">
+                                <Pill className="h-5 w-5" /> Deworming (Very Important)
+                            </div>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                            <p className="mb-4 text-muted-foreground">Regular deworming is crucial to prevent internal parasites. Common dewormers include:</p>
+                            <ul className="list-disc pl-5 space-y-1">
+                                <li>Albendazole</li>
+                                <li>Fenbendazole</li>
+                                <li>Ivermectin (effective for external parasites too)</li>
+                            </ul>
+                        </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem value="support">
+                        <AccordionTrigger className="text-lg font-semibold">
+                            <div className="flex items-center gap-2">
+                                <Droplets className="h-5 w-5" /> Vitamin & Liver Support
+                            </div>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                            <p className="mb-4 text-muted-foreground">Support your flock's health with supplements:</p>
+                            <ul className="list-disc pl-5 space-y-1">
+                                <li>B-complex injection (once)</li>
+                                <li>Liver tonic (5 ml for 5 days)</li>
+                                <li>Calcium supplements</li>
+                                <li>Multivitamins</li>
+                            </ul>
+                        </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem value="vaccination">
+                        <AccordionTrigger className="text-lg font-semibold">
+                            <div className="flex items-center gap-2">
+                                <BellRing className="h-5 w-5" /> Vaccination Schedule & Time Alerts
+                            </div>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                            <p className="mb-4 text-muted-foreground">A typical vaccination schedule. Adherence is key to herd immunity.</p>
+                            <ul className="list-disc pl-5 space-y-2">
+                                <li><strong>Enterotoxemia (ET+TT)</strong>: Must be administered.</li>
+                                <li><strong>PPR Vaccine</strong></li>
+                                <li><strong>Sheep Pox</strong></li>
+                                <li><strong>HS (Haemorrhagic Septicaemia)</strong>: Two times every six months.</li>
+                                <li><strong>FMD (Foot-and-Mouth Disease)</strong></li>
+                                <li><strong>Bluetongue</strong></li>
+                            </ul>
+                        </AccordionContent>
+                    </AccordionItem>
+                </Accordion>
             </CardContent>
           </Card>
         </div>
