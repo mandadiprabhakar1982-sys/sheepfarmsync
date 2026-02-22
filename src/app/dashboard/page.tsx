@@ -120,11 +120,11 @@ export default function DashboardPage() {
       </section>
       
       <section className="container mx-auto px-0 md:px-4 py-8 md:py-12 -mt-16 md:-mt-24">
-        <div className="flex gap-4 overflow-x-auto pb-4 px-4 md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-8 md:px-0 md:pb-0">
+        <div className="grid grid-flow-col auto-cols-[12rem] gap-4 overflow-x-auto pb-4 px-4 md:grid-cols-2 lg:grid-cols-4 md:auto-cols-auto md:gap-8 md:px-0 md:pb-0">
           {menuItems.map((item) => {
             const Icon = item.icon;
             return (
-              <Link href={item.href} key={item.title} className="block w-48 flex-shrink-0 md:w-auto">
+              <Link href={item.href} key={item.title} className="block">
                 <Card className="group h-full transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
                   <CardContent className="flex flex-col items-center justify-center p-6 text-center">
                     <div className={`mb-4 rounded-2xl p-3 ${item.color}`}>
