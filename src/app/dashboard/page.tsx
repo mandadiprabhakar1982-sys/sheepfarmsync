@@ -119,20 +119,20 @@ export default function DashboardPage() {
         </div>
       </section>
       
-      <section className="container mx-auto px-4 py-8 md:py-12 -mt-16 md:-mt-24">
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+      <section className="container mx-auto px-0 md:px-4 py-8 md:py-12 -mt-16 md:-mt-24">
+        <div className="flex gap-4 overflow-x-auto pb-4 px-4 md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-8 md:px-0 md:pb-0">
           {menuItems.map((item) => {
             const Icon = item.icon;
             return (
-              <Link href={item.href} key={item.title} className="block">
+              <Link href={item.href} key={item.title} className="block w-48 flex-shrink-0 md:w-auto">
                 <Card className="group h-full transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
-                  <CardContent className="flex flex-col items-center justify-center p-8 text-center">
-                    <div className={`mb-6 rounded-2xl p-4 ${item.color}`}>
-                      <Icon className="h-6 w-6 md:h-8 md:w-8 text-white" />
+                  <CardContent className="flex flex-col items-center justify-center p-6 text-center">
+                    <div className={`mb-4 rounded-2xl p-3 ${item.color}`}>
+                      <Icon className="h-7 w-7 text-white" />
                     </div>
                     <h3 className="text-sm font-bold tracking-wider uppercase">{item.title}</h3>
                     <p className="mt-1 text-xs text-muted-foreground">{item.description}</p>
-                    <ChevronRight className="mt-4 h-5 w-5 text-muted-foreground/30 transition-transform group-hover:translate-x-1" />
+                    <ChevronRight className="mt-3 h-5 w-5 text-muted-foreground/30 transition-transform group-hover:translate-x-1" />
                   </CardContent>
                 </Card>
               </Link>
