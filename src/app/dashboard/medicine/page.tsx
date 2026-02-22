@@ -40,12 +40,7 @@ const frequencies = ['Once', 'Daily', 'Monthly', 'Every 6 Months', 'Annually'] a
 const healthTaskNames = [
     'Deworming',
     'Vitamin & Liver Support',
-    'Enterotoxemia (ET+TT)',
-    'PPR Vaccine',
-    'Sheep Pox',
-    'HS (Haemorrhagic Septicaemia)',
-    'FMD (Foot-and-Mouth Disease)',
-    'Bluetongue',
+    'VACCINATION',
 ] as const;
 
 const healthTaskFormSchema = z.object({
