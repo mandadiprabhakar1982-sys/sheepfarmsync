@@ -45,9 +45,18 @@ const healthTaskNames = [
 
 const healthTaskFormSchema = z.object({
   taskName: z.enum(healthTaskNames, { required_error: 'Please select a task.' }),
+  dewormerName: z.string().optional(),
   lastAdministered: z.date({ required_error: 'A date is required.' }),
   frequency: z.enum(frequencies),
   notes: z.string().optional(),
+}).refine(data => {
+    if (data.taskName === 'Deworming') {
+        return !!data.dewormerName && data.dewormerName.length > 0;
+    }
+    return true;
+}, {
+    message: 'Dewormer name is required for deworming tasks.',
+    path: ['dewormerName'],
 });
 
 type HealthTaskFormData = z.infer<typeof healthTaskFormSchema>;
@@ -75,12 +84,15 @@ export default function MedicinePage() {
 
   const healthTaskForm = useForm<HealthTaskFormData>({
     resolver: zodResolver(healthTaskFormSchema),
-    defaultValues: { notes: '' },
+    defaultValues: { dewormerName: '', notes: '' },
   });
-
+  
   const editHealthTaskForm = useForm<HealthTaskFormData>({
     resolver: zodResolver(healthTaskFormSchema),
   });
+
+  const watchedTaskName = healthTaskForm.watch('taskName');
+  const watchedEditTaskName = editHealthTaskForm.watch('taskName');
 
   const sortedMedicineExpenses = useMemo(() => {
     if (!medicineExpenses) return [];
@@ -270,6 +282,19 @@ export default function MedicinePage() {
                           </FormItem>
                         )}
                       />
+                      {watchedTaskName === 'Deworming' && (
+                        <FormField
+                            control={healthTaskForm.control}
+                            name="dewormerName"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Dewormer Name</FormLabel>
+                                    <FormControl><Input placeholder="e.g., Albendazole" {...field} /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                      )}
                      <div className="grid grid-cols-2 gap-4">
                        <FormField control={healthTaskForm.control} name="lastAdministered" render={({ field }) => ( <FormItem className="flex flex-col"><FormLabel>Last Administered</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={'outline'} className={cn('w-full pl-3 text-left font-normal',!field.value && 'text-muted-foreground')}>{field.value ? (format(field.value, 'PPP')) : (<span>Pick a date</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem> )} />
                        <FormField control={healthTaskForm.control} name="frequency" render={({ field }) => ( <FormItem><FormLabel>Frequency</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select frequency" /></SelectTrigger></FormControl><SelectContent>{frequencies.map((f) => (<SelectItem key={f} value={f}>{f}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem> )} />
@@ -290,7 +315,14 @@ export default function MedicinePage() {
                         const status = getTaskStatus(task.nextDueDate);
                         return (
                           <TableRow key={task.id}>
-                            <TableCell className="font-medium">{task.taskName}</TableCell>
+                            <TableCell className="font-medium">
+                                <div className="flex flex-col">
+                                    <span>{task.taskName}</span>
+                                    {task.taskName === 'Deworming' && task.dewormerName && (
+                                        <span className="text-xs text-muted-foreground">{task.dewormerName}</span>
+                                    )}
+                                </div>
+                            </TableCell>
                             <TableCell>
                               <div className="flex flex-col gap-1">
                                 <span>{format(new Date(task.nextDueDate), 'PPP')}</span>
@@ -350,6 +382,19 @@ export default function MedicinePage() {
                   </FormItem>
                 )}
               />
+              {watchedEditTaskName === 'Deworming' && (
+                <FormField
+                    control={editHealthTaskForm.control}
+                    name="dewormerName"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Dewormer Name</FormLabel>
+                            <FormControl><Input placeholder="e.g., Albendazole" {...field} value={field.value || ''} /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+              )}
               <div className="grid grid-cols-2 gap-4">
                 <FormField control={editHealthTaskForm.control} name="lastAdministered" render={({ field }) => ( <FormItem className="flex flex-col"><FormLabel>Last Administered</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={'outline'} className={cn('w-full pl-3 text-left font-normal',!field.value && 'text-muted-foreground')}>{field.value ? (format(field.value, 'PPP')) : (<span>Pick a date</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem> )} />
                 <FormField control={editHealthTaskForm.control} name="frequency" render={({ field }) => ( <FormItem><FormLabel>Frequency</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent>{frequencies.map((f) => (<SelectItem key={f} value={f}>{f}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem> )} />

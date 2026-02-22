@@ -42,6 +42,7 @@ export type DeadAnimal = {
 export type HealthTask = {
   id: string;
   taskName: string;
+  dewormerName?: string;
   lastAdministered: string;
   nextDueDate: string;
   frequency: 'Once' | 'Daily' | 'Monthly' | 'Every 6 Months' | 'Annually';
