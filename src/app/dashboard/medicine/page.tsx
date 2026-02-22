@@ -44,7 +44,7 @@ const supplementTypes = ['B-Complex', 'Liver Tonic', 'Calcium', 'Multivitamin', 
 const healthTaskNames = [
     'Deworming',
     'Vitamin & Liver Support',
-    'VACCINATION',
+    'Vaccination',
 ] as const;
 
 const healthTaskFormSchema = z.object({
@@ -93,7 +93,7 @@ const healthTaskFormSchema = z.object({
     message: 'Total sheep treated is required.',
     path: ['totalSheepTreated'],
 }).refine(data => {
-    if (data.taskName === 'VACCINATION') {
+    if (data.taskName === 'Vaccination') {
         return !!data.vaccineType;
     }
     return true;
@@ -101,7 +101,7 @@ const healthTaskFormSchema = z.object({
     message: 'Vaccine type is required.',
     path: ['vaccineType'],
 }).refine(data => {
-    if (data.taskName === 'VACCINATION') {
+    if (data.taskName === 'Vaccination') {
         return data.boosterRequired !== undefined;
     }
     return true;
@@ -109,7 +109,7 @@ const healthTaskFormSchema = z.object({
     message: 'Please specify if a booster is required.',
     path: ['boosterRequired'],
 }).refine(data => {
-    if (data.taskName === 'VACCINATION') {
+    if (data.taskName === 'Vaccination') {
         return !!data.batchNumber && data.batchNumber.length > 0;
     }
     return true;
@@ -117,7 +117,7 @@ const healthTaskFormSchema = z.object({
     message: 'Batch number is required.',
     path: ['batchNumber'],
 }).refine(data => {
-    if (data.taskName === 'VACCINATION') {
+    if (data.taskName === 'Vaccination') {
         return data.totalSheepTreated !== undefined && data.totalSheepTreated > 0;
     }
     return true;
@@ -378,7 +378,7 @@ export default function MedicinePage() {
                         </>
                       )}
 
-                       {watchedTaskName === 'VACCINATION' && (
+                       {watchedTaskName === 'Vaccination' && (
                         <>
                           <FormField control={healthTaskForm.control} name="vaccineType" render={({ field }) => (
                             <FormItem><FormLabel>Vaccine Type</FormLabel>
@@ -459,7 +459,7 @@ export default function MedicinePage() {
                                           {task.totalSheepTreated && <p>Treated: {task.totalSheepTreated}</p>}
                                         </div>
                                     )}
-                                     {task.taskName === 'VACCINATION' && (
+                                     {task.taskName === 'Vaccination' && (
                                         <div className="text-xs text-muted-foreground">
                                           {task.vaccineType && <p>{task.vaccineType}</p>}
                                           {task.batchNumber && <p>Batch: {task.batchNumber}</p>}
@@ -534,7 +534,7 @@ export default function MedicinePage() {
                   </>
               )}
               
-               {watchedEditTaskName === 'VACCINATION' && (
+               {watchedEditTaskName === 'Vaccination' && (
                 <>
                   <FormField control={editHealthTaskForm.control} name="vaccineType" render={({ field }) => (
                     <FormItem><FormLabel>Vaccine Type</FormLabel>
