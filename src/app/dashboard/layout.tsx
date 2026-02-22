@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Globe, Home, LayoutDashboard, BarChart, BadgeIndianRupee } from 'lucide-react';
+import { Globe, Home, LayoutDashboard, BarChart, BadgeIndianRupee, Calculator } from 'lucide-react';
 import { Logo, SheepIcon } from '@/components/logo';
 import { Nav } from '@/components/nav';
 import { UserNav } from '@/components/user-nav';
@@ -23,7 +23,7 @@ export default function DashboardLayout({
     { href: '/dashboard/overview', label: 'Overview', icon: LayoutDashboard },
     { href: '/dashboard/livestock', label: 'Sheep', icon: SheepIcon },
     { href: '/dashboard/sales', label: 'Sales', icon: BadgeIndianRupee },
-    { href: '/dashboard/analysis', label: 'Reports', icon: BarChart },
+    { href: '/dashboard/feed-calculator', label: 'Calculator', icon: Calculator },
   ];
 
   return (

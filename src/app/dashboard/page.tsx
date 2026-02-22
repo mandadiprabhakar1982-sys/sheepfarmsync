@@ -13,6 +13,7 @@ import {
   Skull,
   BarChart,
   Receipt,
+  Calculator,
 } from 'lucide-react';
 import { SheepIcon } from '@/components/logo';
 import { Card, CardContent } from '@/components/ui/card';
@@ -60,6 +61,12 @@ const menuItems = [
       description: 'Nutrition management',
       icon: Wheat,
       href: '/dashboard/feed',
+    },
+    {
+      title: 'Feed Calculator',
+      description: 'Estimate feed needs & costs',
+      icon: Calculator,
+      href: '/dashboard/feed-calculator',
     },
     {
       title: 'Employee Cost',

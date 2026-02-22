@@ -13,6 +13,7 @@ import {
   Skull,
   LayoutDashboard,
   Receipt,
+  Calculator,
 } from 'lucide-react';
 import { SheepIcon } from '@/components/logo';
 
@@ -28,6 +29,7 @@ const links = [
   { href: '/dashboard/expenses', label: 'Expenses', icon: Receipt },
   { href: '/dashboard/mortality', label: 'Mortality', icon: Skull },
   { href: '/dashboard/analysis', label: 'Reports', icon: BarChart },
+  { href: '/dashboard/feed-calculator', label: 'Calculator', icon: Calculator },
 ];
 
 export function Nav() {
