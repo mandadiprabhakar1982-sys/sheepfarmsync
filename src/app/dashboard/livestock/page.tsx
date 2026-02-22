@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useMemo } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { PlusCircle, Trash2, Camera as CameraIcon, Pencil } from 'lucide-react';
+import { PlusCircle, Trash2, Camera as CameraIcon, Pencil, ArrowUp, ArrowDown } from 'lucide-react';
 import Image from 'next/image';
 import { Bar, ComposedChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, Line } from 'recharts';
 
@@ -81,7 +81,7 @@ export default function LivestockPage() {
     if (editingSheep) {
       editForm.reset({
         tagId: editingSheep.tagId,
-        weight: editingSheep.weight,
+        weight: editingSheep.currentWeight,
         age: editingSheep.age,
       });
     }
@@ -98,7 +98,7 @@ export default function LivestockPage() {
       if (!acc[age]) {
         acc[age] = { totalWeight: 0, count: 0 };
       }
-      acc[age].totalWeight += sheep.weight;
+      acc[age].totalWeight += sheep.currentWeight;
       acc[age].count += 1;
       return acc;
     }, {} as Record<number, { totalWeight: number; count: number }>);
@@ -175,7 +175,12 @@ export default function LivestockPage() {
   };
 
   const onTrackingSubmit: SubmitHandler<TrackingFormData> = (data) => {
-    addTrackedSheep({ ...data, photoDataUrl: capturedImage || undefined });
+    addTrackedSheep({ 
+      tagId: data.tagId,
+      age: data.age,
+      currentWeight: data.weight,
+      photoDataUrl: capturedImage || undefined 
+    });
     trackingForm.reset();
     setCapturedImage(null);
     toast({
@@ -186,7 +191,16 @@ export default function LivestockPage() {
 
   const onEditSubmit: SubmitHandler<TrackingFormData> = (data) => {
     if (!editingSheep) return;
-    updateTrackedSheep(editingSheep.id, { ...data, photoDataUrl: editingSheep.photoDataUrl });
+
+    const updatedData = {
+      tagId: data.tagId,
+      age: data.age,
+      currentWeight: data.weight,
+      previousWeight: editingSheep.currentWeight, // Set previous weight
+      photoDataUrl: editingSheep.photoDataUrl,
+    };
+
+    updateTrackedSheep(editingSheep.id, updatedData);
     setIsEditDialogOpen(false);
     setEditingSheep(null);
     toast({
@@ -297,14 +311,18 @@ export default function LivestockPage() {
                   <TableRow>
                     <TableHead>Photo</TableHead>
                     <TableHead>Tag ID</TableHead>
-                    <TableHead>Weight</TableHead>
-                    <TableHead>Age (months)</TableHead>
+                    <TableHead>Age</TableHead>
+                    <TableHead>Prev. Wt.</TableHead>
+                    <TableHead>Curr. Wt.</TableHead>
+                    <TableHead>Change</TableHead>
                     <TableHead className="text-right">Action</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {trackedSheep && trackedSheep.length > 0 ? (
-                    trackedSheep.map((sheep) => (
+                    trackedSheep.map((sheep) => {
+                       const weightChange = sheep.previousWeight != null ? sheep.currentWeight - sheep.previousWeight : null;
+                       return (
                       <TableRow key={sheep.id}>
                         <TableCell>
                           <div className="relative h-12 w-16 overflow-hidden rounded-md">
@@ -316,8 +334,19 @@ export default function LivestockPage() {
                           </div>
                         </TableCell>
                         <TableCell>{sheep.tagId}</TableCell>
-                        <TableCell>{sheep.weight} kg</TableCell>
-                        <TableCell>{sheep.age}</TableCell>
+                        <TableCell>{sheep.age} mo</TableCell>
+                        <TableCell>{sheep.previousWeight ? `${sheep.previousWeight.toFixed(1)} kg` : 'N/A'}</TableCell>
+                        <TableCell>{sheep.currentWeight.toFixed(1)} kg</TableCell>
+                        <TableCell>
+                          {weightChange !== null ? (
+                            <span className={`flex items-center gap-1 font-medium ${weightChange >= 0 ? 'text-green-600' : 'text-destructive'}`}>
+                              {weightChange >= 0 ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />}
+                              {Math.abs(weightChange).toFixed(1)} kg
+                            </span>
+                           ) : (
+                            <span className="text-muted-foreground">N/A</span>
+                          )}
+                        </TableCell>
                         <TableCell className="text-right">
                            <div className="flex items-center justify-end">
                               <Button variant="ghost" size="icon" onClick={() => handleEditClick(sheep)}>
@@ -329,10 +358,11 @@ export default function LivestockPage() {
                             </div>
                         </TableCell>
                       </TableRow>
-                    ))
+                       )
+                    })
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center">No sheep tracked yet.</TableCell>
+                      <TableCell colSpan={7} className="text-center">No sheep tracked yet.</TableCell>
                     </TableRow>
                   )}
                 </TableBody>
@@ -440,7 +470,7 @@ export default function LivestockPage() {
                 name="weight"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Weight (kg)</FormLabel>
+                    <FormLabel>New Weight (kg)</FormLabel>
                     <FormControl>
                       <Input type="number" step="0.1" {...field} />
                     </FormControl>

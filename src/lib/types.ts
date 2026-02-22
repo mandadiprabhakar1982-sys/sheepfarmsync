@@ -24,7 +24,8 @@ export type AnimalSale = {
 export type TrackedSheep = {
   id: string;
   tagId: string;
-  weight: number;
+  currentWeight: number;
+  previousWeight?: number;
   age: number; // in months
   photoDataUrl?: string;
 };
@@ -39,3 +40,4 @@ export type DeadAnimal = {
 };
 
     
+
