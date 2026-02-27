@@ -10,35 +10,35 @@
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: 161 94% 17%;
+    --primary: 142 76% 20%;
     --primary-foreground: 210 40% 98%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 158 95% 94%;
-    --accent-foreground: 161 94% 10%;
+    --accent: 142 76% 95%;
+    --accent-foreground: 142 76% 10%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 161 94% 17%;
+    --ring: 142 76% 20%;
     --radius: 0.75rem;
-    --chart-1: 161 94% 17%;
-    --chart-2: 158 95% 45%;
+    --chart-1: 142 76% 20%;
+    --chart-2: 142 76% 45%;
     --chart-3: 199 89% 48%;
     --chart-4: 47 93% 58%;
     --chart-5: 0 84% 60%;
     
-    /* Professional Midnight Emerald Sidebar */
-    --sidebar-background: 161 94% 4%;
-    --sidebar-foreground: 161 20% 96%;
-    --sidebar-primary: 161 94% 20%;
+    /* Professional Deep Forest Sidebar */
+    --sidebar-background: 142 76% 3%;
+    --sidebar-foreground: 142 20% 96%;
+    --sidebar-primary: 142 76% 25%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 161 94% 10%;
-    --sidebar-accent-foreground: 161 94% 95%;
-    --sidebar-border: 161 94% 8%;
-    --sidebar-ring: 161 94% 20%;
+    --sidebar-accent: 142 76% 12%;
+    --sidebar-accent-foreground: 142 76% 95%;
+    --sidebar-border: 142 76% 8%;
+    --sidebar-ring: 142 76% 25%;
   }
 }
 
@@ -61,7 +61,7 @@
 }
 
 .dashboard-hero {
-  background: linear-gradient(135deg, hsl(var(--primary)) 0%, #064e3b 100%);
+  background: linear-gradient(135deg, hsl(var(--primary)) 0%, #052e16 100%);
   position: relative;
 }
 
