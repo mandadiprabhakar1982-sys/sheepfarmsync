@@ -1,3 +1,4 @@
+
 import type { z } from 'zod';
 import type { analyzeFarmCosts } from '@/ai/flows/analyze-farm-costs';
 
@@ -30,15 +31,6 @@ export type TrackedSheep = {
   photoDataUrl?: string;
 };
 
-export type DeadAnimal = {
-  id: string;
-  dateOfDeath: string;
-  sheepCount: number;
-  tagId?: string;
-  causeOfDeath: string;
-  notes?: string;
-};
-
 export type HealthTask = {
   id: string;
   taskName: 'Deworming' | 'Vaccination' | 'Vitamin & Liver Support' | 'Other';
@@ -53,9 +45,19 @@ export type HealthTask = {
   supplementType?: 'B-Complex' | 'Liver Tonic' | 'Calcium' | 'Multivitamin' | 'Mineral Mixture';
   dosage?: string;
   // Common
+  cost?: number;
   totalSheepTreated?: number;
   lastAdministered: string;
   nextDueDate: string;
   frequency: 'Once' | 'Daily' | 'Monthly' | 'Every 2 Months' | 'Every 6 Months' | 'Annually';
+  notes?: string;
+};
+
+export type DeadAnimal = {
+  id: string;
+  dateOfDeath: string;
+  sheepCount: number;
+  tagId?: string;
+  causeOfDeath: string;
   notes?: string;
 };

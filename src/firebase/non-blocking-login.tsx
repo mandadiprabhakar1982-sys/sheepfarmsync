@@ -1,3 +1,4 @@
+
 'use client';
 import {
   Auth,
@@ -15,6 +16,9 @@ const handleAuthError = (error: any) => {
     let errorMessage = 'An unknown error occurred.';
     if (error instanceof FirebaseError) {
         switch (error.code) {
+            case 'auth/popup-blocked':
+                errorMessage = 'The sign-in popup was blocked by your browser. Please allow popups for this site in your browser settings or try a different browser.';
+                break;
             case 'auth/popup-closed-by-user':
                 errorMessage = 'The sign-in popup was closed before completion.';
                 break;

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { createContext, useContext, ReactNode, useMemo, useCallback } from 'react';
@@ -159,7 +160,13 @@ export function FarmProvider({ children }: { children: ReactNode }) {
 
   const totalFeedCost = useMemo(() => (feedCosts || []).reduce((sum, f) => sum + f.cost, 0), [feedCosts]);
   const totalLaborCost = useMemo(() => (laborCosts || []).reduce((sum, l) => sum + l.totalLaborCosts, 0), [laborCosts]);
-  const totalMedicineCost = useMemo(() => (medicineExpenses || []).reduce((sum, m) => sum + m.totalAmountSpent, 0), [medicineExpenses]);
+  
+  const totalMedicineCost = useMemo(() => {
+    const legacyExpenses = (medicineExpenses || []).reduce((sum, m) => sum + m.totalAmountSpent, 0);
+    const healthTaskExpenses = (healthTasks || []).reduce((sum, t) => sum + (t.cost || 0), 0);
+    return legacyExpenses + healthTaskExpenses;
+  }, [medicineExpenses, healthTasks]);
+
   const totalFarmExpenses = useMemo(() => (farmExpenses || []).reduce((sum, e) => sum + e.amount, 0), [farmExpenses]);
 
   const totalExpenses = useMemo(() => {
