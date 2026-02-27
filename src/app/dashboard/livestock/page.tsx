@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useMemo } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { PlusCircle, Trash2, Camera as CameraIcon, Pencil, ArrowUp, ArrowDown } from 'lucide-react';
+import { PlusCircle, Trash2, Camera as CameraIcon, Pencil, ArrowUp, ArrowDown, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { Bar, ComposedChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, Line } from 'recharts';
 
@@ -51,18 +51,16 @@ const chartConfig = {
 
 export default function LivestockPage() {
   const { toast } = useToast();
-  const { trackedSheep, addTrackedSheep, deleteTrackedSheep, updateTrackedSheep } = useFarm();
+  const { trackedSheep, addTrackedSheep, deleteTrackedSheep, updateTrackedSheep, isLoading } = useFarm();
   
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingSheep, setEditingSheep] = useState<TrackedSheep | null>(null);
 
-
   // Camera state
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-
 
   const trackingForm = useForm<TrackingFormData>({
     resolver: zodResolver(trackingFormSchema),
@@ -87,6 +85,10 @@ export default function LivestockPage() {
     }
   }, [editingSheep, editForm]);
 
+  const sortedTrackedSheep = useMemo(() => {
+    if (!trackedSheep) return [];
+    return [...trackedSheep].sort((a, b) => a.tagId.localeCompare(b.tagId));
+  }, [trackedSheep]);
 
   const chartData = useMemo(() => {
     if (!trackedSheep || trackedSheep.length < 2) {
@@ -132,7 +134,6 @@ export default function LivestockPage() {
     });
   }, [trackedSheep]);
 
-  
   // Effect to get camera permission
   useEffect(() => {
     const getCameraPermission = async () => {
@@ -192,11 +193,13 @@ export default function LivestockPage() {
   const onEditSubmit: SubmitHandler<TrackingFormData> = (data) => {
     if (!editingSheep) return;
 
+    const weightChanged = data.weight !== editingSheep.currentWeight;
     const updatedData = {
       tagId: data.tagId,
       age: data.age,
       currentWeight: data.weight,
-      previousWeight: editingSheep.currentWeight, // Set previous weight
+      // Only update previous weight if the weight actually changed
+      previousWeight: weightChanged ? editingSheep.currentWeight : (editingSheep.previousWeight || undefined),
       photoDataUrl: editingSheep.photoDataUrl,
     };
 
@@ -224,17 +227,17 @@ export default function LivestockPage() {
   };
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-8 px-4">
       <PageHeader
         title="Sheep Management"
-        description="Track individual sheep in your farm."
+        description="Track individual sheep and their growth progress."
       />
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        <div className="lg:col-span-1">
-          <Card>
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+        <div className="lg:col-span-4">
+          <Card className="sticky top-24">
             <CardHeader>
-              <CardTitle>Add Sheep to Farm</CardTitle>
-              <CardDescription>Fill out the form to add a new sheep.</CardDescription>
+              <CardTitle>Add New Sheep</CardTitle>
+              <CardDescription>Register a new sheep for growth tracking.</CardDescription>
             </CardHeader>
             <CardContent>
               <Form {...trackingForm}>
@@ -242,50 +245,51 @@ export default function LivestockPage() {
                   <FormField control={trackingForm.control} name="tagId" render={({ field }) => (
                     <FormItem>
                       <FormLabel>Tag ID</FormLabel>
-                      <FormControl><Input placeholder="e.g., A-001" {...field} /></FormControl>
+                      <FormControl><Input placeholder="e.g., A-101" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
+                  <div className="grid grid-cols-2 gap-4">
                     <FormField control={trackingForm.control} name="weight" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Weight (kg)</FormLabel>
-                      <FormControl><Input type="number" step="0.1" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
-                  <FormField control={trackingForm.control} name="age" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Age (months)</FormLabel>
-                      <FormControl><Input type="number" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
+                      <FormItem>
+                        <FormLabel>Weight (kg)</FormLabel>
+                        <FormControl><Input type="number" step="0.1" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={trackingForm.control} name="age" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Age (mo)</FormLabel>
+                        <FormControl><Input type="number" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                  </div>
                   
                   <div className="space-y-2">
-                    <FormLabel>Photo</FormLabel>
-                      <div className="relative aspect-video w-full overflow-hidden rounded-md border">
+                    <FormLabel>Reference Photo</FormLabel>
+                      <div className="relative aspect-video w-full overflow-hidden rounded-md border bg-muted">
                           {!capturedImage ? (
                               <video ref={videoRef} className="h-full w-full object-cover" autoPlay muted playsInline />
                           ) : (
-                              <Image src={capturedImage} alt="Captured photo of a sheep" layout="fill" objectFit="cover" />
+                              <Image src={capturedImage} alt="Captured photo" layout="fill" objectFit="cover" />
+                          )}
+                          {!hasCameraPermission && !capturedImage && (
+                            <div className="absolute inset-0 flex items-center justify-center p-4 text-center text-xs text-muted-foreground">
+                              Camera access required for photos
+                            </div>
                           )}
                       </div>
-                      {hasCameraPermission === false && (
-                        <Alert variant="destructive">
-                          <AlertTitle>Camera Access Required</AlertTitle>
-                          <AlertDescription>Please allow camera access to use this feature.</AlertDescription>
-                        </Alert>
-                    )}
                       <canvas ref={canvasRef} className="hidden"></canvas>
                       <div className="flex gap-2">
                       {!capturedImage ? (
-                          <Button type="button" onClick={handleCapture} disabled={hasCameraPermission === false} className="w-full">
+                          <Button type="button" onClick={handleCapture} disabled={hasCameraPermission === false} className="w-full" variant="outline">
                               <CameraIcon className="mr-2 h-4 w-4" />
-                              Capture Photo
+                              Capture
                           </Button>
                       ) : (
-                          <Button type="button" variant="outline" onClick={() => setCapturedImage(null)} className="w-full">
-                              Retake
+                          <Button type="button" variant="ghost" onClick={() => setCapturedImage(null)} className="w-full text-destructive">
+                              Retake Photo
                           </Button>
                       )}
                       </div>
@@ -293,113 +297,127 @@ export default function LivestockPage() {
 
                   <Button type="submit" className="w-full">
                     <PlusCircle className="mr-2 h-4 w-4" />
-                    Add Sheep
+                    Save Record
                   </Button>
                 </form>
               </Form>
             </CardContent>
           </Card>
         </div>
-        <div className="lg:col-span-2 space-y-8">
+        
+        <div className="lg:col-span-8 space-y-8">
           <Card>
-            <CardHeader>
-              <CardTitle>Tracked Sheep</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <div>
+                <CardTitle>Tracked Flock</CardTitle>
+                <CardDescription>Records sorted by Tag ID.</CardDescription>
+              </div>
+              {isLoading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Photo</TableHead>
-                    <TableHead>Tag ID</TableHead>
-                    <TableHead>Age</TableHead>
-                    <TableHead>Prev. Wt.</TableHead>
-                    <TableHead>Curr. Wt.</TableHead>
-                    <TableHead>Change</TableHead>
-                    <TableHead className="text-right">Action</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {trackedSheep && trackedSheep.length > 0 ? (
-                    trackedSheep.map((sheep) => {
-                       const weightChange = sheep.previousWeight != null ? sheep.currentWeight - sheep.previousWeight : null;
-                       return (
-                      <TableRow key={sheep.id}>
-                        <TableCell>
-                          <div className="relative h-12 w-16 overflow-hidden rounded-md">
-                            {sheep.photoDataUrl ? (
-                              <Image src={sheep.photoDataUrl} alt={`Photo of ${sheep.tagId}`} layout="fill" objectFit="cover" />
-                            ) : (
-                              <div className="flex h-full w-full items-center justify-center bg-muted text-xs text-muted-foreground">No Photo</div>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>{sheep.tagId}</TableCell>
-                        <TableCell>{sheep.age} mo</TableCell>
-                        <TableCell>{sheep.previousWeight ? `${sheep.previousWeight.toFixed(1)} kg` : 'N/A'}</TableCell>
-                        <TableCell>{sheep.currentWeight.toFixed(1)} kg</TableCell>
-                        <TableCell>
-                          {weightChange !== null ? (
-                            <span className={`flex items-center gap-1 font-medium ${weightChange >= 0 ? 'text-green-600' : 'text-destructive'}`}>
-                              {weightChange >= 0 ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />}
-                              {Math.abs(weightChange).toFixed(1)} kg
-                            </span>
-                           ) : (
-                            <span className="text-muted-foreground">N/A</span>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-right">
-                           <div className="flex items-center justify-end">
-                              <Button variant="ghost" size="icon" onClick={() => handleEditClick(sheep)}>
+              <div className="rounded-md border overflow-hidden">
+                <Table>
+                  <TableHeader className="bg-muted/50">
+                    <TableRow>
+                      <TableHead className="w-[60px]">Photo</TableHead>
+                      <TableHead>Tag ID</TableHead>
+                      <TableHead>Age</TableHead>
+                      <TableHead>Prev. Wt.</TableHead>
+                      <TableHead>Curr. Wt.</TableHead>
+                      <TableHead>Change</TableHead>
+                      <TableHead className="text-right">Action</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {sortedTrackedSheep.length > 0 ? (
+                      sortedTrackedSheep.map((sheep) => {
+                        const weightChange = sheep.previousWeight != null ? sheep.currentWeight - sheep.previousWeight : null;
+                        return (
+                          <TableRow key={sheep.id} className="hover:bg-muted/30">
+                            <TableCell>
+                              <div className="relative h-10 w-12 overflow-hidden rounded bg-muted border">
+                                {sheep.photoDataUrl ? (
+                                  <Image src={sheep.photoDataUrl} alt={sheep.tagId} layout="fill" objectFit="cover" />
+                                ) : (
+                                  <div className="flex h-full w-full items-center justify-center text-[10px] text-muted-foreground">None</div>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell className="font-bold">{sheep.tagId}</TableCell>
+                            <TableCell className="text-sm">{sheep.age} mo</TableCell>
+                            <TableCell className="text-sm text-muted-foreground">{sheep.previousWeight != null ? `${sheep.previousWeight.toFixed(1)} kg` : '—'}</TableCell>
+                            <TableCell className="font-medium">{sheep.currentWeight.toFixed(1)} kg</TableCell>
+                            <TableCell>
+                              {weightChange !== null ? (
+                                <span className={cn(
+                                  "flex items-center gap-0.5 text-xs font-bold",
+                                  weightChange >= 0 ? "text-green-600" : "text-destructive"
+                                )}>
+                                  {weightChange >= 0 ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
+                                  {Math.abs(weightChange).toFixed(1)}
+                                </span>
+                              ) : (
+                                <span className="text-xs text-muted-foreground">New</span>
+                              )}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex items-center justify-end gap-1">
+                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEditClick(sheep)}>
                                   <Pencil className="h-4 w-4" />
-                              </Button>
-                              <Button variant="ghost" size="icon" onClick={() => handleDeleteTrackedSheep(sheep.id)}>
-                                <Trash2 className="h-4 w-4 text-destructive" />
-                              </Button>
-                            </div>
+                                </Button>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDeleteTrackedSheep(sheep.id)}>
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={7} className="text-center py-12 text-muted-foreground italic">
+                          {isLoading ? 'Loading records...' : 'No sheep tracked yet.'}
                         </TableCell>
                       </TableRow>
-                       )
-                    })
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={7} className="text-center">No sheep tracked yet.</TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
-           <Card>
+
+          <Card>
             <CardHeader>
-              <CardTitle>Weight Progress Summary</CardTitle>
-              <CardDescription>
-                Average weight and estimated monthly growth of your tracked sheep.
-              </CardDescription>
+              <CardTitle>Weight Progress Chart</CardTitle>
+              <CardDescription>Visualizing flock growth across different ages.</CardDescription>
             </CardHeader>
             <CardContent>
               {chartData.length > 0 ? (
                 <ChartContainer config={chartConfig} className="h-[300px] w-full">
-                  <ComposedChart data={chartData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
-                    <CartesianGrid vertical={false} />
+                  <ComposedChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" />
                     <XAxis
                       dataKey="age"
                       tickLine={false}
                       tickMargin={10}
                       axisLine={false}
-                      stroke="hsl(var(--muted-foreground))"
                     />
                     <YAxis
                         yAxisId="left"
                         stroke="var(--color-averageWeight)"
                         tickFormatter={(value) => `${value}kg`}
                         domain={['dataMin - 5', 'dataMax + 5']}
+                        tickLine={false}
+                        axisLine={false}
                     />
                     <YAxis
                         yAxisId="right"
                         orientation="right"
                         stroke="var(--color-growth)"
-                        tickFormatter={(value) => `${value}kg`}
+                        tickFormatter={(value) => `+${value}kg`}
                         domain={['dataMin - 1', 'dataMax + 1']}
+                        tickLine={false}
+                        axisLine={false}
                     />
                     <Tooltip
                         content={<ChartTooltipContent indicator="dot" />}
@@ -409,32 +427,25 @@ export default function LivestockPage() {
                         dataKey="averageWeight"
                         yAxisId="left"
                         fill="var(--color-averageWeight)"
-                        radius={4}
+                        radius={[4, 4, 0, 0]}
                         name="Avg. Weight"
+                        barSize={40}
                     />
                     <Line
                         type="monotone"
                         dataKey="growth"
                         yAxisId="right"
                         stroke="var(--color-growth)"
-                        strokeWidth={2}
-                        dot={{
-                            r: 4,
-                            fill: "var(--color-growth)",
-                            stroke: "hsl(var(--background))",
-                            strokeWidth: 2,
-                        }}
-                        activeDot={{
-                            r: 6,
-                        }}
-                        name="Monthly Growth"
+                        strokeWidth={3}
+                        dot={{ r: 4, fill: "var(--color-growth)", strokeWidth: 0 }}
+                        name="Growth Rate"
                     />
                   </ComposedChart>
                 </ChartContainer>
               ) : (
-                <div className="flex h-[300px] items-center justify-center p-4 text-center">
-                  <p className="text-muted-foreground">
-                    Not enough data to display growth chart. Add at least two sheep records with different ages to see progress.
+                <div className="flex h-[300px] items-center justify-center p-6 text-center border-2 border-dashed rounded-lg">
+                  <p className="text-muted-foreground text-sm max-w-[250px]">
+                    Not enough data. Add records with different ages to visualize growth patterns.
                   </p>
                 </div>
               )}
@@ -442,12 +453,13 @@ export default function LivestockPage() {
           </Card>
         </div>
       </div>
+
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Edit Sheep Record</DialogTitle>
+            <DialogTitle>Update Sheep Record</DialogTitle>
             <DialogDescription>
-              Update the details of your sheep. Click save when you're done.
+              Record a new weight measurement or correct details for Tag {editingSheep?.tagId}.
             </DialogDescription>
           </DialogHeader>
           <Form {...editForm}>
@@ -458,41 +470,37 @@ export default function LivestockPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Tag ID</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
+                    <FormControl><Input {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <FormField
-                control={editForm.control}
-                name="weight"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>New Weight (kg)</FormLabel>
-                    <FormControl>
-                      <Input type="number" step="0.1" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={editForm.control}
-                name="age"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Age (months)</FormLabel>
-                    <FormControl>
-                      <Input type="number" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={editForm.control}
+                  name="weight"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Current Weight (kg)</FormLabel>
+                      <FormControl><Input type="number" step="0.1" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={editForm.control}
+                  name="age"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Age (months)</FormLabel>
+                      <FormControl><Input type="number" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
               <DialogFooter>
-                <Button type="submit">Save Changes</Button>
+                <Button type="submit" className="w-full sm:w-auto">Save Changes</Button>
               </DialogFooter>
             </form>
           </Form>

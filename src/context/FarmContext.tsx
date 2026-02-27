@@ -1,4 +1,3 @@
-
 'use client';
 
 import { createContext, useContext, ReactNode, useMemo, useCallback } from 'react';
@@ -61,6 +60,7 @@ interface FarmContextType {
   isLoading: boolean;
 
   totalSheep: number;
+  totalTracked: number;
   totalExpenses: number;
   totalSales: number;
   totalDead: number;
@@ -172,6 +172,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const isLoading = isLoadingPurchases || isLoadingSales || isLoadingFeedCosts || isLoadingMedicine || isLoadingLabor || isLoadingDeadAnimals || isLoadingTrackedSheep || isLoadingFarmExpenses || isLoadingHealthTasks || isLoadingMarketplace;
 
   const totalDead = useMemo(() => (deadAnimals || []).reduce((sum, a) => sum + (a.sheepCount ?? 1), 0), [deadAnimals]);
+  const totalTracked = useMemo(() => (trackedSheep || []).length, [trackedSheep]);
   const totalSheep = useMemo(() => {
     const purchased = (purchases || []).reduce((sum, p) => sum + p.animalCount, 0);
     const sold = (sales || []).reduce((sum, s) => sum + s.animalCount, 0);
@@ -209,7 +210,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     farmExpenses, addFarmExpense, deleteFarmExpense, updateFarmExpense,
     healthTasks, addHealthTask, deleteHealthTask, updateHealthTask,
     communitySales, postToMarketplace, deleteMarketplaceSale,
-    isLoading, totalSheep, totalExpenses, totalSales, totalDead, totalFeedCost, totalLaborCost, totalMedicineCost, totalFarmExpenses, totalReceivables, totalPayables,
+    isLoading, totalSheep, totalTracked, totalExpenses, totalSales, totalDead, totalFeedCost, totalLaborCost, totalMedicineCost, totalFarmExpenses, totalReceivables, totalPayables,
   };
 
   return <FarmContext.Provider value={value}>{children}</FarmContext.Provider>;

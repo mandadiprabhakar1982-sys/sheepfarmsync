@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -11,6 +10,7 @@ import {
   Syringe,
   TrendingDown,
   Receipt,
+  ListChecks,
 } from 'lucide-react';
 import { SheepIcon } from '@/components/logo';
 import { StatCard } from '@/components/stat-card';
@@ -18,7 +18,7 @@ import { useFarm } from '@/context/FarmContext';
 import { PageHeader } from '@/components/page-header';
 
 export default function OverviewPage() {
-  const { totalSheep, totalExpenses, totalSales, isLoading, totalFeedCost, totalLaborCost, totalDead, totalMedicineCost, totalFarmExpenses, totalReceivables, totalPayables } = useFarm();
+  const { totalSheep, totalTracked, totalExpenses, totalSales, isLoading, totalFeedCost, totalLaborCost, totalMedicineCost, totalFarmExpenses, totalReceivables, totalPayables, totalDead } = useFarm();
   
   if (isLoading) {
     return (
@@ -39,25 +39,31 @@ export default function OverviewPage() {
             title="Live Sheep"
             value={totalSheep.toString()}
             icon={SheepIcon}
-            description="Total live sheep in your farm"
+            description="Estimated flock inventory"
+        />
+        <StatCard
+            title="Tracked Individually"
+            value={totalTracked.toString()}
+            icon={ListChecks}
+            description="Total sheep in growth log"
         />
          <StatCard
-            title="Dead Sheep"
+            title="Recorded Deaths"
             value={totalDead.toString()}
             icon={Skull}
-            description="Total recorded deaths"
+            description="Total recorded mortalities"
         />
         <StatCard
             title="Total Sales"
             value={`₹${totalSales.toLocaleString()}`}
             icon={TrendingUp}
-            description="Total sales made"
+            description="Total revenue received"
         />
         <StatCard
             title="Total Expenses"
             value={`₹${totalExpenses.toLocaleString()}`}
             icon={IndianRupee}
-            description="Total expenses incurred"
+            description="Operational & purchase costs"
         />
         <StatCard
             title="Feed Cost"
@@ -69,31 +75,31 @@ export default function OverviewPage() {
             title="Employee Cost"
             value={`₹${totalLaborCost.toLocaleString()}`}
             icon={Users}
-            description="Total employee expenses"
+            description="Total labor & employee costs"
         />
         <StatCard
             title="Medicine Cost"
             value={`₹${totalMedicineCost.toLocaleString()}`}
             icon={Syringe}
-            description="Total medicine expenses"
+            description="Total health care expenses"
         />
         <StatCard
             title="Other Expenses"
             value={`₹${totalFarmExpenses.toLocaleString()}`}
             icon={Receipt}
-            description="Total miscellaneous expenses"
+            description="Miscellaneous farm costs"
         />
          <StatCard
           title="Receivables"
           value={`₹${totalReceivables.toLocaleString()}`}
           icon={TrendingUp}
-          description="Money owed to you"
+          description="Unpaid sales dues"
         />
         <StatCard
           title="Payables"
           value={`₹${totalPayables.toLocaleString()}`}
           icon={TrendingDown}
-          description="Money you owe"
+          description="Your outstanding debts"
         />
       </div>
     </div>
