@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -22,7 +21,7 @@ export default function DashboardLayout({
   const mobileNavLinks = [
     { href: '/dashboard', label: 'Home', icon: Home },
     { href: '/dashboard/overview', label: 'Stats', icon: LayoutDashboard },
-    { href: '/dashboard/livestock', label: 'Logs', icon: SheepIcon },
+    { href: '/dashboard/livestock', label: 'Flock', icon: SheepIcon },
     { href: '/dashboard/marketplace', label: 'Market', icon: ShoppingBag },
     { href: '/dashboard/feed-calculator', label: 'Calc', icon: Calculator },
   ];
@@ -33,7 +32,7 @@ export default function DashboardLayout({
         <div className="flex min-h-screen w-full bg-background selection:bg-primary/20">
           <AppSidebar />
           <SidebarInset className="flex flex-col">
-            <header className="sticky top-0 z-40 flex h-20 items-center justify-between gap-4 border-b bg-white/95 backdrop-blur-md px-4 md:px-8 safe-area-top">
+            <header className="sticky top-0 z-40 flex h-20 items-center justify-between gap-4 border-b bg-white/95 backdrop-blur-md px-6 md:px-10 safe-area-top">
               <div className="flex items-center gap-4">
                 <SidebarTrigger className="md:flex" />
                 <div className="flex-none md:hidden">
@@ -41,17 +40,21 @@ export default function DashboardLayout({
                 </div>
               </div>
               
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-4">
+                <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-accent/30 rounded-full border border-accent/50">
+                  <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-primary/80">System Live</span>
+                </div>
                 <UserNav />
               </div>
             </header>
             
-            <main className="flex-1 pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-8 overflow-y-auto">
+            <main className="flex-1 pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-12 overflow-y-auto">
               {children}
             </main>
             
-            {/* Bottom Navigation for Mobile - iOS Tab Bar Style */}
-            <footer className="fixed bottom-0 left-0 right-0 z-40 border-t bg-white/80 backdrop-blur-xl md:hidden safe-area-bottom pb-env(safe-area-inset-bottom)">
+            {/* Bottom Navigation for Mobile */}
+            <footer className="fixed bottom-0 left-0 right-0 z-40 border-t bg-white/95 backdrop-blur-xl md:hidden safe-area-bottom pb-env(safe-area-inset-bottom)">
               <nav className="flex h-16 items-center justify-around px-2 no-select">
                 {mobileNavLinks.map((link) => {
                   const Icon = link.icon;
@@ -66,12 +69,12 @@ export default function DashboardLayout({
                       )}
                     >
                       <div className={cn(
-                        'p-1 rounded-lg transition-colors',
+                        'p-1.5 rounded-xl transition-colors',
                         isActive ? 'bg-primary/10' : ''
                       )}>
-                        <Icon className={cn("h-6 w-6 transition-transform", isActive ? "scale-110" : "")} />
+                        <Icon className={cn("h-6 w-6 transition-transform", isActive ? "scale-110" : "opacity-70")} />
                       </div>
-                      <span className="text-[10px] font-bold tracking-tighter uppercase">{link.label}</span>
+                      <span className="text-[9px] font-black tracking-widest uppercase">{link.label}</span>
                     </Link>
                   );
                 })}

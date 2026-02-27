@@ -16,6 +16,7 @@ import {
   Globe,
   ChevronRight,
   Smartphone,
+  ShieldCheck,
 } from 'lucide-react';
 import { SheepIcon } from '@/components/logo';
 import { Card, CardContent } from '@/components/ui/card';
@@ -25,128 +26,125 @@ import { cn } from '@/lib/utils';
 const menuItems = [
     {
       title: 'Overview',
-      description: 'Key metrics & growth',
+      description: 'Analytics & Trends',
       icon: LayoutDashboard,
       href: '/dashboard/overview',
-      color: 'bg-blue-50 text-blue-600',
+      color: 'bg-blue-50 text-blue-700',
     },
     {
       title: 'Marketplace',
-      description: 'Community sales',
+      description: 'Global Community',
       icon: Globe,
       href: '/dashboard/marketplace',
-      color: 'bg-indigo-50 text-indigo-600',
+      color: 'bg-indigo-50 text-indigo-700',
     },
     {
-      title: 'AI Analysis',
-      description: 'Cost optimization',
+      title: 'AI Intel',
+      description: 'Cost Strategy',
       icon: BarChart,
       href: '/dashboard/analysis',
-      color: 'bg-purple-50 text-purple-600',
+      color: 'bg-emerald-50 text-emerald-700',
     },
     {
       title: 'Flock Log',
-      description: 'Growth tracking',
+      description: 'Growth & Audit',
       icon: ListChecks,
       href: '/dashboard/livestock',
-      color: 'bg-emerald-50 text-emerald-600',
+      color: 'bg-teal-50 text-teal-700',
     },
     {
       title: 'Purchases',
-      description: 'Buy new livestock',
+      description: 'Asset Acquisition',
       icon: Package,
       href: '/dashboard/purchase',
-      color: 'bg-amber-50 text-amber-600',
+      color: 'bg-amber-50 text-amber-700',
     },
     {
       title: 'Sales',
-      description: 'Revenue records',
+      description: 'Revenue Stream',
       icon: BadgeIndianRupee,
       href: '/dashboard/sales',
-      color: 'bg-green-50 text-green-600',
+      color: 'bg-green-50 text-green-700',
     },
     {
-      title: 'Health',
-      description: 'Treatments & Meds',
+      title: 'Medical',
+      description: 'Biosafety Protocols',
       icon: HeartPulse,
       href: '/dashboard/medicine',
-      color: 'bg-rose-50 text-rose-600',
+      color: 'bg-rose-50 text-rose-700',
     },
     {
-      title: 'Feed Manager',
-      description: 'Stock & nutrition',
+      title: 'Feed Bank',
+      description: 'Inventory Control',
       icon: Wheat,
       href: '/dashboard/feed',
-      color: 'bg-orange-50 text-orange-600',
+      color: 'bg-orange-50 text-orange-700',
     },
     {
-      title: 'Calculator',
-      description: 'Feed estimates',
+      title: 'Estimator',
+      description: 'Precise Rations',
       icon: Calculator,
       href: '/dashboard/feed-calculator',
-      color: 'bg-cyan-50 text-cyan-600',
+      color: 'bg-cyan-50 text-cyan-700',
     },
     {
-      title: 'Employees',
-      description: 'Labor management',
+      title: 'Human Cap.',
+      description: 'Labor Relations',
       icon: Users,
       href: '/dashboard/labor',
-      color: 'bg-slate-50 text-slate-600',
+      color: 'bg-slate-50 text-slate-700',
     },
     {
-      title: 'Expenses',
-      description: 'Other farm costs',
+      title: 'OpEx',
+      description: 'Operating Costs',
       icon: Receipt,
       href: '/dashboard/expenses',
-      color: 'bg-gray-50 text-gray-600',
+      color: 'bg-gray-50 text-gray-700',
     },
     {
       title: 'Mortality',
-      description: 'Death records',
+      description: 'Incident Reports',
       icon: Skull,
       href: '/dashboard/mortality',
-      color: 'bg-red-50 text-red-600',
+      color: 'bg-red-50 text-red-700',
     },
   ];
-
 
 export default function DashboardPage() {
   const { isLoading, totalSheep } = useFarm();
   
   if (isLoading) {
     return (
-       <div className="flex h-[calc(100vh-80px)] w-full items-center justify-center">
+       <div className="flex h-[calc(100vh-80px)] w-full items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     )
   }
   
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <section className="dashboard-hero bg-primary text-primary-foreground relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-8 opacity-10">
-          <SheepIcon className="h-64 w-64 rotate-12" />
+    <div className="min-h-screen bg-background pb-32">
+      <section className="dashboard-hero bg-primary text-primary-foreground relative overflow-hidden py-12 md:py-24">
+        <div className="absolute top-0 right-0 p-12 opacity-5">
+          <SheepIcon className="h-96 w-96 rotate-[25deg]" />
         </div>
-        <div className="container mx-auto px-4 py-16 md:py-24 relative z-10">
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-white/90 text-sm font-medium mb-6">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
-              </span>
-              Active Farm Management
+        <div className="container mx-auto px-6 relative z-10">
+          <div className="max-w-4xl">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 text-white/90 text-xs font-black uppercase tracking-widest mb-8 border border-white/5">
+              <ShieldCheck className="h-3.5 w-3.5" />
+              Professional Edition v2.4
             </div>
-            <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-4">
-              SheepSync Pro
+            <h1 className="text-5xl md:text-7xl font-black tracking-tighter mb-6 leading-[0.9]">
+              Sync Your <br />
+              <span className="text-accent">Operation.</span>
             </h1>
-            <p className="text-xl md:text-2xl text-primary-foreground/80 mb-8 max-w-xl">
-              Currently monitoring <span className="text-white font-bold">{totalSheep}</span> sheep in your flock. Precision tracking for your peace of mind.
+            <p className="text-xl md:text-2xl text-white/70 mb-10 max-w-2xl font-medium leading-relaxed">
+              Monitoring <span className="text-white font-black underline decoration-accent/40">{totalSheep}</span> active livestock assets. Enterprise-grade precision for modern agriculture.
             </p>
             <div className="flex flex-wrap gap-4">
               <Link href="/dashboard/help">
-                <button className="bg-white text-primary px-8 py-3 rounded-xl font-bold shadow-lg hover:bg-opacity-90 transition-all flex items-center gap-2">
-                  <Smartphone className="h-4 w-4" />
-                  Install App
+                <button className="bg-white text-primary px-10 py-4 rounded-2xl font-black shadow-2xl hover:bg-white/90 active:scale-95 transition-all flex items-center gap-3">
+                  <Smartphone className="h-5 w-5" />
+                  Install Mobile App
                 </button>
               </Link>
             </div>
@@ -154,20 +152,20 @@ export default function DashboardPage() {
         </div>
       </section>
       
-      <section className="container mx-auto px-4 py-8 md:py-12 -mt-12 relative z-20">
+      <section className="container mx-auto px-6 -mt-16 relative z-20">
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
           {menuItems.map((item) => {
             const Icon = item.icon;
             return (
-              <Link href={item.href} key={item.title} className="block group">
-                <Card className="h-full border-none shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl active:scale-95 overflow-hidden">
-                  <CardContent className="flex flex-col items-center justify-center p-6 text-center gap-4">
-                    <div className={cn("rounded-2xl p-4 transition-transform group-hover:scale-110", item.color)}>
+              <Link href={item.href} key={item.title} className="group">
+                <Card className="h-full border-none shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 active:scale-95 bg-white/95 backdrop-blur-md">
+                  <CardContent className="flex flex-col items-center justify-center p-8 text-center gap-5">
+                    <div className={cn("rounded-2xl p-5 transition-transform group-hover:scale-110 group-hover:rotate-3 shadow-inner", item.color)}>
                        <Icon className="h-8 w-8" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-sm sm:text-base text-foreground leading-tight">{item.title}</h3>
-                      <p className="hidden sm:block text-[10px] sm:text-xs text-muted-foreground mt-1 line-clamp-1 opacity-70">{item.description}</p>
+                      <h3 className="font-black text-sm uppercase tracking-tight text-foreground">{item.title}</h3>
+                      <p className="hidden sm:block text-[10px] text-muted-foreground mt-1.5 font-bold uppercase tracking-wider opacity-60">{item.description}</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -177,27 +175,52 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      <section className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-           <Card className="border-none shadow-sm bg-accent/30 overflow-hidden">
-              <div className="p-8 flex flex-col justify-between h-full">
+      <section className="container mx-auto px-6 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+           <Card className="border-none shadow-xl bg-gradient-to-br from-white to-accent/20 group cursor-pointer hover:to-accent/40 transition-colors">
+              <div className="p-10 flex flex-col justify-between h-full min-h-[240px]">
                 <div>
-                  <h3 className="text-2xl font-bold mb-2">Growth Analysis</h3>
-                  <p className="text-muted-foreground mb-6">Check how your flock is gaining weight this month.</p>
+                  <div className="bg-emerald-600/10 w-fit p-3 rounded-xl mb-4">
+                    <BarChart className="h-6 w-6 text-emerald-700" />
+                  </div>
+                  <h3 className="text-2xl font-black mb-2 tracking-tight">Growth Analytics</h3>
+                  <p className="text-muted-foreground font-medium text-sm">Review performance metrics and weight gain velocity across your flock.</p>
                 </div>
-                <Link href="/dashboard/livestock" className="inline-flex items-center text-primary font-bold hover:underline">
-                  Go to Flock Logs <ChevronRight className="h-4 w-4 ml-1" />
+                <Link href="/dashboard/livestock" className="inline-flex items-center text-primary font-black text-xs uppercase tracking-widest mt-6 group-hover:translate-x-1 transition-transform">
+                  Access Records <ChevronRight className="h-4 w-4 ml-1" />
                 </Link>
               </div>
            </Card>
-           <Card className="border-none shadow-sm bg-primary/5 overflow-hidden">
-              <div className="p-8 flex flex-col justify-between h-full">
+
+           <Card className="border-none shadow-xl bg-gradient-to-br from-white to-blue-50 group cursor-pointer hover:to-blue-100 transition-colors">
+              <div className="p-10 flex flex-col justify-between h-full min-h-[240px]">
                 <div>
-                  <h3 className="text-2xl font-bold mb-2">Market Trends</h3>
-                  <p className="text-muted-foreground mb-6">See what other farmers are listing in the marketplace.</p>
+                  <div className="bg-blue-600/10 w-fit p-3 rounded-xl mb-4">
+                    <Globe className="h-6 w-6 text-blue-700" />
+                  </div>
+                  <h3 className="text-2xl font-black mb-2 tracking-tight">Market Intel</h3>
+                  <p className="text-muted-foreground font-medium text-sm">Analyze regional trends and trade with the global sheep community.</p>
                 </div>
-                <Link href="/dashboard/marketplace" className="inline-flex items-center text-primary font-bold hover:underline">
-                  Browse Marketplace <ChevronRight className="h-4 w-4 ml-1" />
+                <Link href="/dashboard/marketplace" className="inline-flex items-center text-primary font-black text-xs uppercase tracking-widest mt-6 group-hover:translate-x-1 transition-transform">
+                  Launch Market <ChevronRight className="h-4 w-4 ml-1" />
+                </Link>
+              </div>
+           </Card>
+
+           <Card className="border-none shadow-xl bg-gradient-to-br from-primary to-primary/80 text-white group cursor-pointer overflow-hidden relative">
+              <div className="absolute -right-8 -bottom-8 opacity-10">
+                <SheepIcon className="h-48 w-48" />
+              </div>
+              <div className="p-10 flex flex-col justify-between h-full min-h-[240px] relative z-10">
+                <div>
+                  <div className="bg-white/10 w-fit p-3 rounded-xl mb-4">
+                    <ShieldCheck className="h-6 w-6 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-black mb-2 tracking-tight">System Status</h3>
+                  <p className="text-white/70 font-medium text-sm">All biosafety and operational logs are synchronized and secured.</p>
+                </div>
+                <Link href="/dashboard/overview" className="inline-flex items-center text-accent font-black text-xs uppercase tracking-widest mt-6 group-hover:translate-x-1 transition-transform">
+                  View System Health <ChevronRight className="h-4 w-4 ml-1" />
                 </Link>
               </div>
            </Card>

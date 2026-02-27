@@ -16,20 +16,20 @@ interface StatCardProps {
 
 export function StatCard({ title, value, icon: Icon, description, trend, className }: StatCardProps) {
   return (
-    <Card className={cn("overflow-hidden border-none shadow-sm transition-all hover:shadow-md", className)}>
-      <CardContent className="p-6 flex items-start gap-4">
-        <div className="rounded-2xl bg-primary/10 p-4 text-primary shrink-0 transition-colors group-hover:bg-primary group-hover:text-white">
-          <Icon className="h-7 w-7" />
+    <Card className={cn("overflow-hidden border-none shadow-xl transition-all hover:shadow-2xl hover:-translate-y-1 bg-white group", className)}>
+      <CardContent className="p-8 flex items-start gap-6">
+        <div className="rounded-2xl bg-primary/5 p-5 text-primary shrink-0 transition-all group-hover:bg-primary group-hover:text-white shadow-inner">
+          <Icon className="h-8 w-8" />
         </div>
-        <div className="flex flex-col gap-1 min-w-0">
-          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{title}</p>
-          <div className="text-3xl font-black tracking-tight leading-none">{value}</div>
+        <div className="flex flex-col gap-1.5 min-w-0">
+          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">{title}</p>
+          <div className="text-4xl font-black tracking-tighter leading-none text-foreground">{value}</div>
           {trend && (
-            <div className={cn("text-xs font-bold flex items-center gap-1", trend.isPositive ? "text-green-600" : "text-red-500")}>
-              {trend.isPositive ? '+' : ''}{trend.value}
+            <div className={cn("text-xs font-black flex items-center gap-1 mt-1 uppercase tracking-tight", trend.isPositive ? "text-emerald-600" : "text-destructive")}>
+              {trend.isPositive ? '↑' : '↓'} {trend.value}
             </div>
           )}
-          {description && <p className="text-[10px] text-muted-foreground leading-tight mt-1 line-clamp-1">{description}</p>}
+          {description && <p className="text-[11px] font-medium text-muted-foreground leading-tight mt-2 line-clamp-1 italic">{description}</p>}
         </div>
       </CardContent>
     </Card>
