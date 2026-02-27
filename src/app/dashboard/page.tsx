@@ -143,13 +143,8 @@ export default function DashboardPage() {
               Currently monitoring <span className="text-white font-bold">{totalSheep}</span> sheep in your flock. Precision tracking for your peace of mind.
             </p>
             <div className="flex flex-wrap gap-4">
-              <Link href="/dashboard/overview">
-                <button className="bg-white text-primary px-8 py-3 rounded-xl font-bold shadow-lg hover:bg-opacity-90 transition-all">
-                  View Detailed Stats
-                </button>
-              </Link>
               <Link href="/dashboard/help">
-                <button className="bg-primary-foreground/10 text-white border border-white/20 px-8 py-3 rounded-xl font-bold hover:bg-white/10 transition-all flex items-center gap-2">
+                <button className="bg-white text-primary px-8 py-3 rounded-xl font-bold shadow-lg hover:bg-opacity-90 transition-all flex items-center gap-2">
                   <Smartphone className="h-4 w-4" />
                   Install App
                 </button>
