@@ -3,8 +3,6 @@ import { cn } from '@/lib/utils';
 export const SheepIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -19,27 +17,27 @@ export const SheepIcon = (props: React.SVGProps<SVGSVGElement>) => (
     </svg>
   );
 
-export function Logo({ className, showManager = false, light = false }: { className?: string; showManager?: boolean; light?: boolean }) {
+export function Logo({ className, light = false }: { className?: string; light?: boolean }) {
   return (
-    <div className={cn('flex items-center gap-4', className)}>
+    <div className={cn('flex items-center gap-3', className)}>
        <div className={cn(
-         "rounded-2xl p-3 shadow-xl transition-transform duration-300",
-         light ? "bg-primary text-primary-foreground shadow-primary/20 rotate-[-5deg]" : "bg-primary rounded-2xl p-3 shadow-xl shadow-primary/20 rotate-[-5deg] group-hover:rotate-0"
+         "rounded-xl p-2.5 shadow-lg",
+         light ? "bg-white text-primary" : "bg-primary text-white"
        )}>
-        <SheepIcon className="h-7 w-7" />
+        <SheepIcon className="h-6 w-6" />
       </div>
-      <div>
+      <div className="flex flex-col">
         <h1 className={cn(
-          "text-2xl font-black tracking-tighter leading-none uppercase",
-          light ? "text-sidebar-foreground" : "text-foreground"
+          "text-xl font-black tracking-tight leading-none",
+          light ? "text-white" : "text-primary"
         )}>
-          SheepSync
+          SheepSync Pro
         </h1>
         <p className={cn(
-          "text-[9px] font-black uppercase tracking-[0.3em] mt-1",
-          light ? "text-sidebar-foreground/40" : "text-primary/60"
+          "text-[8px] font-black uppercase tracking-[0.2em] mt-1",
+          light ? "text-white/50" : "text-muted-foreground"
         )}>
-          Professional
+          FLOCK MANAGER
         </p>
       </div>
     </div>
