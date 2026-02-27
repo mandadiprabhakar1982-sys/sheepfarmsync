@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useRef, useEffect, useMemo } from 'react';
@@ -6,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { PlusCircle, Trash2, Camera as CameraIcon, Pencil, ArrowUp, ArrowDown, Loader2 } from 'lucide-react';
 import Image from 'next/image';
+import { format } from 'date-fns';
 import { Bar, ComposedChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, Line } from 'recharts';
 
 import { PageHeader } from '@/components/page-header';
@@ -18,6 +20,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ChartContainer, ChartTooltipContent, type ChartConfig, ChartLegend, ChartLegendContent } from '@/components/ui/chart';
 import { useFarm } from '@/context/FarmContext';
+import { cn } from '@/lib/utils';
 import {
   Dialog,
   DialogContent,
@@ -226,6 +229,20 @@ export default function LivestockPage() {
     setIsEditDialogOpen(true);
   };
 
+  const formatUpdateDate = (timestamp: any) => {
+    if (!timestamp) return '—';
+    try {
+      // Handle Firestore Timestamp
+      if (timestamp.toDate) {
+        return format(timestamp.toDate(), 'MMM dd, HH:mm');
+      }
+      // Handle standard Date string
+      return format(new Date(timestamp), 'MMM dd, HH:mm');
+    } catch (e) {
+      return '—';
+    }
+  };
+
   return (
     <div className="container mx-auto py-8 px-4">
       <PageHeader
@@ -321,10 +338,10 @@ export default function LivestockPage() {
                     <TableRow>
                       <TableHead className="w-[60px]">Photo</TableHead>
                       <TableHead>Tag ID</TableHead>
-                      <TableHead>Age</TableHead>
-                      <TableHead>Prev. Wt.</TableHead>
-                      <TableHead>Curr. Wt.</TableHead>
+                      <TableHead>Wt. (kg)</TableHead>
                       <TableHead>Change</TableHead>
+                      <TableHead>Updated</TableHead>
+                      <TableHead>By</TableHead>
                       <TableHead className="text-right">Action</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -343,10 +360,14 @@ export default function LivestockPage() {
                                 )}
                               </div>
                             </TableCell>
-                            <TableCell className="font-bold">{sheep.tagId}</TableCell>
-                            <TableCell className="text-sm">{sheep.age} mo</TableCell>
-                            <TableCell className="text-sm text-muted-foreground">{sheep.previousWeight != null ? `${sheep.previousWeight.toFixed(1)} kg` : '—'}</TableCell>
-                            <TableCell className="font-medium">{sheep.currentWeight.toFixed(1)} kg</TableCell>
+                            <TableCell>
+                              <div className="font-bold">{sheep.tagId}</div>
+                              <div className="text-[10px] text-muted-foreground">{sheep.age} mo</div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="font-medium">{sheep.currentWeight.toFixed(1)}</div>
+                              <div className="text-[10px] text-muted-foreground">{sheep.previousWeight != null ? `Prev: ${sheep.previousWeight.toFixed(1)}` : '—'}</div>
+                            </TableCell>
                             <TableCell>
                               {weightChange !== null ? (
                                 <span className={cn(
@@ -357,8 +378,14 @@ export default function LivestockPage() {
                                   {Math.abs(weightChange).toFixed(1)}
                                 </span>
                               ) : (
-                                <span className="text-xs text-muted-foreground">New</span>
+                                <span className="text-xs text-muted-foreground italic">New</span>
                               )}
+                            </TableCell>
+                            <TableCell className="text-[10px] text-muted-foreground whitespace-nowrap">
+                              {formatUpdateDate(sheep.updatedAt)}
+                            </TableCell>
+                            <TableCell className="text-[10px] truncate max-w-[80px] text-muted-foreground" title={sheep.createdBy}>
+                              {sheep.createdBy || '—'}
                             </TableCell>
                             <TableCell className="text-right">
                               <div className="flex items-center justify-end gap-1">

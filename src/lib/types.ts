@@ -43,6 +43,9 @@ export type TrackedSheep = {
   previousWeight?: number;
   age: number; // in months
   photoDataUrl?: string;
+  createdBy?: string;
+  createdAt?: any;
+  updatedAt?: any;
 };
 
 export type HealthTask = {

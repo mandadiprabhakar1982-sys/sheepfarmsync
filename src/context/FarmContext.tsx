@@ -143,8 +143,23 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const updateLaborCost = useCallback((id: string, c: any) => upsert(laborCostsRef, id, c), [laborCostsRef, upsert]);
   const deleteLaborCost = useCallback((id: string) => laborCostsRef && deleteDocumentNonBlocking(doc(laborCostsRef, id)), [laborCostsRef]);
 
-  const addTrackedSheep = useCallback((s: any) => upsert(trackedSheepRef, undefined, s), [trackedSheepRef, upsert]);
-  const updateTrackedSheep = useCallback((id: string, s: any) => upsert(trackedSheepRef, id, s), [trackedSheepRef, upsert]);
+  const addTrackedSheep = useCallback((s: any) => {
+    if (!user) return;
+    upsert(trackedSheepRef, undefined, {
+      ...s,
+      createdBy: user.displayName || user.email,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+  }, [trackedSheepRef, upsert, user]);
+
+  const updateTrackedSheep = useCallback((id: string, s: any) => {
+    upsert(trackedSheepRef, id, {
+      ...s,
+      updatedAt: serverTimestamp(),
+    });
+  }, [trackedSheepRef, upsert]);
+
   const deleteTrackedSheep = useCallback((id: string) => trackedSheepRef && deleteDocumentNonBlocking(doc(trackedSheepRef, id)), [trackedSheepRef]);
 
   const addDeadAnimal = useCallback((a: any) => upsert(deadAnimalsRef, undefined, a), [deadAnimalsRef, upsert]);
