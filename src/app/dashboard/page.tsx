@@ -1,3 +1,4 @@
+
 'use client';
 import Link from 'next/link';
 import {
@@ -19,57 +20,57 @@ import { cn } from '@/lib/utils';
 
 const menuItems = [
   {
-    title: 'DASHBOARD',
-    description: 'REAL-TIME FLOCK ANALYTICS',
+    title: 'OVERVIEW',
+    description: 'ANALYTICS',
     icon: LayoutDashboard,
     href: '/dashboard/overview',
     color: 'bg-blue-500',
   },
   {
-    title: 'FLOCK TRACKING',
-    description: 'WEIGHT & GROWTH LOGS',
+    title: 'FLOCK',
+    description: 'RECORDS',
     icon: ClipboardList,
     href: '/dashboard/livestock',
     color: 'bg-emerald-500',
   },
   {
-    title: 'PURCHASE ANIMALS',
-    description: 'NEW STOCK ACQUISITIONS',
+    title: 'BUY',
+    description: 'PURCHASE',
     icon: ShoppingBag,
     href: '/dashboard/purchase',
     color: 'bg-amber-500',
   },
   {
-    title: 'MEDICINE COST',
-    description: 'HEALTH & VACCINATION',
+    title: 'HEALTH',
+    description: 'MEDICINE',
     icon: HeartPulse,
     href: '/dashboard/medicine',
     color: 'bg-rose-500',
   },
   {
-    title: 'FEED COST',
-    description: 'NUTRITION MANAGEMENT',
+    title: 'FEED',
+    description: 'NUTRITION',
     icon: Wheat,
     href: '/dashboard/feed',
     color: 'bg-lime-500',
   },
   {
-    title: 'LABOUR COST',
-    description: 'STAFF & WAGES',
+    title: 'LABOR',
+    description: 'STAFF',
     icon: Users,
     href: '/dashboard/labor',
     color: 'bg-orange-500',
   },
   {
-    title: 'ANIMAL SALE',
-    description: 'REVENUE & TRADES',
+    title: 'SALES',
+    description: 'REVENUE',
     icon: BadgeIndianRupee,
     href: '/dashboard/sales',
     color: 'bg-green-600',
   },
   {
     title: 'REPORTS',
-    description: 'GROWTH INSIGHTS',
+    description: 'INSIGHTS',
     icon: BarChart,
     href: '/dashboard/analysis',
     color: 'bg-indigo-500',
@@ -89,40 +90,39 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-neutral-50 pb-20">
-      <section className="dashboard-hero text-white pt-16 pb-32 text-center">
+      <section className="dashboard-hero text-white pt-10 pb-20 text-center">
         <div className="container mx-auto px-6">
-          <div className="flex justify-center mb-6">
-            <div className="bg-white/20 p-6 rounded-full">
-              <SheepIcon className="h-16 w-16 text-white" />
+          <div className="flex justify-center mb-4">
+            <div className="bg-white/20 p-4 rounded-full">
+              <SheepIcon className="h-10 w-10 text-white" />
             </div>
           </div>
-          <h1 className="text-4xl md:text-6xl font-black tracking-widest mb-4">
+          <h1 className="text-3xl md:text-5xl font-black tracking-widest mb-2">
             SHEEPSYNC PRO
           </h1>
-          <p className="text-sm md:text-base font-bold tracking-[0.3em] uppercase opacity-80">
-            PRECISION MANAGEMENT FOR MODERN SHEPHERDS
+          <p className="text-[10px] md:text-xs font-bold tracking-[0.3em] uppercase opacity-80">
+            PRECISION MANAGEMENT
           </p>
         </div>
       </section>
 
-      <section className="container mx-auto px-6 -mt-20 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <section className="container mx-auto px-4 -mt-10 relative z-10">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
           {menuItems.map((item) => {
             const Icon = item.icon;
             return (
               <Link href={item.href} key={item.title} className="group">
-                <Card className="border-none shadow-2xl rounded-[2.5rem] transition-all duration-300 hover:-translate-y-2 active:scale-95 bg-white overflow-hidden">
-                  <CardContent className="flex flex-col items-center justify-center p-12 text-center gap-6">
-                    <div className={cn("rounded-3xl p-6 text-white shadow-lg transition-transform group-hover:scale-110", item.color)}>
-                      <Icon className="h-12 w-12" />
+                <Card className="border-none shadow-xl rounded-[1.5rem] md:rounded-[2.5rem] transition-all duration-300 hover:-translate-y-1 active:scale-95 bg-white overflow-hidden">
+                  <CardContent className="flex flex-col items-center justify-center p-6 md:p-10 text-center gap-3 md:gap-6">
+                    <div className={cn("rounded-2xl md:rounded-3xl p-4 md:p-6 text-white shadow-md transition-transform group-hover:scale-110", item.color)}>
+                      <Icon className="h-6 w-6 md:h-10 md:w-10" />
                     </div>
                     <div>
-                      <h3 className="font-black text-xl tracking-tight text-foreground">{item.title}</h3>
-                      <p className="text-[10px] text-muted-foreground mt-2 font-bold uppercase tracking-widest opacity-60">
+                      <h3 className="font-black text-xs md:text-lg tracking-tight text-foreground leading-none">{item.title}</h3>
+                      <p className="hidden md:block text-[9px] text-muted-foreground mt-2 font-bold uppercase tracking-widest opacity-60">
                         {item.description}
                       </p>
                     </div>
-                    <ChevronRight className="h-6 w-6 text-muted-foreground/30 mt-4" />
                   </CardContent>
                 </Card>
               </Link>
