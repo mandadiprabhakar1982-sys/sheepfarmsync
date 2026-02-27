@@ -9,14 +9,14 @@
     {
       "id": "app-icon-192",
       "description": "App icon for PWA 192x192",
-      "imageUrl": "https://images.unsplash.com/photo-1762231591903-27ebee711045?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzaGVlcCUyMGljb258ZW58MHx8fHwxNzcyMTY4ODU3fDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "sheep icon"
+      "imageUrl": "https://images.unsplash.com/photo-1484557985045-edf25e08da73?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzaGVlcHxlbnwwfHx8fDE3NzIxNjg4NTd8MA&ixlib=rb-4.1.0&q=80&w=192",
+      "imageHint": "sheep portrait"
     },
     {
       "id": "app-icon-512",
       "description": "App icon for PWA 512x512",
-      "imageUrl": "https://images.unsplash.com/photo-1762231591903-27ebee711045?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzaGVlcCUyMGljb258ZW58MHx8fHwxNzcyMTY4ODU3fDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "sheep icon"
+      "imageUrl": "https://images.unsplash.com/photo-1484557985045-edf25e08da73?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzaGVlcHxlbnwwfHx8fDE3NzIxNjg4NTd8MA&ixlib=rb-4.1.0&q=80&w=512",
+      "imageHint": "sheep portrait"
     }
   ]
 }
