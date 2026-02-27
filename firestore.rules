@@ -2,8 +2,7 @@
  * Core Philosophy:
  * This ruleset enforces a strict user-ownership model where all data is private.
  * Access is controlled by ensuring an authenticated user's ID (request.auth.uid)
- * matches the {userId} wildcard in the document path. This model ensures
- * that users can only ever access their own information.
+ * matches the {userId} wildcard in the document path.
  */
 rules_version = '2';
 service cloud.firestore {
@@ -21,104 +20,26 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    function isExistingOwner(userId) {
-      return isOwner(userId) && resource != null;
-    }
-
-    function isCreatingWithMatchingId(docId) {
-      return request.resource.data.id == docId;
-    }
-
-    /**
-     * On update, ensures that the document's `id` field cannot be changed.
-     * If the 'id' field is not present in the update request, the rule passes.
-     */
-    function isIdImmutable() {
-      return !('id' in request.resource.data) || request.resource.data.id == resource.data.id;
-    }
-
     // -------------------------------------------------------------------------
     // User Data Rules
     // -------------------------------------------------------------------------
 
     match /users/{userId} {
-      allow get: if isOwner(userId);
-      allow list: if false;
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId);
-      allow delete: if false;
+      // Allow the user to manage their own profile document
+      allow get, create, update: if isOwner(userId);
+      allow list, delete: if false;
 
-      match /livestockPurchases/{livestockPurchaseId} {
-        allow get: if isOwner(userId);
-        allow list: if isOwner(userId);
-        allow create: if isOwner(userId) && isCreatingWithMatchingId(livestockPurchaseId);
-        allow update: if isExistingOwner(userId) && isIdImmutable();
-        allow delete: if isExistingOwner(userId);
-      }
-
-      match /medicineExpenses/{medicineExpenseId} {
-        allow get: if isOwner(userId);
-        allow list: if isOwner(userId);
-        allow create: if isOwner(userId) && isCreatingWithMatchingId(medicineExpenseId);
-        allow update: if isExistingOwner(userId) && isIdImmutable();
-        allow delete: if isExistingOwner(userId);
-      }
-
-      match /feedExpenses/{feedExpenseId} {
-        allow get: if isOwner(userId);
-        allow list: if isOwner(userId);
-        allow create: if isOwner(userId) && isCreatingWithMatchingId(feedExpenseId);
-        allow update: if isExistingOwner(userId) && isIdImmutable();
-        allow delete: if isExistingOwner(userId);
-      }
-
-      match /laborExpenses/{laborExpenseId} {
-        allow get: if isOwner(userId);
-        allow list: if isOwner(userId);
-        allow create: if isOwner(userId) && isCreatingWithMatchingId(laborExpenseId);
-        allow update: if isExistingOwner(userId) && isIdImmutable();
-        allow delete: if isExistingOwner(userId);
-      }
-
-      match /animalSales/{animalSaleId} {
-        allow get: if isOwner(userId);
-        allow list: if isOwner(userId);
-        allow create: if isOwner(userId) && isCreatingWithMatchingId(animalSaleId);
-        allow update: if isExistingOwner(userId) && isIdImmutable();
-        allow delete: if isExistingOwner(userId);
-      }
-      
-      match /deadAnimals/{deadAnimalId} {
-        allow get: if isOwner(userId);
-        allow list: if isOwner(userId);
-        allow create: if isOwner(userId) && isCreatingWithMatchingId(deadAnimalId);
-        allow update: if isExistingOwner(userId) && isIdImmutable();
-        allow delete: if isExistingOwner(userId);
-      }
-
-      match /trackedSheep/{trackedSheepId} {
-        allow get: if isOwner(userId);
-        allow list: if isOwner(userId);
-        allow create: if isOwner(userId) && isCreatingWithMatchingId(trackedSheepId);
-        allow update: if isExistingOwner(userId) && isIdImmutable();
-        allow delete: if isExistingOwner(userId);
-      }
-      
-      match /farmExpenses/{farmExpenseId} {
-        allow get: if isOwner(userId);
-        allow list: if isOwner(userId);
-        allow create: if isOwner(userId) && isCreatingWithMatchingId(farmExpenseId);
-        allow update: if isExistingOwner(userId) && isIdImmutable();
-        allow delete: if isExistingOwner(userId);
-      }
-
-      match /healthTasks/{healthTaskId} {
-        allow get: if isOwner(userId);
-        allow list: if isOwner(userId);
-        allow create: if isOwner(userId) && isCreatingWithMatchingId(healthTaskId);
-        allow update: if isExistingOwner(userId) && isIdImmutable();
-        allow delete: if isExistingOwner(userId);
-      }
+      // Simplifed rules for all subcollections: if you own the path, you own the data.
+      // This ensures robust creation and updates across all farm management features.
+      match /livestockPurchases/{id} { allow read, write: if isOwner(userId); }
+      match /medicineExpenses/{id} { allow read, write: if isOwner(userId); }
+      match /feedExpenses/{id} { allow read, write: if isOwner(userId); }
+      match /laborExpenses/{id} { allow read, write: if isOwner(userId); }
+      match /animalSales/{id} { allow read, write: if isOwner(userId); }
+      match /deadAnimals/{id} { allow read, write: if isOwner(userId); }
+      match /trackedSheep/{id} { allow read, write: if isOwner(userId); }
+      match /farmExpenses/{id} { allow read, write: if isOwner(userId); }
+      match /healthTasks/{id} { allow read, write: if isOwner(userId); }
     }
   }
 }

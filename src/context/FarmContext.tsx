@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode, useMemo, useCallback } from 'react';
+import { createContext, useContext, ReactNode, useMemo, useCallback } from 'react';
 import type { LivestockPurchase, AnimalSale, FeedCost, MedicineExpense, LaborCost, TrackedSheep, DeadAnimal, FarmExpense, HealthTask } from '@/lib/types';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
@@ -68,6 +68,15 @@ interface FarmContextType {
 
 const FarmContext = createContext<FarmContextType | undefined>(undefined);
 
+// Helper for generating IDs safely
+function generateId() {
+  try {
+    return crypto.randomUUID();
+  } catch (e) {
+    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  }
+}
+
 export function FarmProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
   const firestore = useFirestore();
@@ -101,7 +110,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
 
   const addPurchase = useCallback((purchase: Omit<LivestockPurchase, 'id'>) => {
     if (!purchasesRef) return;
-    const newId = crypto.randomUUID();
+    const newId = generateId();
     const docRef = doc(purchasesRef, newId);
     setDocumentNonBlocking(docRef, { ...purchase, id: newId }, {});
   }, [purchasesRef]);
@@ -119,7 +128,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
 
   const addSale = useCallback((sale: Omit<AnimalSale, 'id'>) => {
     if (!salesRef) return;
-    const newId = crypto.randomUUID();
+    const newId = generateId();
     const docRef = doc(salesRef, newId);
     setDocumentNonBlocking(docRef, { ...sale, id: newId }, {});
   }, [salesRef]);
@@ -137,7 +146,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   
   const addFeedCost = useCallback((cost: Omit<FeedCost, 'id'>) => {
      if (!feedCostsRef) return;
-    const newId = crypto.randomUUID();
+    const newId = generateId();
     const docRef = doc(feedCostsRef, newId);
     setDocumentNonBlocking(docRef, { ...cost, id: newId }, {});
   }, [feedCostsRef]);
@@ -155,7 +164,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   
   const addMedicineExpense = useCallback((expense: Omit<MedicineExpense, 'id'>) => {
     if (!medicineExpensesRef) return;
-    const newId = crypto.randomUUID();
+    const newId = generateId();
     const docRef = doc(medicineExpensesRef, newId);
     setDocumentNonBlocking(docRef, { ...expense, id: newId }, {});
   }, [medicineExpensesRef]);
@@ -173,7 +182,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   
   const addLaborCost = useCallback((cost: Omit<LaborCost, 'id'>) => {
     if (!laborCostsRef) return;
-    const newId = crypto.randomUUID();
+    const newId = generateId();
     const docRef = doc(laborCostsRef, newId);
     setDocumentNonBlocking(docRef, { ...cost, id: newId }, {});
   }, [laborCostsRef]);
@@ -191,7 +200,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   
   const addTrackedSheep = useCallback((sheep: Omit<TrackedSheep, 'id'>) => {
     if (!trackedSheepRef) return;
-    const newId = crypto.randomUUID();
+    const newId = generateId();
     const docRef = doc(trackedSheepRef, newId);
     setDocumentNonBlocking(docRef, { ...sheep, id: newId }, {});
   }, [trackedSheepRef]);
@@ -209,7 +218,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
 
   const addDeadAnimal = useCallback((animal: Omit<DeadAnimal, 'id'>) => {
     if (!deadAnimalsRef) return;
-    const newId = crypto.randomUUID();
+    const newId = generateId();
     const docRef = doc(deadAnimalsRef, newId);
     setDocumentNonBlocking(docRef, { ...animal, id: newId }, {});
   }, [deadAnimalsRef]);
@@ -227,7 +236,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
 
   const addFarmExpense = useCallback((expense: Omit<FarmExpense, 'id'>) => {
     if (!farmExpensesRef) return;
-    const newId = crypto.randomUUID();
+    const newId = generateId();
     const docRef = doc(farmExpensesRef, newId);
     setDocumentNonBlocking(docRef, { ...expense, id: newId }, {});
   }, [farmExpensesRef]);
@@ -245,7 +254,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
 
   const addHealthTask = useCallback((task: Omit<HealthTask, 'id'>) => {
     if (!healthTasksRef) return;
-    const newId = crypto.randomUUID();
+    const newId = generateId();
     const docRef = doc(healthTasksRef, newId);
     setDocumentNonBlocking(docRef, { ...task, id: newId }, {});
   }, [healthTasksRef]);
