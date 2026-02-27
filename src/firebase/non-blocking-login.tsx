@@ -7,6 +7,7 @@ import {
   signInWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
+  updateProfile,
 } from 'firebase/auth';
 import { FirebaseError } from 'firebase/app';
 import { toast } from '@/hooks/use-toast';
@@ -82,6 +83,22 @@ export function initiateEmailSignUp(authInstance: Auth, email: string, password:
 export function initiateEmailSignIn(authInstance: Auth, email: string, password: string): Promise<void> {
   return signInWithEmailAndPassword(authInstance, email, password)
     .then(() => {}) // Success is handled by onAuthStateChanged
+    .catch(error => {
+        handleAuthError(error);
+        return Promise.reject(error);
+    });
+}
+
+/** Initiate profile update (non-blocking). */
+export function initiateUpdateProfile(authInstance: Auth, displayName: string): Promise<void> {
+  if (!authInstance.currentUser) return Promise.reject("No user logged in");
+  return updateProfile(authInstance.currentUser, { displayName })
+    .then(() => {
+        toast({
+            title: 'Profile Updated',
+            description: 'Your name has been updated successfully.',
+        });
+    })
     .catch(error => {
         handleAuthError(error);
         return Promise.reject(error);

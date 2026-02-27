@@ -1,9 +1,10 @@
+
 'use client';
 
 import { createContext, useContext, ReactNode, useMemo, useCallback } from 'react';
 import type { LivestockPurchase, AnimalSale, FeedCost, MedicineExpense, LaborCost, TrackedSheep, DeadAnimal, FarmExpense, HealthTask, PublicSale } from '@/lib/types';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, doc, query } from 'firebase/firestore';
+import { collection, doc, query, serverTimestamp } from 'firebase/firestore';
 import { setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 interface FarmContextType {
@@ -54,7 +55,7 @@ interface FarmContextType {
 
   // Marketplace
   communitySales: PublicSale[] | null;
-  postToMarketplace: (sale: Omit<PublicSale, 'id' | 'sellerId' | 'sellerEmail'>) => void;
+  postToMarketplace: (sale: Omit<PublicSale, 'id' | 'sellerId' | 'sellerEmail' | 'sellerName'>) => void;
   deleteMarketplaceSale: (id: string) => void;
 
   isLoading: boolean;
@@ -164,6 +165,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
       ...sale,
       sellerId: user.uid,
       sellerEmail: user.email,
+      sellerName: user.displayName || 'Farmer',
     });
   }, [marketplaceRef, upsert, user]);
 

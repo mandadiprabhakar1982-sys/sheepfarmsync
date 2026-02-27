@@ -6,7 +6,7 @@ import { PageHeader } from '@/components/page-header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Globe, MapPin, Scale, MessageSquare, Loader2, Trash2 } from 'lucide-react';
+import { Globe, MapPin, Scale, MessageSquare, Loader2, Trash2, User } from 'lucide-react';
 import { useUser } from '@/firebase';
 
 export default function MarketplacePage() {
@@ -44,6 +44,16 @@ export default function MarketplacePage() {
                 </div>
               </CardHeader>
               <CardContent className="pt-6 space-y-4">
+                <div className="flex items-center gap-2 mb-4">
+                   <div className="bg-primary/10 rounded-full p-1.5">
+                     <User className="h-4 w-4 text-primary" />
+                   </div>
+                   <div>
+                     <p className="text-sm font-bold leading-none">{sale.sellerName || 'Farmer'}</p>
+                     <p className="text-[10px] text-muted-foreground">{sale.sellerEmail}</p>
+                   </div>
+                </div>
+
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <MapPin className="h-4 w-4 text-primary" />

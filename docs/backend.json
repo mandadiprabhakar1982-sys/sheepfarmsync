@@ -1,6 +1,19 @@
 
 {
   "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "type": "object",
+      "description": "User account details and settings.",
+      "properties": {
+        "id": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "email"]
+    },
     "HealthTask": {
       "title": "HealthTask",
       "type": "object",
@@ -29,6 +42,7 @@
         "id": { "type": "string" },
         "sellerId": { "type": "string" },
         "sellerEmail": { "type": "string" },
+        "sellerName": { "type": "string" },
         "saleDate": { "type": "string", "format": "date" },
         "village": { "type": "string" },
         "animalCount": { "type": "number" },
@@ -43,6 +57,10 @@
     "providers": ["password", "google.com"]
   },
   "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/backend/entities/UserProfile" },
+      "description": "Public profile of a user."
+    },
     "/users/{userId}/healthTasks/{healthTaskId}": {
       "schema": { "$ref": "#/backend/entities/HealthTask" },
       "description": "User-owned health tasks."

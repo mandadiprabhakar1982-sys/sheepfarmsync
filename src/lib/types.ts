@@ -27,6 +27,7 @@ export type PublicSale = {
   id: string;
   sellerId: string;
   sellerEmail: string;
+  sellerName?: string;
   saleDate: string;
   village: string;
   animalCount: number;
@@ -69,4 +70,12 @@ export type DeadAnimal = {
   tagId?: string;
   causeOfDeath: string;
   notes?: string;
+};
+
+export type UserProfile = {
+  id: string;
+  email: string;
+  displayName: string | null;
+  createdAt: any;
+  updatedAt?: any;
 };
