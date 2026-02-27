@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -18,6 +17,7 @@ import {
   BarChart,
   Calculator,
   ListChecks,
+  Smartphone,
 } from 'lucide-react';
 
 import {
@@ -57,6 +57,7 @@ const operationsLinks = [
 const toolsLinks = [
   { href: '/dashboard/feed-calculator', label: 'Calculator', icon: Calculator },
   { href: '/dashboard/marketplace', label: 'Marketplace', icon: Globe },
+  { href: '/dashboard/help', label: 'Mobile Install', icon: Smartphone },
 ];
 
 export function AppSidebar() {
