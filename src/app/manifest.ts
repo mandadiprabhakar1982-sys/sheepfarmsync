@@ -1,4 +1,3 @@
-
 import { MetadataRoute } from 'next'
 import { PlaceHolderImages } from '@/lib/placeholder-images'
 
@@ -10,20 +9,23 @@ export default function manifest(): MetadataRoute.Manifest {
     name: 'SheepSync Pro',
     short_name: 'SheepSync',
     description: 'Precision management for modern shepherds',
-    start_url: '/',
+    start_url: '/dashboard',
     display: 'standalone',
-    background_color: '#0a3622',
+    orientation: 'portrait',
+    background_color: '#ffffff',
     theme_color: '#0a3622',
     icons: [
       {
         src: icon192,
         sizes: '192x192',
         type: 'image/png',
+        purpose: 'maskable'
       },
       {
         src: icon512,
         sizes: '512x512',
         type: 'image/png',
+        purpose: 'any'
       },
     ],
   }

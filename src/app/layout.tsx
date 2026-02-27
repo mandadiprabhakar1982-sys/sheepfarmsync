@@ -1,4 +1,3 @@
-
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
@@ -11,7 +10,7 @@ export const metadata: Metadata = {
   description: 'Precision management for modern shepherds',
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'default',
+    statusBarStyle: 'black-translucent',
     title: 'SheepSync Pro',
   },
   formatDetection: {
@@ -40,10 +39,12 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet" />
         <link rel="apple-touch-icon" href={appleIcon} />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       </head>
-      <body className="font-body antialiased selection:bg-primary selection:text-primary-foreground overflow-x-hidden">
+      <body className="font-body antialiased selection:bg-primary selection:text-primary-foreground overflow-x-hidden min-h-screen">
         <FirebaseClientProvider>
           <AuthGuard>{children}</AuthGuard>
         </FirebaseClientProvider>
