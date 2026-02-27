@@ -12,7 +12,7 @@
         "vaccineType": { "type": "string" },
         "supplementType": { "type": "string" },
         "dosage": { "type": "string" },
-        "cost": { "type": "number", "description": "Cost of the medicine or treatment." },
+        "cost": { "type": "number" },
         "lastAdministered": { "type": "string", "format": "date" },
         "nextDueDate": { "type": "string", "format": "date" },
         "frequency": { "type": "string" },
@@ -20,6 +20,23 @@
         "notes": { "type": "string" }
       },
       "required": ["id", "taskName", "lastAdministered", "nextDueDate"]
+    },
+    "PublicSale": {
+      "title": "PublicSale",
+      "type": "object",
+      "description": "A sheep sale record shared with the community marketplace.",
+      "properties": {
+        "id": { "type": "string" },
+        "sellerId": { "type": "string" },
+        "sellerEmail": { "type": "string" },
+        "saleDate": { "type": "string", "format": "date" },
+        "village": { "type": "string" },
+        "animalCount": { "type": "number" },
+        "totalWeight": { "type": "number" },
+        "askingPrice": { "type": "number" },
+        "notes": { "type": "string" }
+      },
+      "required": ["id", "sellerId", "animalCount", "askingPrice"]
     }
   },
   "auth": {
@@ -29,6 +46,10 @@
     "/users/{userId}/healthTasks/{healthTaskId}": {
       "schema": { "$ref": "#/backend/entities/HealthTask" },
       "description": "User-owned health tasks."
+    },
+    "/communitySales/{saleId}": {
+      "schema": { "$ref": "#/backend/entities/PublicSale" },
+      "description": "Publicly viewable livestock for sale."
     }
   }
 }

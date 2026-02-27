@@ -1,3 +1,4 @@
+
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -14,6 +15,7 @@ import {
   LayoutDashboard,
   Receipt,
   Calculator,
+  Globe,
 } from 'lucide-react';
 import { SheepIcon } from '@/components/logo';
 
@@ -26,6 +28,7 @@ const links = [
   { href: '/dashboard/feed', label: 'Feed', icon: Wheat },
   { href: '/dashboard/labor', label: 'Labor', icon: Users },
   { href: '/dashboard/sales', label: 'Sales', icon: BadgeIndianRupee },
+  { href: '/dashboard/marketplace', label: 'Market', icon: Globe },
   { href: '/dashboard/expenses', label: 'Expenses', icon: Receipt },
   { href: '/dashboard/mortality', label: 'Mortality', icon: Skull },
   { href: '/dashboard/analysis', label: 'Reports', icon: BarChart },

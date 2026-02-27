@@ -6,7 +6,6 @@ import {
   HeartPulse,
   Wheat,
   Users,
-  ChevronRight,
   BadgeIndianRupee,
   LayoutDashboard,
   Package,
@@ -15,6 +14,7 @@ import {
   BarChart,
   Receipt,
   Calculator,
+  Globe,
 } from 'lucide-react';
 import { SheepIcon } from '@/components/logo';
 import { Card, CardContent } from '@/components/ui/card';
@@ -26,6 +26,12 @@ const menuItems = [
       description: 'Farm at a glance',
       icon: LayoutDashboard,
       href: '/dashboard/overview',
+    },
+    {
+      title: 'Community Market',
+      description: 'Buy & sell with others',
+      icon: Globe,
+      href: '/dashboard/marketplace',
     },
     {
       title: 'Reports & Analysis',

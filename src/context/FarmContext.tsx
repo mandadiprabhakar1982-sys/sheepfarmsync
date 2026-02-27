@@ -2,9 +2,9 @@
 'use client';
 
 import { createContext, useContext, ReactNode, useMemo, useCallback } from 'react';
-import type { LivestockPurchase, AnimalSale, FeedCost, MedicineExpense, LaborCost, TrackedSheep, DeadAnimal, FarmExpense, HealthTask } from '@/lib/types';
+import type { LivestockPurchase, AnimalSale, FeedCost, MedicineExpense, LaborCost, TrackedSheep, DeadAnimal, FarmExpense, HealthTask, PublicSale } from '@/lib/types';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, doc } from 'firebase/firestore';
+import { collection, doc, query } from 'firebase/firestore';
 import { setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 interface FarmContextType {
@@ -52,6 +52,11 @@ interface FarmContextType {
   addHealthTask: (task: Omit<HealthTask, 'id'>) => void;
   deleteHealthTask: (id: string) => void;
   updateHealthTask: (id: string, data: Omit<HealthTask, 'id'>) => void;
+
+  // Marketplace
+  communitySales: PublicSale[] | null;
+  postToMarketplace: (sale: Omit<PublicSale, 'id' | 'sellerId' | 'sellerEmail'>) => void;
+  deleteMarketplaceSale: (id: string) => void;
 
   isLoading: boolean;
 
@@ -106,6 +111,10 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const healthTasksRef = useMemoFirebase(() => getCollectionRef('healthTasks'), [firestore, user]);
   const { data: healthTasks, isLoading: isLoadingHealthTasks } = useCollection<HealthTask>(healthTasksRef);
 
+  // Community Marketplace
+  const marketplaceRef = useMemoFirebase(() => collection(firestore, 'communitySales'), [firestore]);
+  const { data: communitySales, isLoading: isLoadingMarketplace } = useCollection<PublicSale>(marketplaceRef);
+
   const upsert = useCallback((colRef: any, id: string | undefined, data: any) => {
     if (!colRef) return;
     const finalId = id || generateId();
@@ -149,7 +158,18 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const updateHealthTask = useCallback((id: string, t: any) => upsert(healthTasksRef, id, t), [healthTasksRef, upsert]);
   const deleteHealthTask = useCallback((id: string) => healthTasksRef && deleteDocumentNonBlocking(doc(healthTasksRef, id)), [healthTasksRef]);
 
-  const isLoading = isLoadingPurchases || isLoadingSales || isLoadingFeedCosts || isLoadingMedicine || isLoadingLabor || isLoadingDeadAnimals || isLoadingTrackedSheep || isLoadingFarmExpenses || isLoadingHealthTasks;
+  const postToMarketplace = useCallback((sale: any) => {
+    if (!user) return;
+    upsert(marketplaceRef, undefined, {
+      ...sale,
+      sellerId: user.uid,
+      sellerEmail: user.email,
+    });
+  }, [marketplaceRef, upsert, user]);
+
+  const deleteMarketplaceSale = useCallback((id: string) => marketplaceRef && deleteDocumentNonBlocking(doc(marketplaceRef, id)), [marketplaceRef]);
+
+  const isLoading = isLoadingPurchases || isLoadingSales || isLoadingFeedCosts || isLoadingMedicine || isLoadingLabor || isLoadingDeadAnimals || isLoadingTrackedSheep || isLoadingFarmExpenses || isLoadingHealthTasks || isLoadingMarketplace;
 
   const totalDead = useMemo(() => (deadAnimals || []).reduce((sum, a) => sum + (a.sheepCount ?? 1), 0), [deadAnimals]);
   const totalSheep = useMemo(() => {
@@ -188,6 +208,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     deadAnimals, addDeadAnimal, deleteDeadAnimal, updateDeadAnimal,
     farmExpenses, addFarmExpense, deleteFarmExpense, updateFarmExpense,
     healthTasks, addHealthTask, deleteHealthTask, updateHealthTask,
+    communitySales, postToMarketplace, deleteMarketplaceSale,
     isLoading, totalSheep, totalExpenses, totalSales, totalDead, totalFeedCost, totalLaborCost, totalMedicineCost, totalFarmExpenses, totalReceivables, totalPayables,
   };
 

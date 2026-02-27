@@ -1,8 +1,9 @@
+
 'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Globe, Home, LayoutDashboard, BarChart, BadgeIndianRupee, Calculator } from 'lucide-react';
+import { Globe, Home, LayoutDashboard, BadgeIndianRupee, Calculator, ShoppingBag } from 'lucide-react';
 import { Logo, SheepIcon } from '@/components/logo';
 import { Nav } from '@/components/nav';
 import { UserNav } from '@/components/user-nav';
@@ -22,7 +23,7 @@ export default function DashboardLayout({
     { href: '/dashboard', label: 'Home', icon: Home },
     { href: '/dashboard/overview', label: 'Overview', icon: LayoutDashboard },
     { href: '/dashboard/livestock', label: 'Sheep', icon: SheepIcon },
-    { href: '/dashboard/sales', label: 'Sales', icon: BadgeIndianRupee },
+    { href: '/dashboard/marketplace', label: 'Market', icon: ShoppingBag },
     { href: '/dashboard/feed-calculator', label: 'Calculator', icon: Calculator },
   ];
 
@@ -34,29 +35,21 @@ export default function DashboardLayout({
             <Logo showManager={true} />
           </div>
           
-          <div className="hidden flex-1 items-center justify-center gap-1 md:flex">
+          <div className="hidden flex-1 items-center justify-center gap-1 md:flex overflow-x-auto">
               <Nav />
           </div>
           
           {/* Mobile Header right side */}
           <div className="flex items-center gap-2 md:hidden">
-            <Button variant="ghost" size="icon">
-              <Globe className="h-5 w-5" />
-              <span className="sr-only">Language</span>
-            </Button>
             <UserNav />
           </div>
 
           {/* Desktop Header right side */}
           <div className="hidden items-center gap-2 justify-end md:flex">
-            <Button variant="ghost" size="icon">
-                <Globe className="h-5 w-5" />
-                <span className="sr-only">Language</span>
-            </Button>
             <UserNav />
           </div>
         </header>
-        <main className="flex-1 pb-20 md:pb-0">
+        <main className="flex-1 pb-20 md:pb-0 overflow-y-auto">
           {children}
         </main>
         

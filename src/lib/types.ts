@@ -20,6 +20,19 @@ export type AnimalSale = {
   salePrice: number;
   amountReceived: number;
   outstandingDuesFromBuyer: number;
+  isPublic?: boolean;
+};
+
+export type PublicSale = {
+  id: string;
+  sellerId: string;
+  sellerEmail: string;
+  saleDate: string;
+  village: string;
+  animalCount: number;
+  totalWeight: number;
+  askingPrice: number;
+  notes?: string;
 };
 
 export type TrackedSheep = {
@@ -34,17 +47,13 @@ export type TrackedSheep = {
 export type HealthTask = {
   id: string;
   taskName: 'Deworming' | 'Vaccination' | 'Vitamin & Liver Support' | 'Other';
-  // Deworming
   dewormerName?: 'Albendazole' | 'Fenbendazole' | 'Ivermectin';
   dosePerKg?: number;
-  // Vaccination
   vaccineType?: 'ET + TT' | 'PPR' | 'Sheep Pox' | 'HS' | 'FMD' | 'Bluetongue';
   boosterRequired?: boolean;
   batchNumber?: string;
-  // Vitamin & Supplement
   supplementType?: 'B-Complex' | 'Liver Tonic' | 'Calcium' | 'Multivitamin' | 'Mineral Mixture';
   dosage?: string;
-  // Common
   cost?: number;
   totalSheepTreated?: number;
   lastAdministered: string;
