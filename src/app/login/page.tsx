@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Logo } from '@/components/logo';
+import { Logo, SheepIcon } from '@/components/logo';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/firebase';
 import { initiateEmailSignIn, initiateEmailSignUp, initiateGoogleSignIn } from '@/firebase/non-blocking-login';
@@ -38,7 +38,6 @@ export default function LoginPage() {
         setIsSubmitting(true);
         initiateEmailSignIn(auth, loginEmail, loginPassword)
             .catch(() => {
-                // On failure, the error toast is shown by initiateEmailSignIn, just reset the form state.
                 setIsSubmitting(false);
             });
     };
@@ -56,7 +55,6 @@ export default function LoginPage() {
         setIsSubmitting(true);
         initiateEmailSignUp(auth, signupEmail, signupPassword)
             .catch(() => {
-                 // On failure, the error toast is shown by initiateEmailSignUp, just reset the form state.
                 setIsSubmitting(false);
             });
     };
@@ -70,57 +68,60 @@ export default function LoginPage() {
     };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="mb-4 flex justify-center">
-            <Logo />
-          </div>
-          <CardTitle className="text-2xl font-headline">Welcome to SheepSync Pro</CardTitle>
-          <CardDescription>The all-in-one solution for modern sheep farming.</CardDescription>
-        </CardHeader>
-        <CardContent>
+    <div className="flex min-h-screen items-center justify-center bg-background p-4 dashboard-hero">
+      <Card className="w-full max-w-md border-none shadow-2xl overflow-hidden glass-card rounded-[2rem]">
+        <div className="bg-primary p-12 text-center text-primary-foreground relative overflow-hidden">
+           <div className="absolute top-0 right-0 p-4 opacity-10">
+              <SheepIcon className="h-32 w-32 rotate-12" />
+           </div>
+           <div className="inline-block bg-white/20 rounded-2xl p-4 mb-4">
+              <SheepIcon className="h-10 w-10 text-white" />
+           </div>
+           <h1 className="text-3xl font-black uppercase tracking-tight">SheepSync Pro</h1>
+           <p className="text-white/70 text-sm mt-2 font-medium">Precision Sheep Management</p>
+        </div>
+        <CardContent className="pt-10">
             <div className="grid gap-4">
-                <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={isSubmitting}>
+                <Button variant="outline" className="w-full h-12 rounded-xl font-bold" onClick={handleGoogleSignIn} disabled={isSubmitting}>
                     {isSubmitting ? (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     ) : (
                         <GoogleIcon className="mr-2 h-4 w-4" />
                     )}
-                    Sign in with Google
+                    Continue with Google
                 </Button>
 
-                <div className="relative">
+                <div className="relative my-4">
                     <div className="absolute inset-0 flex items-center">
                         <span className="w-full border-t" />
                     </div>
                     <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-background px-2 text-muted-foreground">
-                        Or continue with email
+                        <span className="bg-white px-3 text-muted-foreground font-bold tracking-widest">
+                        Or secure Login
                         </span>
                     </div>
                 </div>
             </div>
 
             <Tabs defaultValue="login" className="mt-4">
-                <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="login" disabled={isSubmitting}>Login</TabsTrigger>
-                    <TabsTrigger value="signup" disabled={isSubmitting}>Sign Up</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-2 p-1 bg-muted/50 rounded-xl">
+                    <TabsTrigger value="login" className="rounded-lg font-bold" disabled={isSubmitting}>Login</TabsTrigger>
+                    <TabsTrigger value="signup" className="rounded-lg font-bold" disabled={isSubmitting}>Sign Up</TabsTrigger>
                 </TabsList>
                 <TabsContent value="login">
                     <form onSubmit={handleLogin}>
                         <div className="grid gap-4 py-4">
                             <div className="grid gap-2">
-                                <Label htmlFor="login-email">Email</Label>
-                                <Input id="login-email" type="email" placeholder="m@example.com" required value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} disabled={isSubmitting} />
+                                <Label htmlFor="login-email">Email Address</Label>
+                                <Input id="login-email" type="email" placeholder="name@farm.com" className="h-11" required value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} disabled={isSubmitting} />
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="login-password">Password</Label>
-                                <Input id="login-password" type="password" required value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} disabled={isSubmitting} />
+                                <Input id="login-password" type="password" className="h-11" required value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} disabled={isSubmitting} />
                             </div>
-                            <Button type="submit" className="w-full" disabled={isSubmitting}>
+                            <Button type="submit" className="w-full h-12 rounded-xl font-bold mt-2" disabled={isSubmitting}>
                                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                Login
+                                Sign In
                             </Button>
                         </div>
                     </form>
@@ -129,20 +130,20 @@ export default function LoginPage() {
                     <form onSubmit={handleSignUp}>
                         <div className="grid gap-4 py-4">
                             <div className="grid gap-2">
-                                <Label htmlFor="signup-email">Email</Label>
-                                <Input id="signup-email" type="email" placeholder="m@example.com" required value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} disabled={isSubmitting} />
+                                <Label htmlFor="signup-email">Email Address</Label>
+                                <Input id="signup-email" type="email" placeholder="name@farm.com" className="h-11" required value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} disabled={isSubmitting} />
                             </div>
                             <div className="grid gap-2">
-                                <Label htmlFor="signup-password">Password</Label>
-                                <Input id="signup-password" type="password" required value={signupPassword} onChange={(e) => setSignupPassword(e.target.value)} disabled={isSubmitting} />
+                                <Label htmlFor="signup-password">Choose Password</Label>
+                                <Input id="signup-password" type="password" className="h-11" required value={signupPassword} onChange={(e) => setSignupPassword(e.target.value)} disabled={isSubmitting} />
                             </div>
                              <div className="grid gap-2">
                                 <Label htmlFor="confirm-password">Confirm Password</Label>
-                                <Input id="confirm-password" type="password" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} disabled={isSubmitting} />
+                                <Input id="confirm-password" type="password" className="h-11" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} disabled={isSubmitting} />
                             </div>
-                            <Button type="submit" className="w-full" disabled={isSubmitting}>
+                            <Button type="submit" className="w-full h-12 rounded-xl font-bold mt-2" disabled={isSubmitting}>
                                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                Sign Up
+                                Create Account
                             </Button>
                         </div>
                     </form>

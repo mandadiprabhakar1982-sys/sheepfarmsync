@@ -8,7 +8,7 @@ export const SheepIcon = (props: React.SVGProps<SVGSVGElement>) => (
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2"
+      strokeWidth="2.5"
       strokeLinecap="round"
       strokeLinejoin="round"
       {...props}
@@ -22,12 +22,12 @@ export const SheepIcon = (props: React.SVGProps<SVGSVGElement>) => (
 export function Logo({ className, showManager = false }: { className?: string; showManager?: boolean; }) {
   return (
     <div className={cn('flex items-center gap-3', className)}>
-       <div className="bg-primary rounded-lg p-2">
-        <SheepIcon className="h-7 w-7 text-primary-foreground" />
+       <div className="bg-primary rounded-xl p-2.5 shadow-md shadow-primary/20">
+        <SheepIcon className="h-6 w-6 text-primary-foreground" />
       </div>
-      <div>
-        <h1 className="text-xl font-bold text-foreground">SheepSync Pro</h1>
-        {showManager && <p className="text-sm text-muted-foreground">SHEEP MANAGER</p>}
+      <div className="hidden sm:block">
+        <h1 className="text-xl font-black text-foreground tracking-tight leading-none uppercase">SheepSync</h1>
+        {showManager && <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] mt-0.5">Professional</p>}
       </div>
     </div>
   );
