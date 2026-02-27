@@ -21,18 +21,26 @@
       "properties": {
         "id": { "type": "string" },
         "taskName": { "type": "string", "enum": ["Deworming", "Vaccination", "Vitamin & Liver Support", "Other"] },
-        "dewormerName": { "type": "string" },
-        "vaccineType": { "type": "string" },
-        "supplementType": { "type": "string" },
-        "dosage": { "type": "string" },
         "cost": { "type": "number" },
         "lastAdministered": { "type": "string", "format": "date" },
         "nextDueDate": { "type": "string", "format": "date" },
-        "frequency": { "type": "string" },
-        "totalSheepTreated": { "type": "number" },
         "notes": { "type": "string" }
       },
       "required": ["id", "taskName", "lastAdministered", "nextDueDate"]
+    },
+    "TrackedSheep": {
+      "title": "TrackedSheep",
+      "type": "object",
+      "description": "Individual animal tracking for weight and growth log.",
+      "properties": {
+        "id": { "type": "string" },
+        "tagId": { "type": "string" },
+        "currentWeight": { "type": "number" },
+        "age": { "type": "number" },
+        "createdBy": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "tagId"]
     },
     "PublicSale": {
       "title": "PublicSale",
@@ -46,9 +54,7 @@
         "saleDate": { "type": "string", "format": "date" },
         "village": { "type": "string" },
         "animalCount": { "type": "number" },
-        "totalWeight": { "type": "number" },
-        "askingPrice": { "type": "number" },
-        "notes": { "type": "string" }
+        "askingPrice": { "type": "number" }
       },
       "required": ["id", "sellerId", "animalCount", "askingPrice"]
     }
@@ -64,6 +70,10 @@
     "/users/{userId}/healthTasks/{healthTaskId}": {
       "schema": { "$ref": "#/backend/entities/HealthTask" },
       "description": "User-owned health tasks."
+    },
+    "/users/{userId}/trackedSheep/{sheepId}": {
+      "schema": { "$ref": "#/backend/entities/TrackedSheep" },
+      "description": "Individually tracked flock members."
     },
     "/communitySales/{saleId}": {
       "schema": { "$ref": "#/backend/entities/PublicSale" },

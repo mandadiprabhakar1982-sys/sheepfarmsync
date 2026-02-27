@@ -12,18 +12,26 @@ import {
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
-/** Helper to filter undefined values from an object before sending to Firestore */
+/** 
+ * Helper to filter undefined values from an object before sending to Firestore.
+ * Now safer for Firestore FieldValues and other specialized objects.
+ */
 function filterUndefined(obj: any): any {
   if (Array.isArray(obj)) {
     return obj.map(filterUndefined);
   } else if (obj !== null && typeof obj === 'object') {
-    return Object.keys(obj).reduce((acc: any, key) => {
-      const val = filterUndefined(obj[key]);
-      if (val !== undefined) {
-        acc[key] = val;
-      }
-      return acc;
-    }, {});
+    // We only want to recurse into plain objects. 
+    // FieldValues (like serverTimestamp) are not plain objects.
+    const proto = Object.getPrototypeOf(obj);
+    if (proto === null || proto === Object.prototype) {
+      return Object.keys(obj).reduce((acc: any, key) => {
+        const val = filterUndefined(obj[key]);
+        if (val !== undefined) {
+          acc[key] = val;
+        }
+        return acc;
+      }, {});
+    }
   }
   return obj;
 }
