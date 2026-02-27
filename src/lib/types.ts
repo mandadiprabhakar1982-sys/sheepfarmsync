@@ -41,7 +41,7 @@ export type DeadAnimal = {
 
 export type HealthTask = {
   id: string;
-  taskName: string;
+  taskName: 'Deworming' | 'Vaccination' | 'Vitamin & Liver Support';
   // Deworming
   dewormerName?: 'Albendazole' | 'Fenbendazole' | 'Ivermectin';
   dosePerKg?: number;
@@ -59,5 +59,3 @@ export type HealthTask = {
   frequency: 'Once' | 'Daily' | 'Monthly' | 'Every 2 Months' | 'Every 6 Months' | 'Annually';
   notes?: string;
 };
-
-    

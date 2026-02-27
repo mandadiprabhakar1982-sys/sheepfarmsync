@@ -8,10 +8,6 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // -------------------------------------------------------------------------
-    // Helper Functions
-    // -------------------------------------------------------------------------
-
     function isSignedIn() {
       return request.auth != null;
     }
@@ -20,17 +16,11 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    // -------------------------------------------------------------------------
-    // User Data Rules
-    // -------------------------------------------------------------------------
-
     match /users/{userId} {
-      // Allow the user to manage their own profile document
       allow get, create, update: if isOwner(userId);
       allow list, delete: if false;
 
-      // Simplifed rules for all subcollections: if you own the path, you own the data.
-      // This ensures robust creation and updates across all farm management features.
+      // Ensure that as long as the user owns the parent path, they can manage the data.
       match /livestockPurchases/{id} { allow read, write: if isOwner(userId); }
       match /medicineExpenses/{id} { allow read, write: if isOwner(userId); }
       match /feedExpenses/{id} { allow read, write: if isOwner(userId); }

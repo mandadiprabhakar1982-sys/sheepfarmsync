@@ -4,7 +4,7 @@ import { createContext, useContext, ReactNode, useMemo, useCallback } from 'reac
 import type { LivestockPurchase, AnimalSale, FeedCost, MedicineExpense, LaborCost, TrackedSheep, DeadAnimal, FarmExpense, HealthTask } from '@/lib/types';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
-import { setDocumentNonBlocking, deleteDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 interface FarmContextType {
   purchases: LivestockPurchase[] | null;
@@ -68,316 +68,127 @@ interface FarmContextType {
 
 const FarmContext = createContext<FarmContextType | undefined>(undefined);
 
-// Helper for generating IDs safely
 function generateId() {
-  try {
-    return crypto.randomUUID();
-  } catch (e) {
-    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-  }
+  return crypto.randomUUID();
 }
 
 export function FarmProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
   const firestore = useFirestore();
 
-  const purchasesRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'livestockPurchases') : null, [firestore, user]);
+  const getCollectionRef = (name: string) => user ? collection(firestore, 'users', user.uid, name) : null;
+
+  const purchasesRef = useMemoFirebase(() => getCollectionRef('livestockPurchases'), [firestore, user]);
   const { data: purchases, isLoading: isLoadingPurchases } = useCollection<LivestockPurchase>(purchasesRef);
 
-  const salesRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'animalSales') : null, [firestore, user]);
+  const salesRef = useMemoFirebase(() => getCollectionRef('animalSales'), [firestore, user]);
   const { data: sales, isLoading: isLoadingSales } = useCollection<AnimalSale>(salesRef);
   
-  const feedCostsRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'feedExpenses') : null, [firestore, user]);
+  const feedCostsRef = useMemoFirebase(() => getCollectionRef('feedExpenses'), [firestore, user]);
   const { data: feedCosts, isLoading: isLoadingFeedCosts } = useCollection<FeedCost>(feedCostsRef);
 
-  const medicineExpensesRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'medicineExpenses') : null, [firestore, user]);
+  const medicineExpensesRef = useMemoFirebase(() => getCollectionRef('medicineExpenses'), [firestore, user]);
   const { data: medicineExpenses, isLoading: isLoadingMedicine } = useCollection<MedicineExpense>(medicineExpensesRef);
 
-  const laborCostsRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'laborExpenses') : null, [firestore, user]);
+  const laborCostsRef = useMemoFirebase(() => getCollectionRef('laborExpenses'), [firestore, user]);
   const { data: laborCosts, isLoading: isLoadingLabor } = useCollection<LaborCost>(laborCostsRef);
   
-  const deadAnimalsRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'deadAnimals') : null, [firestore, user]);
+  const deadAnimalsRef = useMemoFirebase(() => getCollectionRef('deadAnimals'), [firestore, user]);
   const { data: deadAnimals, isLoading: isLoadingDeadAnimals } = useCollection<DeadAnimal>(deadAnimalsRef);
 
-  const trackedSheepRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'trackedSheep') : null, [firestore, user]);
+  const trackedSheepRef = useMemoFirebase(() => getCollectionRef('trackedSheep'), [firestore, user]);
   const { data: trackedSheep, isLoading: isLoadingTrackedSheep } = useCollection<TrackedSheep>(trackedSheepRef);
 
-  const farmExpensesRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'farmExpenses') : null, [firestore, user]);
+  const farmExpensesRef = useMemoFirebase(() => getCollectionRef('farmExpenses'), [firestore, user]);
   const { data: farmExpenses, isLoading: isLoadingFarmExpenses } = useCollection<FarmExpense>(farmExpensesRef);
   
-  const healthTasksRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'healthTasks') : null, [firestore, user]);
+  const healthTasksRef = useMemoFirebase(() => getCollectionRef('healthTasks'), [firestore, user]);
   const { data: healthTasks, isLoading: isLoadingHealthTasks } = useCollection<HealthTask>(healthTasksRef);
 
-  const addPurchase = useCallback((purchase: Omit<LivestockPurchase, 'id'>) => {
-    if (!purchasesRef) return;
-    const newId = generateId();
-    const docRef = doc(purchasesRef, newId);
-    setDocumentNonBlocking(docRef, { ...purchase, id: newId }, {});
-  }, [purchasesRef]);
-  
-  const deletePurchase = useCallback((id: string) => {
-    if (!purchasesRef) return;
-    deleteDocumentNonBlocking(doc(purchasesRef, id));
-  }, [purchasesRef]);
+  const upsert = useCallback((colRef: any, id: string | undefined, data: any) => {
+    if (!colRef) return;
+    const finalId = id || generateId();
+    const docRef = doc(colRef, finalId);
+    setDocumentNonBlocking(docRef, { ...data, id: finalId }, { merge: true });
+  }, []);
 
-  const updatePurchase = useCallback((id: string, data: Omit<LivestockPurchase, 'id'>) => {
-    if (!purchasesRef) return;
-    const docRef = doc(purchasesRef, id);
-    updateDocumentNonBlocking(docRef, data);
-  }, [purchasesRef]);
+  const addPurchase = useCallback((p: any) => upsert(purchasesRef, undefined, p), [purchasesRef, upsert]);
+  const updatePurchase = useCallback((id: string, p: any) => upsert(purchasesRef, id, p), [purchasesRef, upsert]);
+  const deletePurchase = useCallback((id: string) => purchasesRef && deleteDocumentNonBlocking(doc(purchasesRef, id)), [purchasesRef]);
 
-  const addSale = useCallback((sale: Omit<AnimalSale, 'id'>) => {
-    if (!salesRef) return;
-    const newId = generateId();
-    const docRef = doc(salesRef, newId);
-    setDocumentNonBlocking(docRef, { ...sale, id: newId }, {});
-  }, [salesRef]);
-  
-  const deleteSale = useCallback((id: string) => {
-     if (!salesRef) return;
-    deleteDocumentNonBlocking(doc(salesRef, id));
-  }, [salesRef]);
+  const addSale = useCallback((s: any) => upsert(salesRef, undefined, s), [salesRef, upsert]);
+  const updateSale = useCallback((id: string, s: any) => upsert(salesRef, id, s), [salesRef, upsert]);
+  const deleteSale = useCallback((id: string) => salesRef && deleteDocumentNonBlocking(doc(salesRef, id)), [salesRef]);
 
-  const updateSale = useCallback((id: string, data: Omit<AnimalSale, 'id'>) => {
-    if (!salesRef) return;
-    const docRef = doc(salesRef, id);
-    updateDocumentNonBlocking(docRef, data);
-  }, [salesRef]);
-  
-  const addFeedCost = useCallback((cost: Omit<FeedCost, 'id'>) => {
-     if (!feedCostsRef) return;
-    const newId = generateId();
-    const docRef = doc(feedCostsRef, newId);
-    setDocumentNonBlocking(docRef, { ...cost, id: newId }, {});
-  }, [feedCostsRef]);
+  const addFeedCost = useCallback((c: any) => upsert(feedCostsRef, undefined, c), [feedCostsRef, upsert]);
+  const updateFeedCost = useCallback((id: string, c: any) => upsert(feedCostsRef, id, c), [feedCostsRef, upsert]);
+  const deleteFeedCost = useCallback((id: string) => feedCostsRef && deleteDocumentNonBlocking(doc(feedCostsRef, id)), [feedCostsRef]);
 
-  const deleteFeedCost = useCallback((id: string) => {
-    if (!feedCostsRef) return;
-    deleteDocumentNonBlocking(doc(feedCostsRef, id));
-  }, [feedCostsRef]);
+  const addMedicineExpense = useCallback((e: any) => upsert(medicineExpensesRef, undefined, e), [medicineExpensesRef, upsert]);
+  const updateMedicineExpense = useCallback((id: string, e: any) => upsert(medicineExpensesRef, id, e), [medicineExpensesRef, upsert]);
+  const deleteMedicineExpense = useCallback((id: string) => medicineExpensesRef && deleteDocumentNonBlocking(doc(medicineExpensesRef, id)), [medicineExpensesRef]);
 
-  const updateFeedCost = useCallback((id: string, data: Omit<FeedCost, 'id'>) => {
-    if (!feedCostsRef) return;
-    const docRef = doc(feedCostsRef, id);
-    updateDocumentNonBlocking(docRef, data);
-  }, [feedCostsRef]);
-  
-  const addMedicineExpense = useCallback((expense: Omit<MedicineExpense, 'id'>) => {
-    if (!medicineExpensesRef) return;
-    const newId = generateId();
-    const docRef = doc(medicineExpensesRef, newId);
-    setDocumentNonBlocking(docRef, { ...expense, id: newId }, {});
-  }, [medicineExpensesRef]);
+  const addLaborCost = useCallback((c: any) => upsert(laborCostsRef, undefined, c), [laborCostsRef, upsert]);
+  const updateLaborCost = useCallback((id: string, c: any) => upsert(laborCostsRef, id, c), [laborCostsRef, upsert]);
+  const deleteLaborCost = useCallback((id: string) => laborCostsRef && deleteDocumentNonBlocking(doc(laborCostsRef, id)), [laborCostsRef]);
 
-  const deleteMedicineExpense = useCallback((id: string) => {
-    if (!medicineExpensesRef) return;
-    deleteDocumentNonBlocking(doc(medicineExpensesRef, id));
-  }, [medicineExpensesRef]);
+  const addTrackedSheep = useCallback((s: any) => upsert(trackedSheepRef, undefined, s), [trackedSheepRef, upsert]);
+  const updateTrackedSheep = useCallback((id: string, s: any) => upsert(trackedSheepRef, id, s), [trackedSheepRef, upsert]);
+  const deleteTrackedSheep = useCallback((id: string) => trackedSheepRef && deleteDocumentNonBlocking(doc(trackedSheepRef, id)), [trackedSheepRef]);
 
-  const updateMedicineExpense = useCallback((id: string, data: Omit<MedicineExpense, 'id'>) => {
-    if (!medicineExpensesRef) return;
-    const docRef = doc(medicineExpensesRef, id);
-    updateDocumentNonBlocking(docRef, data);
-  }, [medicineExpensesRef]);
-  
-  const addLaborCost = useCallback((cost: Omit<LaborCost, 'id'>) => {
-    if (!laborCostsRef) return;
-    const newId = generateId();
-    const docRef = doc(laborCostsRef, newId);
-    setDocumentNonBlocking(docRef, { ...cost, id: newId }, {});
-  }, [laborCostsRef]);
+  const addDeadAnimal = useCallback((a: any) => upsert(deadAnimalsRef, undefined, a), [deadAnimalsRef, upsert]);
+  const updateDeadAnimal = useCallback((id: string, a: any) => upsert(deadAnimalsRef, id, a), [deadAnimalsRef, upsert]);
+  const deleteDeadAnimal = useCallback((id: string) => deadAnimalsRef && deleteDocumentNonBlocking(doc(deadAnimalsRef, id)), [deadAnimalsRef]);
 
-  const deleteLaborCost = useCallback((id: string) => {
-    if (!laborCostsRef) return;
-    deleteDocumentNonBlocking(doc(laborCostsRef, id));
-  }, [laborCostsRef]);
+  const addFarmExpense = useCallback((e: any) => upsert(farmExpensesRef, undefined, e), [farmExpensesRef, upsert]);
+  const updateFarmExpense = useCallback((id: string, e: any) => upsert(farmExpensesRef, id, e), [farmExpensesRef, upsert]);
+  const deleteFarmExpense = useCallback((id: string) => farmExpensesRef && deleteDocumentNonBlocking(doc(farmExpensesRef, id)), [farmExpensesRef]);
 
-  const updateLaborCost = useCallback((id: string, data: Omit<LaborCost, 'id'>) => {
-    if (!laborCostsRef) return;
-    const docRef = doc(laborCostsRef, id);
-    updateDocumentNonBlocking(docRef, data);
-  }, [laborCostsRef]);
-  
-  const addTrackedSheep = useCallback((sheep: Omit<TrackedSheep, 'id'>) => {
-    if (!trackedSheepRef) return;
-    const newId = generateId();
-    const docRef = doc(trackedSheepRef, newId);
-    setDocumentNonBlocking(docRef, { ...sheep, id: newId }, {});
-  }, [trackedSheepRef]);
-
-  const deleteTrackedSheep = useCallback((id: string) => {
-    if (!trackedSheepRef) return;
-    deleteDocumentNonBlocking(doc(trackedSheepRef, id));
-  }, [trackedSheepRef]);
-  
-  const updateTrackedSheep = useCallback((id: string, data: Omit<TrackedSheep, 'id'>) => {
-    if (!trackedSheepRef) return;
-    const docRef = doc(trackedSheepRef, id);
-    updateDocumentNonBlocking(docRef, data);
-  }, [trackedSheepRef]);
-
-  const addDeadAnimal = useCallback((animal: Omit<DeadAnimal, 'id'>) => {
-    if (!deadAnimalsRef) return;
-    const newId = generateId();
-    const docRef = doc(deadAnimalsRef, newId);
-    setDocumentNonBlocking(docRef, { ...animal, id: newId }, {});
-  }, [deadAnimalsRef]);
-
-  const deleteDeadAnimal = useCallback((id: string) => {
-    if (!deadAnimalsRef) return;
-    deleteDocumentNonBlocking(doc(deadAnimalsRef, id));
-  }, [deadAnimalsRef]);
-
-  const updateDeadAnimal = useCallback((id: string, data: Omit<DeadAnimal, 'id'>) => {
-    if (!deadAnimalsRef) return;
-    const docRef = doc(deadAnimalsRef, id);
-    updateDocumentNonBlocking(docRef, data);
-  }, [deadAnimalsRef]);
-
-  const addFarmExpense = useCallback((expense: Omit<FarmExpense, 'id'>) => {
-    if (!farmExpensesRef) return;
-    const newId = generateId();
-    const docRef = doc(farmExpensesRef, newId);
-    setDocumentNonBlocking(docRef, { ...expense, id: newId }, {});
-  }, [farmExpensesRef]);
-
-  const deleteFarmExpense = useCallback((id: string) => {
-    if (!farmExpensesRef) return;
-    deleteDocumentNonBlocking(doc(farmExpensesRef, id));
-  }, [farmExpensesRef]);
-
-  const updateFarmExpense = useCallback((id: string, data: Omit<FarmExpense, 'id'>) => {
-    if (!farmExpensesRef) return;
-    const docRef = doc(farmExpensesRef, id);
-    updateDocumentNonBlocking(docRef, data);
-  }, [farmExpensesRef]);
-
-  const addHealthTask = useCallback((task: Omit<HealthTask, 'id'>) => {
-    if (!healthTasksRef) return;
-    const newId = generateId();
-    const docRef = doc(healthTasksRef, newId);
-    setDocumentNonBlocking(docRef, { ...task, id: newId }, {});
-  }, [healthTasksRef]);
-
-  const deleteHealthTask = useCallback((id: string) => {
-    if (!healthTasksRef) return;
-    deleteDocumentNonBlocking(doc(healthTasksRef, id));
-  }, [healthTasksRef]);
-
-  const updateHealthTask = useCallback((id: string, data: Omit<HealthTask, 'id'>) => {
-    if (!healthTasksRef) return;
-    const docRef = doc(healthTasksRef, id);
-    updateDocumentNonBlocking(docRef, data);
-  }, [healthTasksRef]);
+  const addHealthTask = useCallback((t: any) => upsert(healthTasksRef, undefined, t), [healthTasksRef, upsert]);
+  const updateHealthTask = useCallback((id: string, t: any) => upsert(healthTasksRef, id, t), [healthTasksRef, upsert]);
+  const deleteHealthTask = useCallback((id: string) => healthTasksRef && deleteDocumentNonBlocking(doc(healthTasksRef, id)), [healthTasksRef]);
 
   const isLoading = isLoadingPurchases || isLoadingSales || isLoadingFeedCosts || isLoadingMedicine || isLoadingLabor || isLoadingDeadAnimals || isLoadingTrackedSheep || isLoadingFarmExpenses || isLoadingHealthTasks;
 
-  const totalDead = useMemo(() => {
-    return (deadAnimals || []).reduce((sum, a) => sum + (a.sheepCount ?? 1), 0);
-  }, [deadAnimals]);
-
+  const totalDead = useMemo(() => (deadAnimals || []).reduce((sum, a) => sum + (a.sheepCount ?? 1), 0), [deadAnimals]);
   const totalSheep = useMemo(() => {
     const purchased = (purchases || []).reduce((sum, p) => sum + p.animalCount, 0);
     const sold = (sales || []).reduce((sum, s) => sum + s.animalCount, 0);
     return purchased - sold - totalDead;
   }, [purchases, sales, totalDead]);
 
-  
-  const totalFeedCost = useMemo(() => {
-    return (feedCosts || []).reduce((sum, f) => sum + f.cost, 0);
-  }, [feedCosts]);
-
-  const totalLaborCost = useMemo(() => {
-      return (laborCosts || []).reduce((sum, l) => sum + l.totalLaborCosts, 0);
-  }, [laborCosts]);
-  
-  const totalMedicineCost = useMemo(() => {
-    return (medicineExpenses || []).reduce((sum, m) => sum + m.totalAmountSpent, 0);
-  }, [medicineExpenses]);
-
-  const totalFarmExpenses = useMemo(() => {
-    return (farmExpenses || []).reduce((sum, e) => sum + e.amount, 0);
-  }, [farmExpenses]);
+  const totalFeedCost = useMemo(() => (feedCosts || []).reduce((sum, f) => sum + f.cost, 0), [feedCosts]);
+  const totalLaborCost = useMemo(() => (laborCosts || []).reduce((sum, l) => sum + l.totalLaborCosts, 0), [laborCosts]);
+  const totalMedicineCost = useMemo(() => (medicineExpenses || []).reduce((sum, m) => sum + m.totalAmountSpent, 0), [medicineExpenses]);
+  const totalFarmExpenses = useMemo(() => (farmExpenses || []).reduce((sum, e) => sum + e.amount, 0), [farmExpenses]);
 
   const totalExpenses = useMemo(() => {
     const purchaseExpense = (purchases || []).reduce((sum, p) => sum + p.purchasePrice + (p.transportCost || 0), 0);
     return purchaseExpense + totalFeedCost + totalMedicineCost + totalLaborCost + totalFarmExpenses;
   }, [purchases, totalFeedCost, totalMedicineCost, totalLaborCost, totalFarmExpenses]);
 
-  const totalSales = useMemo(() => {
-    return (sales || []).reduce((sum, s) => sum + s.amountReceived, 0);
-  }, [sales]);
-
-  const totalReceivables = useMemo(() => {
-    return (sales || []).reduce((sum, s) => sum + s.outstandingDuesFromBuyer, 0);
-  }, [sales]);
-
-  const totalPayables = useMemo(() => {
-    return (purchases || []).reduce((sum, p) => sum + p.dueAmount, 0);
-  }, [purchases]);
-
+  const totalSales = useMemo(() => (sales || []).reduce((sum, s) => sum + s.amountReceived, 0), [sales]);
+  const totalReceivables = useMemo(() => (sales || []).reduce((sum, s) => sum + s.outstandingDuesFromBuyer, 0), [sales]);
+  const totalPayables = useMemo(() => (purchases || []).reduce((sum, p) => sum + p.dueAmount, 0), [purchases]);
 
   const value = {
-    purchases,
-    addPurchase,
-    deletePurchase,
-    updatePurchase,
-    sales,
-    addSale,
-    deleteSale,
-    updateSale,
-    feedCosts,
-    addFeedCost,
-    deleteFeedCost,
-    updateFeedCost,
-    medicineExpenses,
-    addMedicineExpense,
-    deleteMedicineExpense,
-    updateMedicineExpense,
-    laborCosts,
-    addLaborCost,
-    deleteLaborCost,
-    updateLaborCost,
-    trackedSheep,
-    addTrackedSheep,
-    deleteTrackedSheep,
-    updateTrackedSheep,
-    deadAnimals,
-    addDeadAnimal,
-    deleteDeadAnimal,
-    updateDeadAnimal,
-    farmExpenses,
-    addFarmExpense,
-    deleteFarmExpense,
-    updateFarmExpense,
-    healthTasks,
-    addHealthTask,
-    deleteHealthTask,
-    updateHealthTask,
-    isLoading,
-    totalSheep,
-    totalExpenses,
-    totalSales,
-    totalDead,
-    totalFeedCost,
-    totalLaborCost,
-    totalMedicineCost,
-    totalFarmExpenses,
-    totalReceivables,
-    totalPayables,
+    purchases, addPurchase, deletePurchase, updatePurchase,
+    sales, addSale, deleteSale, updateSale,
+    feedCosts, addFeedCost, deleteFeedCost, updateFeedCost,
+    medicineExpenses, addMedicineExpense, deleteMedicineExpense, updateMedicineExpense,
+    laborCosts, addLaborCost, deleteLaborCost, updateLaborCost,
+    trackedSheep, addTrackedSheep, deleteTrackedSheep, updateTrackedSheep,
+    deadAnimals, addDeadAnimal, deleteDeadAnimal, updateDeadAnimal,
+    farmExpenses, addFarmExpense, deleteFarmExpense, updateFarmExpense,
+    healthTasks, addHealthTask, deleteHealthTask, updateHealthTask,
+    isLoading, totalSheep, totalExpenses, totalSales, totalDead, totalFeedCost, totalLaborCost, totalMedicineCost, totalFarmExpenses, totalReceivables, totalPayables,
   };
 
-  return (
-    <FarmContext.Provider value={value}>
-      {children}
-    </FarmContext.Provider>
-  );
+  return <FarmContext.Provider value={value}>{children}</FarmContext.Provider>;
 }
 
 export function useFarm() {
   const context = useContext(FarmContext);
-  if (context === undefined) {
-    throw new Error('useFarm must be used within a FarmProvider');
-  }
+  if (context === undefined) throw new Error('useFarm must be used within a FarmProvider');
   return context;
 }

@@ -3,7 +3,7 @@
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { PlusCircle, Calendar as CalendarIcon, Trash2, Pencil, ShieldCheck } from 'lucide-react';
+import { PlusCircle, Calendar as CalendarIcon, Trash2, Pencil, Syringe } from 'lucide-react';
 import { format, addMonths, differenceInDays, addDays } from 'date-fns';
 import { useState, useEffect, useMemo } from 'react';
 
@@ -26,18 +26,6 @@ import { Badge } from '@/components/ui/badge';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-
-const expenseFormSchema = z.object({
-  shopName: z.string().min(1, 'Shop name is required'),
-  description: z.string().optional(),
-  date: z.date({ required_error: 'A date is required.' }),
-  costOfMedicines: z.coerce.number().positive('Must be a positive number'),
-  totalAmountSpent: z.coerce.number().positive('Must be a positive number'),
-  outstandingDues: z.coerce.number().nonnegative('Cannot be negative'),
-});
-
-type MedicineFormData = z.infer<typeof expenseFormSchema>;
-
 const frequencies = ['Once', 'Daily', 'Monthly', 'Every 2 Months', 'Every 6 Months', 'Annually'] as const;
 const dewormerNames = ['Albendazole', 'Fenbendazole', 'Ivermectin'] as const;
 const vaccineTypes = ['ET + TT', 'PPR', 'Sheep Pox', 'HS', 'FMD', 'Bluetongue'] as const;
@@ -48,6 +36,15 @@ const healthTaskNames = [
     'Vitamin & Liver Support',
     'Vaccination',
 ] as const;
+
+const expenseFormSchema = z.object({
+  shopName: z.string().min(1, 'Shop name is required'),
+  description: z.string().optional(),
+  date: z.date({ required_error: 'A date is required.' }),
+  costOfMedicines: z.coerce.number().positive('Must be a positive number'),
+  totalAmountSpent: z.coerce.number().positive('Must be a positive number'),
+  outstandingDues: z.coerce.number().nonnegative('Cannot be negative'),
+});
 
 const healthTaskFormSchema = z.object({
   taskName: z.enum(healthTaskNames, { required_error: 'Please select a task.' }),
@@ -70,78 +67,10 @@ const healthTaskFormSchema = z.object({
   
   // Common field
   totalSheepTreated: z.coerce.number().int().positive().optional(),
-}).refine(data => {
-    if (data.taskName === 'Deworming') {
-        return !!data.dewormerName && data.dewormerName.length > 0;
-    }
-    return true;
-}, {
-    message: 'Dewormer name is required for deworming tasks.',
-    path: ['dewormerName'],
-}).refine(data => {
-    if (data.taskName === 'Deworming') {
-        return data.dosePerKg !== undefined && data.dosePerKg > 0;
-    }
-    return true;
-}, {
-    message: 'Dose per kg is required.',
-    path: ['dosePerKg'],
-}).refine(data => {
-    if (data.taskName === 'Deworming') {
-        return data.totalSheepTreated !== undefined && data.totalSheepTreated > 0;
-    }
-    return true;
-}, {
-    message: 'Total sheep treated is required.',
-    path: ['totalSheepTreated'],
-}).refine(data => {
-    if (data.taskName === 'Vaccination') {
-        return !!data.vaccineType;
-    }
-    return true;
-}, {
-    message: 'Vaccine type is required.',
-    path: ['vaccineType'],
-}).refine(data => {
-    if (data.taskName === 'Vaccination') {
-        return data.boosterRequired !== undefined;
-    }
-    return true;
-}, {
-    message: 'Please specify if a booster is required.',
-    path: ['boosterRequired'],
-}).refine(data => {
-    if (data.taskName === 'Vaccination') {
-        return !!data.batchNumber && data.batchNumber.length > 0;
-    }
-    return true;
-}, {
-    message: 'Batch number is required.',
-    path: ['batchNumber'],
-}).refine(data => {
-    if (data.taskName === 'Vaccination') {
-        return data.totalSheepTreated !== undefined && data.totalSheepTreated > 0;
-    }
-    return true;
-}, {
-    message: 'Treated count is required.',
-    path: ['totalSheepTreated'],
-}).refine(data => {
-    if (data.taskName === 'Vitamin & Liver Support') return !!data.supplementType;
-    return true;
-}, { message: 'Supplement type is required.', path: ['supplementType'] })
-.refine(data => {
-    if (data.taskName === 'Vitamin & Liver Support') return !!data.dosage && data.dosage.length > 0;
-    return true;
-}, { message: 'Dosage is required.', path: ['dosage'] })
-.refine(data => {
-    if (data.taskName === 'Vitamin & Liver Support') return data.totalSheepTreated !== undefined && data.totalSheepTreated > 0;
-    return true;
-}, { message: 'Treated count is required.', path: ['totalSheepTreated'] });
+});
 
-
+type MedicineFormData = z.infer<typeof expenseFormSchema>;
 type HealthTaskFormData = z.infer<typeof healthTaskFormSchema>;
-
 
 export default function MedicinePage() {
   const { toast } = useToast();
@@ -149,10 +78,8 @@ export default function MedicinePage() {
   
   const [isExpenseEditDialogOpen, setIsExpenseEditDialogOpen] = useState(false);
   const [editingMedicineExpense, setEditingMedicineExpense] = useState<MedicineExpense | null>(null);
-
   const [isTaskEditDialogOpen, setIsTaskEditDialogOpen] = useState(false);
   const [editingHealthTask, setEditingHealthTask] = useState<HealthTask | null>(null);
-
 
   const expenseForm = useForm<MedicineFormData>({
     resolver: zodResolver(expenseFormSchema),
@@ -165,7 +92,7 @@ export default function MedicinePage() {
 
   const healthTaskForm = useForm<HealthTaskFormData>({
     resolver: zodResolver(healthTaskFormSchema),
-    defaultValues: { notes: '' },
+    defaultValues: { notes: '', frequency: 'Once' },
   });
   
   const editHealthTaskForm = useForm<HealthTaskFormData>({
@@ -185,7 +112,6 @@ export default function MedicinePage() {
     return [...healthTasks].sort((a, b) => new Date(a.nextDueDate).getTime() - new Date(b.nextDueDate).getTime());
   }, [healthTasks]);
 
-
   useEffect(() => {
     if (editingMedicineExpense) {
       editExpenseForm.reset({ ...editingMedicineExpense, date: new Date(editingMedicineExpense.date) });
@@ -194,454 +120,253 @@ export default function MedicinePage() {
 
   useEffect(() => {
     if (editingHealthTask) {
-      const taskData = {
+      editHealthTaskForm.reset({
         ...editingHealthTask,
         lastAdministered: new Date(editingHealthTask.lastAdministered),
-        taskName: healthTaskNames.includes(editingHealthTask.taskName as any) ? editingHealthTask.taskName as typeof healthTaskNames[number] : undefined,
-      };
-      editHealthTaskForm.reset(taskData as any);
+      } as any);
     }
   }, [editingHealthTask, editHealthTaskForm]);
 
-
   const onExpenseSubmit: SubmitHandler<MedicineFormData> = (data) => {
-    const newExpense = { ...data, date: format(data.date, 'yyyy-MM-dd') };
-    addMedicineExpense(newExpense);
+    addMedicineExpense({ ...data, date: format(data.date, 'yyyy-MM-dd') });
     expenseForm.reset();
-    toast({ title: 'Success!', description: 'Medicine expense has been recorded.' });
+    toast({ title: 'Success!', description: 'Expense recorded.' });
   };
 
   const onEditExpenseSubmit: SubmitHandler<MedicineFormData> = (data) => {
     if (!editingMedicineExpense) return;
-    const updatedData = { ...data, date: format(data.date, 'yyyy-MM-dd') };
-    updateMedicineExpense(editingMedicineExpense.id, updatedData);
+    updateMedicineExpense(editingMedicineExpense.id, { ...data, date: format(data.date, 'yyyy-MM-dd') });
     setIsExpenseEditDialogOpen(false);
-    setEditingMedicineExpense(null);
-    toast({ title: 'Updated!', description: 'Medicine expense record has been updated successfully.' });
-  };
-  
-  const handleDeleteExpense = (id: string) => {
-    deleteMedicineExpense(id);
-     toast({ title: 'Deleted', description: 'Expense record has been deleted.', variant: 'destructive' });
-  }
-
-  const handleEditExpenseClick = (expense: MedicineExpense) => {
-    setEditingMedicineExpense(expense);
-    setIsExpenseEditDialogOpen(true);
+    toast({ title: 'Updated!', description: 'Expense record updated.' });
   };
 
-  const getNextDueDate = (lastDate: Date, freq: HealthTask['frequency']) => {
+  const calculateNextDue = (date: Date, type: string, freq: string) => {
+    if (type === 'Deworming') return addDays(date, 60);
     switch (freq) {
-      case 'Daily': return addDays(lastDate, 1);
-      case 'Monthly': return addMonths(lastDate, 1);
-      case 'Every 2 Months': return addMonths(lastDate, 2);
-      case 'Every 6 Months': return addMonths(lastDate, 6);
-      case 'Annually': return addMonths(lastDate, 12);
-      case 'Once':
-      default:
-        return lastDate;
+      case 'Daily': return addDays(date, 1);
+      case 'Monthly': return addMonths(date, 1);
+      case 'Every 2 Months': return addMonths(date, 2);
+      case 'Every 6 Months': return addMonths(date, 6);
+      case 'Annually': return addMonths(date, 12);
+      default: return date;
     }
   };
 
   const onHealthTaskSubmit: SubmitHandler<HealthTaskFormData> = (data) => {
-    const isDeworming = data.taskName === 'Deworming';
-    const frequency = isDeworming ? 'Every 2 Months' : data.frequency;
-    
-    // Server-side calculation or client-side? Here we do it on client.
-    const nextDueDate = isDeworming
-      ? addDays(data.lastAdministered, 60)
-      : getNextDueDate(data.lastAdministered, data.frequency);
-      
-    const newTask = {
+    const nextDueDate = calculateNextDue(data.lastAdministered, data.taskName, data.frequency);
+    addHealthTask({
       ...data,
-      frequency, // Set frequency for deworming
       lastAdministered: format(data.lastAdministered, 'yyyy-MM-dd'),
       nextDueDate: format(nextDueDate, 'yyyy-MM-dd'),
-    };
-    addHealthTask(newTask);
+    });
     healthTaskForm.reset();
-    toast({ title: 'Success!', description: 'Health task has been scheduled.' });
+    toast({ title: 'Success!', description: 'Task scheduled.' });
   };
-  
-  const onEditHealthTaskSubmit: SubmitHandler<HealthTaskFormData> = (data) => {
+
+  const onEditTaskSubmit: SubmitHandler<HealthTaskFormData> = (data) => {
     if (!editingHealthTask) return;
-    const isDeworming = data.taskName === 'Deworming';
-    const frequency = isDeworming ? 'Every 2 Months' : data.frequency;
-
-    const nextDueDate = isDeworming
-      ? addDays(data.lastAdministered, 60)
-      : getNextDueDate(data.lastAdministered, data.frequency);
-
-    const updatedTask = {
+    const nextDueDate = calculateNextDue(data.lastAdministered, data.taskName, data.frequency);
+    updateHealthTask(editingHealthTask.id, {
       ...data,
-      frequency,
       lastAdministered: format(data.lastAdministered, 'yyyy-MM-dd'),
       nextDueDate: format(nextDueDate, 'yyyy-MM-dd'),
-    };
-    updateHealthTask(editingHealthTask.id, updatedTask);
+    });
     setIsTaskEditDialogOpen(false);
-    setEditingHealthTask(null);
-    toast({ title: 'Updated!', description: 'Health task has been updated.' });
-  };
-  
-  const handleDeleteHealthTask = (id: string) => {
-    deleteHealthTask(id);
-    toast({ title: 'Deleted', description: 'Health task has been deleted.', variant: 'destructive' });
-  };
-
-  const handleEditHealthTaskClick = (task: HealthTask) => {
-    setEditingHealthTask(task);
-    setIsTaskEditDialogOpen(true);
+    toast({ title: 'Updated!', description: 'Task record updated.' });
   };
 
   const getTaskStatus = (dueDate: string) => {
     const today = new Date();
     today.setHours(0,0,0,0);
     const date = new Date(dueDate);
-     date.setHours(0,0,0,0);
-    const daysDiff = differenceInDays(date, today);
-
-    if (daysDiff < 0) return { label: 'Overdue', variant: 'destructive' as const };
-    if (daysDiff === 0) return { label: 'Due Today', variant: 'default' as const };
-    if (daysDiff <= 7) return { label: 'Due Soon', variant: 'secondary' as const };
+    date.setHours(0,0,0,0);
+    const diff = differenceInDays(date, today);
+    if (diff < 0) return { label: 'Overdue', variant: 'destructive' as const };
+    if (diff === 0) return { label: 'Due Today', variant: 'default' as const };
+    if (diff <= 7) return { label: 'Soon', variant: 'secondary' as const };
     return null;
   };
 
-
   return (
     <div className="container mx-auto py-8">
-      <PageHeader title="Medicine &amp; Health" description="Manage health tasks and medicine expenses in one place." />
+      <PageHeader title="Medicine & Health" description="Unified management for flock health and medical expenses." />
       
-      <div className="space-y-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Health &amp; Medicine Management</CardTitle>
-            <CardDescription>
-              Schedule a new health task for your flock or record a medicine purchase.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pt-6">
-            <Tabs defaultValue="schedule" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="schedule">Schedule Task</TabsTrigger>
-                <TabsTrigger value="expense">Record Expense</TabsTrigger>
-              </TabsList>
-              <TabsContent value="schedule" className="mt-6">
-                <Form {...healthTaskForm}>
-                  <form onSubmit={healthTaskForm.handleSubmit(onHealthTaskSubmit)} className="space-y-4">
-                     <FormField control={healthTaskForm.control} name="taskName" render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Task Name</FormLabel>
-                            <Select onValueChange={field.onChange} value={field.value}>
-                              <FormControl><SelectTrigger><SelectValue placeholder="Select a task" /></SelectTrigger></FormControl>
-                              <SelectContent>{healthTaskNames.map((task) => (<SelectItem key={task} value={task}>{task}</SelectItem>))}</SelectContent>
-                            </Select><FormMessage />
-                          </FormItem>)} />
-                      
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+        <div className="lg:col-span-5">
+          <Card>
+            <CardHeader>
+              <CardTitle>Health Management</CardTitle>
+              <CardDescription>Schedule tasks or record expenses.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Tabs defaultValue="schedule" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="schedule">Schedule Task</TabsTrigger>
+                  <TabsTrigger value="expense">Record Expense</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="schedule" className="space-y-4 pt-4">
+                  <Form {...healthTaskForm}>
+                    <form onSubmit={healthTaskForm.handleSubmit(onHealthTaskSubmit)} className="space-y-4">
+                      <FormField control={healthTaskForm.control} name="taskName" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Task Type</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl><SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger></FormControl>
+                            <SelectContent>{healthTaskNames.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
+                          </Select><FormMessage />
+                        </FormItem>
+                      )} />
+
                       {watchedTaskName === 'Deworming' && (
-                        <>
-                           <FormField control={healthTaskForm.control} name="dewormerName" render={({ field }) => (
-                              <FormItem><FormLabel>Dewormer Name</FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value}>
-                                  <FormControl><SelectTrigger><SelectValue placeholder="Select a dewormer" /></SelectTrigger></FormControl>
-                                  <SelectContent>{dewormerNames.map((name) => (<SelectItem key={name} value={name}>{name}</SelectItem>))}</SelectContent>
-                                </Select><FormMessage />
-                              </FormItem>)} />
-                           <div className="grid grid-cols-2 gap-4">
-                            <FormField control={healthTaskForm.control} name="dosePerKg" render={({ field }) => (<FormItem><FormLabel>Dose per kg (ml)</FormLabel><FormControl><Input type="number" placeholder="e.g., 0.5" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                            <FormField control={healthTaskForm.control} name="totalSheepTreated" render={({ field }) => (<FormItem><FormLabel>Total Sheep Treated</FormLabel><FormControl><Input type="number" placeholder="e.g., 80" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                           </div>
-                        </>
+                        <div className="grid grid-cols-1 gap-4 rounded-lg border bg-accent/20 p-4">
+                          <FormField control={healthTaskForm.control} name="dewormerName" render={({ field }) => (
+                            <FormItem><FormLabel>Dewormer</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent>{dewormerNames.map(n => <SelectItem key={n} value={n}>{n}</SelectItem>)}</SelectContent></Select></FormItem>
+                          )} />
+                          <div className="grid grid-cols-2 gap-4">
+                            <FormField control={healthTaskForm.control} name="dosePerKg" render={({ field }) => (<FormItem><FormLabel>Dose/kg (ml)</FormLabel><FormControl><Input type="number" step="0.1" {...field} /></FormControl></FormItem>)} />
+                            <FormField control={healthTaskForm.control} name="totalSheepTreated" render={({ field }) => (<FormItem><FormLabel>Total Treated</FormLabel><FormControl><Input type="number" {...field} /></FormControl></FormItem>)} />
+                          </div>
+                        </div>
                       )}
 
-                       {watchedTaskName === 'Vaccination' && (
-                        <>
+                      {watchedTaskName === 'Vaccination' && (
+                        <div className="grid grid-cols-1 gap-4 rounded-lg border bg-accent/20 p-4">
                           <FormField control={healthTaskForm.control} name="vaccineType" render={({ field }) => (
-                            <FormItem><FormLabel>Vaccine Type</FormLabel>
-                              <Select onValueChange={field.onChange} value={field.value}>
-                                <FormControl><SelectTrigger><SelectValue placeholder="Select a vaccine" /></SelectTrigger></FormControl>
-                                <SelectContent>{vaccineTypes.map((name) => (<SelectItem key={name} value={name}>{name}</SelectItem>))}</SelectContent>
-                              </Select><FormMessage />
-                            </FormItem>)} />
-                          
-                           <FormField control={healthTaskForm.control} name="boosterRequired" render={({ field }) => (
-                            <FormItem className="space-y-2"><FormLabel>Booster Required?</FormLabel>
-                              <FormControl>
-                                <RadioGroup onValueChange={(value) => field.onChange(value === 'true')} value={String(field.value)} className="flex items-center gap-4">
-                                  <FormItem className="flex items-center space-x-2 space-y-0">
-                                    <FormControl><RadioGroupItem value="true" /></FormControl>
-                                    <FormLabel className="font-normal">Yes</FormLabel>
-                                  </FormItem>
-                                  <FormItem className="flex items-center space-x-2 space-y-0">
-                                    <FormControl><RadioGroupItem value="false" /></FormControl>
-                                    <FormLabel className="font-normal">No</FormLabel>
-                                  </FormItem>
-                                </RadioGroup>
-                              </FormControl><FormMessage />
-                            </FormItem>)} />
-
+                            <FormItem><FormLabel>Vaccine</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent>{vaccineTypes.map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}</SelectContent></Select></FormItem>
+                          )} />
+                          <FormField control={healthTaskForm.control} name="boosterRequired" render={({ field }) => (
+                            <FormItem><FormLabel>Booster?</FormLabel><RadioGroup onValueChange={v => field.onChange(v === 'true')} className="flex gap-4"><div className="flex items-center gap-2"><RadioGroupItem value="true" /> Yes</div><div className="flex items-center gap-2"><RadioGroupItem value="false" /> No</div></RadioGroup></FormItem>
+                          )} />
                           <div className="grid grid-cols-2 gap-4">
-                            <FormField control={healthTaskForm.control} name="batchNumber" render={({ field }) => (<FormItem><FormLabel>Batch Number</FormLabel><FormControl><Input placeholder="e.g., V-123" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                            <FormField control={healthTaskForm.control} name="totalSheepTreated" render={({ field }) => (<FormItem><FormLabel>Treated Count</FormLabel><FormControl><Input type="number" placeholder="e.g., 80" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                             <FormField control={healthTaskForm.control} name="batchNumber" render={({ field }) => (<FormItem><FormLabel>Batch #</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
+                             <FormField control={healthTaskForm.control} name="totalSheepTreated" render={({ field }) => (<FormItem><FormLabel>Count</FormLabel><FormControl><Input type="number" {...field} /></FormControl></FormItem>)} />
                           </div>
-                        </>
+                        </div>
                       )}
 
                       {watchedTaskName === 'Vitamin & Liver Support' && (
-                        <>
+                        <div className="grid grid-cols-1 gap-4 rounded-lg border bg-accent/20 p-4">
                           <FormField control={healthTaskForm.control} name="supplementType" render={({ field }) => (
-                              <FormItem><FormLabel>Supplement Type</FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value}>
-                                  <FormControl><SelectTrigger><SelectValue placeholder="Select a supplement" /></SelectTrigger></FormControl>
-                                  <SelectContent>{supplementTypes.map((name) => (<SelectItem key={name} value={name}>{name}</SelectItem>))}</SelectContent>
-                                </Select><FormMessage />
-                              </FormItem>)} />
-                           <div className="grid grid-cols-2 gap-4">
-                            <FormField control={healthTaskForm.control} name="dosage" render={({ field }) => (<FormItem><FormLabel>Dosage</FormLabel><FormControl><Input placeholder="e.g., 5ml" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                            <FormField control={healthTaskForm.control} name="totalSheepTreated" render={({ field }) => (<FormItem><FormLabel>Total Sheep Treated</FormLabel><FormControl><Input type="number" placeholder="e.g., 80" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                           </div>
-                        </>
+                            <FormItem><FormLabel>Supplement</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent>{supplementTypes.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select></FormItem>
+                          )} />
+                          <div className="grid grid-cols-2 gap-4">
+                            <FormField control={healthTaskForm.control} name="dosage" render={({ field }) => (<FormItem><FormLabel>Dosage (ml)</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
+                            <FormField control={healthTaskForm.control} name="totalSheepTreated" render={({ field }) => (<FormItem><FormLabel>Count</FormLabel><FormControl><Input type="number" {...field} /></FormControl></FormItem>)} />
+                          </div>
+                        </div>
                       )}
 
-                      <FormField control={healthTaskForm.control} name="lastAdministered" render={({ field }) => ( <FormItem className="flex flex-col"><FormLabel>Date Given</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={'outline'} className={cn('w-full pl-3 text-left font-normal',!field.value && 'text-muted-foreground')}>{field.value ? (format(field.value, 'PPP')) : (<span>Pick a date</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem> )} />
-                       
-                       {watchedTaskName !== 'Deworming' && (
-                         <FormField control={healthTaskForm.control} name="frequency" render={({ field }) => ( <FormItem><FormLabel>Next Due Date</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select frequency" /></SelectTrigger></FormControl><SelectContent>{frequencies.map((f) => (<SelectItem key={f} value={f}>{f}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem> )} />
-                       )}
+                      <FormField control={healthTaskForm.control} name="lastAdministered" render={({ field }) => (
+                        <FormItem className="flex flex-col"><FormLabel>Date Given</FormLabel><Popover><PopoverTrigger asChild><Button variant="outline" className="w-full justify-start text-left">{field.value ? format(field.value, "PPP") : "Pick date"}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></PopoverTrigger><PopoverContent className="w-auto p-0"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover></FormItem>
+                      )} />
 
-                     <FormField control={healthTaskForm.control} name="notes" render={({ field }) => ( <FormItem><FormLabel>Remarks (Optional)</FormLabel><FormControl><Textarea placeholder="e.g., B-Complex, 2ml injection" {...field} /></FormControl><FormMessage /></FormItem> )} />
-                     <Button type="submit" className="w-full"><PlusCircle className="mr-2 h-4 w-4" />Schedule Task</Button>
-                  </form>
-                </Form>
-              </TabsContent>
-              <TabsContent value="expense" className="mt-6">
-                 <Form {...expenseForm}>
-                  <form onSubmit={expenseForm.handleSubmit(onExpenseSubmit)} className="space-y-4">
-                    <FormField control={expenseForm.control} name="shopName" render={({ field }) => ( <FormItem><FormLabel>Medicine Shop</FormLabel><FormControl><Input placeholder="e.g., Farmacy" {...field} /></FormControl><FormMessage /></FormItem> )} />
-                    <FormField
-                      control={expenseForm.control}
-                      name="description"
-                      render={({ field }) => (
-                          <FormItem>
-                              <FormLabel>Description (Optional)</FormLabel>
-                              <FormControl>
-                              <Textarea
-                                  placeholder="e.g., Anti-parasitic medicine, wound spray"
-                                  {...field}
-                              />
-                              </FormControl>
-                              <FormMessage />
-                          </FormItem>
+                      {watchedTaskName !== 'Deworming' && (
+                        <FormField control={healthTaskForm.control} name="frequency" render={({ field }) => (
+                          <FormItem><FormLabel>Repeat Frequency</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent>{frequencies.map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}</SelectContent></Select></FormItem>
+                        )} />
                       )}
-                    />
-                    <FormField control={expenseForm.control} name="date" render={({ field }) => ( <FormItem className="flex flex-col"><FormLabel>Date of Purchase</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={'outline'} className={cn('w-full pl-3 text-left font-normal',!field.value && 'text-muted-foreground')}>{field.value ? (format(field.value, 'PPP')) : (<span>Pick a date</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date() || date < new Date('1900-01-01')} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem> )} />
-                    <FormField control={expenseForm.control} name="costOfMedicines" render={({ field }) => ( <FormItem><FormLabel>Cost of Medicines (₹)</FormLabel><FormControl><Input type="number" step="0.01" {...field} /></FormControl><FormMessage /></FormItem> )} />
-                    <FormField control={expenseForm.control} name="totalAmountSpent" render={({ field }) => ( <FormItem><FormLabel>Total Amount Spent (₹)</FormLabel><FormControl><Input type="number" step="0.01" {...field} /></FormControl><FormMessage /></FormItem> )} />
-                    <FormField control={expenseForm.control} name="outstandingDues" render={({ field }) => ( <FormItem><FormLabel>Outstanding Dues (₹)</FormLabel><FormControl><Input type="number" step="0.01" {...field} /></FormControl><FormMessage /></FormItem> )} />
-                    <Button type="submit" className="w-full"><PlusCircle className="mr-2 h-4 w-4" />Add Expense</Button>
-                  </form>
-                </Form>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
 
-        <Card>
-          <CardHeader><CardTitle>Scheduled Tasks</CardTitle></CardHeader>
-          <CardContent>
-            <Table><TableHeader><TableRow><TableHead>Task</TableHead><TableHead>Next Due Date</TableHead><TableHead>Remarks</TableHead><TableHead className="text-right">Action</TableHead></TableRow></TableHeader>
-              <TableBody>
-                {sortedHealthTasks && sortedHealthTasks.length > 0 ? (
-                  sortedHealthTasks.map((task) => {
+                      <Button type="submit" className="w-full">Schedule Task</Button>
+                    </form>
+                  </Form>
+                </TabsContent>
+
+                <TabsContent value="expense" className="space-y-4 pt-4">
+                  <Form {...expenseForm}>
+                    <form onSubmit={expenseForm.handleSubmit(onExpenseSubmit)} className="space-y-4">
+                      <FormField control={expenseForm.control} name="shopName" render={({ field }) => (<FormItem><FormLabel>Shop Name</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
+                      <FormField control={expenseForm.control} name="description" render={({ field }) => (<FormItem><FormLabel>What did you buy?</FormLabel><FormControl><Textarea {...field} /></FormControl></FormItem>)} />
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField control={expenseForm.control} name="costOfMedicines" render={({ field }) => (<FormItem><FormLabel>Medicine Cost (₹)</FormLabel><FormControl><Input type="number" {...field} /></FormControl></FormItem>)} />
+                        <FormField control={expenseForm.control} name="totalAmountSpent" render={({ field }) => (<FormItem><FormLabel>Total Paid (₹)</FormLabel><FormControl><Input type="number" {...field} /></FormControl></FormItem>)} />
+                      </div>
+                      <FormField control={expenseForm.control} name="date" render={({ field }) => (
+                        <FormItem className="flex flex-col"><FormLabel>Purchase Date</FormLabel><Popover><PopoverTrigger asChild><Button variant="outline">{field.value ? format(field.value, "PPP") : "Pick date"}</Button></PopoverTrigger><PopoverContent className="w-auto p-0"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover></FormItem>
+                      )} />
+                      <Button type="submit" className="w-full">Save Expense</Button>
+                    </form>
+                  </Form>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="lg:col-span-7 space-y-6">
+          <Card>
+            <CardHeader><CardTitle>Health Schedule</CardTitle></CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader><TableRow><TableHead>Task</TableHead><TableHead>Next Due</TableHead><TableHead className="text-right">Actions</TableHead></TableRow></TableHeader>
+                <TableBody>
+                  {sortedHealthTasks.map(task => {
                     const status = getTaskStatus(task.nextDueDate);
                     return (
                       <TableRow key={task.id}>
-                        <TableCell className="font-medium">
-                            <div className="flex flex-col">
-                                <span>{task.taskName}</span>
-                                 {task.taskName === 'Deworming' && (
-                                    <div className="text-xs text-muted-foreground">
-                                      {task.dewormerName && <p>{task.dewormerName}</p>}
-                                      {task.dosePerKg && <p>Dose: {task.dosePerKg}ml/kg</p>}
-                                      {task.totalSheepTreated && <p>Treated: {task.totalSheepTreated}</p>}
-                                    </div>
-                                )}
-                                 {task.taskName === 'Vaccination' && (
-                                    <div className="text-xs text-muted-foreground">
-                                      {task.vaccineType && <p>{task.vaccineType}</p>}
-                                      {task.batchNumber && <p>Batch: {task.batchNumber}</p>}
-                                      {task.totalSheepTreated && <p>Treated: {task.totalSheepTreated}</p>}
-                                    </div>
-                                )}
-                                {task.taskName === 'Vitamin & Liver Support' && (
-                                  <div className="text-xs text-muted-foreground">
-                                    {task.supplementType && <p>{task.supplementType}</p>}
-                                    {task.dosage && <p>Dose: {task.dosage}</p>}
-                                    {task.totalSheepTreated && <p>Treated: {task.totalSheepTreated}</p>}
-                                  </div>
-                                )}
-                            </div>
+                        <TableCell>
+                          <div className="font-medium">{task.taskName}</div>
+                          <div className="text-xs text-muted-foreground">{task.dewormerName || task.vaccineType || task.supplementType}</div>
                         </TableCell>
                         <TableCell>
-                          <div className="flex flex-col gap-1">
-                            <span>{format(new Date(task.nextDueDate), 'PPP')}</span>
-                            {status && <Badge variant={status.variant} className="w-fit">{status.label}</Badge>}
-                          </div>
+                          <div>{task.nextDueDate}</div>
+                          {status && <Badge variant={status.variant} className="mt-1">{status.label}</Badge>}
                         </TableCell>
-                        <TableCell>{task.notes || 'N/A'}</TableCell>
-                        <TableCell className="text-right"><div className="flex items-center justify-end"><Button variant="ghost" size="icon" onClick={() => handleEditHealthTaskClick(task)}><Pencil className="h-4 w-4" /></Button><Button variant="ghost" size="icon" onClick={() => handleDeleteHealthTask(task.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button></div></TableCell>
+                        <TableCell className="text-right">
+                          <Button variant="ghost" size="icon" onClick={() => {setEditingHealthTask(task); setIsTaskEditDialogOpen(true)}}><Pencil className="h-4 w-4" /></Button>
+                          <Button variant="ghost" size="icon" onClick={() => deleteHealthTask(task.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                        </TableCell>
                       </TableRow>
-                    )
-                  })
-                ) : (<TableRow><TableCell colSpan={4} className="text-center">No health tasks scheduled yet.</TableCell></TableRow>)}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader><CardTitle>Expense History</CardTitle></CardHeader>
-          <CardContent>
-            <Table><TableHeader><TableRow><TableHead>Date</TableHead><TableHead>Shop</TableHead><TableHead>Description</TableHead><TableHead>Total</TableHead><TableHead>Dues</TableHead><TableHead className='text-right'>Action</TableHead></TableRow></TableHeader>
-              <TableBody>
-                {sortedMedicineExpenses && sortedMedicineExpenses.length > 0 ? (
-                  sortedMedicineExpenses.map((e) => (
-                    <TableRow key={e.id}>
-                      <TableCell>{format(new Date(e.date), 'PPP')}</TableCell>
-                      <TableCell>{e.shopName}</TableCell>
-                      <TableCell>{e.description || 'N/A'}</TableCell>
-                      <TableCell>₹{e.totalAmountSpent.toFixed(2)}</TableCell>
-                      <TableCell className={e.outstandingDues > 0 ? 'text-destructive' : ''}>₹{e.outstandingDues.toFixed(2)}</TableCell>
-                       <TableCell className='text-right'><div className="flex items-center justify-end"><Button variant="ghost" size="icon" onClick={() => handleEditExpenseClick(e)}><Pencil className="h-4 w-4" /></Button><Button variant="ghost" size="icon" onClick={() => handleDeleteExpense(e.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button></div></TableCell>
+          <Card>
+            <CardHeader><CardTitle>Expense History</CardTitle></CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader><TableRow><TableHead>Date</TableHead><TableHead>Shop</TableHead><TableHead>Amount</TableHead><TableHead className="text-right">Actions</TableHead></TableRow></TableHeader>
+                <TableBody>
+                  {sortedMedicineExpenses.map(exp => (
+                    <TableRow key={exp.id}>
+                      <TableCell>{exp.date}</TableCell>
+                      <TableCell>{exp.shopName}</TableCell>
+                      <TableCell>₹{exp.totalAmountSpent}</TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="ghost" size="icon" onClick={() => {setEditingMedicineExpense(exp); setIsExpenseEditDialogOpen(true)}}><Pencil className="h-4 w-4" /></Button>
+                        <Button variant="ghost" size="icon" onClick={() => deleteMedicineExpense(exp.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                      </TableCell>
                     </TableRow>
-                  ))
-                ) : ( <TableRow><TableCell colSpan={6} className="text-center">No expenses recorded yet.</TableCell></TableRow> )}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
-      <Dialog open={isExpenseEditDialogOpen} onOpenChange={setIsExpenseEditDialogOpen}>
-        <DialogContent className="sm:max-w-md"><DialogHeader><DialogTitle>Edit Medicine Expense</DialogTitle><DialogDescription>Update the details of your medicine expense. Click save when you're done.</DialogDescription></DialogHeader>
-          <Form {...editExpenseForm}><form onSubmit={editExpenseForm.handleSubmit(onEditExpenseSubmit)} className="space-y-4 py-4">
-              <FormField control={editExpenseForm.control} name="shopName" render={({ field }) => (<FormItem><FormLabel>Medicine Shop</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-              <FormField
-                control={editExpenseForm.control}
-                name="description"
-                render={({ field }) => (
-                    <FormItem>
-                    <FormLabel>Description (Optional)</FormLabel>
-                    <FormControl>
-                        <Textarea
-                        placeholder="e.g., Anti-parasitic medicine, wound spray"
-                        {...field}
-                        value={field.value || ''}
-                        />
-                    </FormControl>
-                    <FormMessage />
-                    </FormItem>
-                )}
-                />
-              <FormField control={editExpenseForm.control} name="date" render={({ field }) => (<FormItem className="flex flex-col"><FormLabel>Date of Purchase</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={'outline'} className={cn('w-full pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}>{field.value ? (format(field.value, 'PPP')) : (<span>Pick a date</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date() || date < new Date('1900-01-01')} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>)} />
-              <FormField control={editExpenseForm.control} name="costOfMedicines" render={({ field }) => (<FormItem><FormLabel>Cost of Medicines (₹)</FormLabel><FormControl><Input type="number" step="0.01" {...field} /></FormControl><FormMessage /></FormItem>)} />
-              <FormField control={editExpenseForm.control} name="totalAmountSpent" render={({ field }) => (<FormItem><FormLabel>Total Amount Spent (₹)</FormLabel><FormControl><Input type="number" step="0.01" {...field} /></FormControl><FormMessage /></FormItem>)} />
-              <FormField control={editExpenseForm.control} name="outstandingDues" render={({ field }) => (<FormItem><FormLabel>Outstanding Dues (₹)</FormLabel><FormControl><Input type="number" step="0.01" {...field} /></FormControl><FormMessage /></FormItem>)} />
-              <DialogFooter><Button type="submit">Save Changes</Button></DialogFooter>
-          </form></Form>
-        </DialogContent>
-      </Dialog>
-
       <Dialog open={isTaskEditDialogOpen} onOpenChange={setIsTaskEditDialogOpen}>
-        <DialogContent className="sm:max-w-md"><DialogHeader><DialogTitle>Edit Health Task</DialogTitle><DialogDescription>Update the details of your scheduled task.</DialogDescription></DialogHeader>
-          <Form {...editHealthTaskForm}><form onSubmit={editHealthTaskForm.handleSubmit(onEditHealthTaskSubmit)} className="space-y-4 py-4">
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader><DialogTitle>Edit Health Task</DialogTitle></DialogHeader>
+          <Form {...editHealthTaskForm}>
+            <form onSubmit={editHealthTaskForm.handleSubmit(onEditTaskSubmit)} className="space-y-4">
               <FormField control={editHealthTaskForm.control} name="taskName" render={({ field }) => (
-                  <FormItem><FormLabel>Task Name</FormLabel>
-                     <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl><SelectTrigger><SelectValue placeholder="Select a task" /></SelectTrigger></FormControl>
-                        <SelectContent>{healthTaskNames.map((task) => (<SelectItem key={task} value={task}>{task}</SelectItem>))}</SelectContent>
-                      </Select><FormMessage />
-                  </FormItem>)} />
-
+                <FormItem><FormLabel>Task Type</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent>{healthTaskNames.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent></Select></FormItem>
+              )} />
               {watchedEditTaskName === 'Deworming' && (
-                 <>
-                    <FormField control={editHealthTaskForm.control} name="dewormerName" render={({ field }) => (
-                      <FormItem><FormLabel>Dewormer Name</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl><SelectTrigger><SelectValue placeholder="Select a dewormer" /></SelectTrigger></FormControl>
-                          <SelectContent>{dewormerNames.map((name) => (<SelectItem key={name} value={name}>{name}</SelectItem>))}</SelectContent>
-                        </Select><FormMessage />
-                      </FormItem>)} />
-                    <div className="grid grid-cols-2 gap-4">
-                      <FormField control={editHealthTaskForm.control} name="dosePerKg" render={({ field }) => (<FormItem><FormLabel>Dose per kg (ml)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                      <FormField control={editHealthTaskForm.control} name="totalSheepTreated" render={({ field }) => (<FormItem><FormLabel>Total Sheep Treated</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                    </div>
-                  </>
+                <div className="grid gap-2 border p-2 rounded">
+                  <FormField control={editHealthTaskForm.control} name="dewormerName" render={({ field }) => (<FormItem><FormLabel>Dewormer</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent>{dewormerNames.map(n => <SelectItem key={n} value={n}>{n}</SelectItem>)}</SelectContent></Select></FormItem>)} />
+                </div>
               )}
-              
-               {watchedEditTaskName === 'Vaccination' && (
-                <>
-                  <FormField control={editHealthTaskForm.control} name="vaccineType" render={({ field }) => (
-                    <FormItem><FormLabel>Vaccine Type</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl><SelectTrigger><SelectValue placeholder="Select a vaccine" /></SelectTrigger></FormControl>
-                        <SelectContent>{vaccineTypes.map((name) => (<SelectItem key={name} value={name}>{name}</SelectItem>))}</SelectContent>
-                      </Select><FormMessage />
-                    </FormItem>)} />
-                  
-                   <FormField control={editHealthTaskForm.control} name="boosterRequired" render={({ field }) => (
-                    <FormItem className="space-y-2"><FormLabel>Booster Required?</FormLabel>
-                      <FormControl>
-                        <RadioGroup onValueChange={(value) => field.onChange(value === 'true')} value={String(field.value)} className="flex items-center gap-4">
-                          <FormItem className="flex items-center space-x-2 space-y-0">
-                            <FormControl><RadioGroupItem value="true" /></FormControl>
-                            <FormLabel className="font-normal">Yes</FormLabel>
-                          </FormItem>
-                          <FormItem className="flex items-center space-x-2 space-y-0">
-                            <FormControl><RadioGroupItem value="false" /></FormControl>
-                            <FormLabel className="font-normal">No</FormLabel>
-                          </FormItem>
-                        </RadioGroup>
-                      </FormControl><FormMessage />
-                    </FormItem>)} />
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField control={editHealthTaskForm.control} name="batchNumber" render={({ field }) => (<FormItem><FormLabel>Batch Number</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                    <FormField control={editHealthTaskForm.control} name="totalSheepTreated" render={({ field }) => (<FormItem><FormLabel>Treated Count</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                  </div>
-                </>
-              )}
-              
-              {watchedEditTaskName === 'Vitamin & Liver Support' && (
-                <>
-                  <FormField control={editHealthTaskForm.control} name="supplementType" render={({ field }) => (
-                      <FormItem><FormLabel>Supplement Type</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl><SelectTrigger><SelectValue placeholder="Select a supplement" /></SelectTrigger></FormControl>
-                          <SelectContent>{supplementTypes.map((name) => (<SelectItem key={name} value={name}>{name}</SelectItem>))}</SelectContent>
-                        </Select><FormMessage />
-                      </FormItem>)} />
-                    <div className="grid grid-cols-2 gap-4">
-                      <FormField control={editHealthTaskForm.control} name="dosage" render={({ field }) => (<FormItem><FormLabel>Dosage</FormLabel><FormControl><Input placeholder="e.g., 5ml" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                      <FormField control={editHealthTaskForm.control} name="totalSheepTreated" render={({ field }) => (<FormItem><FormLabel>Total Sheep Treated</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                    </div>
-                </>
-              )}
-
-
-              <FormField control={editHealthTaskForm.control} name="lastAdministered" render={({ field }) => ( <FormItem className="flex flex-col"><FormLabel>Date Given</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={'outline'} className={cn('w-full pl-3 text-left font-normal',!field.value && 'text-muted-foreground')}>{field.value ? (format(field.value, 'PPP')) : (<span>Pick a date</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem> )} />
-              
-              {watchedEditTaskName !== 'Deworming' && (
-                <FormField control={editHealthTaskForm.control} name="frequency" render={({ field }) => ( <FormItem><FormLabel>Next Due Date</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent>{frequencies.map((f) => (<SelectItem key={f} value={f}>{f}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem> )} />
-              )}
-
-              <FormField control={editHealthTaskForm.control} name="notes" render={({ field }) => ( <FormItem><FormLabel>Remarks (Optional)</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem> )} />
-            <DialogFooter><Button type="submit">Save Changes</Button></DialogFooter>
-          </form></Form>
+              <FormField control={editHealthTaskForm.control} name="lastAdministered" render={({ field }) => (<FormItem><FormLabel>Date Given</FormLabel><Popover><PopoverTrigger asChild><Button variant="outline" className="w-full">{field.value ? format(field.value, "PPP") : "Pick date"}</Button></PopoverTrigger><PopoverContent><Calendar mode="single" selected={field.value} onSelect={field.onChange} /></PopoverContent></Popover></FormItem>)} />
+              <Button type="submit" className="w-full">Update Task</Button>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
     </div>
   );
 }
-
-    
