@@ -11,13 +11,16 @@ export const SheepIcon = (props: React.SVGProps<SVGSVGElement>) => (
       strokeLinejoin="round"
       {...props}
     >
-      <path d="M18 8c0-2.2-1.8-4-4-4-1.42 0-2.65.75-3.37 1.89C9.55 4.69 8.38 4 7 4c-2.2 0-4 1.8-4 4 0 .99.36 1.89.95 2.63C3.36 11.63 3 12.73 3 14c0 2.2 1.8 4 4 4h1c0-1.66 1.34-3 3-3s3 1.34 3 3h1c2.2 0 4-1.8 4-4 0-1.27-.36-2.37-.95-3.37.59-.74.95-1.64.95-2.63Z" />
-      <path d="M7 14v2" />
-      <path d="M17 14v2" />
+      <path d="M18 10c0-1.1-.9-2-2-2h-1c-.5 0-1-.2-1.4-.6C13.2 6.6 12.6 6 12 6s-1.2.6-1.6 1.4c-.4.4-.9.6-1.4.6H8c-1.1 0-2 .9-2 2 0 .5.2 1 .6 1.4.8.8.8 2.1 0 2.9-.4.4-.6.9-.6 1.4 0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2 0-.5-.2-1-.6-1.4-.8-.8-.8-2.1 0-2.9.4-.4.6-.9.6-1.4Z" />
+      <path d="M10 18v2" />
+      <path d="M14 18v2" />
+      <path d="M9 10h.01" />
+      <path d="M15 10h.01" />
+      <path d="M11 13c.5.5 1.5.5 2 0" />
     </svg>
   );
 
-export function Logo({ className, light = false }: { className?: string; light?: boolean }) {
+export function Logo({ className, light = false, showManager = true }: { className?: string; light?: boolean; showManager?: boolean }) {
   return (
     <div className={cn('flex items-center gap-3', className)}>
        <div className={cn(
@@ -33,12 +36,14 @@ export function Logo({ className, light = false }: { className?: string; light?:
         )}>
           SheepSync Pro
         </h1>
-        <p className={cn(
-          "text-[8px] font-black uppercase tracking-[0.2em] mt-1",
-          light ? "text-white/50" : "text-muted-foreground"
-        )}>
-          FLOCK MANAGER
-        </p>
+        {showManager && (
+          <p className={cn(
+            "text-[8px] font-black uppercase tracking-[0.2em] mt-1",
+            light ? "text-white/50" : "text-muted-foreground"
+          )}>
+            FLOCK MANAGER
+          </p>
+        )}
       </div>
     </div>
   );
