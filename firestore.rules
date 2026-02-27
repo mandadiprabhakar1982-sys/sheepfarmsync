@@ -4,33 +4,6 @@
  * Access is controlled by ensuring an authenticated user's ID (request.auth.uid)
  * matches the {userId} wildcard in the document path. This model ensures
  * that users can only ever access their own information.
- *
- * Data Structure:
- * All application data is hierarchically organized under a top-level `users`
- * collection. Each user's specific data, such as livestock purchases, expenses,
- * and sales, is stored in dedicated subcollections under their unique user
- * document path (e.g., /users/{userId}/livestockPurchases/{purchaseId}).
- *
- * Key Security Decisions:
- * - Default Deny: All paths are closed by default. Access is only granted explicitly.
- * - No Public Data: All reads and writes require user authentication.
- * - No User Enumeration: Listing or reading the top-level `/users` collection
- *   is explicitly forbidden to prevent attackers from discovering user IDs.
- * - Path-Based Ownership: Authorization is derived directly from the document
- *   path, which is a fast, reliable, and highly secure method that avoids costly
- *   cross-document reads (`get()`) in rules.
- *
- * Denormalization for Authorization:
- * This ruleset relies on path-based security, a form of denormalization where
- * the owner's ID (`userId`) is part of the document's path. This allows for
- * simple and performant rules like `isOwner(userId)` without needing to read
- * other documents to verify permissions.
- *
- * Structural Segregation:
- * Each data type (e.g., LivestockPurchase, MedicineExpense) is stored in its
- * own dedicated collection under the user's path. This creates a clean separation
- * of concerns and allows for distinct, clear security rules per data type, even
- * though in this case the ownership logic is consistent across all of them.
  */
 rules_version = '2';
 service cloud.firestore {
@@ -40,63 +13,34 @@ service cloud.firestore {
     // Helper Functions
     // -------------------------------------------------------------------------
 
-    /**
-     * Checks if the user is authenticated.
-     */
     function isSignedIn() {
       return request.auth != null;
     }
 
-    /**
-     * Checks if the currently authenticated user's UID matches the provided userId.
-     * This is the primary function for enforcing user ownership.
-     * @param userId The user ID to check against the authenticated user.
-     */
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    /**
-     * Checks if a document exists and if the user is the owner.
-     * Used for safe update and delete operations.
-     * @param userId The owner's user ID from the path.
-     */
     function isExistingOwner(userId) {
       return isOwner(userId) && resource != null;
     }
 
-    /**
-     * On create, validates that the incoming document's `id` field matches the
-     * document's ID from the path. Enforces relational integrity.
-     * @param docId The document's ID from the path wildcard.
-     */
     function isCreatingWithMatchingId(docId) {
       return request.resource.data.id == docId;
     }
 
     /**
      * On update, ensures that the document's `id` field cannot be changed.
-     * Enforces immutability for the primary identifier.
+     * If the 'id' field is not present in the update request, the rule passes.
      */
     function isIdImmutable() {
-      return request.resource.data.id == resource.data.id;
+      return !('id' in request.resource.data) || request.resource.data.id == resource.data.id;
     }
 
     // -------------------------------------------------------------------------
     // User Data Rules
     // -------------------------------------------------------------------------
 
-    /**
-     * @description Disallows any access to the root users collection to prevent
-     *              user enumeration attacks. Also handles the user's own document.
-     * @path        /users/{userId}
-     * @allow       (create) An authenticated user creating their own profile/user document.
-     *              (get, update) A user can read and update their own profile.
-     *              Example: A new user with uid 'user123' creates `/users/user123`.
-     * @deny        (list, delete) Listing all users or deleting profiles is denied for security.
-     *              Example: User 'user456' trying to read `/users/user123`.
-     * @principle   Restricts access to a user's own data tree and enforces self-creation/management.
-     */
     match /users/{userId} {
       allow get: if isOwner(userId);
       allow list: if false;
@@ -104,13 +48,6 @@ service cloud.firestore {
       allow update: if isOwner(userId);
       allow delete: if false;
 
-      /**
-       * @description Secures livestock purchase records. Only the owner can manage their records.
-       * @path        /users/{userId}/livestockPurchases/{livestockPurchaseId}
-       * @allow       (create) The owner creating a new purchase record for themselves.
-       * @deny        (update) Another user trying to modify a purchase record.
-       * @principle   Enforces document ownership for all operations.
-       */
       match /livestockPurchases/{livestockPurchaseId} {
         allow get: if isOwner(userId);
         allow list: if isOwner(userId);
@@ -119,13 +56,6 @@ service cloud.firestore {
         allow delete: if isExistingOwner(userId);
       }
 
-      /**
-       * @description Secures medicine expense records. Only the owner can manage their records.
-       * @path        /users/{userId}/medicineExpenses/{medicineExpenseId}
-       * @allow       (get) The owner reading one of their medicine expense records.
-       * @deny        (delete) Another user trying to delete an expense record.
-       * @principle   Enforces document ownership for all operations.
-       */
       match /medicineExpenses/{medicineExpenseId} {
         allow get: if isOwner(userId);
         allow list: if isOwner(userId);
@@ -134,13 +64,6 @@ service cloud.firestore {
         allow delete: if isExistingOwner(userId);
       }
 
-      /**
-       * @description Secures feed expense records. Only the owner can manage their records.
-       * @path        /users/{userId}/feedExpenses/{feedExpenseId}
-       * @allow       (list) The owner listing all their feed expense records.
-       * @deny        (create) An unauthenticated user trying to create a record.
-       * @principle   Enforces document ownership for all operations.
-       */
       match /feedExpenses/{feedExpenseId} {
         allow get: if isOwner(userId);
         allow list: if isOwner(userId);
@@ -149,13 +72,6 @@ service cloud.firestore {
         allow delete: if isExistingOwner(userId);
       }
 
-      /**
-       * @description Secures labor expense records. Only the owner can manage their records.
-       * @path        /users/{userId}/laborExpenses/{laborExpenseId}
-       * @allow       (update) The owner updating one of their existing labor expense records.
-       * @deny        (get) Another user trying to read a labor expense record.
-       * @principle   Enforces document ownership for all operations.
-       */
       match /laborExpenses/{laborExpenseId} {
         allow get: if isOwner(userId);
         allow list: if isOwner(userId);
@@ -164,13 +80,6 @@ service cloud.firestore {
         allow delete: if isExistingOwner(userId);
       }
 
-      /**
-       * @description Secures animal sale records. Only the owner can manage their records.
-       * @path        /users/{userId}/animalSales/{animalSaleId}
-       * @allow       (delete) The owner deleting one of their animal sale records.
-       * @deny        (list) Another user trying to list animal sales.
-       * @principle   Enforces document ownership for all operations.
-       */
       match /animalSales/{animalSaleId} {
         allow get: if isOwner(userId);
         allow list: if isOwner(userId);
@@ -179,11 +88,6 @@ service cloud.firestore {
         allow delete: if isExistingOwner(userId);
       }
       
-      /**
-       * @description Secures dead animal records. Only the owner can manage their records.
-       * @path        /users/{userId}/deadAnimals/{deadAnimalId}
-       * @principle   Enforces document ownership for all operations.
-       */
       match /deadAnimals/{deadAnimalId} {
         allow get: if isOwner(userId);
         allow list: if isOwner(userId);
@@ -192,11 +96,6 @@ service cloud.firestore {
         allow delete: if isExistingOwner(userId);
       }
 
-      /**
-       * @description Secures tracked sheep records. Only the owner can manage their records.
-       * @path        /users/{userId}/trackedSheep/{trackedSheepId}
-       * @principle   Enforces document ownership for all operations.
-       */
       match /trackedSheep/{trackedSheepId} {
         allow get: if isOwner(userId);
         allow list: if isOwner(userId);
@@ -205,11 +104,6 @@ service cloud.firestore {
         allow delete: if isExistingOwner(userId);
       }
       
-      /**
-       * @description Secures farm expense records. Only the owner can manage their records.
-       * @path        /users/{userId}/farmExpenses/{farmExpenseId}
-       * @principle   Enforces document ownership for all operations.
-       */
       match /farmExpenses/{farmExpenseId} {
         allow get: if isOwner(userId);
         allow list: if isOwner(userId);
@@ -218,11 +112,6 @@ service cloud.firestore {
         allow delete: if isExistingOwner(userId);
       }
 
-      /**
-       * @description Secures health task records. Only the owner can manage their records.
-       * @path        /users/{userId}/healthTasks/{healthTaskId}
-       * @principle   Enforces document ownership for all operations.
-       */
       match /healthTasks/{healthTaskId} {
         allow get: if isOwner(userId);
         allow list: if isOwner(userId);
@@ -233,5 +122,3 @@ service cloud.firestore {
     }
   }
 }
-
-    

@@ -15,6 +15,7 @@ interface FarmContextType {
   sales: AnimalSale[] | null;
   addSale: (sale: Omit<AnimalSale, 'id'>) => void;
   deleteSale: (id: string) => void;
+  updateSale: (id: string, data: Omit<AnimalSale, 'id'>) => void;
   
   feedCosts: FeedCost[] | null;
   addFeedCost: (cost: Omit<FeedCost, 'id'>) => void;
@@ -126,6 +127,12 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const deleteSale = useCallback((id: string) => {
      if (!salesRef) return;
     deleteDocumentNonBlocking(doc(salesRef, id));
+  }, [salesRef]);
+
+  const updateSale = useCallback((id: string, data: Omit<AnimalSale, 'id'>) => {
+    if (!salesRef) return;
+    const docRef = doc(salesRef, id);
+    updateDocumentNonBlocking(docRef, data);
   }, [salesRef]);
   
   const addFeedCost = useCallback((cost: Omit<FeedCost, 'id'>) => {
@@ -309,6 +316,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     sales,
     addSale,
     deleteSale,
+    updateSale,
     feedCosts,
     addFeedCost,
     deleteFeedCost,
@@ -364,5 +372,3 @@ export function useFarm() {
   }
   return context;
 }
-
-    

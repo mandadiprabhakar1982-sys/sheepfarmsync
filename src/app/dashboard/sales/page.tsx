@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { PlusCircle, Calendar as CalendarIcon, Trash2 } from 'lucide-react';
+import { PlusCircle, Calendar as CalendarIcon, Trash2, Pencil } from 'lucide-react';
 import { format } from 'date-fns';
 
 import { PageHeader } from '@/components/page-header';
@@ -29,9 +29,18 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useFarm } from '@/context/FarmContext';
+import type { AnimalSale } from '@/lib/types';
 
 const formSchema = z.object({
   saleDate: z.date({ required_error: 'A date is required.' }),
@@ -48,7 +57,10 @@ type SalesFormData = z.infer<typeof formSchema>;
 
 export default function SalesPage() {
   const { toast } = useToast();
-  const { sales, addSale, deleteSale } = useFarm();
+  const { sales, addSale, deleteSale, updateSale } = useFarm();
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingSale, setEditingSale] = useState<AnimalSale | null>(null);
+
   const form = useForm<SalesFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -61,6 +73,10 @@ export default function SalesPage() {
       amountReceived: 0,
     },
   });
+
+  const editForm = useForm<SalesFormData>({
+    resolver: zodResolver(formSchema),
+  });
   
   const watchedSalesFields = form.watch(['salePrice', 'amountReceived']);
 
@@ -70,6 +86,23 @@ export default function SalesPage() {
     form.setValue('outstandingDuesFromBuyer', due >= 0 ? due : 0);
   }, [watchedSalesFields, form]);
 
+  const watchedEditFields = editForm.watch(['salePrice', 'amountReceived']);
+
+  useEffect(() => {
+    if (!isEditDialogOpen) return;
+    const [salePrice, amountReceived] = watchedEditFields;
+    const due = (salePrice || 0) - (amountReceived || 0);
+    editForm.setValue('outstandingDuesFromBuyer', due >= 0 ? due : 0);
+  }, [watchedEditFields, editForm, isEditDialogOpen]);
+
+  useEffect(() => {
+    if (editingSale) {
+      editForm.reset({
+        ...editingSale,
+        saleDate: new Date(editingSale.saleDate),
+      });
+    }
+  }, [editingSale, editForm]);
 
   const onSubmit: SubmitHandler<SalesFormData> = (data) => {
     const newTransaction = { ...data, saleDate: format(data.saleDate, 'yyyy-MM-dd') };
@@ -78,6 +111,18 @@ export default function SalesPage() {
     toast({
       title: 'Success!',
       description: 'Sales transaction has been recorded.',
+    });
+  };
+
+  const onEditSubmit: SubmitHandler<SalesFormData> = (data) => {
+    if (!editingSale) return;
+    const updatedData = { ...data, saleDate: format(data.saleDate, 'yyyy-MM-dd') };
+    updateSale(editingSale.id, updatedData);
+    setIsEditDialogOpen(false);
+    setEditingSale(null);
+    toast({
+      title: 'Updated!',
+      description: 'Sales transaction record has been updated successfully.',
     });
   };
   
@@ -89,6 +134,16 @@ export default function SalesPage() {
       variant: 'destructive'
     });
   }
+
+  const handleEditClick = (sale: AnimalSale) => {
+    setEditingSale(sale);
+    setIsEditDialogOpen(true);
+  };
+
+  const sortedSales = useMemo(() => {
+    if (!sales) return [];
+    return [...sales].sort((a, b) => new Date(b.saleDate).getTime() - new Date(a.saleDate).getTime());
+  }, [sales]);
 
 
   return (
@@ -211,8 +266,8 @@ export default function SalesPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {sales && sales.length > 0 ? (
-                    sales.map((t) => (
+                  {sortedSales && sortedSales.length > 0 ? (
+                    sortedSales.map((t) => (
                       <TableRow key={t.id}>
                         <TableCell>{t.saleDate}</TableCell>
                         <TableCell>{t.buyerName}</TableCell>
@@ -221,9 +276,14 @@ export default function SalesPage() {
                         <TableCell>₹{t.amountReceived.toFixed(2)}</TableCell>
                         <TableCell className={t.outstandingDuesFromBuyer > 0 ? 'text-destructive' : ''}>₹{t.outstandingDuesFromBuyer.toFixed(2)}</TableCell>
                          <TableCell className='text-right'>
-                            <Button variant="ghost" size="icon" onClick={() => handleDeleteTransaction(t.id)}>
-                                <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
+                            <div className="flex items-center justify-end">
+                              <Button variant="ghost" size="icon" onClick={() => handleEditClick(t)}>
+                                  <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button variant="ghost" size="icon" onClick={() => handleDeleteTransaction(t.id)}>
+                                  <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </div>
                         </TableCell>
                       </TableRow>
                     ))
@@ -240,7 +300,99 @@ export default function SalesPage() {
           </Card>
         </div>
       </div>
+       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Sales Record</DialogTitle>
+            <DialogDescription>
+              Update the details of your sales transaction. Click save when you're done.
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...editForm}>
+            <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-4 py-4">
+               <FormField control={editForm.control} name="saleDate" render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Date of Sale</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button variant={'outline'} className={cn('w-full pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}>
+                            {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField control={editForm.control} name="buyerName" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Buyer's Name</FormLabel>
+                    <FormControl><Input {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField control={editForm.control} name="buyerVillage" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Village</FormLabel>
+                    <FormControl><Input {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField control={editForm.control} name="animalCount" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Number of Sheep</FormLabel>
+                    <FormControl><Input type="number" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField control={editForm.control} name="animalWeightKg" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Total Weight (kg)</FormLabel>
+                    <FormControl><Input type="number" step="0.1" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField control={editForm.control} name="salePrice" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Sale Price (₹)</FormLabel>
+                    <FormControl><Input type="number" step="0.01" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField control={editForm.control} name="amountReceived" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Amount Received (₹)</FormLabel>
+                    <FormControl><Input type="number" step="0.01" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+               <FormField control={editForm.control} name="outstandingDuesFromBuyer" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Outstanding Dues (₹)</FormLabel>
+                    <FormControl><Input type="number" step="0.01" {...field} readOnly className="bg-muted" /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <DialogFooter>
+                <Button type="submit">Save Changes</Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
-
