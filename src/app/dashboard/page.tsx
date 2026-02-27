@@ -1,3 +1,4 @@
+
 'use client';
 import Link from 'next/link';
 import {
@@ -101,7 +102,7 @@ export default function DashboardPage() {
   }
   
   return (
-    <>
+    <div className="min-h-screen bg-background">
       <section className="bg-primary text-primary-foreground">
         <div className="container mx-auto text-center py-12 md:py-20">
             <div className="inline-block bg-white/10 rounded-2xl p-4">
@@ -116,22 +117,21 @@ export default function DashboardPage() {
         </div>
       </section>
       
-      <section className="container mx-auto px-0 md:px-4 py-8 md:py-12 -mt-16 md:-mt-24">
-        <div className="grid grid-flow-col auto-cols-[16rem] gap-4 overflow-x-auto pb-4 px-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:auto-cols-auto md:gap-6 md:px-0 md:pb-0">
+      <section className="container mx-auto px-4 py-8 md:py-12 -mt-12 md:-mt-16 relative z-10">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {menuItems.map((item) => {
             const Icon = item.icon;
             return (
-              <Link href={item.href} key={item.title} className="block group rounded-lg">
-                <Card className="h-full transition-all duration-200 group-hover:border-primary group-hover:shadow-lg">
-                  <CardContent className="flex items-center gap-4 p-4">
-                    <div className="rounded-lg bg-accent p-3">
-                       <Icon className="h-6 w-6 text-accent-foreground" />
+              <Link href={item.href} key={item.title} className="block group">
+                <Card className="h-full border-none shadow-md transition-all duration-200 hover:ring-2 hover:ring-primary active:scale-95">
+                  <CardContent className="flex flex-col items-center justify-center p-4 sm:p-6 text-center gap-3">
+                    <div className="rounded-2xl bg-accent p-3 sm:p-4">
+                       <Icon className="h-6 w-6 sm:h-8 sm:w-8 text-accent-foreground" />
                     </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold">{item.title}</h3>
-                      <p className="text-sm text-muted-foreground">{item.description}</p>
+                    <div>
+                      <h3 className="font-bold text-sm sm:text-base text-foreground leading-tight">{item.title}</h3>
+                      <p className="hidden sm:block text-[10px] sm:text-xs text-muted-foreground mt-1 line-clamp-1">{item.description}</p>
                     </div>
-                    <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1" />
                   </CardContent>
                 </Card>
               </Link>
@@ -139,6 +139,6 @@ export default function DashboardPage() {
           })}
         </div>
       </section>
-    </>
+    </div>
   );
 }

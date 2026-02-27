@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -28,12 +29,12 @@ export default function OverviewPage() {
   }
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-6 px-4 md:py-8">
       <PageHeader
         title="Farm Overview"
         description="A quick glance at your farm's key metrics."
       />
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard
             title="Live Sheep"
             value={totalSheep.toString()}
@@ -48,55 +49,53 @@ export default function OverviewPage() {
         />
         <StatCard
             title="Total Sales"
-            value={`₹${totalSales.toFixed(2)}`}
+            value={`₹${totalSales.toLocaleString()}`}
             icon={TrendingUp}
             description="Total sales made"
         />
         <StatCard
             title="Total Expenses"
-            value={`₹${totalExpenses.toFixed(2)}`}
+            value={`₹${totalExpenses.toLocaleString()}`}
             icon={IndianRupee}
             description="Total expenses incurred"
         />
         <StatCard
             title="Feed Cost"
-            value={`₹${totalFeedCost.toFixed(2)}`}
+            value={`₹${totalFeedCost.toLocaleString()}`}
             icon={Wheat}
             description="Total feed expenses"
         />
         <StatCard
             title="Employee Cost"
-            value={`₹${totalLaborCost.toFixed(2)}`}
+            value={`₹${totalLaborCost.toLocaleString()}`}
             icon={Users}
             description="Total employee expenses"
         />
         <StatCard
             title="Medicine Cost"
-            value={`₹${totalMedicineCost.toFixed(2)}`}
+            value={`₹${totalMedicineCost.toLocaleString()}`}
             icon={Syringe}
             description="Total medicine expenses"
         />
         <StatCard
             title="Other Expenses"
-            value={`₹${totalFarmExpenses.toFixed(2)}`}
+            value={`₹${totalFarmExpenses.toLocaleString()}`}
             icon={Receipt}
             description="Total miscellaneous expenses"
         />
          <StatCard
           title="Receivables"
-          value={`₹${totalReceivables.toFixed(2)}`}
+          value={`₹${totalReceivables.toLocaleString()}`}
           icon={TrendingUp}
-          description="Money owed to you from sales"
+          description="Money owed to you"
         />
         <StatCard
           title="Payables"
-          value={`₹${totalPayables.toFixed(2)}`}
+          value={`₹${totalPayables.toLocaleString()}`}
           icon={TrendingDown}
-          description="Money you owe for purchases"
+          description="Money you owe"
         />
       </div>
     </div>
   );
 }
-
-    
