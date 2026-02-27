@@ -18,6 +18,9 @@ const handleAuthError = (error: any) => {
             case 'auth/popup-closed-by-user':
                 errorMessage = 'The sign-in popup was closed before completion.';
                 break;
+            case 'auth/unauthorized-domain':
+                errorMessage = 'This domain is not authorized for Firebase Authentication. Please add this current domain to the "Authorized domains" list in the Firebase Console (Auth -> Settings).';
+                break;
             case 'auth/wrong-password':
                 errorMessage = 'Incorrect password. Please try again.';
                 break;

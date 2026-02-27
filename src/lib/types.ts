@@ -41,7 +41,7 @@ export type DeadAnimal = {
 
 export type HealthTask = {
   id: string;
-  taskName: 'Deworming' | 'Vaccination' | 'Vitamin & Liver Support';
+  taskName: 'Deworming' | 'Vaccination' | 'Vitamin & Liver Support' | 'Other';
   // Deworming
   dewormerName?: 'Albendazole' | 'Fenbendazole' | 'Ivermectin';
   dosePerKg?: number;

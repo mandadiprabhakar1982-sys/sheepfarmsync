@@ -35,6 +35,7 @@ const healthTaskNames = [
     'Deworming',
     'Vitamin & Liver Support',
     'Vaccination',
+    'Other',
 ] as const;
 
 const expenseFormSchema = z.object({
@@ -140,8 +141,15 @@ export default function MedicinePage() {
     toast({ title: 'Updated!', description: 'Expense record updated.' });
   };
 
-  const calculateNextDue = (date: Date, type: string, freq: string) => {
+  const calculateNextDue = (date: Date, type: string, freq: string, vaccine?: string) => {
     if (type === 'Deworming') return addDays(date, 60);
+    
+    // Auto-calculate vaccination schedules if frequency is not explicitly changed
+    if (type === 'Vaccination') {
+       if (vaccine === 'ET + TT' || vaccine === 'HS' || vaccine === 'FMD') return addMonths(date, 6);
+       return addMonths(date, 12); // Default for PPR, Sheep Pox, etc.
+    }
+
     switch (freq) {
       case 'Daily': return addDays(date, 1);
       case 'Monthly': return addMonths(date, 1);
@@ -153,7 +161,7 @@ export default function MedicinePage() {
   };
 
   const onHealthTaskSubmit: SubmitHandler<HealthTaskFormData> = (data) => {
-    const nextDueDate = calculateNextDue(data.lastAdministered, data.taskName, data.frequency);
+    const nextDueDate = calculateNextDue(data.lastAdministered, data.taskName, data.frequency, data.vaccineType);
     addHealthTask({
       ...data,
       lastAdministered: format(data.lastAdministered, 'yyyy-MM-dd'),
@@ -165,7 +173,7 @@ export default function MedicinePage() {
 
   const onEditTaskSubmit: SubmitHandler<HealthTaskFormData> = (data) => {
     if (!editingHealthTask) return;
-    const nextDueDate = calculateNextDue(data.lastAdministered, data.taskName, data.frequency);
+    const nextDueDate = calculateNextDue(data.lastAdministered, data.taskName, data.frequency, data.vaccineType);
     updateHealthTask(editingHealthTask.id, {
       ...data,
       lastAdministered: format(data.lastAdministered, 'yyyy-MM-dd'),
@@ -257,6 +265,14 @@ export default function MedicinePage() {
                         </div>
                       )}
 
+                      {watchedTaskName === 'Other' && (
+                         <div className="grid grid-cols-1 gap-4 rounded-lg border bg-accent/20 p-4">
+                            <FormField control={healthTaskForm.control} name="notes" render={({ field }) => (
+                              <FormItem><FormLabel>Describe Task</FormLabel><FormControl><Textarea placeholder="e.g. Hoof trimming, special medicine" {...field} /></FormControl></FormItem>
+                            )} />
+                         </div>
+                      )}
+
                       <FormField control={healthTaskForm.control} name="lastAdministered" render={({ field }) => (
                         <FormItem className="flex flex-col"><FormLabel>Date Given</FormLabel><Popover><PopoverTrigger asChild><Button variant="outline" className="w-full justify-start text-left">{field.value ? format(field.value, "PPP") : "Pick date"}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></PopoverTrigger><PopoverContent className="w-auto p-0"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover></FormItem>
                       )} />
@@ -306,7 +322,7 @@ export default function MedicinePage() {
                       <TableRow key={task.id}>
                         <TableCell>
                           <div className="font-medium">{task.taskName}</div>
-                          <div className="text-xs text-muted-foreground">{task.dewormerName || task.vaccineType || task.supplementType}</div>
+                          <div className="text-xs text-muted-foreground">{task.dewormerName || task.vaccineType || task.supplementType || task.notes?.substring(0, 20)}</div>
                         </TableCell>
                         <TableCell>
                           <div>{task.nextDueDate}</div>
