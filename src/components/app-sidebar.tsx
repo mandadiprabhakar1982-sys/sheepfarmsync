@@ -33,7 +33,7 @@ import {
   SidebarGroupLabel,
   SidebarGroupContent,
 } from '@/components/ui/sidebar';
-import { Logo, SheepIcon } from '@/components/logo';
+import { Logo } from '@/components/logo';
 import { cn } from '@/lib/utils';
 
 const groups = [
@@ -78,10 +78,10 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
-      <SidebarHeader className="h-20 flex items-center justify-center border-b border-sidebar-border px-6">
-        <Logo showManager={false} light={true} />
+      <SidebarHeader className="h-20 flex items-center justify-center border-b border-sidebar-border px-6 bg-sidebar">
+        <Logo showManager={false} light={false} />
       </SidebarHeader>
-      <SidebarContent className="px-3 py-6">
+      <SidebarContent className="px-3 py-6 bg-sidebar">
         {groups.map((group) => (
           <SidebarGroup key={group.label} className="mb-6">
             <SidebarGroupLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-sidebar-foreground/40 mb-3 px-3">
@@ -118,8 +118,8 @@ export function AppSidebar() {
           </SidebarGroup>
         ))}
       </SidebarContent>
-      <SidebarFooter className="border-t border-sidebar-border p-6">
-        <div className="flex flex-col items-center gap-1 opacity-30">
+      <SidebarFooter className="border-t border-sidebar-border p-6 bg-sidebar">
+        <div className="flex flex-col items-center gap-1 opacity-40">
           <p className="text-[9px] font-black uppercase tracking-[0.3em] text-sidebar-foreground">SheepSync Pro</p>
           <p className="text-[7px] font-bold text-sidebar-foreground">Enterprise v2.4.0</p>
         </div>
