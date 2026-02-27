@@ -77,14 +77,14 @@ export function AppSidebar() {
   const pathname = usePathname();
 
   return (
-    <Sidebar collapsible="icon" className="border-r bg-white">
-      <SidebarHeader className="h-20 flex items-center justify-center border-b px-6">
-        <Logo showManager={false} />
+    <Sidebar collapsible="icon" className="border-r border-sidebar-border">
+      <SidebarHeader className="h-20 flex items-center justify-center border-b border-sidebar-border px-6">
+        <Logo showManager={false} light={true} />
       </SidebarHeader>
-      <SidebarContent className="px-3 py-4">
+      <SidebarContent className="px-3 py-6">
         {groups.map((group) => (
-          <SidebarGroup key={group.label} className="mb-4">
-            <SidebarGroupLabel className="text-[10px] font-black uppercase tracking-[0.15em] text-muted-foreground/60 mb-2 px-3">
+          <SidebarGroup key={group.label} className="mb-6">
+            <SidebarGroupLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-sidebar-foreground/40 mb-3 px-3">
               {group.label}
             </SidebarGroupLabel>
             <SidebarGroupContent>
@@ -98,15 +98,15 @@ export function AppSidebar() {
                         isActive={isActive}
                         tooltip={link.label}
                         className={cn(
-                          "transition-all duration-200 h-10 px-3 rounded-lg",
+                          "transition-all duration-200 h-11 px-3 rounded-xl",
                           isActive 
-                            ? "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90" 
-                            : "hover:bg-accent hover:text-accent-foreground"
+                            ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:bg-primary/90" 
+                            : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                         )}
                       >
                         <Link href={link.href} className="flex items-center w-full">
-                          <link.icon className={cn("shrink-0", isActive ? "scale-110" : "")} />
-                          <span className="ml-3 font-semibold text-sm">{link.label}</span>
+                          <link.icon className={cn("shrink-0 h-5 w-5", isActive ? "scale-105" : "opacity-70")} />
+                          <span className="ml-3 font-bold text-[13px] tracking-tight">{link.label}</span>
                           {isActive && <ChevronRight className="ml-auto h-3 w-3 opacity-50" />}
                         </Link>
                       </SidebarMenuButton>
@@ -118,10 +118,10 @@ export function AppSidebar() {
           </SidebarGroup>
         ))}
       </SidebarContent>
-      <SidebarFooter className="border-t p-6">
-        <div className="flex flex-col items-center gap-1 opacity-50">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em]">SheepSync Pro</p>
-          <p className="text-[8px] font-bold">Version 2.4.0 (Build 92)</p>
+      <SidebarFooter className="border-t border-sidebar-border p-6">
+        <div className="flex flex-col items-center gap-1 opacity-30">
+          <p className="text-[9px] font-black uppercase tracking-[0.3em] text-sidebar-foreground">SheepSync Pro</p>
+          <p className="text-[7px] font-bold text-sidebar-foreground">Enterprise v2.4.0</p>
         </div>
       </SidebarFooter>
     </Sidebar>

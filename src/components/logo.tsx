@@ -19,15 +19,28 @@ export const SheepIcon = (props: React.SVGProps<SVGSVGElement>) => (
     </svg>
   );
 
-export function Logo({ className, showManager = false }: { className?: string; showManager?: boolean; }) {
+export function Logo({ className, showManager = false, light = false }: { className?: string; showManager?: boolean; light?: boolean }) {
   return (
     <div className={cn('flex items-center gap-4', className)}>
-       <div className="bg-primary rounded-2xl p-3 shadow-xl shadow-primary/20 rotate-[-5deg] group-hover:rotate-0 transition-transform duration-300">
-        <SheepIcon className="h-7 w-7 text-primary-foreground" />
+       <div className={cn(
+         "rounded-2xl p-3 shadow-xl transition-transform duration-300",
+         light ? "bg-primary text-primary-foreground shadow-primary/20 rotate-[-5deg]" : "bg-primary rounded-2xl p-3 shadow-xl shadow-primary/20 rotate-[-5deg] group-hover:rotate-0"
+       )}>
+        <SheepIcon className="h-7 w-7" />
       </div>
       <div>
-        <h1 className="text-2xl font-black text-foreground tracking-tighter leading-none uppercase">SheepSync</h1>
-        <p className="text-[9px] font-black text-primary/60 uppercase tracking-[0.3em] mt-1">Professional</p>
+        <h1 className={cn(
+          "text-2xl font-black tracking-tighter leading-none uppercase",
+          light ? "text-sidebar-foreground" : "text-foreground"
+        )}>
+          SheepSync
+        </h1>
+        <p className={cn(
+          "text-[9px] font-black uppercase tracking-[0.3em] mt-1",
+          light ? "text-sidebar-foreground/40" : "text-primary/60"
+        )}>
+          Professional
+        </p>
       </div>
     </div>
   );
