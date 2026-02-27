@@ -10,7 +10,8 @@ import {
   Users,
   BadgeIndianRupee,
   BarChart,
-  ChevronRight,
+  Calculator,
+  Receipt,
   Loader2,
 } from 'lucide-react';
 import { SheepIcon } from '@/components/logo';
@@ -69,6 +70,20 @@ const menuItems = [
     color: 'bg-green-600',
   },
   {
+    title: 'CALC',
+    description: 'FEED MATH',
+    icon: Calculator,
+    href: '/dashboard/feed-calculator',
+    color: 'bg-cyan-500',
+  },
+  {
+    title: 'EXPENSES',
+    description: 'MISC COSTS',
+    icon: Receipt,
+    href: '/dashboard/expenses',
+    color: 'bg-slate-500',
+  },
+  {
     title: 'REPORTS',
     description: 'INSIGHTS',
     icon: BarChart,
@@ -90,7 +105,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-neutral-50 pb-20">
-      <section className="dashboard-hero text-white pt-10 pb-20 text-center">
+      <section className="dashboard-hero text-white pt-10 pb-16 text-center">
         <div className="container mx-auto px-6">
           <div className="flex justify-center mb-4">
             <div className="bg-white/20 p-4 rounded-full">
@@ -107,19 +122,19 @@ export default function DashboardPage() {
       </section>
 
       <section className="container mx-auto px-4 -mt-10 relative z-10">
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-8">
           {menuItems.map((item) => {
             const Icon = item.icon;
             return (
               <Link href={item.href} key={item.title} className="group">
-                <Card className="border-none shadow-xl rounded-[1.5rem] md:rounded-[2.5rem] transition-all duration-300 hover:-translate-y-1 active:scale-95 bg-white overflow-hidden">
-                  <CardContent className="flex flex-col items-center justify-center p-6 md:p-10 text-center gap-3 md:gap-6">
-                    <div className={cn("rounded-2xl md:rounded-3xl p-4 md:p-6 text-white shadow-md transition-transform group-hover:scale-110", item.color)}>
-                      <Icon className="h-6 w-6 md:h-10 md:w-10" />
+                <Card className="border-none shadow-xl rounded-[1.5rem] md:rounded-[2rem] transition-all duration-300 hover:-translate-y-1 active:scale-95 bg-white overflow-hidden">
+                  <CardContent className="flex flex-col items-center justify-center p-6 md:p-8 text-center gap-3 md:gap-4">
+                    <div className={cn("rounded-2xl md:rounded-3xl p-4 md:p-5 text-white shadow-md transition-transform group-hover:scale-110", item.color)}>
+                      <Icon className="h-6 w-6 md:h-8 md:w-8" />
                     </div>
                     <div>
-                      <h3 className="font-black text-xs md:text-lg tracking-tight text-foreground leading-none">{item.title}</h3>
-                      <p className="hidden md:block text-[9px] text-muted-foreground mt-2 font-bold uppercase tracking-widest opacity-60">
+                      <h3 className="font-black text-xs md:text-sm tracking-tight text-foreground leading-none">{item.title}</h3>
+                      <p className="hidden md:block text-[8px] text-muted-foreground mt-2 font-bold uppercase tracking-widest opacity-60">
                         {item.description}
                       </p>
                     </div>
