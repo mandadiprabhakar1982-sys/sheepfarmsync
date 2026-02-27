@@ -28,5 +28,21 @@ export default function manifest(): MetadataRoute.Manifest {
         purpose: 'any'
       },
     ],
+    shortcuts: [
+      {
+        name: 'Flock Records',
+        short_name: 'Flock',
+        description: 'View and manage your sheep records',
+        url: '/dashboard/livestock',
+        icons: [{ src: icon192, sizes: '192x192' }]
+      },
+      {
+        name: 'Log Sale',
+        short_name: 'Sales',
+        description: 'Record a new sheep sale',
+        url: '/dashboard/sales',
+        icons: [{ src: icon192, sizes: '192x192' }]
+      }
+    ]
   }
 }
