@@ -18,9 +18,10 @@ import { UserNav } from '@/components/user-nav';
 import { Toaster } from '@/components/ui/toaster';
 import { FarmProvider } from '@/context/FarmContext';
 import { cn } from '@/lib/utils';
-import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
+import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/app-sidebar';
 import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 
 const navItems = [
   { href: '/dashboard', label: 'Home', icon: LayoutDashboard },
@@ -43,15 +44,17 @@ export default function DashboardLayout({
         <div className="flex min-h-screen w-full bg-background selection:bg-primary/20 overflow-hidden">
           <AppSidebar />
           <SidebarInset className="flex flex-col relative">
-            <header className="sticky top-0 z-50 flex h-20 items-center justify-between gap-4 border-b bg-white/80 backdrop-blur-md px-6 md:px-10 safe-area-top">
-              <div className="flex items-center gap-4">
+            <header className="sticky top-0 z-50 flex h-20 items-center justify-between gap-4 border-b bg-white/80 backdrop-blur-md px-4 md:px-10 safe-area-top">
+              <div className="flex items-center gap-3">
+                <SidebarTrigger className="h-10 w-10" />
+                <Separator orientation="vertical" className="h-6 hidden md:block" />
                 <Logo className="md:hidden scale-90 origin-left" />
-                <h2 className="hidden md:block text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40">
+                <h2 className="hidden md:block text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 ml-2">
                    Farm Management System
                 </h2>
               </div>
               
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 md:gap-4">
                 <Button variant="ghost" size="icon" className="text-muted-foreground hidden sm:flex">
                   <Globe className="h-5 w-5" />
                 </Button>
