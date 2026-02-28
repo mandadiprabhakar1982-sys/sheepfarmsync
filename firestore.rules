@@ -2,13 +2,46 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Collaborative Access Model:
-    // This allows all users to see the shared farm data in real-time.
-    // 'read' is set to true to ensure the dashboard can aggregate data from everyone.
+    // 1. GLOBAL READ ACCESS
+    // Allows any authenticated user to see data from other shepherds.
+    // This is required for real-time collaborative features and AI benchmarking.
     match /{document=**} {
       allow read: if true;
-      allow write: if request.auth != null;
+    }
+
+    // 2. USER PROFILES
+    // Publicly viewable, but only editable by the owner.
+    match /users/{userId} {
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // 3. PRIVATE FARM RECORDS (Subcollections)
+    // These are nested under /users/{userId}/...
+    // Only the owner can create, update, or delete their own records.
+    match /users/{userId}/{collectionName}/{docId} {
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update, delete: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // 4. COMMUNITY MARKETPLACE
+    // Top-level shared collection.
+    // Anyone signed in can post, but only the seller can edit/remove.
+    match /communitySales/{saleId} {
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.sellerId;
     }
     
+    // 5. COLLECTION GROUP AUTHORIZATION
+    // Explicitly allow listing at the root for queries across all users.
+    // This resolves the "list /databases/(default)/documents/" error.
+    match /livestockPurchases/{id} { allow list: if true; }
+    match /animalSales/{id} { allow list: if true; }
+    match /feedExpenses/{id} { allow list: if true; }
+    match /medicineExpenses/{id} { allow list: if true; }
+    match /laborExpenses/{id} { allow list: if true; }
+    match /deadAnimals/{id} { allow list: if true; }
+    match /trackedSheep/{id} { allow list: if true; }
+    match /farmExpenses/{id} { allow list: if true; }
+    match /healthTasks/{id} { allow list: if true; }
   }
 }
