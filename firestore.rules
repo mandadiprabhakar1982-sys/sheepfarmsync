@@ -2,27 +2,37 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Broad recursive match for the "All Data Merge" community model.
-    // This allows all authenticated shepherds to share and manage 
-    // the entire farm database together in real-time.
-    match /{document=**} {
-      allow read, write: if request.auth != null;
+    function isSignedIn() {
+      return request.auth != null;
     }
 
-    // Explicitly authorize collection-level listing and document-level access.
-    // This resolves "Missing or insufficient permissions" on 'list' operations
-    // occurring in the community-wide dashboards for specific collections.
-    match /livestockPurchases/{id} { allow read, write: if request.auth != null; }
-    match /animalSales/{id} { allow read, write: if request.auth != null; }
-    match /feedExpenses/{id} { allow read, write: if request.auth != null; }
-    match /medicineExpenses/{id} { allow read, write: if request.auth != null; }
-    match /laborExpenses/{id} { allow read, write: if request.auth != null; }
-    match /deadAnimals/{id} { allow read, write: if request.auth != null; }
-    match /trackedSheep/{id} { allow read, write: if request.auth != null; }
-    match /farmExpenses/{id} { allow read, write: if request.auth != null; }
-    match /healthTasks/{id} { allow read, write: if request.auth != null; }
-    match /communitySales/{id} { allow read, write: if request.auth != null; }
-    match /users/{userId} { allow read, write: if request.auth != null; }
+    function isOwner(data) {
+      return isSignedIn() && data.ownerId == request.auth.uid;
+    }
+
+    // User profiles are private to the owner
+    match /users/{userId} {
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Marketplace listings are publicly readable but editable only by the seller
+    match /communitySales/{saleId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.sellerId == request.auth.uid;
+      allow update, delete: if isSignedIn() && resource.data.sellerId == request.auth.uid;
+    }
+
+    // All private farm collections (livestockPurchases, feedExpenses, medicineExpenses, etc.)
+    // These require the data to have an ownerId field matching the user's UID.
+    match /livestockPurchases/{id} { allow read, write: if isOwner(resource.data) || (request.method == 'create' && isOwner(request.resource.data)); }
+    match /medicineExpenses/{id} { allow read, write: if isOwner(resource.data) || (request.method == 'create' && isOwner(request.resource.data)); }
+    match /feedExpenses/{id} { allow read, write: if isOwner(resource.data) || (request.method == 'create' && isOwner(request.resource.data)); }
+    match /laborExpenses/{id} { allow read, write: if isOwner(resource.data) || (request.method == 'create' && isOwner(request.resource.data)); }
+    match /animalSales/{id} { allow read, write: if isOwner(resource.data) || (request.method == 'create' && isOwner(request.resource.data)); }
+    match /deadAnimals/{id} { allow read, write: if isOwner(resource.data) || (request.method == 'create' && isOwner(request.resource.data)); }
+    match /trackedSheep/{id} { allow read, write: if isOwner(resource.data) || (request.method == 'create' && isOwner(request.resource.data)); }
+    match /farmExpenses/{id} { allow read, write: if isOwner(resource.data) || (request.method == 'create' && isOwner(request.resource.data)); }
+    match /healthTasks/{id} { allow read, write: if isOwner(resource.data) || (request.method == 'create' && isOwner(request.resource.data)); }
 
   }
 }
