@@ -2,10 +2,22 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Allow any authenticated user to read and write any document.
+    // Allow any authenticated user to read, list, create, update, and delete any document.
     // This supports the "users all data merge" request for a collaborative community experience.
     match /{document=**} {
       allow read, write: if request.auth != null;
     }
+
+    // Explicitly authorize collection group queries for common collections
+    match /livestockPurchases/{id} { allow read, write: if request.auth != null; }
+    match /animalSales/{id} { allow read, write: if request.auth != null; }
+    match /feedExpenses/{id} { allow read, write: if request.auth != null; }
+    match /medicineExpenses/{id} { allow read, write: if request.auth != null; }
+    match /laborExpenses/{id} { allow read, write: if request.auth != null; }
+    match /deadAnimals/{id} { allow read, write: if request.auth != null; }
+    match /trackedSheep/{id} { allow read, write: if request.auth != null; }
+    match /farmExpenses/{id} { allow read, write: if request.auth != null; }
+    match /healthTasks/{id} { allow read, write: if request.auth != null; }
+    match /communitySales/{id} { allow read, write: if request.auth != null; }
   }
 }

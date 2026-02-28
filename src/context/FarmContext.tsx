@@ -3,7 +3,7 @@
 import { createContext, useContext, ReactNode, useMemo, useCallback } from 'react';
 import type { LivestockPurchase, AnimalSale, FeedCost, MedicineExpense, LaborCost, TrackedSheep, DeadAnimal, FarmExpense, HealthTask, PublicSale } from '@/lib/types';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, doc, serverTimestamp, query, where } from 'firebase/firestore';
+import { collection, doc, serverTimestamp } from 'firebase/firestore';
 import { setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 interface FarmContextType {
@@ -82,7 +82,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
   const firestore = useFirestore();
 
-  // MERGED COMMUNITY LISTENERS (Removed ownerId filters to support "users all data merge")
+  // MERGED COMMUNITY LISTENERS (Unfiltered queries for real-time collaboration)
   
   const purchasesRef = useMemoFirebase(() => 
     user ? collection(firestore, 'livestockPurchases') : null, 
@@ -144,7 +144,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   );
   const { data: communitySales, isLoading: isLoadingMarketplace } = useCollection<PublicSale>(marketplaceRef);
 
-  // UPSERT DATA: Continues to attach ownerId/sellerId for identity tracking
+  // UPSERT DATA
   const upsert = useCallback((colName: string, id: string | undefined, data: any) => {
     if (!user) return;
     const finalId = id || generateId();
