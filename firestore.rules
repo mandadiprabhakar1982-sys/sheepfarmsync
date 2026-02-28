@@ -6,15 +6,18 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // --- COLLABORATIVE SHARED MODEL ---
-    // All farm records are shared among authenticated shepherds.
-    match /{collectionName}/{documentId} {
-      allow read, write: if isSignedIn();
+    // --- COLLABORATIVE MERGED VIEW ---
+    // Allow any authenticated shepherd to read any record across the entire database,
+    // including nested subcollections (required for Merged Collaborative View).
+    match /{path=**} {
+      allow read: if isSignedIn();
     }
-    
-    // Support for legacy nested structures if any still exist
-    match /users/{userId}/{collectionName}/{documentId} {
-      allow read, write: if isSignedIn();
+
+    // --- NESTED SUBCOLLECTION ACCESS ---
+    // Specifically allow writing to user subcollections (purchases, trackedSheep, etc.).
+    // We allow any signed-in user to write to ensure the merged collaborative pool is accessible.
+    match /users/{userId}/{collectionName}/{docId} {
+      allow write: if isSignedIn();
     }
   }
 }
