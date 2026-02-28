@@ -92,7 +92,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     }
   }, [auth.currentUser]);
 
-  // Use collectionGroup to fetch data from ALL users (Fully Collaborative Model)
+  // All queries are gated by 'user' to ensure authentication is present before the request hits Firestore
   const purchasesRef = useMemoFirebase(() => user ? collectionGroup(firestore, 'livestockPurchases') : null, [firestore, user]);
   const { data: purchases, isLoading: isLoadingPurchases } = useCollection<LivestockPurchase>(purchasesRef);
 
@@ -120,7 +120,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const healthTasksRef = useMemoFirebase(() => user ? collectionGroup(firestore, 'healthTasks') : null, [firestore, user]);
   const { data: healthTasks, isLoading: isLoadingHealthTasks } = useCollection<HealthTask>(healthTasksRef);
 
-  const marketplaceRef = useMemoFirebase(() => collection(firestore, 'communitySales'), [firestore]);
+  const marketplaceRef = useMemoFirebase(() => user ? collection(firestore, 'communitySales') : null, [firestore, user]);
   const { data: communitySales, isLoading: isLoadingMarketplace } = useCollection<PublicSale>(marketplaceRef);
 
   const upsert = useCallback((colName: string, id: string | undefined, data: any) => {
@@ -188,7 +188,8 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const postToMarketplace = useCallback((sale: any) => {
     if (!user) return;
     const finalId = generateId();
-    const docRef = doc(marketplaceRef, finalId);
+    const communitySalesRef = collection(firestore, 'communitySales');
+    const docRef = doc(communitySalesRef, finalId);
     setDocumentNonBlocking(docRef, {
       ...sale,
       id: finalId,
@@ -196,9 +197,12 @@ export function FarmProvider({ children }: { children: ReactNode }) {
       sellerEmail: user.email,
       sellerName: user.displayName || 'Farmer',
     }, { merge: true });
-  }, [marketplaceRef, user]);
+  }, [user, firestore]);
 
-  const deleteMarketplaceSale = useCallback((id: string) => marketplaceRef && deleteDocumentNonBlocking(doc(marketplaceRef, id)), [marketplaceRef]);
+  const deleteMarketplaceSale = useCallback((id: string) => {
+    const docRef = doc(firestore, 'communitySales', id);
+    deleteDocumentNonBlocking(docRef);
+  }, [firestore]);
 
   const isLoading = isLoadingPurchases || isLoadingSales || isLoadingFeedCosts || isLoadingMedicine || isLoadingLabor || isLoadingDeadAnimals || isLoadingTrackedSheep || isLoadingFarmExpenses || isLoadingHealthTasks || isLoadingMarketplace;
 
