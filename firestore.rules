@@ -1,12 +1,30 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // --- COLLABORATIVE SHARED FARM MODEL ---
-    // All authenticated users can read and write to any document in the database.
-    // This merges all shepherd data into a single shared environment and enables
-    // a unified real-time community dashboard without permission errors.
-    match /{document=**} {
-      allow read, write: if request.auth != null;
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // --- COMMUNITY MARKETPLACE ---
+    match /communitySales/{saleId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.sellerId == request.auth.uid;
+      allow update, delete: if isSignedIn() && resource.data.sellerId == request.auth.uid;
+    }
+
+    // --- PRIVATE USER PROFILE ---
+    match /users/{userId} {
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    // --- PRIVATE FARM COLLECTIONS ---
+    match /{collectionName}/{docId} {
+      // Allow creation if they attach their own UID
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      
+      // Allow reading/editing only if they are the owner
+      allow read, update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
     }
   }
 }
