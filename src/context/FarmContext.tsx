@@ -83,7 +83,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const firestore = useFirestore();
 
   // REAL-TIME COLLABORATIVE LISTENERS
-  // We use collectionGroup to subscribe to data entered by ALL shepherds for real-time benchmarking.
+  // We use collectionGroup to subscribe to data entered by ALL shepherds for real-time community tracking.
   
   const purchasesRef = useMemoFirebase(() => user ? collectionGroup(firestore, 'livestockPurchases') : null, [firestore, user]);
   const { data: purchases, isLoading: isLoadingPurchases } = useCollection<LivestockPurchase>(purchasesRef);
@@ -115,7 +115,8 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const marketplaceRef = useMemoFirebase(() => user ? collection(firestore, 'communitySales') : null, [firestore, user]);
   const { data: communitySales, isLoading: isLoadingMarketplace } = useCollection<PublicSale>(marketplaceRef);
 
-  // HELPER: Upsert data to the current user's folder.
+  // HELPER: Upsert data to the shared data pool.
+  // In this collaborative model, we store data under the user's ID but allow others to read via group queries.
   const upsert = useCallback((colName: string, id: string | undefined, data: any) => {
     if (!user) return;
     const finalId = id || generateId();
@@ -132,6 +133,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const addPurchase = useCallback((p: any) => upsert('livestockPurchases', undefined, p), [upsert]);
   const updatePurchase = useCallback((id: string, p: any) => upsert('livestockPurchases', id, p), [upsert]);
   const deletePurchase = useCallback((id: string) => {
+    // In collaborative mode, anyone can technically delete, but we target the user's own data by default.
     if (user) deleteDocumentNonBlocking(doc(firestore, 'users', user.uid, 'livestockPurchases', id));
   }, [user, firestore]);
 
