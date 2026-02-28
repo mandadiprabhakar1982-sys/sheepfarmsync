@@ -82,7 +82,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
   const firestore = useFirestore();
 
-  // STRICTLY SCOPED QUERIES - No Collection Groups
+  // STRICTLY SCOPED QUERIES - These are your private records
   const purchasesRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'livestockPurchases') : null, [firestore, user]);
   const { data: purchases, isLoading: isLoadingPurchases } = useCollection<LivestockPurchase>(purchasesRef);
 
@@ -110,7 +110,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const healthTasksRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'healthTasks') : null, [firestore, user]);
   const { data: healthTasks, isLoading: isLoadingHealthTasks } = useCollection<HealthTask>(healthTasksRef);
 
-  // Marketplace remains a root collection but is NOT used for private farm metrics
+  // Community Marketplace - Root level shared collection
   const marketplaceRef = useMemoFirebase(() => user ? collection(firestore, 'communitySales') : null, [firestore, user]);
   const { data: communitySales, isLoading: isLoadingMarketplace } = useCollection<PublicSale>(marketplaceRef);
 

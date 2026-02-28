@@ -2,21 +2,21 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Private User Data: Only the authenticated owner can read or write their own documents and subcollections
+    // User Profiles and Private Farm Data
+    // Only the authenticated owner can access their own folder and all sub-records
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
       
-      // Explicitly allow access to all subcollections (trackedSheep, livestockPurchases, etc.)
+      // Recursive match for all subcollections (purchases, sheep, health, etc.)
       match /{allSubcollections=**} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
     }
 
-    // Community Sales: Publicly readable for marketplace, but only owner can write/delete their own listings
+    // Community Marketplace
+    // Anyone signed in can read, and any signed-in user can contribute/edit
     match /communitySales/{saleId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null && request.resource.data.sellerId == request.auth.uid;
-      allow update, delete: if request.auth != null && resource.data.sellerId == request.auth.uid;
+      allow read, write: if request.auth != null;
     }
   }
 }
