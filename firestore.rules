@@ -9,5 +9,18 @@ service cloud.firestore {
       allow read, write: if request.auth != null;
     }
 
+    // Explicitly authorize top-level collections to ensure listing permissions are clear
+    match /livestockPurchases/{id} { allow read, write: if request.auth != null; }
+    match /animalSales/{id} { allow read, write: if request.auth != null; }
+    match /feedExpenses/{id} { allow read, write: if request.auth != null; }
+    match /medicineExpenses/{id} { allow read, write: if request.auth != null; }
+    match /laborExpenses/{id} { allow read, write: if request.auth != null; }
+    match /deadAnimals/{id} { allow read, write: if request.auth != null; }
+    match /trackedSheep/{id} { allow read, write: if request.auth != null; }
+    match /farmExpenses/{id} { allow read, write: if request.auth != null; }
+    match /healthTasks/{id} { allow read, write: if request.auth != null; }
+    match /communitySales/{id} { allow read, write: if request.auth != null; }
+    match /users/{userId} { allow read, write: if request.auth != null; }
+
   }
 }
