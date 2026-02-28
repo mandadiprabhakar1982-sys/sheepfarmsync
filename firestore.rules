@@ -6,22 +6,34 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // --- USER PROFILE & PRIVATE DATA ---
-    // This allows a user to read/write their own document and ANY subcollection nested under it.
-    // Example path: /users/pjUjan2Su5U91KL035Q1z4qOO7U2/trackedSheep/someDocId
+    // --- SHARED DATA ACCESS (Merged View) ---
+    // Allow any signed-in user to read any document in the farm subcollections
+    // This supports the Collection Group queries for the merged dashboard.
+    match /{path=**}/livestockPurchases/{docId} { allow read: if isSignedIn(); }
+    match /{path=**}/animalSales/{docId} { allow read: if isSignedIn(); }
+    match /{path=**}/feedExpenses/{docId} { allow read: if isSignedIn(); }
+    match /{path=**}/medicineExpenses/{docId} { allow read: if isSignedIn(); }
+    match /{path=**}/laborExpenses/{docId} { allow read: if isSignedIn(); }
+    match /{path=**}/deadAnimals/{docId} { allow read: if isSignedIn(); }
+    match /{path=**}/trackedSheep/{docId} { allow read: if isSignedIn(); }
+    match /{path=**}/farmExpenses/{docId} { allow read: if isSignedIn(); }
+    match /{path=**}/healthTasks/{docId} { allow read: if isSignedIn(); }
+
+    // --- USER PROFILE & OWNERSHIP ---
     match /users/{userId} {
       allow read, write: if isSignedIn() && request.auth.uid == userId;
       
-      match /{allSubcollections=**} {
-        allow read, write: if isSignedIn() && request.auth.uid == userId;
+      // Allow writing to own subcollections
+      match /{collectionName}/{docId} {
+        allow write: if isSignedIn() && request.auth.uid == userId;
+        allow read: if isSignedIn(); // Redundant with above but explicit
       }
     }
 
-    // --- COMMUNITY MARKETPLACE (Shared) ---
+    // --- COMMUNITY MARKETPLACE ---
     match /communitySales/{saleId} {
       allow read: if isSignedIn();
-      allow create: if isSignedIn() && request.resource.data.sellerId == request.auth.uid;
-      allow update, delete: if isSignedIn() && resource.data.sellerId == request.auth.uid;
+      allow write: if isSignedIn();
     }
   }
 }
