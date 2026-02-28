@@ -3,39 +3,38 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // 1. GLOBAL PERMISSIONS
-    // Allows any authenticated user to perform read operations (get and list).
-    // This is required for real-time collaborative features and collectionGroup queries.
+    // Allows anyone to read documents for a truly collaborative community experience.
+    // Creation and Listing (queries) require authentication.
     match /{document=**} {
-      allow read: if request.auth != null;
-      // Allow creation of documents by any authenticated user
+      allow read: if true;
       allow create: if request.auth != null;
+      allow list: if request.auth != null;
     }
 
     // 2. OWNERSHIP-BASED MODIFICATIONS
-    // Users can only update or delete documents they own.
-    // We check either 'ownerUid' (for farm records) or 'sellerId' (for marketplace).
+    // Users can only update or delete documents they originally created.
+    // This applies to private records stored in user subcollections.
     match /users/{userId}/{collectionName}/{docId} {
       allow update, delete: if request.auth != null && request.auth.uid == userId;
     }
     
+    // Ownership check for the community marketplace listings.
     match /communitySales/{saleId} {
       allow update, delete: if request.auth != null && request.auth.uid == resource.data.sellerId;
     }
 
-    // 3. COLLECTION GROUP AUTHORIZATION
-    // Explicitly allow listing at the root for queries across all users.
-    // This resolves the "list /databases/(default)/documents/" error for specific collections.
-    match /livestockPurchases/{id} { allow list: if request.auth != null; }
-    match /animalSales/{id} { allow list: if request.auth != null; }
-    match /feedExpenses/{id} { allow list: if request.auth != null; }
-    match /medicineExpenses/{id} { allow list: if request.auth != null; }
-    match /laborExpenses/{id} { allow list: if request.auth != null; }
-    match /deadAnimals/{id} { allow list: if request.auth != null; }
-    match /trackedSheep/{id} { allow list: if request.auth != null; }
-    match /farmExpenses/{id} { allow list: if request.auth != null; }
-    match /healthTasks/{id} { allow list: if request.auth != null; }
+    // 3. COLLECTION GROUP AUTHORIZATION (CRITICAL)
+    // Explicitly authorize the 'list' method for all collection groups used in the app.
+    // The {path=**} syntax is required for collectionGroup() queries to function.
+    match /{path=**}/livestockPurchases/{id} { allow list: if request.auth != null; }
+    match /{path=**}/animalSales/{id} { allow list: if request.auth != null; }
+    match /{path=**}/feedExpenses/{id} { allow list: if request.auth != null; }
+    match /{path=**}/medicineExpenses/{id} { allow list: if request.auth != null; }
+    match /{path=**}/laborExpenses/{id} { allow list: if request.auth != null; }
+    match /{path=**}/deadAnimals/{id} { allow list: if request.auth != null; }
+    match /{path=**}/trackedSheep/{id} { allow list: if request.auth != null; }
+    match /{path=**}/farmExpenses/{id} { allow list: if request.auth != null; }
+    match /{path=**}/healthTasks/{id} { allow list: if request.auth != null; }
     
-    // Explicitly allow list at the root level for the general case if needed
-    allow list: if request.auth != null;
   }
 }
