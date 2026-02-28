@@ -14,15 +14,16 @@ service cloud.firestore {
     }
 
     // --- GLOBAL COLLABORATIVE ACCESS ---
-    // Allow any authenticated shepherd with the 'collaborator' role to read/write all data.
+    // Allow any authenticated shepherd with the 'collaborator' role to read/write all operational data.
     // This supports Collection Group queries for the Merged Global View.
     match /{path=**} {
       allow read, write: if isCollaborator();
     }
 
     // --- USER PROFILES ---
+    // Explicitly allow users to read their own profile to bootstrap the collaborator check
     match /users/{userId} {
-      allow read: if isSignedIn();
+      allow read: if isSignedIn() && request.auth.uid == userId;
       allow write: if isSignedIn() && request.auth.uid == userId;
     }
 

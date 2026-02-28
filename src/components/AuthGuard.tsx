@@ -9,6 +9,7 @@ const publicPaths = ['/login'];
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
+  const [isInitializingUser, setIsInitializingUser] = useState(false);
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
   const pathname = usePathname();
@@ -29,6 +30,10 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     }
 
     const initUser = async () => {
+      // Don't re-initialize if we're already checking
+      if (isInitializingUser) return;
+      
+      setIsInitializingUser(true);
       const userRef = doc(firestore, 'users', user.uid);
       try {
         const snap = await getDoc(userRef);
@@ -43,6 +48,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
           });
         } else {
           const data = snap.data();
+          // Ensure role is always collaborator for the merged view
           if (data && data.role !== 'collaborator') {
             await updateDoc(userRef, { 
               role: 'collaborator',
@@ -52,6 +58,8 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
         }
       } catch (e) {
         // Errors handled by global listener
+      } finally {
+        setIsInitializingUser(false);
       }
     };
 
@@ -69,8 +77,9 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // Determine if we should show the loading shell
-  const isAuthChecking = isUserLoading || (user && publicPaths.includes(pathname)) || (!user && !publicPaths.includes(pathname));
+  // Determine if we should show the loading shell. 
+  // We MUST wait for both Auth and User Doc Initialization (role setting)
+  const isAuthChecking = isUserLoading || isInitializingUser || (user && publicPaths.includes(pathname)) || (!user && !publicPaths.includes(pathname));
   
   if (isAuthChecking) {
     return (
