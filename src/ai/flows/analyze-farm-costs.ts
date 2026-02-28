@@ -1,6 +1,7 @@
 'use server';
 /**
  * @fileOverview This file implements an AI flow for analyzing farm cost data.
+ * It now includes community benchmarking for competitive analysis.
  *
  * - analyzeFarmCosts - A function that triggers the AI cost analysis.
  * - AnalyzeFarmCostsInput - The input type for the analyzeFarmCosts function.
@@ -55,18 +56,26 @@ const FarmExpenseSchema = z.object({
   amount: z.number().describe('Amount of the expense.'),
 });
 
+const CommunityAveragesSchema = z.object({
+  avgPurchasePricePerAnimal: z.number().optional().describe('The average price paid for sheep in the community.'),
+  avgSalePricePerAnimal: z.number().optional().describe('The average price sheep are sold for in the community.'),
+  totalMarketVolume: z.number().optional().describe('Total number of animals currently in the marketplace.'),
+});
+
 const AnalyzeFarmCostsInputSchema = z.object({
   livestockPurchases: z.array(LivestockPurchaseSchema).describe('List of livestock purchase records.'),
   medicineExpenses: z.array(MedicineExpenseSchema).describe('List of medicine expense records.'),
   feedCosts: z.array(FeedCostSchema).describe('List of animal feed cost records.'),
   laborCosts: z.array(LaborCostSchema).describe('List of employee cost records.'),
   farmExpenses: z.array(FarmExpenseSchema).describe('List of general farm expense records.'),
+  communityAverages: CommunityAveragesSchema.optional().describe('Aggregated anonymized data from the community marketplace.'),
 });
 export type AnalyzeFarmCostsInput = z.infer<typeof AnalyzeFarmCostsInputSchema>;
 
 const AnalyzeFarmCostsOutputSchema = z.object({
   summary: z.string().describe('A concise summary of overall spending patterns.'),
   highExpenditureAreas: z.array(z.string()).describe('List of key areas with high expenditure.'),
+  communityBenchmarking: z.string().describe('Comparison of the farm performance against community averages.'),
   actionableInsights: z.array(z.string()).describe('Actionable recommendations for cost optimization.'),
 });
 export type AnalyzeFarmCostsOutput = z.infer<typeof AnalyzeFarmCostsOutputSchema>;
@@ -79,61 +88,45 @@ const analyzeFarmCostsPrompt = ai.definePrompt({
   name: 'analyzeFarmCostsPrompt',
   input: {schema: AnalyzeFarmCostsInputSchema},
   output: {schema: AnalyzeFarmCostsOutputSchema},
-  prompt: `You are an AI financial analyst specializing in farm management. Your task is to analyze the provided farm cost data and provide insightful observations.
+  prompt: `You are an AI financial analyst specializing in farm management and AgTech. Your task is to analyze the provided farm cost data and community benchmarks.
 
-Analyze the following cost data and:
+Analyze the following data and:
 1. Provide a concise summary of the overall spending patterns.
 2. Identify key areas of high expenditure.
-3. Offer actionable insights and recommendations to optimize costs.
+3. Compare the farm's performance (purchases and sales) with the community averages provided.
+4. Offer actionable insights and recommendations to optimize costs.
 
 Farm Cost Data:
 
 {{#if livestockPurchases}}
 ## Livestock Purchases:
 {{#each livestockPurchases}}
-- Date: {{{this.purchaseDate}}}, Village: {{{this.villageName}}}, Farmer: {{{this.farmerName}}}, Sheep: {{{this.animalCount}}}, Purchase Price: {{{this.purchasePrice}}}, Transport Cost: {{{this.transportCost}}}, Amount Paid: {{{this.amountPaid}}}, Due: {{{this.dueAmount}}}, Payment Period: {{{this.payingTimePeriod}}}
+- Date: {{{this.purchaseDate}}}, Sheep: {{{this.animalCount}}}, Price: {{{this.purchasePrice}}}
 {{/each}}
-{{else}}
-No livestock purchase data available.
+{{/if}}
+
+{{#if communityAverages}}
+## Community Benchmarks (Regional Data):
+- Avg Market Purchase Price: ₹{{{communityAverages.avgPurchasePricePerAnimal}}}
+- Avg Market Sale Price: ₹{{{communityAverages.avgSalePricePerAnimal}}}
+- Community Listing Volume: {{{communityAverages.totalMarketVolume}}} animals
 {{/if}}
 
 {{#if medicineExpenses}}
-## Medicine Expenses:
+## Medicine:
 {{#each medicineExpenses}}
-- Shop: {{{this.shopName}}}, Date: {{{this.date}}}, Description: {{{this.description}}}, Cost of Medicines: {{{this.costOfMedicines}}}, Total Spent: {{{this.totalAmountSpent}}}, Outstanding Dues: {{{this.outstandingDues}}}
+- Cost: {{{this.totalAmountSpent}}}, Description: {{{this.description}}}
 {{/each}}
-{{else}}
-No medicine expense data available.
 {{/if}}
 
 {{#if feedCosts}}
-## Feed Costs:
+## Feed:
 {{#each feedCosts}}
-- Type: {{{this.feedType}}}, Cost: {{{this.cost}}}, Date: {{{this.date}}}, Quantity: {{{this.quantity}}}
+- Type: {{{this.feedType}}}, Cost: {{{this.cost}}}
 {{/each}}
-{{else}}
-No feed cost data available.
 {{/if}}
 
-{{#if laborCosts}}
-## Employee Costs:
-{{#each laborCosts}}
-- Employee: {{{this.employeeName}}}, Date: {{{this.date}}}, Wages: {{{this.wages}}}, Employees: {{{this.numberOfLaborers}}}, Advance Payments: {{{this.advancePayments}}}, Food Costs: {{{this.foodCosts}}}, Fuel Costs: {{{this.fuelCosts}}}, Total: {{{this.totalLaborCosts}}}
-{{/each}}
-{{else}}
-No employee cost data available.
-{{/if}}
-
-{{#if farmExpenses}}
-## Other Farm Expenses:
-{{#each farmExpenses}}
-- Date: {{{this.expenseDate}}}, Description: {{{this.description}}}, Amount: {{{this.amount}}}
-{{/each}}
-{{else}}
-No other farm expense data available.
-{{/if}}
-
-Based on this data, please provide your analysis and insights following the requested JSON format.`,
+Based on this data, please provide your analysis, focusing on how the user's costs compare to the community trends.`,
 });
 
 const analyzeFarmCostsFlow = ai.defineFlow(
@@ -147,5 +140,3 @@ const analyzeFarmCostsFlow = ai.defineFlow(
     return output!;
   }
 );
-
-    
