@@ -34,6 +34,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
         const snap = await getDoc(userRef);
         if (!snap.exists()) {
           await setDoc(userRef, {
+            id: user.uid,
             email: user.email,
             displayName: user.displayName,
             role: 'collaborator',
