@@ -15,7 +15,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
 
-  // Watch the user profile in real-time to detect role changes instantly
+  // Stable profile reference for the real-time role listener
   const profileRef = useMemoFirebase(() => (firestore && user) ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
   const { data: profile, isLoading: isProfileLoading } = useDoc<UserProfile>(profileRef);
 
@@ -23,28 +23,36 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     setMounted(true);
   }, []);
 
-  // Ensure user document exists and has the correct role
+  // Proactive profile initialization and role verification
   useEffect(() => {
     if (!mounted || isUserLoading || isProfileLoading || !firestore || !user) return;
 
     const syncProfile = async () => {
       const userRef = doc(firestore, 'users', user.uid);
       if (!profile) {
-        // Create profile if it doesn't exist
-        await setDoc(userRef, {
-          id: user.uid,
-          email: user.email,
-          displayName: user.displayName || 'Shepherd',
-          role: 'collaborator',
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp(),
-        });
+        // Automatically create the shepherd profile if missing
+        try {
+          await setDoc(userRef, {
+            id: user.uid,
+            email: user.email,
+            displayName: user.displayName || 'Shepherd',
+            role: 'collaborator',
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+          });
+        } catch (e) {
+          console.error("Critical: Failed to initialize shepherd profile", e);
+        }
       } else if (!profile.role) {
-        // Update profile if role is missing (fixes "Data Missing" issue)
-        await updateDoc(userRef, { 
-          role: 'collaborator',
-          updatedAt: serverTimestamp() 
-        });
+        // Repair missing role field immediately to unlock collaborative data
+        try {
+          await updateDoc(userRef, { 
+            role: 'collaborator',
+            updatedAt: serverTimestamp() 
+          });
+        } catch (e) {
+          console.error("Critical: Failed to update shepherd role", e);
+        }
       }
     };
 

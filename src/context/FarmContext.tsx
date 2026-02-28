@@ -81,13 +81,13 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
   const firestore = useFirestore();
 
-  // Watch the profile to unlock data querying only when verified as a collaborator
+  // Watch the profile switch to unlock collaborative data flow
   const userProfileRef = useMemoFirebase(() => (firestore && user) ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
   const { data: userProfile, isLoading: isLoadingProfile } = useDoc<UserProfile>(userProfileRef);
   
   const isCollaboratorVerified = userProfile?.role === 'collaborator' || userProfile?.role === 'admin';
 
-  // Collection Group queries aggregate data from ALL users for the Merged Collaborative View
+  // Collaborative real-time data streams (Collection Group Queries)
   const purchasesRef = useMemoFirebase(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'livestockPurchases')) : null, [firestore, isCollaboratorVerified]);
   const { data: allPurchases, isLoading: isLoadingPurchases } = useCollection<LivestockPurchase>(purchasesRef);
 
@@ -118,15 +118,17 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const marketplaceRef = useMemoFirebase(() => firestore ? query(collectionGroup(firestore, 'communitySales')) : null, [firestore]);
   const { data: communitySales, isLoading: isLoadingMarketplace } = useCollection<PublicSale>(marketplaceRef);
 
-  const purchases = useMemo(() => allPurchases ? [...allPurchases].sort((a, b) => new Date(b.purchaseDate).getTime() - new Date(a.purchaseDate).getTime()) : null, [allPurchases]);
-  const sales = useMemo(() => allSales ? [...allSales].sort((a, b) => new Date(b.saleDate).getTime() - new Date(a.saleDate).getTime()) : null, [allSales]);
-  const feedCosts = useMemo(() => allFeedCosts ? [...allFeedCosts].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()) : null, [allFeedCosts]);
-  const medicineExpenses = useMemo(() => allMedicineExpenses ? [...allMedicineExpenses].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()) : null, [allMedicineExpenses]);
-  const laborCosts = useMemo(() => allLaborCosts ? [...allLaborCosts].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()) : null, [allLaborCosts]);
-  const deadAnimals = useMemo(() => allDeadAnimals ? [...allDeadAnimals].sort((a, b) => new Date(b.dateOfDeath).getTime() - new Date(a.dateOfDeath).getTime()) : null, [allDeadAnimals]);
+  const sorted = useCallback((list: any[] | null, dateKey: string) => list ? [...list].sort((a, b) => new Date(b[dateKey]).getTime() - new Date(a[dateKey]).getTime()) : null, []);
+
+  const purchases = useMemo(() => sorted(allPurchases, 'purchaseDate'), [allPurchases, sorted]);
+  const sales = useMemo(() => sorted(allSales, 'saleDate'), [allSales, sorted]);
+  const feedCosts = useMemo(() => sorted(allFeedCosts, 'date'), [allFeedCosts, sorted]);
+  const medicineExpenses = useMemo(() => sorted(allMedicineExpenses, 'date'), [allMedicineExpenses, sorted]);
+  const laborCosts = useMemo(() => sorted(allLaborCosts, 'date'), [allLaborCosts, sorted]);
+  const deadAnimals = useMemo(() => sorted(allDeadAnimals, 'dateOfDeath'), [allDeadAnimals, sorted]);
   const trackedSheep = useMemo(() => allTrackedSheep ? [...allTrackedSheep].sort((a, b) => (a.tagId || '').localeCompare(b.tagId || '')) : null, [allTrackedSheep]);
-  const farmExpenses = useMemo(() => allFarmExpenses ? [...allFarmExpenses].sort((a, b) => new Date(b.expenseDate).getTime() - new Date(a.expenseDate).getTime()) : null, [allFarmExpenses]);
-  const healthTasks = useMemo(() => allHealthTasks ? [...allHealthTasks].sort((a, b) => new Date(a.nextDueDate).getTime() - new Date(b.nextDueDate).getTime()) : null, [allHealthTasks]);
+  const farmExpenses = useMemo(() => sorted(allFarmExpenses, 'expenseDate'), [allFarmExpenses, sorted]);
+  const healthTasks = useMemo(() => sorted(allHealthTasks, 'nextDueDate'), [allHealthTasks, sorted]);
 
   const upsert = useCallback((colName: string, id: string | undefined, data: any) => {
     if (!user || !firestore) return;
@@ -201,9 +203,11 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     deleteDocumentNonBlocking(doc(firestore, 'communitySales', id));
   }, [firestore]);
 
-  // Combined loading state: Sync begins with profile verification
-  const isLoading = isLoadingProfile || (user && !isCollaboratorVerified) || isLoadingPurchases || isLoadingSales || isLoadingFeed || isLoadingMedicine || isLoadingLabor || isLoadingDead || isLoadingTracked || isLoadingFarmExpenses || isLoadingHealth || isLoadingMarketplace;
+  // Unified loading state gated by profile verification
+  const isSyncing = isLoadingProfile || (user && !isCollaboratorVerified);
+  const isLoading = isSyncing || isLoadingPurchases || isLoadingSales || isLoadingFeed || isLoadingMedicine || isLoadingLabor || isLoadingDead || isLoadingTracked || isLoadingFarmExpenses || isLoadingHealth || isLoadingMarketplace;
 
+  // Aggregated totals for the Merged Collaborative View
   const totalDeadCount = useMemo(() => (allDeadAnimals || []).reduce((sum, a) => sum + Number(a.sheepCount || 0), 0), [allDeadAnimals]);
   const totalTrackedCount = useMemo(() => (allTrackedSheep || []).length, [allTrackedSheep]);
   const totalSheepCount = useMemo(() => {
