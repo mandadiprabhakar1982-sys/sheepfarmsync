@@ -2,46 +2,40 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // 1. GLOBAL READ ACCESS
-    // Allows any authenticated user to see data from other shepherds.
-    // This is required for real-time collaborative features and AI benchmarking.
+    // 1. GLOBAL PERMISSIONS
+    // Allows any authenticated user to perform read operations (get and list).
+    // This is required for real-time collaborative features and collectionGroup queries.
     match /{document=**} {
-      allow read: if true;
+      allow read: if request.auth != null;
+      // Allow creation of documents by any authenticated user
+      allow create: if request.auth != null;
     }
 
-    // 2. USER PROFILES
-    // Publicly viewable, but only editable by the owner.
-    match /users/{userId} {
-      allow write: if request.auth != null && request.auth.uid == userId;
-    }
-
-    // 3. PRIVATE FARM RECORDS (Subcollections)
-    // These are nested under /users/{userId}/...
-    // Only the owner can create, update, or delete their own records.
+    // 2. OWNERSHIP-BASED MODIFICATIONS
+    // Users can only update or delete documents they own.
+    // We check either 'ownerUid' (for farm records) or 'sellerId' (for marketplace).
     match /users/{userId}/{collectionName}/{docId} {
-      allow create: if request.auth != null && request.auth.uid == userId;
       allow update, delete: if request.auth != null && request.auth.uid == userId;
     }
-
-    // 4. COMMUNITY MARKETPLACE
-    // Top-level shared collection.
-    // Anyone signed in can post, but only the seller can edit/remove.
+    
     match /communitySales/{saleId} {
-      allow create: if request.auth != null;
       allow update, delete: if request.auth != null && request.auth.uid == resource.data.sellerId;
     }
-    
-    // 5. COLLECTION GROUP AUTHORIZATION
+
+    // 3. COLLECTION GROUP AUTHORIZATION
     // Explicitly allow listing at the root for queries across all users.
-    // This resolves the "list /databases/(default)/documents/" error.
-    match /livestockPurchases/{id} { allow list: if true; }
-    match /animalSales/{id} { allow list: if true; }
-    match /feedExpenses/{id} { allow list: if true; }
-    match /medicineExpenses/{id} { allow list: if true; }
-    match /laborExpenses/{id} { allow list: if true; }
-    match /deadAnimals/{id} { allow list: if true; }
-    match /trackedSheep/{id} { allow list: if true; }
-    match /farmExpenses/{id} { allow list: if true; }
-    match /healthTasks/{id} { allow list: if true; }
+    // This resolves the "list /databases/(default)/documents/" error for specific collections.
+    match /livestockPurchases/{id} { allow list: if request.auth != null; }
+    match /animalSales/{id} { allow list: if request.auth != null; }
+    match /feedExpenses/{id} { allow list: if request.auth != null; }
+    match /medicineExpenses/{id} { allow list: if request.auth != null; }
+    match /laborExpenses/{id} { allow list: if request.auth != null; }
+    match /deadAnimals/{id} { allow list: if request.auth != null; }
+    match /trackedSheep/{id} { allow list: if request.auth != null; }
+    match /farmExpenses/{id} { allow list: if request.auth != null; }
+    match /healthTasks/{id} { allow list: if request.auth != null; }
+    
+    // Explicitly allow list at the root level for the general case if needed
+    allow list: if request.auth != null;
   }
 }
