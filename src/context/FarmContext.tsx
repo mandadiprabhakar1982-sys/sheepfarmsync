@@ -82,7 +82,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
   const firestore = useFirestore();
 
-  // MERGED COMMUNITY LISTENERS (Unfiltered queries for real-time collaboration)
+  // MERGED DATA LISTENERS - Root collection queries for collaborative experience
   
   const purchasesRef = useMemoFirebase(() => 
     user ? collection(firestore, 'livestockPurchases') : null, 
@@ -144,7 +144,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   );
   const { data: communitySales, isLoading: isLoadingMarketplace } = useCollection<PublicSale>(marketplaceRef);
 
-  // UPSERT DATA
+  // SHARED UPSERT - Stores data at the root level for community visibility
   const upsert = useCallback((colName: string, id: string | undefined, data: any) => {
     if (!user) return;
     const finalId = id || generateId();
