@@ -7,7 +7,7 @@ service cloud.firestore {
     }
 
     // --- COMMUNITY MARKETPLACE ---
-    // Shared space: Everyone can see, only sellers can edit.
+    // Public read, private write (owner only)
     match /communitySales/{saleId} {
       allow read: if isSignedIn();
       allow create: if isSignedIn() && request.resource.data.sellerId == request.auth.uid;
@@ -16,14 +16,17 @@ service cloud.firestore {
 
     // --- PRIVATE FARM COLLECTIONS ---
     // Strictly private: Users only see and edit their own data.
-    // We explicitly list the collections to ensure the rules engine handles the 'list' method correctly.
+    // This matches: livestockPurchases, animalSales, feedExpenses, medicineExpenses, 
+    // laborExpenses, deadAnimals, trackedSheep, farmExpenses, healthTasks
     match /{collectionName}/{docId} {
       // Allow creation if they attach their own UID as ownerId
       allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
       
       // Allow reading (get/list), updating, and deleting only if they are the owner
-      // Firestore rules are NOT filters; the frontend MUST also apply a 'where' filter.
-      allow read, update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+      // NOTE: Queries MUST include a where('ownerId', '==', auth.uid) filter to succeed.
+      allow read, update, delete: if isSignedIn() && (
+        resource == null || resource.data.ownerId == request.auth.uid
+      );
     }
   }
 }

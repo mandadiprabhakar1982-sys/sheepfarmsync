@@ -3,7 +3,7 @@
 import { createContext, useContext, ReactNode, useMemo, useCallback } from 'react';
 import type { LivestockPurchase, AnimalSale, FeedCost, MedicineExpense, LaborCost, TrackedSheep, DeadAnimal, FarmExpense, HealthTask, PublicSale } from '@/lib/types';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, doc, serverTimestamp, query, where } from 'firebase/firestore';
+import { collection, doc, serverTimestamp, query, where, orderBy } from 'firebase/firestore';
 import { setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 interface FarmContextType {
@@ -82,7 +82,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
   const firestore = useFirestore();
 
-  // --- PRIVATE DATA LISTENERS (Filtered by ownerId to comply with Security Rules) ---
+  // --- PRIVATE DATA LISTENERS (Strictly filtered by ownerId to comply with Security Rules) ---
   
   const purchasesRef = useMemoFirebase(() => 
     user ? query(collection(firestore, 'livestockPurchases'), where('ownerId', '==', user.uid)) : null, 
