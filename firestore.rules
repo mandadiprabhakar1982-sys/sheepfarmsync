@@ -13,18 +13,22 @@ service cloud.firestore {
       return isSignedIn() && exists(userPath) && get(userPath).data.role == 'collaborator';
     }
 
-    // --- GLOBAL COLLABORATIVE ACCESS ---
-    // Allow any authenticated shepherd with the 'collaborator' role to read/write all operational data.
-    // This supports Collection Group queries for the Merged Global View.
-    match /{path=**} {
-      allow read, write: if isCollaborator();
-    }
-
     // --- USER PROFILES ---
-    // Explicitly allow users to read/write their own profile to bootstrap the collaborator check
     match /users/{userId} {
       allow read, write: if isSignedIn() && request.auth.uid == userId;
     }
+
+    // --- OPERATIONAL DATA (Collection Groups) ---
+    // Explicitly allow collaborative access to subcollections across all users
+    match /{path=**}/livestockPurchases/{id} { allow read, write: if isCollaborator(); }
+    match /{path=**}/animalSales/{id} { allow read, write: if isCollaborator(); }
+    match /{path=**}/feedExpenses/{id} { allow read, write: if isCollaborator(); }
+    match /{path=**}/medicineExpenses/{id} { allow read, write: if isCollaborator(); }
+    match /{path=**}/laborExpenses/{id} { allow read, write: if isCollaborator(); }
+    match /{path=**}/deadAnimals/{id} { allow read, write: if isCollaborator(); }
+    match /{path=**}/trackedSheep/{id} { allow read, write: if isCollaborator(); }
+    match /{path=**}/farmExpenses/{id} { allow read, write: if isCollaborator(); }
+    match /{path=**}/healthTasks/{id} { allow read, write: if isCollaborator(); }
 
     // --- COMMUNITY MARKETPLACE ---
     match /communitySales/{saleId} {

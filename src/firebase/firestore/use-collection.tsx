@@ -24,22 +24,18 @@ export interface UseCollectionResult<T> {
 
 /**
  * React hook to subscribe to a Firestore collection or query in real-time.
- * Optimized to prevent internal SDK assertion errors (ID: ca9).
  */
 export function useCollection<T = any>(
   memoizedTargetRefOrQuery: Query<DocumentData> | null | undefined,
 ): UseCollectionResult<T> {
+  // Start with loading true if we have a target, false if we're waiting for one
   const [data, setData] = useState<WithId<T>[] | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(!!memoizedTargetRefOrQuery);
   const [error, setError] = useState<FirestoreError | null>(null);
   
-  // Track the current subscription to avoid redundant onSnapshot calls
-  // and ensure we don't process results from stale listeners.
   const queryRef = useRef<Query<DocumentData> | null>(null);
 
   useEffect(() => {
-    // If the query reference hasn't actually changed, don't resubscribe.
-    // This is critical when parents re-render frequently.
     if (!memoizedTargetRefOrQuery) {
       setData(null);
       setIsLoading(false);
@@ -56,13 +52,11 @@ export function useCollection<T = any>(
     setError(null);
     queryRef.current = memoizedTargetRefOrQuery;
 
-    // We use a local variable to capture the specific query for this effect run.
     const currentQuery = memoizedTargetRefOrQuery;
 
     const unsubscribe = onSnapshot(
       currentQuery,
       (snapshot: QuerySnapshot<DocumentData>) => {
-        // Only update state if this is still the active query reference.
         if (queryRef.current !== currentQuery) return;
 
         const results: WithId<T>[] = [];
@@ -77,8 +71,6 @@ export function useCollection<T = any>(
       (err: FirestoreError) => {
         if (queryRef.current !== currentQuery) return;
 
-        // ID: ca9 often happens when listeners are created/destroyed too fast.
-        // We catch it and report it gracefully without crashing.
         if (err.code as string === 'permission-denied' || err.code as string === 'unavailable') {
           console.warn(`Firestore [${err.code}]:`, err.message);
         } else {
@@ -86,15 +78,13 @@ export function useCollection<T = any>(
         }
         
         setError(err);
-        setData([]);
+        setData([]); // Fail to empty array
         setIsLoading(false);
       }
     );
 
     return () => {
-      // Cleanup the specific listener for this effect run.
       unsubscribe();
-      // If we are cleaning up the current active query, clear the ref.
       if (queryRef.current === currentQuery) {
         queryRef.current = null;
       }
