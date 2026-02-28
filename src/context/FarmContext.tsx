@@ -82,9 +82,8 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
   const firestore = useFirestore();
 
-  // --- PRIVATE DATA QUERIES ---
-  // IMPORTANT: To satisfy "allow read: if resource.data.ownerId == auth.uid",
-  // every collection query MUST explicitly include the ownerId filter.
+  // --- PRIVATE DATA QUERIES WITH OWNERID FILTER ---
+  // Mandatory for satisfy 'allow read: if resource.data.ownerId == auth.uid'
   
   const purchasesRef = useMemoFirebase(() => user ? query(collection(firestore, 'livestockPurchases'), where('ownerId', '==', user.uid)) : null, [firestore, user]);
   const { data: purchases, isLoading: isLoadingPurchases } = useCollection<LivestockPurchase>(purchasesRef);
@@ -113,7 +112,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const healthTasksRef = useMemoFirebase(() => user ? query(collection(firestore, 'healthTasks'), where('ownerId', '==', user.uid)) : null, [firestore, user]);
   const { data: healthTasks, isLoading: isLoadingHealthTasks } = useCollection<HealthTask>(healthTasksRef);
 
-  // Marketplace remains shared
+  // Marketplace: Public read, no owner filter required for listing
   const marketplaceRef = useMemoFirebase(() => collection(firestore, 'communitySales'), [firestore]);
   const { data: communitySales, isLoading: isLoadingMarketplace } = useCollection<PublicSale>(marketplaceRef);
 

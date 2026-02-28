@@ -6,30 +6,55 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // --- COMMUNITY MARKETPLACE ---
-    // Public listings that anyone signed in can read.
-    // Deletion/Update restricted to the seller.
+    // --- PRIVATE COLLECTIONS (Owner-based access) ---
+    // These collections require an 'ownerId' field on every document.
+    match /livestockPurchases/{id} {
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow read, update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+    }
+    match /animalSales/{id} {
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow read, update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+    }
+    match /feedExpenses/{id} {
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow read, update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+    }
+    match /medicineExpenses/{id} {
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow read, update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+    }
+    match /laborExpenses/{id} {
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow read, update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+    }
+    match /deadAnimals/{id} {
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow read, update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+    }
+    match /trackedSheep/{id} {
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow read, update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+    }
+    match /farmExpenses/{id} {
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow read, update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+    }
+    match /healthTasks/{id} {
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow read, update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+    }
+
+    // --- SHARED COLLECTIONS ---
     match /communitySales/{saleId} {
       allow read: if isSignedIn();
       allow create: if isSignedIn() && request.resource.data.sellerId == request.auth.uid;
       allow update, delete: if isSignedIn() && resource.data.sellerId == request.auth.uid;
     }
 
-    // --- PRIVATE USER PROFILE ---
+    // --- USER PROFILE ---
     match /users/{userId} {
       allow read, write: if isSignedIn() && request.auth.uid == userId;
-    }
-
-    // --- ALL OTHER PRIVATE COLLECTIONS ---
-    // (livestockPurchases, feedExpenses, medicineExpenses, laborExpenses, etc.)
-    // These require an ownerId field on every document.
-    match /{collectionName}/{docId} {
-      // Allow creation if they attach their own UID as ownerId
-      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
-      
-      // Allow reading/editing only if they are the owner
-      // NOTE: Queries MUST include a .where('ownerId', '==', auth.uid) filter to succeed.
-      allow read, update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
     }
   }
 }
