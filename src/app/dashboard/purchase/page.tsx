@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { PlusCircle, Trash2, Calendar as CalendarIcon, Pencil } from 'lucide-react';
+import { PlusCircle, Trash2, Calendar as CalendarIcon, Pencil, ShoppingBag } from 'lucide-react';
 import { format } from 'date-fns';
 
 import { PageHeader } from '@/components/page-header';
@@ -148,17 +148,20 @@ export default function PurchasePage() {
   };
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-8 px-4">
       <PageHeader
         title="Purchase Sheep"
-        description="Record new sheep purchases."
+        description="Record and track new sheep acquisitions."
       />
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        <div className="lg:col-span-1">
-          <Card>
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+        <div className="lg:col-span-4">
+          <Card className="border-primary/20 bg-accent/5">
             <CardHeader>
-              <CardTitle>Record New Purchase</CardTitle>
-              <CardDescription>Fill out the form below.</CardDescription>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <PlusCircle className="h-5 w-5 text-primary" />
+                New Acquisition
+              </CardTitle>
+              <CardDescription>Enter details of the livestock purchase.</CardDescription>
             </CardHeader>
             <CardContent>
               <Form {...purchaseForm}>
@@ -175,7 +178,7 @@ export default function PurchasePage() {
                               <Button
                                 variant={'outline'}
                                 className={cn(
-                                  'w-full pl-3 text-left font-normal',
+                                  'w-full pl-3 text-left font-normal h-11',
                                   !field.value && 'text-muted-foreground'
                                 )}
                               >
@@ -204,135 +207,160 @@ export default function PurchasePage() {
                       </FormItem>
                     )}
                   />
-                  <FormField control={purchaseForm.control} name="villageName" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Village Name</FormLabel>
-                      <FormControl><Input placeholder="e.g., Green Valley" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
-                  <FormField control={purchaseForm.control} name="farmerName" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Farmer's Name</FormLabel>
-                      <FormControl><Input placeholder="e.g., John Doe" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
+                  <div className="grid grid-cols-1 gap-4">
+                    <FormField control={purchaseForm.control} name="villageName" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Village Name</FormLabel>
+                        <FormControl><Input placeholder="e.g., Green Valley" className="h-11" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={purchaseForm.control} name="farmerName" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Farmer's Name</FormLabel>
+                        <FormControl><Input placeholder="e.g., John Doe" className="h-11" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                  </div>
+                  
                   <FormField control={purchaseForm.control} name="animalCount" render={({ field }) => (
                     <FormItem>
                       <FormLabel>Number of Sheep</FormLabel>
-                      <FormControl><Input type="number" {...field} /></FormControl>
+                      <FormControl><Input type="number" className="h-11" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
+                  
                   <div className="grid grid-cols-2 gap-4">
                     <FormField control={purchaseForm.control} name="purchasePrice" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Purchase Price (₹)</FormLabel>
-                        <FormControl><Input type="number" step="0.01" {...field} /></FormControl>
+                        <FormLabel>Price (₹)</FormLabel>
+                        <FormControl><Input type="number" className="h-11" step="0.01" {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
                     <FormField control={purchaseForm.control} name="amountPaid" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Amount Paid (₹)</FormLabel>
-                        <FormControl><Input type="number" step="0.01" {...field} /></FormControl>
+                        <FormLabel>Paid (₹)</FormLabel>
+                        <FormControl><Input type="number" className="h-11" step="0.01" {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
                   </div>
-                  <FormField control={purchaseForm.control} name="transportCost" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Transport Cost (₹)</FormLabel>
-                      <FormControl><Input type="number" step="0.01" placeholder="e.g., 500" {...field} value={field.value ?? ''} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
-                  <FormField control={purchaseForm.control} name="dueAmount" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Due Amount (₹)</FormLabel>
-                      <FormControl><Input type="number" {...field} readOnly className="bg-muted" /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
-                  <FormField control={purchaseForm.control} name="payingTimePeriod" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Paying Time Period</FormLabel>
-                      <FormControl><Input placeholder="e.g., 30 days" {...field} value={field.value ?? ''} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
-                  <Button type="submit" className="w-full">
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Add Purchase
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField control={purchaseForm.control} name="transportCost" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Transport (₹)</FormLabel>
+                        <FormControl><Input type="number" className="h-11" step="0.01" {...field} value={field.value ?? ''} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={purchaseForm.control} name="dueAmount" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Due (₹)</FormLabel>
+                        <FormControl><Input type="number" className="h-11 bg-muted/50 font-bold text-destructive" {...field} readOnly /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                  </div>
+
+                  <Button type="submit" className="w-full h-12 font-bold shadow-lg shadow-primary/20">
+                    <PlusCircle className="mr-2 h-5 w-5" />
+                    Record Purchase
                   </Button>
                 </form>
               </Form>
             </CardContent>
           </Card>
         </div>
-        <div className="lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Purchase History</CardTitle>
+
+        <div className="lg:col-span-8">
+          <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden">
+            <CardHeader className="bg-muted/50 pb-8">
+              <div className="flex items-center gap-3 mb-2">
+                <ShoppingBag className="h-6 w-6 text-primary" />
+                <CardTitle className="text-2xl font-black tracking-tight">Purchase History</CardTitle>
+              </div>
+              <CardDescription className="text-[10px] font-black uppercase tracking-widest opacity-60">Complete operational log of livestock entries</CardDescription>
             </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Village</TableHead>
-                    <TableHead>Farmer</TableHead>
-                    <TableHead>Sheep</TableHead>
-                    <TableHead>Price</TableHead>
-                    <TableHead>Transport</TableHead>
-                    <TableHead>Paid</TableHead>
-                    <TableHead>Due</TableHead>
-                    <TableHead className="text-right">Action</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {sortedPurchases && sortedPurchases.length > 0 ? (
-                    sortedPurchases.map((purchase) => (
-                      <TableRow key={purchase.id}>
-                        <TableCell>{purchase.purchaseDate}</TableCell>
-                        <TableCell>{purchase.villageName}</TableCell>
-                        <TableCell>{purchase.farmerName}</TableCell>
-                        <TableCell>{purchase.animalCount}</TableCell>
-                        <TableCell>₹{purchase.purchasePrice.toFixed(2)}</TableCell>
-                        <TableCell>₹{(purchase.transportCost || 0).toFixed(2)}</TableCell>
-                        <TableCell>₹{purchase.amountPaid.toFixed(2)}</TableCell>
-                        <TableCell className={purchase.dueAmount > 0 ? 'text-destructive' : ''}>₹{purchase.dueAmount.toFixed(2)}</TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex items-center justify-end">
-                            <Button variant="ghost" size="icon" onClick={() => handleEditClick(purchase)}>
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="icon" onClick={() => handleDeletePurchase(purchase.id)}>
-                              <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
+            <CardContent className="pt-8">
+              <div className="rounded-2xl border bg-white overflow-hidden shadow-sm">
+                <Table>
+                  <TableHeader className="bg-neutral-50 border-b">
+                    <TableRow className="hover:bg-transparent">
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-5">Date</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-5">Village</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-5">Farmer</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-5">Sheep</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-5">Price</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-5">Transport</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-5">Paid</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-5">Due</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-5 text-right">Action</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {sortedPurchases && sortedPurchases.length > 0 ? (
+                      sortedPurchases.map((purchase) => (
+                        <TableRow key={purchase.id} className="group hover:bg-neutral-50/50 transition-colors">
+                          <TableCell className="font-medium text-xs text-muted-foreground">{purchase.purchaseDate}</TableCell>
+                          <TableCell className="font-bold text-xs">{purchase.villageName}</TableCell>
+                          <TableCell className="text-xs">{purchase.farmerName}</TableCell>
+                          <TableCell>
+                            <span className="inline-flex items-center justify-center bg-primary/10 text-primary rounded-lg px-2.5 py-1 text-[10px] font-black">
+                              {purchase.animalCount}
+                            </span>
+                          </TableCell>
+                          <TableCell className="font-bold text-xs">₹{purchase.purchasePrice.toLocaleString()}</TableCell>
+                          <TableCell className="text-xs text-muted-foreground">₹{(purchase.transportCost || 0).toLocaleString()}</TableCell>
+                          <TableCell className="font-bold text-xs text-green-600">₹{purchase.amountPaid.toLocaleString()}</TableCell>
+                          <TableCell>
+                            <span className={cn(
+                              "text-xs font-black",
+                              purchase.dueAmount > 0 ? "text-destructive" : "text-neutral-300"
+                            )}>
+                              ₹{purchase.dueAmount.toLocaleString()}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex items-center justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => handleEditClick(purchase)}>
+                                <Pencil className="h-3.5 w-3.5" />
+                              </Button>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-destructive hover:bg-destructive/10" onClick={() => handleDeletePurchase(purchase.id)}>
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={9} className="text-center py-20">
+                          <div className="flex flex-col items-center gap-3 opacity-40">
+                             <ShoppingBag className="h-10 w-10 mb-2" />
+                             <p className="text-sm font-bold">No purchases recorded yet.</p>
+                             <p className="text-[10px] font-medium tracking-wide">Enter your first purchase using the form on the left</p>
                           </div>
                         </TableCell>
                       </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={9} className="text-center">No purchases recorded yet.</TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
         </div>
       </div>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md rounded-[2rem]">
           <DialogHeader>
             <DialogTitle>Edit Purchase Record</DialogTitle>
             <DialogDescription>
-              Update the details of your purchase. Click save when you're done.
+              Update the details of your purchase acquisition.
             </DialogDescription>
           </DialogHeader>
           <Form {...editForm}>
@@ -349,7 +377,7 @@ export default function PurchasePage() {
                           <Button
                             variant={'outline'}
                             className={cn(
-                              'w-full pl-3 text-left font-normal',
+                              'w-full pl-3 text-left font-normal h-11',
                               !field.value && 'text-muted-foreground'
                             )}
                           >
@@ -375,63 +403,37 @@ export default function PurchasePage() {
               <FormField control={editForm.control} name="villageName" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Village Name</FormLabel>
-                  <FormControl><Input {...field} /></FormControl>
+                  <FormControl><Input className="h-11" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
               <FormField control={editForm.control} name="farmerName" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Farmer's Name</FormLabel>
-                  <FormControl><Input {...field} /></FormControl>
+                  <FormControl><Input className="h-11" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
-              <FormField control={editForm.control} name="animalCount" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Number of Sheep</FormLabel>
-                  <FormControl><Input type="number" {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} />
+              
               <div className="grid grid-cols-2 gap-4">
-                <FormField control={editForm.control} name="purchasePrice" render={({ field }) => (
+                 <FormField control={editForm.control} name="purchasePrice" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Purchase Price (₹)</FormLabel>
-                    <FormControl><Input type="number" step="0.01" {...field} /></FormControl>
+                    <FormLabel>Price (₹)</FormLabel>
+                    <FormControl><Input type="number" className="h-11" step="0.01" {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
                 <FormField control={editForm.control} name="amountPaid" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Amount Paid (₹)</FormLabel>
-                    <FormControl><Input type="number" step="0.01" {...field} /></FormControl>
+                    <FormLabel>Paid (₹)</FormLabel>
+                    <FormControl><Input type="number" className="h-11" step="0.01" {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
               </div>
-              <FormField control={editForm.control} name="transportCost" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Transport Cost (₹)</FormLabel>
-                  <FormControl><Input type="number" step="0.01" {...field} value={field.value ?? ''} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} />
-              <FormField control={editForm.control} name="dueAmount" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Due Amount (₹)</FormLabel>
-                  <FormControl><Input type="number" {...field} readOnly className="bg-muted" /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} />
-              <FormField control={editForm.control} name="payingTimePeriod" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Paying Time Period</FormLabel>
-                  <FormControl><Input {...field} value={field.value ?? ''} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} />
+
               <DialogFooter>
-                <Button type="submit">Save Changes</Button>
+                <Button type="submit" className="w-full h-12 font-bold">Save Changes</Button>
               </DialogFooter>
             </form>
           </Form>

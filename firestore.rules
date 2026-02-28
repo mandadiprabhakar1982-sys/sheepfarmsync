@@ -7,10 +7,9 @@ service cloud.firestore {
     }
 
     // --- COLLABORATIVE SHARED MODEL ---
-    // This allows all authenticated shepherds to read and write to the shared pool.
-    // The recursive wildcard {document=**} covers both top-level collections
-    // and nested subcollections (supporting Collection Group queries).
-    match /{document=**} {
+    // All authenticated shepherds share a global pool of operational data.
+    // We use top-level collections for maximum reliability and performance.
+    match /{collectionName}/{document} {
       allow read, write: if isSignedIn();
     }
     
