@@ -1,10 +1,11 @@
+
 'use client';
 
 import { useUser, useFirestore, setDocumentNonBlocking } from '@/firebase';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
-import { doc } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 
 const publicPaths = ['/login'];
@@ -17,38 +18,42 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    if (isUserLoading) {
+    if (isUserLoading || !user) {
+      if (!isUserLoading && !publicPaths.includes(pathname)) {
+        router.push('/login');
+      }
       return;
     }
 
-    // If a user object exists, handle logic for new users and routing
-    if (user) {
-      // On first sign-in, create a user document in Firestore with a default 'collaborator' role
-      if (user.metadata.creationTime === user.metadata.lastSignInTime) {
-        const userDocRef = doc(firestore, `users/${user.uid}`);
-        setDocumentNonBlocking(userDocRef, { 
-          email: user.email, 
-          role: 'collaborator',
-          createdAt: new Date() 
-        }, { merge: true });
+    // Proactive Permission Check: Ensure user document and role exist
+    const verifyUserRole = async () => {
+      const userDocRef = doc(firestore, `users/${user.uid}`);
+      try {
+        const userSnap = await getDoc(userDocRef);
         
-        toast({
-            title: 'Welcome!',
-            description: 'Your collaborative shepherd account has been initialized.',
-        });
+        // If the document doesn't exist or is missing the role, initialize/update it
+        if (!userSnap.exists() || !userSnap.data()?.role) {
+          setDocumentNonBlocking(userDocRef, { 
+            email: user.email, 
+            role: 'collaborator',
+            updatedAt: new Date()
+          }, { merge: true });
+          
+          toast({
+            title: 'Permissions Verified',
+            description: 'Your collaborative shepherd access has been enabled.',
+          });
+        }
+      } catch (error) {
+        console.error("Error verifying user role:", error);
       }
+    };
 
-      // If user is on a public page, redirect them to the dashboard
-      if (publicPaths.includes(pathname)) {
-        router.push('/dashboard');
-        return;
-      }
-    } else {
-      // If no user and not on a public page, redirect to login
-      if (!publicPaths.includes(pathname)) {
-        router.push('/login');
-        return;
-      }
+    verifyUserRole();
+
+    // If user is on a public page, redirect them to the dashboard
+    if (publicPaths.includes(pathname)) {
+      router.push('/dashboard');
     }
   }, [isUserLoading, user, pathname, router, firestore, toast]);
 

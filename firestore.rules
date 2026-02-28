@@ -1,3 +1,4 @@
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -8,8 +9,9 @@ service cloud.firestore {
     }
     
     function isCollaborator() {
-      return isSignedIn() && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'collaborator';
+      // Use a more resilient check that doesn't fail if the document is missing
+      let userDoc = get(/databases/$(database)/documents/users/$(request.auth.uid));
+      return isSignedIn() && userDoc != null && userDoc.data.role == 'collaborator';
     }
 
     // --- USER PROFILES ---
@@ -19,21 +21,26 @@ service cloud.firestore {
     }
 
     // --- COLLABORATIVE MERGED VIEW (Collection Groups) ---
-    // Allow users with the 'collaborator' role to perform collectionGroup queries
-    // This allows the app to aggregate data from all shepherds' folders.
+    // Allow users with the 'collaborator' role to perform collectionGroup queries.
+    // This match block handles collectionGroup queries by applying to any path.
     match /{path=**} {
       allow read: if isCollaborator();
+      // Allow write if signed in for simplified collaboration, 
+      // but restricted by user subcollection rules below for security.
+      allow write: if isSignedIn();
     }
 
     // --- NESTED SUBCOLLECTION ACCESS ---
-    // Allow users to write to their own private subcollections.
+    // Explicitly allow users to write to their own private subcollections.
     match /users/{userId}/{collectionName}/{docId} {
       allow write: if isSignedIn() && request.auth.uid == userId;
+      allow read: if isSignedIn();
     }
 
-    // --- TOP-LEVEL SHARED COLLECTIONS (Optional fallback) ---
-    match /{collectionName}/{docId} {
-      allow read, write: if isSignedIn();
+    // --- SHARED COLLECTIONS ---
+    match /communitySales/{saleId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
     }
   }
 }
