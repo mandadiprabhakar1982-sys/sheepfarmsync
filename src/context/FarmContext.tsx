@@ -131,12 +131,18 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     if (!user || !firestore) return;
     const finalId = id || generateId();
     const docRef = doc(firestore, 'users', user.uid, col, finalId);
+    
+    // Explicitly ensure creator metadata is captured from current user state
+    const creatorMetadata = {
+      createdBy: user.uid,
+      creatorEmail: user.email || 'No Email',
+      creatorName: user.displayName || user.email?.split('@')[0] || 'Shepherd',
+    };
+
     setDocumentNonBlocking(docRef, { 
       ...data, 
       id: finalId, 
-      createdBy: user.uid, 
-      creatorEmail: user.email, 
-      creatorName: user.displayName || 'Shepherd', 
+      ...creatorMetadata,
       updatedAt: serverTimestamp() 
     }, { merge: true });
   }, [user, firestore]);
@@ -149,7 +155,14 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const postToMarketplace = useCallback((sale: any) => {
     if (!user || !firestore) return;
     const docRef = doc(firestore, 'communitySales', generateId());
-    setDocumentNonBlocking(docRef, { ...sale, id: docRef.id, sellerId: user.uid, sellerEmail: user.email, sellerName: user.displayName, updatedAt: serverTimestamp() }, { merge: true });
+    setDocumentNonBlocking(docRef, { 
+      ...sale, 
+      id: docRef.id, 
+      sellerId: user.uid, 
+      sellerEmail: user.email || 'No Email', 
+      sellerName: user.displayName || user.email?.split('@')[0] || 'Shepherd', 
+      updatedAt: serverTimestamp() 
+    }, { merge: true });
   }, [user, firestore]);
 
   const updateMarketplaceSale = useCallback((id: string, data: any) => {

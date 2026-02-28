@@ -5,7 +5,7 @@ import { useState, useRef, useEffect, useMemo } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { PlusCircle, Trash2, Camera as CameraIcon, Pencil, ArrowUp, ArrowDown, Loader2, User, ImageIcon, ZoomIn, X, Save } from 'lucide-react';
+import { PlusCircle, Trash2, Camera as CameraIcon, Pencil, ArrowUp, ArrowDown, Loader2, User, ImageIcon, ZoomIn, X, Save, Mail } from 'lucide-react';
 import Image from 'next/image';
 import { Bar, ComposedChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Line } from 'recharts';
 import { format } from 'date-fns';
@@ -315,8 +315,16 @@ export default function LivestockPage() {
                             <TableCell className="text-[10px] text-muted-foreground">
                               {formatTimestamp(sheep.createdAt)}
                             </TableCell>
-                            <TableCell className="text-[10px] truncate max-w-[100px] font-medium" title={sheep.creatorEmail}>
-                              {sheep.creatorName || sheep.creatorEmail || 'Shepherd'}
+                            <TableCell className="max-w-[150px]">
+                              <div className="flex flex-col gap-0.5">
+                                <span className="text-[10px] font-black truncate text-foreground/80 leading-none">
+                                  {sheep.creatorName || 'Shepherd'}
+                                </span>
+                                <span className="text-[9px] font-medium text-muted-foreground truncate flex items-center gap-1">
+                                  <Mail className="h-2 w-2" />
+                                  {sheep.creatorEmail || 'No Email'}
+                                </span>
+                              </div>
                             </TableCell>
                             <TableCell className="text-right">
                               <div className="flex items-center justify-end gap-1">
