@@ -1,15 +1,19 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // 1. Fully Collaborative Model: Any authenticated user can read and write all documents.
-    // This top-level wildcard is the primary security barrier.
+    // 1. Explicitly allow authenticated users to perform 'list' and 'get' operations at the root level.
+    // This is often required for collectionGroup queries to be authorized.
+    allow read, write: if request.auth != null;
+
+    // 2. Fully Collaborative Model: Any authenticated user can read and write all documents.
+    // This recursive wildcard matches every document in the database at any depth.
     match /{document=**} {
       allow read, write: if request.auth != null;
     }
 
-    // 2. Explicit Collection Group authorization.
-    // Firestore requires specific matches for the collection name when performing 
-    // collectionGroup queries to aggregate data across all user subcollections.
+    // 3. Explicit Collection Group authorization.
+    // While the recursive wildcard above covers this, explicitly matching the collection names
+    // used in collectionGroup queries provides the most reliable authorization path.
     match /{path=**}/livestockPurchases/{id} {
       allow read, write: if request.auth != null;
     }
@@ -37,18 +41,14 @@ service cloud.firestore {
     match /{path=**}/healthTasks/{id} {
       allow read, write: if request.auth != null;
     }
-
-    // 3. User Profiles
-    // Profiles are readable by any authenticated user for collaborative attribution,
-    // but only the profile owner can modify their own details.
-    match /users/{userId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == userId;
+    
+    // 4. Specific match for the marketplace root collection
+    match /communitySales/{saleId} {
+      allow read, write: if request.auth != null;
     }
 
-    // 4. Marketplace
-    // The marketplace is a root-level collection shared by everyone.
-    match /communitySales/{saleId} {
+    // 5. User Profiles
+    match /users/{userId} {
       allow read, write: if request.auth != null;
     }
   }
