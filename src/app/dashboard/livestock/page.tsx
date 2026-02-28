@@ -4,9 +4,9 @@ import { useState, useRef, useEffect, useMemo } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { PlusCircle, Trash2, Camera as CameraIcon, Pencil, ArrowUp, ArrowDown, Loader2, User } from 'lucide-react';
+import { PlusCircle, Trash2, Camera as CameraIcon, Pencil, ArrowUp, ArrowDown, Loader2, User, ImageIcon } from 'lucide-react';
 import Image from 'next/image';
-import { Bar, ComposedChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, Line } from 'recharts';
+import { Bar, ComposedChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Line } from 'recharts';
 import { format } from 'date-fns';
 
 import { PageHeader } from '@/components/page-header';
@@ -219,7 +219,7 @@ export default function LivestockPage() {
                           {!capturedImage ? (
                               <video ref={videoRef} className="h-full w-full object-cover" autoPlay muted playsInline />
                           ) : (
-                              <Image src={capturedImage} alt="Captured photo" layout="fill" objectFit="cover" />
+                              <Image src={capturedImage} alt="Captured photo" layout="fill" objectFit="cover" unoptimized />
                           )}
                       </div>
                       <canvas ref={canvasRef} className="hidden"></canvas>
@@ -255,6 +255,7 @@ export default function LivestockPage() {
                 <Table>
                   <TableHeader className="bg-muted/50">
                     <TableRow>
+                      <TableHead className="w-[80px]">Photo</TableHead>
                       <TableHead>Tag ID</TableHead>
                       <TableHead>Age</TableHead>
                       <TableHead>Weight</TableHead>
@@ -271,6 +272,21 @@ export default function LivestockPage() {
                         const isOwner = user?.uid === sheep.createdBy;
                         return (
                           <TableRow key={sheep.id}>
+                            <TableCell>
+                              <div className="relative h-12 w-12 rounded-md overflow-hidden bg-muted border flex items-center justify-center">
+                                {sheep.photoDataUrl ? (
+                                  <Image 
+                                    src={sheep.photoDataUrl} 
+                                    alt={`Sheep ${sheep.tagId}`} 
+                                    layout="fill" 
+                                    objectFit="cover" 
+                                    unoptimized
+                                  />
+                                ) : (
+                                  <ImageIcon className="h-5 w-5 text-muted-foreground opacity-20" />
+                                )}
+                              </div>
+                            </TableCell>
                             <TableCell className="font-bold">{sheep.tagId}</TableCell>
                             <TableCell>{sheep.age} mo</TableCell>
                             <TableCell className="font-medium">{sheep.currentWeight.toFixed(1)}kg</TableCell>
@@ -285,7 +301,7 @@ export default function LivestockPage() {
                             <TableCell className="text-[10px] text-muted-foreground">
                               {formatTimestamp(sheep.createdAt)}
                             </TableCell>
-                            <TableCell className="text-[10px] truncate max-w-[120px] font-medium" title={sheep.creatorEmail}>
+                            <TableCell className="text-[10px] truncate max-w-[100px] font-medium" title={sheep.creatorEmail}>
                               {sheep.creatorName || sheep.creatorEmail || 'Shepherd'}
                             </TableCell>
                             <TableCell className="text-right">
@@ -304,7 +320,7 @@ export default function LivestockPage() {
                         );
                       })
                     ) : (
-                      <TableRow><TableCell colSpan={7} className="text-center py-12 text-muted-foreground italic">No community records found.</TableCell></TableRow>
+                      <TableRow><TableCell colSpan={8} className="text-center py-12 text-muted-foreground italic">No community records found.</TableCell></TableRow>
                     )}
                   </TableBody>
                 </Table>
