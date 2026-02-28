@@ -2,51 +2,20 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // 1. Broad Collaborative Access: Allow any authenticated user to read and write any document.
-    // This is the core of the shared community model.
-    match /{document=**} {
-      allow read, write: if request.auth != null;
-    }
-
-    // 2. Explicit Collection Group Authorization:
-    // When performing collectionGroup queries, Firestore validates permissions for 'list'
-    // at the root level. These matches explicitly authorize those operations for our data types.
-    
-    match /{path=**}/livestockPurchases/{id} {
-      allow read, write: if request.auth != null;
-    }
-    match /{path=**}/animalSales/{id} {
-      allow read, write: if request.auth != null;
-    }
-    match /{path=**}/feedExpenses/{id} {
-      allow read, write: if request.auth != null;
-    }
-    match /{path=**}/medicineExpenses/{id} {
-      allow read, write: if request.auth != null;
-    }
-    match /{path=**}/laborExpenses/{id} {
-      allow read, write: if request.auth != null;
-    }
-    match /{path=**}/deadAnimals/{id} {
-      allow read, write: if request.auth != null;
-    }
-    match /{path=**}/trackedSheep/{id} {
-      allow read, write: if request.auth != null;
-    }
-    match /{path=**}/farmExpenses/{id} {
-      allow read, write: if request.auth != null;
-    }
-    match /{path=**}/healthTasks/{id} {
-      allow read, write: if request.auth != null;
-    }
-
-    // 3. Root Level Collections
-    match /communitySales/{saleId} {
-      allow read, write: if request.auth != null;
-    }
-    
+    // User-specific data: Only the owner can read or write their own documents
     match /users/{userId} {
-      allow read, write: if request.auth != null;
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      match /{allSubcollections=**} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+
+    // Community Sales: Publicly readable for marketplace, but only owner can write
+    match /communitySales/{saleId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.resource.data.sellerId == request.auth.uid;
+      allow delete: if request.auth != null && resource.data.sellerId == request.auth.uid;
     }
   }
 }
