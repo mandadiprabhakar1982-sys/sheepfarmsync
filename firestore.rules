@@ -1,19 +1,17 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // 1. Explicitly allow authenticated users to perform 'list' and 'get' operations at the root level.
-    // This is often required for collectionGroup queries to be authorized.
-    allow read, write: if request.auth != null;
-
-    // 2. Fully Collaborative Model: Any authenticated user can read and write all documents.
-    // This recursive wildcard matches every document in the database at any depth.
+    
+    // 1. Broad Collaborative Access: Allow any authenticated user to read and write any document.
+    // This is the core of the shared community model.
     match /{document=**} {
       allow read, write: if request.auth != null;
     }
 
-    // 3. Explicit Collection Group authorization.
-    // While the recursive wildcard above covers this, explicitly matching the collection names
-    // used in collectionGroup queries provides the most reliable authorization path.
+    // 2. Explicit Collection Group Authorization:
+    // When performing collectionGroup queries, Firestore validates permissions for 'list'
+    // at the root level. These matches explicitly authorize those operations for our data types.
+    
     match /{path=**}/livestockPurchases/{id} {
       allow read, write: if request.auth != null;
     }
@@ -41,13 +39,12 @@ service cloud.firestore {
     match /{path=**}/healthTasks/{id} {
       allow read, write: if request.auth != null;
     }
-    
-    // 4. Specific match for the marketplace root collection
+
+    // 3. Root Level Collections
     match /communitySales/{saleId} {
       allow read, write: if request.auth != null;
     }
-
-    // 5. User Profiles
+    
     match /users/{userId} {
       allow read, write: if request.auth != null;
     }
