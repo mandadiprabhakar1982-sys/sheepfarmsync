@@ -82,70 +82,69 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
   const firestore = useFirestore();
 
-  // SCOPED PRIVATE LISTENERS (Querying by ownerId as required by rules)
+  // MERGED COMMUNITY LISTENERS (Removed ownerId filters to support "users all data merge")
   
   const purchasesRef = useMemoFirebase(() => 
-    user ? query(collection(firestore, 'livestockPurchases'), where("ownerId", "==", user.uid)) : null, 
+    user ? collection(firestore, 'livestockPurchases') : null, 
     [firestore, user]
   );
   const { data: purchases, isLoading: isLoadingPurchases } = useCollection<LivestockPurchase>(purchasesRef);
 
   const salesRef = useMemoFirebase(() => 
-    user ? query(collection(firestore, 'animalSales'), where("ownerId", "==", user.uid)) : null, 
+    user ? collection(firestore, 'animalSales') : null, 
     [firestore, user]
   );
   const { data: sales, isLoading: isLoadingSales } = useCollection<AnimalSale>(salesRef);
   
   const feedCostsRef = useMemoFirebase(() => 
-    user ? query(collection(firestore, 'feedExpenses'), where("ownerId", "==", user.uid)) : null, 
+    user ? collection(firestore, 'feedExpenses') : null, 
     [firestore, user]
   );
   const { data: feedCosts, isLoading: isLoadingFeedCosts } = useCollection<FeedCost>(feedCostsRef);
 
   const medicineExpensesRef = useMemoFirebase(() => 
-    user ? query(collection(firestore, 'medicineExpenses'), where("ownerId", "==", user.uid)) : null, 
+    user ? collection(firestore, 'medicineExpenses') : null, 
     [firestore, user]
   );
   const { data: medicineExpenses, isLoading: isLoadingMedicine } = useCollection<MedicineExpense>(medicineExpensesRef);
 
   const laborCostsRef = useMemoFirebase(() => 
-    user ? query(collection(firestore, 'laborExpenses'), where("ownerId", "==", user.uid)) : null, 
+    user ? collection(firestore, 'laborExpenses') : null, 
     [firestore, user]
   );
   const { data: laborCosts, isLoading: isLoadingLabor } = useCollection<LaborCost>(laborCostsRef);
   
   const deadAnimalsRef = useMemoFirebase(() => 
-    user ? query(collection(firestore, 'deadAnimals'), where("ownerId", "==", user.uid)) : null, 
+    user ? collection(firestore, 'deadAnimals') : null, 
     [firestore, user]
   );
   const { data: deadAnimals, isLoading: isLoadingDeadAnimals } = useCollection<DeadAnimal>(deadAnimalsRef);
 
   const trackedSheepRef = useMemoFirebase(() => 
-    user ? query(collection(firestore, 'trackedSheep'), where("ownerId", "==", user.uid)) : null, 
+    user ? collection(firestore, 'trackedSheep') : null, 
     [firestore, user]
   );
   const { data: trackedSheep, isLoading: isLoadingTrackedSheep } = useCollection<TrackedSheep>(trackedSheepRef);
 
   const farmExpensesRef = useMemoFirebase(() => 
-    user ? query(collection(firestore, 'farmExpenses'), where("ownerId", "==", user.uid)) : null, 
+    user ? collection(firestore, 'farmExpenses') : null, 
     [firestore, user]
   );
   const { data: farmExpenses, isLoading: isLoadingFarmExpenses } = useCollection<FarmExpense>(farmExpensesRef);
   
   const healthTasksRef = useMemoFirebase(() => 
-    user ? query(collection(firestore, 'healthTasks'), where("ownerId", "==", user.uid)) : null, 
+    user ? collection(firestore, 'healthTasks') : null, 
     [firestore, user]
   );
   const { data: healthTasks, isLoading: isLoadingHealthTasks } = useCollection<HealthTask>(healthTasksRef);
 
-  // Community Marketplace (Global read as allowed by rules)
   const marketplaceRef = useMemoFirebase(() => 
     user ? collection(firestore, 'communitySales') : null, 
     [firestore, user]
   );
   const { data: communitySales, isLoading: isLoadingMarketplace } = useCollection<PublicSale>(marketplaceRef);
 
-  // UPSERT DATA: Attaches ownerId for private records
+  // UPSERT DATA: Continues to attach ownerId/sellerId for identity tracking
   const upsert = useCallback((colName: string, id: string | undefined, data: any) => {
     if (!user) return;
     const finalId = id || generateId();
@@ -220,7 +219,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     setDocumentNonBlocking(docRef, {
       ...sale,
       id: finalId,
-      sellerId: user.uid, // Using sellerId for community as per rules
+      sellerId: user.uid,
       sellerEmail: user.email,
       sellerName: user.displayName || 'Farmer',
       createdAt: serverTimestamp()

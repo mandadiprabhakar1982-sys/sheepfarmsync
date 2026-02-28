@@ -1,28 +1,11 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
-    // --- COMMUNITY MARKETPLACE ---
-    // Public listings shared by shepherds
-    match /communitySales/{saleId} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn() && request.resource.data.sellerId == request.auth.uid;
-      allow update, delete: if isSignedIn() && resource.data.sellerId == request.auth.uid;
-    }
-
-    // --- ALL OTHER PRIVATE COLLECTIONS ---
-    // Securely scoped to individual shepherds via ownerId
-    match /{collectionName}/{docId} {
-      // Allow creation if they attach their own UID
-      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
-      
-      // Allow reading/editing only if they are the owner
-      // Note: Queries on these collections must include a filter: where("ownerId", "==", auth.uid)
-      allow read, update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+    
+    // Allow any authenticated user to read and write any document.
+    // This supports the "users all data merge" request for a collaborative community experience.
+    match /{document=**} {
+      allow read, write: if request.auth != null;
     }
   }
 }
