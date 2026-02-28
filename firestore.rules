@@ -1,7 +1,7 @@
 /**
  * SheepSync Pro - Community-Open Security Rules
  * 
- * CORE PRIVACY: Farm data is now readable by all signed-in users to enable 
+ * CORE PRIVACY: Farm data is readable by all signed-in users to enable 
  * community-wide benchmarking and shared intelligence.
  * OWNERSHIP: Only the original creator (owner) can create, update, or delete their records.
  */
@@ -9,35 +9,22 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
-    function isOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
-    }
-
     // Global Read Access: Allows all signed-in users to read any document.
     // This is required for collectionGroup queries to work across the entire community.
-    match /{path=**} {
-      allow read: if isSignedIn();
+    match /{allPaths=**} {
+      allow read: if request.auth != null;
     }
 
-    // Write Access: Strictly restricted to the owner of the data.
-    match /users/{userId} {
-      // Profile management
-      allow write: if isOwner(userId);
-
-      // All subcollections (Purchases, Health, Sheep, Sales, etc.)
-      match /{allSubcollections=**} {
-        allow write: if isOwner(userId);
-      }
+    // Write Access for User Profiles and Subcollections
+    // Strictly restricted to the owner of the data.
+    match /users/{userId}/{allPaths=**} {
+      allow write: if request.auth != null && request.auth.uid == userId;
     }
 
     // Community Marketplace specific write rules
     match /communitySales/{saleId} {
-      allow create: if isSignedIn() && request.resource.data.sellerId == request.auth.uid;
-      allow update, delete: if isSignedIn() && resource.data.sellerId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.sellerId == request.auth.uid;
+      allow update, delete: if request.auth != null && resource.data.sellerId == request.auth.uid;
     }
   }
 }
