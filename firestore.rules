@@ -1,8 +1,9 @@
 /**
- * SheepSync Pro - Security Rules
+ * SheepSync Pro - Community-Open Security Rules
  * 
- * CORE PRIVACY: All farm-specific data under /users/{userId} is strictly private.
- * COMMUNITY: Marketplace data under /communitySales is shared but protected against spoofing.
+ * CORE PRIVACY: Farm data is now readable by all signed-in users for transparency 
+ * and community benchmarking.
+ * OWNERSHIP: Only the original creator can modify or delete their records.
  */
 rules_version = '2';
 service cloud.firestore {
@@ -16,28 +17,27 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    // User Private Data - Strict Ownership
+    // User Data - Public Read, Private Write
     match /users/{userId} {
-      allow get, create, update, delete: if isOwner(userId);
+      // Anyone signed in can read any farm profile to foster community learning
+      allow get, list: if isSignedIn();
+      // Only the owner can manage their own profile
+      allow create, update, delete: if isOwner(userId);
 
-      // Deeply nested subcollections inherit ownership logic
+      // Subcollections (Purchases, Health, Sheep, etc.)
       match /{allSubcollections=**} {
-        allow read, write: if isOwner(userId);
+        // Global visibility for all farm records
+        allow read: if isSignedIn();
+        // Modification restricted to the owner
+        allow write: if isOwner(userId);
       }
     }
 
     // Community Marketplace
     match /communitySales/{saleId} {
-      // Anyone signed in can view community data for benchmarking
       allow read: if isSignedIn();
-      
-      // Only the authenticated user can create a listing for themselves
-      allow create: if isSignedIn() && 
-                    request.resource.data.sellerId == request.auth.uid;
-      
-      // Only the original seller can modify or remove their listing
-      allow update, delete: if isSignedIn() && 
-                            resource.data.sellerId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.sellerId == request.auth.uid;
+      allow update, delete: if isSignedIn() && resource.data.sellerId == request.auth.uid;
     }
   }
 }

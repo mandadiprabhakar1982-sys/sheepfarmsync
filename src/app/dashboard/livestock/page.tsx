@@ -1,11 +1,10 @@
-
 'use client';
 
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { PlusCircle, Trash2, Camera as CameraIcon, Pencil, ArrowUp, ArrowDown, Loader2 } from 'lucide-react';
+import { PlusCircle, Trash2, Camera as CameraIcon, Pencil, ArrowUp, ArrowDown, Loader2, User } from 'lucide-react';
 import Image from 'next/image';
 import { format } from 'date-fns';
 import { Bar, ComposedChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, Line } from 'recharts';
@@ -20,6 +19,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ChartContainer, ChartTooltipContent, type ChartConfig, ChartLegend, ChartLegendContent } from '@/components/ui/chart';
 import { useFarm } from '@/context/FarmContext';
+import { useUser } from '@/firebase';
 import { cn } from '@/lib/utils';
 import {
   Dialog,
@@ -30,8 +30,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import type { TrackedSheep } from '@/lib/types';
+import { Badge } from '@/components/ui/badge';
 
-// Schema for the flock tracking form
 const trackingFormSchema = z.object({
   tagId: z.string().min(1, 'Tag ID is required'),
   weight: z.coerce.number().positive('Weight must be a positive number'),
@@ -54,24 +54,20 @@ const chartConfig = {
 
 export default function LivestockPage() {
   const { toast } = useToast();
+  const { user } = useUser();
   const { trackedSheep, addTrackedSheep, deleteTrackedSheep, updateTrackedSheep, isLoading } = useFarm();
   
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingSheep, setEditingSheep] = useState<TrackedSheep | null>(null);
 
-  // Camera state
-  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
 
   const trackingForm = useForm<TrackingFormData>({
     resolver: zodResolver(trackingFormSchema),
-    defaultValues: {
-      tagId: '',
-      weight: 0,
-      age: 0,
-    },
+    defaultValues: { tagId: '', weight: 0, age: 0 },
   });
 
   const editForm = useForm<TrackingFormData>({
@@ -94,15 +90,11 @@ export default function LivestockPage() {
   }, [trackedSheep]);
 
   const chartData = useMemo(() => {
-    if (!trackedSheep || trackedSheep.length < 2) {
-      return [];
-    }
+    if (!trackedSheep || trackedSheep.length < 2) return [];
 
     const weightByAge = trackedSheep.reduce((acc, sheep) => {
       const age = sheep.age;
-      if (!acc[age]) {
-        acc[age] = { totalWeight: 0, count: 0 };
-      }
+      if (!acc[age]) acc[age] = { totalWeight: 0, count: 0 };
       acc[age].totalWeight += sheep.currentWeight;
       acc[age].count += 1;
       return acc;
@@ -115,19 +107,13 @@ export default function LivestockPage() {
       }))
       .sort((a, b) => a.age - b.age);
 
-    if (sortedAverageWeights.length < 2) {
-      return [];
-    }
-    
     return sortedAverageWeights.map((current, index) => {
       let growth = 0;
       if (index > 0) {
         const previous = sortedAverageWeights[index - 1];
         const weightDiff = current.averageWeight - previous.averageWeight;
         const ageDiff = current.age - previous.age;
-        if (ageDiff > 0) {
-          growth = parseFloat((weightDiff / ageDiff).toFixed(2));
-        }
+        if (ageDiff > 0) growth = parseFloat((weightDiff / ageDiff).toFixed(2));
       }
       return {
         age: `${current.age} mo`,
@@ -137,31 +123,20 @@ export default function LivestockPage() {
     });
   }, [trackedSheep]);
 
-  // Effect to get camera permission
   useEffect(() => {
     const getCameraPermission = async () => {
       if (typeof window !== 'undefined' && navigator.mediaDevices) {
         try {
           const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
           setHasCameraPermission(true);
-          if (videoRef.current) {
-            videoRef.current.srcObject = stream;
-          }
+          if (videoRef.current) videoRef.current.srcObject = stream;
         } catch (error) {
-          console.error('Error accessing camera:', error);
           setHasCameraPermission(false);
-          toast({
-            variant: 'destructive',
-            title: 'Camera Access Denied',
-            description: 'Please enable camera permissions in your browser settings to use this feature.',
-          });
         }
-      } else {
-        setHasCameraPermission(false);
       }
     };
     getCameraPermission();
-  }, [toast]);
+  }, []);
   
   const handleCapture = () => {
     if (videoRef.current && canvasRef.current) {
@@ -172,8 +147,7 @@ export default function LivestockPage() {
       const context = canvas.getContext('2d');
       if (context) {
         context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
-        const dataUrl = canvas.toDataURL('image/png');
-        setCapturedImage(dataUrl);
+        setCapturedImage(canvas.toDataURL('image/png'));
       }
     }
   };
@@ -187,56 +161,28 @@ export default function LivestockPage() {
     });
     trackingForm.reset();
     setCapturedImage(null);
-    toast({
-      title: 'Success!',
-      description: 'Sheep has been added to your farm.',
-    });
+    toast({ title: 'Success!', description: 'Sheep has been added to the community flock.' });
   };
 
   const onEditSubmit: SubmitHandler<TrackingFormData> = (data) => {
     if (!editingSheep) return;
-
     const weightChanged = data.weight !== editingSheep.currentWeight;
-    const updatedData = {
+    updateTrackedSheep(editingSheep.id, {
       tagId: data.tagId,
       age: data.age,
       currentWeight: data.weight,
-      // Only update previous weight if the weight actually changed
       previousWeight: weightChanged ? editingSheep.currentWeight : (editingSheep.previousWeight || undefined),
       photoDataUrl: editingSheep.photoDataUrl,
-    };
-
-    updateTrackedSheep(editingSheep.id, updatedData);
+    });
     setIsEditDialogOpen(false);
     setEditingSheep(null);
-    toast({
-      title: 'Updated!',
-      description: 'Sheep record has been updated.',
-    });
-  };
-
-  const handleDeleteTrackedSheep = (id: string) => {
-    deleteTrackedSheep(id);
-    toast({
-      title: 'Deleted',
-      description: 'Sheep record has been deleted.',
-      variant: 'destructive'
-    });
-  }
-
-  const handleEditClick = (sheep: TrackedSheep) => {
-    setEditingSheep(sheep);
-    setIsEditDialogOpen(true);
+    toast({ title: 'Updated!', description: 'Record updated.' });
   };
 
   const formatUpdateDate = (timestamp: any) => {
     if (!timestamp) return '—';
     try {
-      // Handle Firestore Timestamp
-      if (timestamp.toDate) {
-        return format(timestamp.toDate(), 'MMM dd, HH:mm');
-      }
-      // Handle standard Date string
+      if (timestamp.toDate) return format(timestamp.toDate(), 'MMM dd, HH:mm');
       return format(new Date(timestamp), 'MMM dd, HH:mm');
     } catch (e) {
       return '—';
@@ -246,40 +192,28 @@ export default function LivestockPage() {
   return (
     <div className="container mx-auto py-8 px-4">
       <PageHeader
-        title="Sheep Management"
-        description="Track individual sheep and their growth progress."
+        title="Community Flock Management"
+        description="Shared intelligence for individual growth tracking."
       />
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
         <div className="lg:col-span-4">
-          <Card className="sticky top-24">
+          <Card className="sticky top-24 border-primary/20 bg-accent/5">
             <CardHeader>
-              <CardTitle>Add New Sheep</CardTitle>
-              <CardDescription>Register a new sheep for growth tracking.</CardDescription>
+              <CardTitle className="text-lg">Register Sheep</CardTitle>
+              <CardDescription>Records are shared for community benchmarking.</CardDescription>
             </CardHeader>
             <CardContent>
               <Form {...trackingForm}>
                 <form onSubmit={trackingForm.handleSubmit(onTrackingSubmit)} className="space-y-4">
                   <FormField control={trackingForm.control} name="tagId" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Tag ID</FormLabel>
-                      <FormControl><Input placeholder="e.g., A-101" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
+                    <FormItem><FormLabel>Tag ID</FormLabel><FormControl><Input placeholder="e.g., A-101" {...field} /></FormControl><FormMessage /></FormItem>
                   )} />
                   <div className="grid grid-cols-2 gap-4">
                     <FormField control={trackingForm.control} name="weight" render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Weight (kg)</FormLabel>
-                        <FormControl><Input type="number" step="0.1" {...field} /></FormControl>
-                        <FormMessage />
-                      </FormItem>
+                      <FormItem><FormLabel>Weight (kg)</FormLabel><FormControl><Input type="number" step="0.1" {...field} /></FormControl></FormItem>
                     )} />
                     <FormField control={trackingForm.control} name="age" render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Age (mo)</FormLabel>
-                        <FormControl><Input type="number" {...field} /></FormControl>
-                        <FormMessage />
-                      </FormItem>
+                      <FormItem><FormLabel>Age (mo)</FormLabel><FormControl><Input type="number" {...field} /></FormControl></FormItem>
                     )} />
                   </div>
                   
@@ -291,30 +225,19 @@ export default function LivestockPage() {
                           ) : (
                               <Image src={capturedImage} alt="Captured photo" layout="fill" objectFit="cover" />
                           )}
-                          {!hasCameraPermission && !capturedImage && (
-                            <div className="absolute inset-0 flex items-center justify-center p-4 text-center text-xs text-muted-foreground">
-                              Camera access required for photos
-                            </div>
-                          )}
                       </div>
                       <canvas ref={canvasRef} className="hidden"></canvas>
-                      <div className="flex gap-2">
                       {!capturedImage ? (
                           <Button type="button" onClick={handleCapture} disabled={hasCameraPermission === false} className="w-full" variant="outline">
-                              <CameraIcon className="mr-2 h-4 w-4" />
-                              Capture
+                              <CameraIcon className="mr-2 h-4 w-4" /> Capture
                           </Button>
                       ) : (
-                          <Button type="button" variant="ghost" onClick={() => setCapturedImage(null)} className="w-full text-destructive">
-                              Retake Photo
-                          </Button>
+                          <Button type="button" variant="ghost" onClick={() => setCapturedImage(null)} className="w-full text-destructive">Retake</Button>
                       )}
-                      </div>
                   </div>
 
                   <Button type="submit" className="w-full">
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Save Record
+                    <PlusCircle className="mr-2 h-4 w-4" /> Save Record
                   </Button>
                 </form>
               </Form>
@@ -324,24 +247,22 @@ export default function LivestockPage() {
         
         <div className="lg:col-span-8 space-y-8">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle>Tracked Flock</CardTitle>
-                <CardDescription>Records sorted by Tag ID.</CardDescription>
+                <CardTitle className="text-lg">Global Feed</CardTitle>
+                <CardDescription>Viewing data from all verified farms.</CardDescription>
               </div>
-              {isLoading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+              {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
             </CardHeader>
             <CardContent>
               <div className="rounded-md border overflow-hidden">
                 <Table>
                   <TableHeader className="bg-muted/50">
                     <TableRow>
-                      <TableHead className="w-[60px]">Photo</TableHead>
                       <TableHead>Tag ID</TableHead>
-                      <TableHead>Wt. (kg)</TableHead>
-                      <TableHead>Change</TableHead>
-                      <TableHead>Updated</TableHead>
-                      <TableHead>By</TableHead>
+                      <TableHead>Farm/Owner</TableHead>
+                      <TableHead>Weight</TableHead>
+                      <TableHead>Growth</TableHead>
                       <TableHead className="text-right">Action</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -349,63 +270,43 @@ export default function LivestockPage() {
                     {sortedTrackedSheep.length > 0 ? (
                       sortedTrackedSheep.map((sheep) => {
                         const weightChange = sheep.previousWeight != null ? sheep.currentWeight - sheep.previousWeight : null;
+                        const isMyRecord = user?.uid === sheep.ownerUid;
                         return (
-                          <TableRow key={sheep.id} className="hover:bg-muted/30">
-                            <TableCell>
-                              <div className="relative h-10 w-12 overflow-hidden rounded bg-muted border">
-                                {sheep.photoDataUrl ? (
-                                  <Image src={sheep.photoDataUrl} alt={sheep.tagId} layout="fill" objectFit="cover" />
-                                ) : (
-                                  <div className="flex h-full w-full items-center justify-center text-[10px] text-muted-foreground">None</div>
-                                )}
-                              </div>
-                            </TableCell>
+                          <TableRow key={sheep.id} className={cn(isMyRecord && "bg-primary/5")}>
                             <TableCell>
                               <div className="font-bold">{sheep.tagId}</div>
                               <div className="text-[10px] text-muted-foreground">{sheep.age} mo</div>
                             </TableCell>
                             <TableCell>
-                              <div className="font-medium">{sheep.currentWeight.toFixed(1)}</div>
-                              <div className="text-[10px] text-muted-foreground">{sheep.previousWeight != null ? `Prev: ${sheep.previousWeight.toFixed(1)}` : '—'}</div>
+                              <div className="flex items-center gap-1 text-[10px] font-bold truncate max-w-[120px]">
+                                <User className="h-3 w-3" />
+                                {isMyRecord ? <Badge variant="secondary" className="scale-75 origin-left">You</Badge> : (sheep.createdBy || 'Unknown')}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="font-medium">{sheep.currentWeight.toFixed(1)}kg</div>
                             </TableCell>
                             <TableCell>
                               {weightChange !== null ? (
-                                <span className={cn(
-                                  "flex items-center gap-0.5 text-xs font-bold",
-                                  weightChange >= 0 ? "text-green-600" : "text-destructive"
-                                )}>
+                                <span className={cn("flex items-center gap-0.5 text-xs font-bold", weightChange >= 0 ? "text-green-600" : "text-destructive")}>
                                   {weightChange >= 0 ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
                                   {Math.abs(weightChange).toFixed(1)}
                                 </span>
-                              ) : (
-                                <span className="text-xs text-muted-foreground italic">New</span>
-                              )}
-                            </TableCell>
-                            <TableCell className="text-[10px] text-muted-foreground whitespace-nowrap">
-                              {formatUpdateDate(sheep.updatedAt)}
-                            </TableCell>
-                            <TableCell className="text-[10px] truncate max-w-[80px] text-muted-foreground" title={sheep.createdBy}>
-                              {sheep.createdBy || '—'}
+                              ) : <span className="text-xs text-muted-foreground italic">New</span>}
                             </TableCell>
                             <TableCell className="text-right">
-                              <div className="flex items-center justify-end gap-1">
-                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEditClick(sheep)}>
-                                  <Pencil className="h-4 w-4" />
-                                </Button>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDeleteTrackedSheep(sheep.id)}>
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </div>
+                              {isMyRecord && (
+                                <div className="flex items-center justify-end gap-1">
+                                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEditClick(sheep)}><Pencil className="h-4 w-4" /></Button>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => deleteTrackedSheep(sheep.id)}><Trash2 className="h-4 w-4" /></Button>
+                                </div>
+                              )}
                             </TableCell>
                           </TableRow>
                         );
                       })
                     ) : (
-                      <TableRow>
-                        <TableCell colSpan={7} className="text-center py-12 text-muted-foreground italic">
-                          {isLoading ? 'Loading records...' : 'No sheep tracked yet.'}
-                        </TableCell>
-                      </TableRow>
+                      <TableRow><TableCell colSpan={5} className="text-center py-12 text-muted-foreground italic">No records found.</TableCell></TableRow>
                     )}
                   </TableBody>
                 </Table>
@@ -415,65 +316,26 @@ export default function LivestockPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Weight Progress Chart</CardTitle>
-              <CardDescription>Visualizing flock growth across different ages.</CardDescription>
+              <CardTitle className="text-lg">Aggregate Growth Intelligence</CardTitle>
+              <CardDescription>Visualizing community performance across different ages.</CardDescription>
             </CardHeader>
             <CardContent>
               {chartData.length > 0 ? (
                 <ChartContainer config={chartConfig} className="h-[300px] w-full">
                   <ComposedChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                    <XAxis
-                      dataKey="age"
-                      tickLine={false}
-                      tickMargin={10}
-                      axisLine={false}
-                    />
-                    <YAxis
-                        yAxisId="left"
-                        stroke="var(--color-averageWeight)"
-                        tickFormatter={(value) => `${value}kg`}
-                        domain={['dataMin - 5', 'dataMax + 5']}
-                        tickLine={false}
-                        axisLine={false}
-                    />
-                    <YAxis
-                        yAxisId="right"
-                        orientation="right"
-                        stroke="var(--color-growth)"
-                        tickFormatter={(value) => `+${value}kg`}
-                        domain={['dataMin - 1', 'dataMax + 1']}
-                        tickLine={false}
-                        axisLine={false}
-                    />
-                    <Tooltip
-                        content={<ChartTooltipContent indicator="dot" />}
-                    />
+                    <XAxis dataKey="age" tickLine={false} tickMargin={10} axisLine={false} />
+                    <YAxis yAxisId="left" stroke="var(--color-averageWeight)" tickFormatter={(v) => `${v}kg`} tickLine={false} axisLine={false} />
+                    <YAxis yAxisId="right" orientation="right" stroke="var(--color-growth)" tickFormatter={(v) => `+${v}kg`} tickLine={false} axisLine={false} />
+                    <Tooltip content={<ChartTooltipContent indicator="dot" />} />
                     <Legend content={<ChartLegendContent />} />
-                    <Bar
-                        dataKey="averageWeight"
-                        yAxisId="left"
-                        fill="var(--color-averageWeight)"
-                        radius={[4, 4, 0, 0]}
-                        name="Avg. Weight"
-                        barSize={40}
-                    />
-                    <Line
-                        type="monotone"
-                        dataKey="growth"
-                        yAxisId="right"
-                        stroke="var(--color-growth)"
-                        strokeWidth={3}
-                        dot={{ r: 4, fill: "var(--color-growth)", strokeWidth: 0 }}
-                        name="Growth Rate"
-                    />
+                    <Bar dataKey="averageWeight" yAxisId="left" fill="var(--color-averageWeight)" radius={[4, 4, 0, 0]} name="Community Avg." barSize={40} />
+                    <Line type="monotone" dataKey="growth" yAxisId="right" stroke="var(--color-growth)" strokeWidth={3} dot={{ r: 4, fill: "var(--color-growth)" }} name="Growth Trend" />
                   </ComposedChart>
                 </ChartContainer>
               ) : (
                 <div className="flex h-[300px] items-center justify-center p-6 text-center border-2 border-dashed rounded-lg">
-                  <p className="text-muted-foreground text-sm max-w-[250px]">
-                    Not enough data. Add records with different ages to visualize growth patterns.
-                  </p>
+                  <p className="text-muted-foreground text-sm max-w-[250px]">Waiting for more community data to visualize trends.</p>
                 </div>
               )}
             </CardContent>
@@ -483,52 +345,21 @@ export default function LivestockPage() {
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Update Sheep Record</DialogTitle>
-            <DialogDescription>
-              Record a new weight measurement or correct details for Tag {editingSheep?.tagId}.
-            </DialogDescription>
-          </DialogHeader>
+          <DialogHeader><DialogTitle>Update Sheep Record</DialogTitle></DialogHeader>
           <Form {...editForm}>
             <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-4 py-4">
-              <FormField
-                control={editForm.control}
-                name="tagId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tag ID</FormLabel>
-                    <FormControl><Input {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <FormField control={editForm.control} name="tagId" render={({ field }) => (
+                <FormItem><FormLabel>Tag ID</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>
+              )} />
               <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={editForm.control}
-                  name="weight"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Current Weight (kg)</FormLabel>
-                      <FormControl><Input type="number" step="0.1" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={editForm.control}
-                  name="age"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Age (months)</FormLabel>
-                      <FormControl><Input type="number" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <FormField control={editForm.control} name="weight" render={({ field }) => (
+                  <FormItem><FormLabel>Weight (kg)</FormLabel><FormControl><Input type="number" step="0.1" {...field} /></FormControl></FormItem>
+                )} />
+                <FormField control={editForm.control} name="age" render={({ field }) => (
+                  <FormItem><FormLabel>Age (mo)</FormLabel><FormControl><Input type="number" {...field} /></FormControl></FormItem>
+                )} />
               </div>
-              <DialogFooter>
-                <Button type="submit" className="w-full sm:w-auto">Save Changes</Button>
-              </DialogFooter>
+              <DialogFooter><Button type="submit" className="w-full">Save Changes</Button></DialogFooter>
             </form>
           </Form>
         </DialogContent>
