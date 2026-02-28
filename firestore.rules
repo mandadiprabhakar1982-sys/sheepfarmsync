@@ -2,17 +2,16 @@
  * SheepSync Pro - Global Collaborative Security Rules
  * 
  * ANY authenticated user can READ and WRITE all data.
- * This enables a fully shared farm management ecosystem.
+ * This enables a fully shared farm management ecosystem where any member
+ * can view and update the collective records.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Allow authenticated users to list and search across all collections
-    // This is required for collectionGroup queries to work at the root.
-    allow read, write: if request.auth != null;
-
-    // Explicitly allow all subcollections for authenticated users
+    // This recursive wildcard match {allPaths=**} allows any authenticated
+    // user to perform operations (including collectionGroup queries)
+    // across the entire database.
     match /{allPaths=**} {
       allow read, write: if request.auth != null;
     }

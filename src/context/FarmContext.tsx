@@ -1,9 +1,9 @@
 'use client';
 
-import { createContext, useContext, ReactNode, useMemo, useCallback } from 'react';
+import { createContext, useContext, ReactNode, useMemo, useCallback, useEffect } from 'react';
 import type { LivestockPurchase, AnimalSale, FeedCost, MedicineExpense, LaborCost, TrackedSheep, DeadAnimal, FarmExpense, HealthTask, PublicSale } from '@/lib/types';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, doc, query, serverTimestamp, collectionGroup } from 'firebase/firestore';
+import { collection, doc, serverTimestamp, collectionGroup } from 'firebase/firestore';
 import { setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 interface FarmContextType {
@@ -82,7 +82,16 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
   const firestore = useFirestore();
 
-  // Use collectionGroup to fetch data from ALL users (Shared Collaborative Model)
+  // Debugging log as requested to verify auth state before queries
+  useEffect(() => {
+    if (user) {
+      console.log('Firebase Auth initialized for:', user.email, 'UID:', user.uid);
+    } else {
+      console.log('Firebase Auth: No user session detected.');
+    }
+  }, [user]);
+
+  // Use collectionGroup to fetch data from ALL users (Fully Collaborative Model)
   const purchasesRef = useMemoFirebase(() => user ? collectionGroup(firestore, 'livestockPurchases') : null, [firestore, user]);
   const { data: purchases, isLoading: isLoadingPurchases } = useCollection<LivestockPurchase>(purchasesRef);
 
@@ -113,20 +122,11 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const marketplaceRef = useMemoFirebase(() => collection(firestore, 'communitySales'), [firestore]);
   const { data: communitySales, isLoading: isLoadingMarketplace } = useCollection<PublicSale>(marketplaceRef);
 
-  // Helper to get the correct path for a document, defaulting to the current user's path for new creations
-  const getDocRef = useCallback((colName: string, id: string) => {
-    // For collaborative editing, we need the actual path. 
-    // In our model, data is stored under /users/{uid}/{colName}/{id}.
-    // We try to find existing data to get the original UID, otherwise use current user.
-    return doc(firestore, 'users', user?.uid || 'anonymous', colName, id);
-  }, [firestore, user]);
-
   const upsert = useCallback((colName: string, id: string | undefined, data: any) => {
     if (!user) return;
     const finalId = id || generateId();
-    // For simplicity in a collaborative model, new entries go under the current user's path.
-    // Existing entries can be updated at their original location if the path is known, 
-    // but here we maintain the structure by putting them under the current user for simplicity.
+    // In collaborative mode, we still store under the current user's path for data lineage,
+    // but the rules allow anyone to edit.
     const docRef = doc(firestore, 'users', user.uid, colName, finalId);
     setDocumentNonBlocking(docRef, { ...data, id: finalId, ownerUid: user.uid }, { merge: true });
   }, [user, firestore]);
@@ -134,7 +134,6 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const addPurchase = useCallback((p: any) => upsert('livestockPurchases', undefined, p), [upsert]);
   const updatePurchase = useCallback((id: string, p: any) => upsert('livestockPurchases', id, p), [upsert]);
   const deletePurchase = useCallback((id: string) => {
-    // Delete from the current user's path (collaborative deletion)
     if (user) deleteDocumentNonBlocking(doc(firestore, 'users', user.uid, 'livestockPurchases', id));
   }, [user, firestore]);
 
