@@ -7,7 +7,6 @@ import {
   Wheat,
   Users,
   Skull,
-  Loader2,
   Syringe,
   Receipt,
   ListChecks,
@@ -26,7 +25,11 @@ export default function OverviewPage() {
     isLoading, 
     totalReceivables, 
     totalPayables, 
-    totalDead 
+    totalDead,
+    totalFeedCost,
+    totalLaborCost,
+    totalMedicineCost,
+    totalFarmExpenses
   } = useFarm();
   
   if (isLoading) {
@@ -115,6 +118,39 @@ export default function OverviewPage() {
               icon={TrendingDown}
               variant="success"
               description="Outstanding debts"
+            />
+          </div>
+        </section>
+
+        <section>
+          <h2 className="text-base font-black mb-6 flex items-center gap-2 tracking-tight">
+            <span className="bg-primary h-2 w-2 rounded-full"></span>
+            Operational Breakdown
+          </h2>
+          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+            <StatCard
+                title="FEED USAGE"
+                value={`₹${totalFeedCost.toLocaleString()}`}
+                icon={Wheat}
+                variant="info"
+            />
+            <StatCard
+                title="LABOR COSTS"
+                value={`₹${totalLaborCost.toLocaleString()}`}
+                icon={Users}
+                variant="info"
+            />
+             <StatCard
+              title="MEDICAL"
+              value={`₹${totalMedicineCost.toLocaleString()}`}
+              icon={Syringe}
+              variant="info"
+            />
+            <StatCard
+              title="MISC."
+              value={`₹${totalFarmExpenses.toLocaleString()}`}
+              icon={Receipt}
+              variant="info"
             />
           </div>
         </section>
