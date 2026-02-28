@@ -3,7 +3,7 @@
 import { firebaseConfig } from '@/firebase/config';
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth } from 'firebase/auth';
-import { getFirestore, Firestore, enableNetwork, disableNetwork } from 'firebase/firestore'
+import { getFirestore, Firestore } from 'firebase/firestore';
 
 // Global singletons to prevent multiple instances during hot reloads
 let firebaseApp: FirebaseApp | undefined;
@@ -15,30 +15,31 @@ let firestore: Firestore | undefined;
  * This ensures only one instance of each service exists globally.
  */
 export function initializeFirebase() {
-  if (!getApps().length) {
-    firebaseApp = initializeApp(firebaseConfig);
-  } else {
-    firebaseApp = getApp();
-  }
+  if (typeof window !== 'undefined') {
+    if (!getApps().length) {
+      firebaseApp = initializeApp(firebaseConfig);
+    } else {
+      firebaseApp = getApp();
+    }
 
-  if (!firebaseAuth) {
-    firebaseAuth = getAuth(firebaseApp);
-  }
-  
-  if (!firestore) {
-    firestore = getFirestore(firebaseApp);
+    if (!firebaseAuth) {
+      firebaseAuth = getAuth(firebaseApp);
+    }
+    
+    if (!firestore) {
+      firestore = getFirestore(firebaseApp);
+    }
   }
 
   return {
-    firebaseApp,
-    auth: firebaseAuth,
-    firestore
+    firebaseApp: firebaseApp || null,
+    auth: firebaseAuth || null,
+    firestore: firestore || null
   };
 }
 
 /**
  * Returns SDK instances for a given FirebaseApp.
- * Note: Prefers the singleton instances from initializeFirebase()
  */
 export function getSdks(app: FirebaseApp) {
   return {

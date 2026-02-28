@@ -34,44 +34,52 @@ export function useCollection<T = any>(
   const [error, setError] = useState<FirestoreError | null>(null);
   
   // Track the current subscription to avoid redundant onSnapshot calls
-  const activeSubscriptionRef = useRef<Query<DocumentData> | null>(null);
+  // and ensure we don't process results from stale listeners.
+  const queryRef = useRef<Query<DocumentData> | null>(null);
 
   useEffect(() => {
-    // If no query or the query is the same as the active one, do nothing
-    if (!memoizedTargetRefOrQuery || activeSubscriptionRef.current === memoizedTargetRefOrQuery) {
-      if (!memoizedTargetRefOrQuery) {
-        setData(null);
-        setIsLoading(false);
-        setError(null);
-      }
+    // If the query reference hasn't actually changed, don't resubscribe.
+    // This is critical when parents re-render frequently.
+    if (!memoizedTargetRefOrQuery) {
+      setData(null);
+      setIsLoading(false);
+      setError(null);
+      queryRef.current = null;
+      return;
+    }
+
+    if (queryRef.current === memoizedTargetRefOrQuery) {
       return;
     }
 
     setIsLoading(true);
     setError(null);
-    activeSubscriptionRef.current = memoizedTargetRefOrQuery;
+    queryRef.current = memoizedTargetRefOrQuery;
+
+    // We use a local variable to capture the specific query for this effect run.
+    const currentQuery = memoizedTargetRefOrQuery;
 
     const unsubscribe = onSnapshot(
-      memoizedTargetRefOrQuery,
+      currentQuery,
       (snapshot: QuerySnapshot<DocumentData>) => {
-        // Only update if this query is still the one we are interested in
-        if (activeSubscriptionRef.current !== memoizedTargetRefOrQuery) return;
+        // Only update state if this is still the active query reference.
+        if (queryRef.current !== currentQuery) return;
 
         const results: WithId<T>[] = [];
         snapshot.forEach((doc) => {
           results.push({ ...(doc.data() as T), id: doc.id });
         });
+        
         setData(results);
         setError(null);
         setIsLoading(false);
       },
       (err: FirestoreError) => {
-        // Only report if this is still the active query
-        if (activeSubscriptionRef.current !== memoizedTargetRefOrQuery) return;
+        if (queryRef.current !== currentQuery) return;
 
         // ID: ca9 often happens when listeners are created/destroyed too fast.
-        // We log it as a warning but don't crash the UI.
-        if (err.code === 'permission-denied' || err.code === 'unavailable') {
+        // We catch it and report it gracefully without crashing.
+        if (err.code as string === 'permission-denied' || err.code as string === 'unavailable') {
           console.warn(`Firestore [${err.code}]:`, err.message);
         } else {
           console.error("Firestore Error in useCollection:", err);
@@ -84,11 +92,12 @@ export function useCollection<T = any>(
     );
 
     return () => {
-      // Cleanup: only clear the ref if we are truly unmounting this specific query's listener
-      if (activeSubscriptionRef.current === memoizedTargetRefOrQuery) {
-        activeSubscriptionRef.current = null;
-      }
+      // Cleanup the specific listener for this effect run.
       unsubscribe();
+      // If we are cleaning up the current active query, clear the ref.
+      if (queryRef.current === currentQuery) {
+        queryRef.current = null;
+      }
     };
   }, [memoizedTargetRefOrQuery]);
 

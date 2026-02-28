@@ -52,7 +52,6 @@ interface FarmContextType {
   deleteHealthTask: (id: string) => void;
   updateHealthTask: (id: string, data: Omit<HealthTask, 'id'>) => void;
 
-  // Marketplace
   communitySales: PublicSale[] | null;
   postToMarketplace: (sale: Omit<PublicSale, 'id' | 'sellerId' | 'sellerEmail' | 'sellerName'>) => void;
   deleteMarketplaceSale: (id: string) => void;
@@ -75,47 +74,43 @@ interface FarmContextType {
 const FarmContext = createContext<FarmContextType | undefined>(undefined);
 
 function generateId() {
-  return crypto.randomUUID();
+  return typeof crypto !== 'undefined' ? crypto.randomUUID() : Math.random().toString(36).substring(2);
 }
 
 export function FarmProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
   const firestore = useFirestore();
 
-  // --- STABLE COLLECTION GROUP QUERIES ---
-  // Using explicit query() wrappers and stabilizing deps to prevent assertion errors (ID: ca9)
-  
-  const purchasesRef = useMemoFirebase(() => query(collectionGroup(firestore, 'livestockPurchases')), [firestore]);
+  const purchasesRef = useMemoFirebase(() => firestore ? query(collectionGroup(firestore, 'livestockPurchases')) : null, [firestore]);
   const { data: rawPurchases, isLoading: isLoadingPurchases } = useCollection<LivestockPurchase>(purchasesRef);
 
-  const salesRef = useMemoFirebase(() => query(collectionGroup(firestore, 'animalSales')), [firestore]);
+  const salesRef = useMemoFirebase(() => firestore ? query(collectionGroup(firestore, 'animalSales')) : null, [firestore]);
   const { data: rawSales, isLoading: isLoadingSales } = useCollection<AnimalSale>(salesRef);
   
-  const feedCostsRef = useMemoFirebase(() => query(collectionGroup(firestore, 'feedExpenses')), [firestore]);
+  const feedCostsRef = useMemoFirebase(() => firestore ? query(collectionGroup(firestore, 'feedExpenses')) : null, [firestore]);
   const { data: rawFeedCosts, isLoading: isLoadingFeedCosts } = useCollection<FeedCost>(feedCostsRef);
 
-  const medicineExpensesRef = useMemoFirebase(() => query(collectionGroup(firestore, 'medicineExpenses')), [firestore]);
+  const medicineExpensesRef = useMemoFirebase(() => firestore ? query(collectionGroup(firestore, 'medicineExpenses')) : null, [firestore]);
   const { data: rawMedicineExpenses, isLoading: isLoadingMedicine } = useCollection<MedicineExpense>(medicineExpensesRef);
 
-  const laborCostsRef = useMemoFirebase(() => query(collectionGroup(firestore, 'laborExpenses')), [firestore]);
+  const laborCostsRef = useMemoFirebase(() => firestore ? query(collectionGroup(firestore, 'laborExpenses')) : null, [firestore]);
   const { data: rawLaborCosts, isLoading: isLoadingLabor } = useCollection<LaborCost>(laborCostsRef);
   
-  const deadAnimalsRef = useMemoFirebase(() => query(collectionGroup(firestore, 'deadAnimals')), [firestore]);
+  const deadAnimalsRef = useMemoFirebase(() => firestore ? query(collectionGroup(firestore, 'deadAnimals')) : null, [firestore]);
   const { data: rawDeadAnimals, isLoading: isLoadingDeadAnimals } = useCollection<DeadAnimal>(deadAnimalsRef);
 
-  const trackedSheepRef = useMemoFirebase(() => query(collectionGroup(firestore, 'trackedSheep')), [firestore]);
+  const trackedSheepRef = useMemoFirebase(() => firestore ? query(collectionGroup(firestore, 'trackedSheep')) : null, [firestore]);
   const { data: rawTrackedSheep, isLoading: isLoadingTrackedSheep } = useCollection<TrackedSheep>(trackedSheepRef);
 
-  const farmExpensesRef = useMemoFirebase(() => query(collectionGroup(firestore, 'farmExpenses')), [firestore]);
+  const farmExpensesRef = useMemoFirebase(() => firestore ? query(collectionGroup(firestore, 'farmExpenses')) : null, [firestore]);
   const { data: rawFarmExpenses, isLoading: isLoadingFarmExpenses } = useCollection<FarmExpense>(farmExpensesRef);
   
-  const healthTasksRef = useMemoFirebase(() => query(collectionGroup(firestore, 'healthTasks')), [firestore]);
+  const healthTasksRef = useMemoFirebase(() => firestore ? query(collectionGroup(firestore, 'healthTasks')) : null, [firestore]);
   const { data: rawHealthTasks, isLoading: isLoadingHealthTasks } = useCollection<HealthTask>(healthTasksRef);
 
-  const marketplaceRef = useMemoFirebase(() => query(collectionGroup(firestore, 'communitySales')), [firestore]);
+  const marketplaceRef = useMemoFirebase(() => firestore ? query(collectionGroup(firestore, 'communitySales')) : null, [firestore]);
   const { data: rawCommunitySales, isLoading: isLoadingMarketplace } = useCollection<PublicSale>(marketplaceRef);
 
-  // --- MEMORY-BASED SORTING ---
   const purchases = useMemo(() => rawPurchases ? [...rawPurchases].sort((a, b) => new Date(b.purchaseDate).getTime() - new Date(a.purchaseDate).getTime()) : null, [rawPurchases]);
   const sales = useMemo(() => rawSales ? [...rawSales].sort((a, b) => new Date(b.saleDate).getTime() - new Date(a.saleDate).getTime()) : null, [rawSales]);
   const feedCosts = useMemo(() => rawFeedCosts ? [...rawFeedCosts].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()) : null, [rawFeedCosts]);
@@ -127,9 +122,8 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const healthTasks = useMemo(() => rawHealthTasks ? [...rawHealthTasks].sort((a, b) => new Date(a.nextDueDate).getTime() - new Date(b.nextDueDate).getTime()) : null, [rawHealthTasks]);
   const communitySales = useMemo(() => rawCommunitySales ? [...rawCommunitySales].sort((a, b) => new Date(b.saleDate).getTime() - new Date(a.saleDate).getTime()) : null, [rawCommunitySales]);
 
-  // --- MUTATION HELPERS ---
   const upsert = useCallback((colName: string, id: string | undefined, data: any) => {
-    if (!user) return;
+    if (!user || !firestore) return;
     const finalId = id || generateId();
     const docRef = doc(firestore, 'users', user.uid, colName, finalId);
     setDocumentNonBlocking(docRef, { 
@@ -142,7 +136,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   }, [user, firestore]);
 
   const remove = useCallback((colName: string, id: string) => {
-    if (!user) return;
+    if (!user || !firestore) return;
     deleteDocumentNonBlocking(doc(firestore, 'users', user.uid, colName, id));
   }, [user, firestore]);
 
@@ -183,7 +177,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const deleteHealthTask = useCallback((id: string) => remove('healthTasks', id), [remove]);
 
   const postToMarketplace = useCallback((sale: any) => {
-    if (!user) return;
+    if (!user || !firestore) return;
     const docRef = doc(firestore, 'communitySales', generateId());
     setDocumentNonBlocking(docRef, {
       ...sale,
@@ -196,12 +190,12 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   }, [user, firestore]);
 
   const deleteMarketplaceSale = useCallback((id: string) => {
+    if (!firestore) return;
     deleteDocumentNonBlocking(doc(firestore, 'communitySales', id));
   }, [firestore]);
 
   const isLoading = isLoadingPurchases || isLoadingSales || isLoadingFeedCosts || isLoadingMedicine || isLoadingHealthTasks || isLoadingLabor || isLoadingDeadAnimals || isLoadingTrackedSheep || isLoadingFarmExpenses || isLoadingMarketplace;
 
-  // --- STATS CALCULATION ---
   const totalDeadCount = useMemo(() => (deadAnimals || []).reduce((sum, a) => sum + (a.sheepCount || 0), 0), [deadAnimals]);
   const totalTrackedCount = useMemo(() => (trackedSheep || []).length, [trackedSheep]);
   const totalSheepCount = useMemo(() => {

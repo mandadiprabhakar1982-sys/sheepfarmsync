@@ -2,13 +2,14 @@
 
 import { useUser, useFirestore } from '@/firebase';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { doc, getDoc, setDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
 
 const publicPaths = ['/login'];
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
+  const initializationRef = useRef(false);
   const [isInitializingUser, setIsInitializingUser] = useState(false);
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
@@ -29,11 +30,16 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
       return;
     }
 
+    if (publicPaths.includes(pathname)) {
+      router.push('/dashboard');
+    }
+
     const initUser = async () => {
-      // Don't re-initialize if we're already checking
-      if (isInitializingUser) return;
+      if (!firestore || !user || initializationRef.current) return;
       
+      initializationRef.current = true;
       setIsInitializingUser(true);
+      
       const userRef = doc(firestore, 'users', user.uid);
       try {
         const snap = await getDoc(userRef);
@@ -48,7 +54,6 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
           });
         } else {
           const data = snap.data();
-          // Ensure role is always collaborator for the merged view
           if (data && data.role !== 'collaborator') {
             await updateDoc(userRef, { 
               role: 'collaborator',
@@ -57,35 +62,26 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
           }
         }
       } catch (e) {
-        // Errors handled by global listener
+        console.warn("User profile initialization error:", e);
       } finally {
         setIsInitializingUser(false);
       }
     };
 
     initUser();
-
-    if (publicPaths.includes(pathname)) {
-      router.push('/dashboard');
-    }
   }, [mounted, isUserLoading, user, pathname, router, firestore]);
 
-  // Initial render must be consistent between server and client to avoid hydration errors
+  // Essential for hydration safety
   if (!mounted) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center bg-background" />
-    );
+    return <div className="flex h-screen w-full items-center justify-center bg-background" />;
   }
 
-  // Determine if we should show the loading shell. 
-  // We MUST wait for both Auth and User Doc Initialization (role setting)
   const isAuthChecking = isUserLoading || isInitializingUser || (user && publicPaths.includes(pathname)) || (!user && !publicPaths.includes(pathname));
   
   if (isAuthChecking) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
-          {/* Use a pure CSS spinner to avoid Lucide hydration mismatches */}
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
           <p className="text-xs font-bold tracking-widest text-muted-foreground animate-pulse uppercase">Authenticating Shepherd...</p>
         </div>
