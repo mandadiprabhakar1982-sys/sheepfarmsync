@@ -14,16 +14,14 @@ service cloud.firestore {
       allow update, delete: if isSignedIn() && resource.data.sellerId == request.auth.uid;
     }
 
-    // --- PRIVATE USER DATA ---
-    // Securely scoped to individual shepherds
-    match /users/{userId}/{collectionName}/{docId} {
-      allow create: if isSignedIn() && userId == request.auth.uid && request.resource.data.ownerId == request.auth.uid;
-      allow read, update, delete: if isSignedIn() && userId == request.auth.uid && resource.data.ownerId == request.auth.uid;
-    }
-    
-    // Legacy support for top-level catch-all if needed (matching user's provided snippet)
+    // --- ALL OTHER PRIVATE COLLECTIONS ---
+    // Securely scoped to individual shepherds via ownerId
     match /{collectionName}/{docId} {
+      // Allow creation if they attach their own UID
       allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      
+      // Allow reading/editing only if they are the owner
+      // Note: Queries on these collections must include a filter: where("ownerId", "==", auth.uid)
       allow read, update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
     }
   }
