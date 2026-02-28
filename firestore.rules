@@ -2,14 +2,15 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Global Access: Any authenticated user can read or write any document.
-    // This supports a fully collaborative farm management experience.
+    // Global Collaborative Access: 
+    // Any authenticated user can read or write any document.
+    // This supports a fully shared real-time farm management ecosystem.
     match /{document=**} {
       allow read, write: if request.auth != null;
     }
 
     // Explicit Collection Group Permissions
-    // These are required for the SDK to authorize queries that look across all user folders.
+    // Required for the SDK to authorize 'list' queries that look across all user folders.
     match /{path=**}/livestockPurchases/{id} { allow read, write: if request.auth != null; }
     match /{path=**}/animalSales/{id} { allow read, write: if request.auth != null; }
     match /{path=**}/feedExpenses/{id} { allow read, write: if request.auth != null; }

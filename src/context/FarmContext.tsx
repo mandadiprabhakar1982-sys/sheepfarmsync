@@ -82,14 +82,8 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
   const firestore = useFirestore();
 
-  // AUTH LOGGING: Verify session state before initializing listeners
-  useEffect(() => {
-    if (user) {
-      console.log("Farm Context initialized for authenticated user:", user.email);
-    }
-  }, [user]);
-
-  // COLLABORATIVE QUERIES: Gated by user authentication to avoid premature listener calls
+  // REAL-TIME COMMUNITY LISTENERS:
+  // Using collectionGroup allows us to subscribe to data from all users simultaneously.
   const purchasesRef = useMemoFirebase(() => user ? collectionGroup(firestore, 'livestockPurchases') : null, [firestore, user]);
   const { data: purchases, isLoading: isLoadingPurchases } = useCollection<LivestockPurchase>(purchasesRef);
 
@@ -120,7 +114,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const marketplaceRef = useMemoFirebase(() => user ? collection(firestore, 'communitySales') : null, [firestore, user]);
   const { data: communitySales, isLoading: isLoadingMarketplace } = useCollection<PublicSale>(marketplaceRef);
 
-  // HELPER: Upsert data to the current user's folder
+  // HELPER: Upsert data to the current user's folder to maintain identity.
   const upsert = useCallback((colName: string, id: string | undefined, data: any) => {
     if (!user) return;
     const finalId = id || generateId();
