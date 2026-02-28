@@ -7,9 +7,10 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // Role-based helper: Checks if the user has the 'collaborator' role
+    // Role-based helper: Safely checks if the user has the 'collaborator' role
     function isCollaborator() {
-      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'collaborator';
+      let userPath = /databases/$(database)/documents/users/$(request.auth.uid);
+      return isSignedIn() && exists(userPath) && get(userPath).data.role == 'collaborator';
     }
 
     // --- GLOBAL COLLABORATIVE ACCESS ---

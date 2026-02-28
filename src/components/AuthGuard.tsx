@@ -56,7 +56,7 @@ function AuthContent({ children }: { children: React.ReactNode }) {
           });
         } else {
           const data = snap.data();
-          if (data && !data.role) {
+          if (data && data.role !== 'collaborator') {
             await updateDoc(userRef, { 
               role: 'collaborator',
               updatedAt: serverTimestamp() 
