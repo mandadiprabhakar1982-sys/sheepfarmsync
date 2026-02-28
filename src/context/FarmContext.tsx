@@ -83,38 +83,40 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const firestore = useFirestore();
 
   // REAL-TIME COLLABORATIVE LISTENERS
-  // We use collectionGroup to subscribe to data entered by ALL farmers on the platform.
-  const purchasesRef = useMemoFirebase(() => collectionGroup(firestore, 'livestockPurchases'), [firestore]);
+  // We gate the queries so they only start after the user is authenticated.
+  // We use collectionGroup to subscribe to data entered by ALL shepherds.
+  
+  const purchasesRef = useMemoFirebase(() => user ? collectionGroup(firestore, 'livestockPurchases') : null, [firestore, user]);
   const { data: purchases, isLoading: isLoadingPurchases } = useCollection<LivestockPurchase>(purchasesRef);
 
-  const salesRef = useMemoFirebase(() => collectionGroup(firestore, 'animalSales'), [firestore]);
+  const salesRef = useMemoFirebase(() => user ? collectionGroup(firestore, 'animalSales') : null, [firestore, user]);
   const { data: sales, isLoading: isLoadingSales } = useCollection<AnimalSale>(salesRef);
   
-  const feedCostsRef = useMemoFirebase(() => collectionGroup(firestore, 'feedExpenses'), [firestore]);
+  const feedCostsRef = useMemoFirebase(() => user ? collectionGroup(firestore, 'feedExpenses') : null, [firestore, user]);
   const { data: feedCosts, isLoading: isLoadingFeedCosts } = useCollection<FeedCost>(feedCostsRef);
 
-  const medicineExpensesRef = useMemoFirebase(() => collectionGroup(firestore, 'medicineExpenses'), [firestore]);
+  const medicineExpensesRef = useMemoFirebase(() => user ? collectionGroup(firestore, 'medicineExpenses') : null, [firestore, user]);
   const { data: medicineExpenses, isLoading: isLoadingMedicine } = useCollection<MedicineExpense>(medicineExpensesRef);
 
-  const laborCostsRef = useMemoFirebase(() => collectionGroup(firestore, 'laborExpenses'), [firestore]);
+  const laborCostsRef = useMemoFirebase(() => user ? collectionGroup(firestore, 'laborExpenses') : null, [firestore, user]);
   const { data: laborCosts, isLoading: isLoadingLabor } = useCollection<LaborCost>(laborCostsRef);
   
-  const deadAnimalsRef = useMemoFirebase(() => collectionGroup(firestore, 'deadAnimals'), [firestore]);
+  const deadAnimalsRef = useMemoFirebase(() => user ? collectionGroup(firestore, 'deadAnimals') : null, [firestore, user]);
   const { data: deadAnimals, isLoading: isLoadingDeadAnimals } = useCollection<DeadAnimal>(deadAnimalsRef);
 
-  const trackedSheepRef = useMemoFirebase(() => collectionGroup(firestore, 'trackedSheep'), [firestore]);
+  const trackedSheepRef = useMemoFirebase(() => user ? collectionGroup(firestore, 'trackedSheep') : null, [firestore, user]);
   const { data: trackedSheep, isLoading: isLoadingTrackedSheep } = useCollection<TrackedSheep>(trackedSheepRef);
 
-  const farmExpensesRef = useMemoFirebase(() => collectionGroup(firestore, 'farmExpenses'), [firestore]);
+  const farmExpensesRef = useMemoFirebase(() => user ? collectionGroup(firestore, 'farmExpenses') : null, [firestore, user]);
   const { data: farmExpenses, isLoading: isLoadingFarmExpenses } = useCollection<FarmExpense>(farmExpensesRef);
   
-  const healthTasksRef = useMemoFirebase(() => collectionGroup(firestore, 'healthTasks'), [firestore]);
+  const healthTasksRef = useMemoFirebase(() => user ? collectionGroup(firestore, 'healthTasks') : null, [firestore, user]);
   const { data: healthTasks, isLoading: isLoadingHealthTasks } = useCollection<HealthTask>(healthTasksRef);
 
-  const marketplaceRef = useMemoFirebase(() => collection(firestore, 'communitySales'), [firestore]);
+  const marketplaceRef = useMemoFirebase(() => user ? collection(firestore, 'communitySales') : null, [firestore, user]);
   const { data: communitySales, isLoading: isLoadingMarketplace } = useCollection<PublicSale>(marketplaceRef);
 
-  // HELPER: Upsert data to the current user's folder to maintain identity.
+  // HELPER: Upsert data to the current user's folder.
   const upsert = useCallback((colName: string, id: string | undefined, data: any) => {
     if (!user) return;
     const finalId = id || generateId();
