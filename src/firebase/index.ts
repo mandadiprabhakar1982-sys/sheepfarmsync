@@ -5,14 +5,15 @@ import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';
 
-// Global singletons to prevent multiple instances during hot reloads
+// Global singletons to prevent multiple instances during hot reloads/SSR
 let firebaseApp: FirebaseApp | undefined;
 let firebaseAuth: Auth | undefined;
 let firestore: Firestore | undefined;
 
 /**
  * Initializes Firebase and returns the singleton SDK instances.
- * This ensures only one instance of each service exists globally.
+ * This ensures only one instance of each service exists globally,
+ * preventing 'ID: ca9' internal assertion errors.
  */
 export function initializeFirebase() {
   if (typeof window !== 'undefined') {

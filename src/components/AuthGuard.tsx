@@ -16,10 +16,12 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
 
+  // 1. Initial mount to prevent hydration mismatch
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  // 2. Auth state handling and Profile Initialization
   useEffect(() => {
     if (!mounted || isUserLoading) return;
 
@@ -34,6 +36,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
       router.push('/dashboard');
     }
 
+    // Proactively initialize or verify user role
     const initUser = async () => {
       if (!firestore || !user || initializationRef.current) return;
       
@@ -62,7 +65,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
           }
         }
       } catch (e) {
-        console.warn("User profile initialization error:", e);
+        console.warn("User profile check error:", e);
       } finally {
         setIsInitializingUser(false);
       }
@@ -71,19 +74,20 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     initUser();
   }, [mounted, isUserLoading, user, pathname, router, firestore]);
 
-  // Essential for hydration safety
+  // Essential static shell for hydration safety
   if (!mounted) {
     return <div className="flex h-screen w-full items-center justify-center bg-background" />;
   }
 
+  // Gate the app until auth and profile are confirmed
   const isAuthChecking = isUserLoading || isInitializingUser || (user && publicPaths.includes(pathname)) || (!user && !publicPaths.includes(pathname));
   
   if (isAuthChecking) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-          <p className="text-xs font-bold tracking-widest text-muted-foreground animate-pulse uppercase">Authenticating Shepherd...</p>
+          <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-[10px] font-black tracking-[0.3em] text-muted-foreground animate-pulse uppercase">Authenticating shepherd...</p>
         </div>
       </div>
     );

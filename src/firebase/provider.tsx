@@ -12,14 +12,12 @@ interface FirebaseProviderProps {
   auth: Auth | null;
 }
 
-// Internal state for user authentication
 interface UserAuthState {
   user: User | null;
   isUserLoading: boolean;
   userError: Error | null;
 }
 
-// Combined state for the Firebase context
 export interface FirebaseContextState {
   areServicesAvailable: boolean;
   firebaseApp: FirebaseApp | null;
@@ -98,6 +96,10 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
   );
 };
 
+/**
+ * Hook to access Firebase services. Safe for SSR.
+ * Returns null if services are not yet initialized or unavailable.
+ */
 export const useFirebase = (): FirebaseServicesAndUser | null => {
   const context = useContext(FirebaseContext);
 
@@ -105,6 +107,7 @@ export const useFirebase = (): FirebaseServicesAndUser | null => {
     throw new Error('useFirebase must be used within a FirebaseProvider.');
   }
 
+  // Gracefully return null instead of throwing if services are not available (e.g. during SSR)
   if (!context.areServicesAvailable || !context.firebaseApp || !context.firestore || !context.auth) {
     return null;
   }
