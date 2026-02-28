@@ -65,6 +65,7 @@ export type TrackedSheep = {
   age: number; // in months
   photoDataUrl?: string;
   createdBy?: string;
+  creatorEmail?: string;
   createdAt?: any;
   updatedAt?: any;
 };

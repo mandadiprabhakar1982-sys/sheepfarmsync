@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { PlusCircle, Trash2, Camera as CameraIcon, Pencil, ArrowUp, ArrowDown, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { Bar, ComposedChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, Line } from 'recharts';
+import { format } from 'date-fns';
 
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
@@ -172,6 +173,16 @@ export default function LivestockPage() {
     toast({ title: 'Updated!', description: 'Record updated.' });
   };
 
+  const formatTimestamp = (ts: any) => {
+    if (!ts) return 'N/A';
+    try {
+      const date = ts.toDate ? ts.toDate() : new Date(ts.seconds * 1000);
+      return format(date, 'MMM dd, yyyy, hh:mm a');
+    } catch (e) {
+      return 'Invalid Date';
+    }
+  };
+
   return (
     <div className="container mx-auto py-8 px-4">
       <PageHeader
@@ -246,6 +257,8 @@ export default function LivestockPage() {
                       <TableHead>Age</TableHead>
                       <TableHead>Weight</TableHead>
                       <TableHead>Growth</TableHead>
+                      <TableHead>Added On</TableHead>
+                      <TableHead>Owner</TableHead>
                       <TableHead className="text-right">Action</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -266,6 +279,12 @@ export default function LivestockPage() {
                                 </span>
                               ) : <span className="text-xs text-muted-foreground italic">New</span>}
                             </TableCell>
+                            <TableCell className="text-[10px] text-muted-foreground">
+                              {formatTimestamp(sheep.createdAt)}
+                            </TableCell>
+                            <TableCell className="text-[10px] truncate max-w-[100px] font-medium" title={sheep.creatorEmail}>
+                              {sheep.creatorEmail || 'Unknown'}
+                            </TableCell>
                             <TableCell className="text-right">
                               <div className="flex items-center justify-end gap-1">
                                 <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditingSheep(sheep); setIsEditDialogOpen(true); }}><Pencil className="h-4 w-4" /></Button>
@@ -276,7 +295,7 @@ export default function LivestockPage() {
                         );
                       })
                     ) : (
-                      <TableRow><TableCell colSpan={5} className="text-center py-12 text-muted-foreground italic">No records found.</TableCell></TableRow>
+                      <TableRow><TableCell colSpan={7} className="text-center py-12 text-muted-foreground italic">No records found.</TableCell></TableRow>
                     )}
                   </TableBody>
                 </Table>
