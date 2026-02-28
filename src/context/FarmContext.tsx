@@ -2,7 +2,7 @@
 
 import { createContext, useContext, ReactNode, useMemo, useCallback } from 'react';
 import type { LivestockPurchase, AnimalSale, FeedCost, MedicineExpense, LaborCost, TrackedSheep, DeadAnimal, FarmExpense, HealthTask, PublicSale, UserProfile } from '@/lib/types';
-import { useUser, useFirestore, useCollection, useMemoFirebase, useDoc } from '@/firebase';
+import { useUser, useFirestore, useCollection, useDoc } from '@/firebase';
 import { collection, doc, serverTimestamp, collectionGroup, query } from 'firebase/firestore';
 import { setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
@@ -82,40 +82,40 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const firestore = useFirestore();
 
   // Reactive role monitoring to unlock collaborative streams
-  const userProfileRef = useMemoFirebase(() => (firestore && user) ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
+  const userProfileRef = useMemo(() => (firestore && user) ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
   const { data: userProfile, isLoading: isLoadingProfile } = useDoc<UserProfile>(userProfileRef);
   
   const isCollaboratorVerified = userProfile?.role === 'collaborator' || userProfile?.role === 'admin';
 
   // Collaborative Query Gate: Queries only execute when role is confirmed
-  const purchasesRef = useMemoFirebase(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'livestockPurchases')) : null, [firestore, isCollaboratorVerified]);
+  const purchasesRef = useMemo(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'livestockPurchases')) : null, [firestore, isCollaboratorVerified]);
   const { data: allPurchases, isLoading: isLoadingPurchases } = useCollection<LivestockPurchase>(purchasesRef);
 
-  const salesRef = useMemoFirebase(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'animalSales')) : null, [firestore, isCollaboratorVerified]);
+  const salesRef = useMemo(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'animalSales')) : null, [firestore, isCollaboratorVerified]);
   const { data: allSales, isLoading: isLoadingSales } = useCollection<AnimalSale>(salesRef);
 
-  const feedRef = useMemoFirebase(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'feedExpenses')) : null, [firestore, isCollaboratorVerified]);
+  const feedRef = useMemo(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'feedExpenses')) : null, [firestore, isCollaboratorVerified]);
   const { data: allFeedCosts, isLoading: isLoadingFeed } = useCollection<FeedCost>(feedRef);
 
-  const medicineRef = useMemoFirebase(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'medicineExpenses')) : null, [firestore, isCollaboratorVerified]);
+  const medicineRef = useMemo(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'medicineExpenses')) : null, [firestore, isCollaboratorVerified]);
   const { data: allMedicineExpenses, isLoading: isLoadingMedicine } = useCollection<MedicineExpense>(medicineRef);
 
-  const laborRef = useMemoFirebase(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'laborExpenses')) : null, [firestore, isCollaboratorVerified]);
+  const laborRef = useMemo(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'laborExpenses')) : null, [firestore, isCollaboratorVerified]);
   const { data: allLaborCosts, isLoading: isLoadingLabor } = useCollection<LaborCost>(laborRef);
 
-  const deadAnimalsRef = useMemoFirebase(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'deadAnimals')) : null, [firestore, isCollaboratorVerified]);
+  const deadAnimalsRef = useMemo(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'deadAnimals')) : null, [firestore, isCollaboratorVerified]);
   const { data: allDeadAnimals, isLoading: isLoadingDead } = useCollection<DeadAnimal>(deadAnimalsRef);
 
-  const trackedSheepRef = useMemoFirebase(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'trackedSheep')) : null, [firestore, isCollaboratorVerified]);
+  const trackedSheepRef = useMemo(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'trackedSheep')) : null, [firestore, isCollaboratorVerified]);
   const { data: allTrackedSheep, isLoading: isLoadingTracked } = useCollection<TrackedSheep>(trackedSheepRef);
 
-  const farmExpensesRef = useMemoFirebase(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'farmExpenses')) : null, [firestore, isCollaboratorVerified]);
+  const farmExpensesRef = useMemo(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'farmExpenses')) : null, [firestore, isCollaboratorVerified]);
   const { data: allFarmExpenses, isLoading: isLoadingFarmExpenses } = useCollection<FarmExpense>(farmExpensesRef);
   
-  const healthTasksRef = useMemoFirebase(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'healthTasks')) : null, [firestore, isCollaboratorVerified]);
+  const healthTasksRef = useMemo(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'healthTasks')) : null, [firestore, isCollaboratorVerified]);
   const { data: allHealthTasks, isLoading: isLoadingHealth } = useCollection<HealthTask>(healthTasksRef);
 
-  const marketplaceRef = useMemoFirebase(() => firestore ? query(collection(firestore, 'communitySales')) : null, [firestore]);
+  const marketplaceRef = useMemo(() => firestore ? query(collection(firestore, 'communitySales')) : null, [firestore]);
   const { data: communitySales, isLoading: isLoadingMarketplace } = useCollection<PublicSale>(marketplaceRef);
 
   const sorted = useCallback((list: any[] | null, dateKey: string) => list ? [...list].sort((a, b) => new Date(b[dateKey]).getTime() - new Date(a[dateKey]).getTime()) : null, []);

@@ -103,11 +103,7 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
 export const useFirebase = (): FirebaseServicesAndUser | null => {
   const context = useContext(FirebaseContext);
 
-  if (context === undefined) {
-    return null;
-  }
-
-  if (!context.areServicesAvailable || !context.firebaseApp || !context.firestore || !context.auth) {
+  if (!context || !context.areServicesAvailable || !context.firebaseApp || !context.firestore || !context.auth) {
     return null;
   }
 
@@ -136,13 +132,8 @@ export const useFirebaseApp = (): FirebaseApp | null => {
   return context?.firebaseApp || null;
 };
 
-type MemoFirebase <T> = T & {__memo?: boolean};
-
-export function useMemoFirebase<T>(factory: () => T, deps: DependencyList): T | (MemoFirebase<T>) {
-  const memoized = useMemo(factory, deps);
-  if(typeof memoized !== 'object' || memoized === null) return memoized as T;
-  (memoized as MemoFirebase<T>).__memo = true;
-  return memoized;
+export function useMemoFirebase<T>(factory: () => T, deps: DependencyList): T {
+  return useMemo(factory, deps);
 }
 
 export const useUser = (): UserHookResult => { 

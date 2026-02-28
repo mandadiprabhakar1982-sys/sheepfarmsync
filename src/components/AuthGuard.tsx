@@ -1,8 +1,8 @@
 'use client';
 
-import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
+import { useUser, useFirestore, useDoc } from '@/firebase';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { doc, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
 import type { UserProfile } from '@/lib/types';
 
@@ -16,8 +16,11 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   // Stable profile reference for the real-time role listener
-  // We keep hooks at the top level, never calling them conditionally
-  const profileRef = useMemoFirebase(() => (firestore && user) ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
+  const profileRef = useMemo(() => {
+    if (!firestore || !user) return null;
+    return doc(firestore, 'users', user.uid);
+  }, [firestore, user]);
+
   const { data: profile, isLoading: isProfileLoading } = useDoc<UserProfile>(profileRef);
 
   useEffect(() => {
@@ -38,12 +41,12 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
             id: user.uid,
             email: user.email,
             displayName: user.displayName || 'Shepherd',
-            role: 'collaborator', // Default role to unlock data
+            role: 'collaborator',
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp(),
           }, { merge: true });
         } catch (e) {
-          console.error("Critical: Failed to initialize shepherd profile", e);
+          console.error("Failed to initialize shepherd profile", e);
         }
       } 
       // If profile exists but role is missing, repair it
@@ -54,7 +57,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
             updatedAt: serverTimestamp() 
           });
         } catch (e) {
-          console.error("Critical: Failed to update shepherd role", e);
+          console.error("Failed to update shepherd role", e);
         }
       }
     };
@@ -63,18 +66,23 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   }, [mounted, isUserLoading, isProfileLoading, user, profile, firestore]);
 
   useEffect(() => {
-    if (mounted && !isUserLoading && !user && !publicPaths.includes(pathname)) {
+    if (!mounted || isUserLoading) return;
+
+    const isPublic = publicPaths.includes(pathname);
+    if (!user && !isPublic) {
       router.push('/login');
     }
-    if (mounted && user && publicPaths.includes(pathname)) {
+    if (user && isPublic) {
       router.push('/dashboard');
     }
   }, [mounted, isUserLoading, user, pathname, router]);
 
-  // Early returns happen AFTER all hook calls
-  if (!mounted) return <div className="flex h-screen w-full items-center justify-center bg-background" />;
+  // Handle SSR and Hydration
+  if (!mounted) {
+    return null;
+  }
 
-  const isAuthChecking = isUserLoading || (user && !profile && isProfileLoading) || (user && publicPaths.includes(pathname)) || (!user && !publicPaths.includes(pathname));
+  const isAuthChecking = isUserLoading || (user && !profile && isProfileLoading);
   
   if (isAuthChecking) {
     return (
