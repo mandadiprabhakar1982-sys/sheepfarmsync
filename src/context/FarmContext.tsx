@@ -3,7 +3,7 @@
 import { createContext, useContext, ReactNode, useMemo, useCallback } from 'react';
 import type { LivestockPurchase, AnimalSale, FeedCost, MedicineExpense, LaborCost, TrackedSheep, DeadAnimal, FarmExpense, HealthTask, PublicSale } from '@/lib/types';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, doc, query, serverTimestamp, collectionGroup } from 'firebase/firestore';
+import { collection, doc, query, serverTimestamp } from 'firebase/firestore';
 import { setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 interface FarmContextType {
@@ -82,128 +82,98 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
   const firestore = useFirestore();
 
-  /**
-   * GLOBAL VISIBILITY IMPLEMENTATION
-   * Using collectionGroup ensures we fetch data from ALL users, not just the current one.
-   * This implements the "private records need to show all users" requirement.
-   */
-  const purchasesRef = useMemoFirebase(() => collectionGroup(firestore, 'livestockPurchases'), [firestore]);
+  // Scoped references to the current user's private subcollections
+  const purchasesRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'livestockPurchases') : null, [firestore, user]);
   const { data: purchases, isLoading: isLoadingPurchases } = useCollection<LivestockPurchase>(purchasesRef);
 
-  const salesRef = useMemoFirebase(() => collectionGroup(firestore, 'animalSales'), [firestore]);
+  const salesRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'animalSales') : null, [firestore, user]);
   const { data: sales, isLoading: isLoadingSales } = useCollection<AnimalSale>(salesRef);
   
-  const feedCostsRef = useMemoFirebase(() => collectionGroup(firestore, 'feedExpenses'), [firestore]);
+  const feedCostsRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'feedExpenses') : null, [firestore, user]);
   const { data: feedCosts, isLoading: isLoadingFeedCosts } = useCollection<FeedCost>(feedCostsRef);
 
-  const medicineExpensesRef = useMemoFirebase(() => collectionGroup(firestore, 'medicineExpenses'), [firestore]);
+  const medicineExpensesRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'medicineExpenses') : null, [firestore, user]);
   const { data: medicineExpenses, isLoading: isLoadingMedicine } = useCollection<MedicineExpense>(medicineExpensesRef);
 
-  const laborCostsRef = useMemoFirebase(() => collectionGroup(firestore, 'laborExpenses'), [firestore]);
+  const laborCostsRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'laborExpenses') : null, [firestore, user]);
   const { data: laborCosts, isLoading: isLoadingLabor } = useCollection<LaborCost>(laborCostsRef);
   
-  const deadAnimalsRef = useMemoFirebase(() => collectionGroup(firestore, 'deadAnimals'), [firestore]);
+  const deadAnimalsRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'deadAnimals') : null, [firestore, user]);
   const { data: deadAnimals, isLoading: isLoadingDeadAnimals } = useCollection<DeadAnimal>(deadAnimalsRef);
 
-  const trackedSheepRef = useMemoFirebase(() => collectionGroup(firestore, 'trackedSheep'), [firestore]);
+  const trackedSheepRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'trackedSheep') : null, [firestore, user]);
   const { data: trackedSheep, isLoading: isLoadingTrackedSheep } = useCollection<TrackedSheep>(trackedSheepRef);
 
-  const farmExpensesRef = useMemoFirebase(() => collectionGroup(firestore, 'farmExpenses'), [firestore]);
+  const farmExpensesRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'farmExpenses') : null, [firestore, user]);
   const { data: farmExpenses, isLoading: isLoadingFarmExpenses } = useCollection<FarmExpense>(farmExpensesRef);
   
-  const healthTasksRef = useMemoFirebase(() => collectionGroup(firestore, 'healthTasks'), [firestore]);
+  const healthTasksRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'healthTasks') : null, [firestore, user]);
   const { data: healthTasks, isLoading: isLoadingHealthTasks } = useCollection<HealthTask>(healthTasksRef);
 
+  // Community Marketplace remains a top-level shared collection
   const marketplaceRef = useMemoFirebase(() => collection(firestore, 'communitySales'), [firestore]);
   const { data: communitySales, isLoading: isLoadingMarketplace } = useCollection<PublicSale>(marketplaceRef);
 
-  // Helper to ensure writes still go to the current user's private document path
-  const getWriteColRef = (name: string) => user ? collection(firestore, 'users', user.uid, name) : null;
-
   const upsert = useCallback((colName: string, id: string | undefined, data: any) => {
-    const colRef = getWriteColRef(colName);
-    if (!colRef) return;
+    if (!user) return;
+    const colRef = collection(firestore, 'users', user.uid, colName);
     const finalId = id || generateId();
     const docRef = doc(colRef, finalId);
-    setDocumentNonBlocking(docRef, { ...data, id: finalId, ownerEmail: user?.email, ownerUid: user?.uid }, { merge: true });
+    setDocumentNonBlocking(docRef, { ...data, id: finalId, ownerUid: user.uid }, { merge: true });
   }, [user, firestore]);
 
   const addPurchase = useCallback((p: any) => upsert('livestockPurchases', undefined, p), [upsert]);
   const updatePurchase = useCallback((id: string, p: any) => upsert('livestockPurchases', id, p), [upsert]);
   const deletePurchase = useCallback((id: string) => {
-    const colRef = getWriteColRef('livestockPurchases');
-    if (colRef) deleteDocumentNonBlocking(doc(colRef, id));
+    if (user) deleteDocumentNonBlocking(doc(firestore, 'users', user.uid, 'livestockPurchases', id));
   }, [user, firestore]);
 
   const addSale = useCallback((s: any) => upsert('animalSales', undefined, s), [upsert]);
   const updateSale = useCallback((id: string, s: any) => upsert('animalSales', id, s), [upsert]);
   const deleteSale = useCallback((id: string) => {
-    const colRef = getWriteColRef('animalSales');
-    if (colRef) deleteDocumentNonBlocking(doc(colRef, id));
+    if (user) deleteDocumentNonBlocking(doc(firestore, 'users', user.uid, 'animalSales', id));
   }, [user, firestore]);
 
   const addFeedCost = useCallback((c: any) => upsert('feedExpenses', undefined, c), [upsert]);
   const updateFeedCost = useCallback((id: string, c: any) => upsert('feedExpenses', id, c), [upsert]);
   const deleteFeedCost = useCallback((id: string) => {
-    const colRef = getWriteColRef('feedExpenses');
-    if (colRef) deleteDocumentNonBlocking(doc(colRef, id));
+    if (user) deleteDocumentNonBlocking(doc(firestore, 'users', user.uid, 'feedExpenses', id));
   }, [user, firestore]);
 
   const addMedicineExpense = useCallback((e: any) => upsert('medicineExpenses', undefined, e), [upsert]);
   const updateMedicineExpense = useCallback((id: string, e: any) => upsert('medicineExpenses', id, e), [upsert]);
   const deleteMedicineExpense = useCallback((id: string) => {
-    const colRef = getWriteColRef('medicineExpenses');
-    if (colRef) deleteDocumentNonBlocking(doc(colRef, id));
+    if (user) deleteDocumentNonBlocking(doc(firestore, 'users', user.uid, 'medicineExpenses', id));
   }, [user, firestore]);
 
   const addLaborCost = useCallback((c: any) => upsert('laborExpenses', undefined, c), [upsert]);
   const updateLaborCost = useCallback((id: string, c: any) => upsert('laborExpenses', id, c), [upsert]);
   const deleteLaborCost = useCallback((id: string) => {
-    const colRef = getWriteColRef('laborExpenses');
-    if (colRef) deleteDocumentNonBlocking(doc(colRef, id));
+    if (user) deleteDocumentNonBlocking(doc(firestore, 'users', user.uid, 'laborExpenses', id));
   }, [user, firestore]);
 
-  const addTrackedSheep = useCallback((s: any) => {
-    if (!user) return;
-    upsert('trackedSheep', undefined, {
-      ...s,
-      createdBy: user.displayName || user.email,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    });
-  }, [upsert, user]);
-
-  const updateTrackedSheep = useCallback((id: string, s: any) => {
-    upsert('trackedSheep', id, {
-      ...s,
-      updatedAt: serverTimestamp(),
-    });
-  }, [upsert]);
-
+  const addTrackedSheep = useCallback((s: any) => upsert('trackedSheep', undefined, { ...s, createdAt: serverTimestamp(), updatedAt: serverTimestamp() }), [upsert]);
+  const updateTrackedSheep = useCallback((id: string, s: any) => upsert('trackedSheep', id, { ...s, updatedAt: serverTimestamp() }), [upsert]);
   const deleteTrackedSheep = useCallback((id: string) => {
-    const colRef = getWriteColRef('trackedSheep');
-    if (colRef) deleteDocumentNonBlocking(doc(colRef, id));
+    if (user) deleteDocumentNonBlocking(doc(firestore, 'users', user.uid, 'trackedSheep', id));
   }, [user, firestore]);
 
   const addDeadAnimal = useCallback((a: any) => upsert('deadAnimals', undefined, a), [upsert]);
   const updateDeadAnimal = useCallback((id: string, a: any) => upsert('deadAnimals', id, a), [upsert]);
   const deleteDeadAnimal = useCallback((id: string) => {
-    const colRef = getWriteColRef('deadAnimals');
-    if (colRef) deleteDocumentNonBlocking(doc(colRef, id));
+    if (user) deleteDocumentNonBlocking(doc(firestore, 'users', user.uid, 'deadAnimals', id));
   }, [user, firestore]);
 
   const addFarmExpense = useCallback((e: any) => upsert('farmExpenses', undefined, e), [upsert]);
   const updateFarmExpense = useCallback((id: string, e: any) => upsert('farmExpenses', id, e), [upsert]);
   const deleteFarmExpense = useCallback((id: string) => {
-    const colRef = getWriteColRef('farmExpenses');
-    if (colRef) deleteDocumentNonBlocking(doc(colRef, id));
+    if (user) deleteDocumentNonBlocking(doc(firestore, 'users', user.uid, 'farmExpenses', id));
   }, [user, firestore]);
 
   const addHealthTask = useCallback((t: any) => upsert('healthTasks', undefined, t), [upsert]);
   const updateHealthTask = useCallback((id: string, t: any) => upsert('healthTasks', id, t), [upsert]);
   const deleteHealthTask = useCallback((id: string) => {
-    const colRef = getWriteColRef('healthTasks');
-    if (colRef) deleteDocumentNonBlocking(doc(colRef, id));
+    if (user) deleteDocumentNonBlocking(doc(firestore, 'users', user.uid, 'healthTasks', id));
   }, [user, firestore]);
 
   const postToMarketplace = useCallback((sale: any) => {

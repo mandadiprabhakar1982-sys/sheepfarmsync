@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { analyzeFarmCosts, type AnalyzeFarmCostsOutput } from '@/ai/flows/analyze-farm-costs';
-import { Loader2, Sparkles, AlertTriangle, Users, TrendingUp } from 'lucide-react';
+import { Loader2, Sparkles, AlertTriangle, TrendingUp } from 'lucide-react';
 import { useFarm } from '@/context/FarmContext';
 
 import { PageHeader } from '@/components/page-header';
@@ -19,31 +19,15 @@ export default function AnalysisPage() {
     medicineExpenses, 
     feedCosts, 
     laborCosts, 
-    farmExpenses, 
-    communitySales,
+    farmExpenses,
     isLoading: isFarmDataLoading 
   } = useFarm();
-
-  const calculateCommunityAverages = () => {
-    if (!communitySales || communitySales.length === 0) return undefined;
-    
-    const totalSalesPrice = communitySales.reduce((sum, s) => sum + s.askingPrice, 0);
-    const totalAnimals = communitySales.reduce((sum, s) => sum + s.animalCount, 0);
-    
-    return {
-      avgSalePricePerAnimal: Math.round(totalSalesPrice / totalAnimals),
-      avgPurchasePricePerAnimal: Math.round(totalSalesPrice / totalAnimals * 0.85), // Heuristic estimate
-      totalMarketVolume: totalAnimals,
-    };
-  };
 
   const handleAnalysis = async () => {
     setIsLoading(true);
     setError(null);
     setAnalysis(null);
     try {
-      const communityAverages = calculateCommunityAverages();
-      
       const input = {
         livestockPurchases: (purchases || []).map(p => ({
           ...p,
@@ -53,7 +37,6 @@ export default function AnalysisPage() {
         feedCosts: feedCosts || [],
         laborCosts: laborCosts || [],
         farmExpenses: farmExpenses || [],
-        communityAverages,
       };
       
       const result = await analyzeFarmCosts(input);
@@ -70,7 +53,7 @@ export default function AnalysisPage() {
     <div className="container mx-auto py-8 px-4">
       <PageHeader
         title="AI Intelligence Reports"
-        description="Deep analysis of your farm data compared with community benchmarks."
+        description="Private deep analysis of your farm's operational efficiency."
       />
       
       <div className="flex flex-col items-center">
@@ -78,14 +61,14 @@ export default function AnalysisPage() {
           <CardHeader>
             <div className="flex items-center gap-3 mb-2">
               <Sparkles className="h-6 w-6 text-primary" />
-              <CardTitle>Community-Enhanced Analysis</CardTitle>
+              <CardTitle>Private Performance Audit</CardTitle>
             </div>
             <CardDescription className="text-foreground/70">
-              Our AI now integrates **anonymized community data** from the marketplace. 
-              See how your purchase prices and operational costs stack up against other farmers in your region.
+              Our AI analyzes your private data to identify cost-saving opportunities and optimize your flock management.
+              Your data remains strictly confidential and is never shared during this process.
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col sm:flex-row items-center gap-4">
+          <CardContent>
             <Button
               onClick={handleAnalysis}
               disabled={isLoading || isFarmDataLoading}
@@ -95,19 +78,15 @@ export default function AnalysisPage() {
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Processing Market Intelligence...
+                  Generating Intelligence...
                 </>
               ) : (
                 <>
                   <TrendingUp className="mr-2 h-4 w-4" />
-                  Run Competitive Report
+                  Run Efficiency Report
                 </>
               )}
             </Button>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
-               <Users className="h-3 w-3" />
-               Benchmarking against {communitySales?.length || 0} local listings
-            </div>
           </CardContent>
         </Card>
 
@@ -133,10 +112,7 @@ export default function AnalysisPage() {
 
               <Card className="border-none shadow-md bg-accent/30">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Users className="h-5 w-5 text-primary" />
-                    Market Comparison
-                  </CardTitle>
+                  <CardTitle className="text-lg">Cost Insights</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm font-medium text-foreground">{analysis.communityBenchmarking}</p>
@@ -164,7 +140,7 @@ export default function AnalysisPage() {
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
                   <Sparkles className="h-5 w-5 text-primary" />
-                  Strategic Optimization
+                  Strategic Recommendations
                 </CardTitle>
               </CardHeader>
               <CardContent>

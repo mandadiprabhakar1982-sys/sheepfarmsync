@@ -1,35 +1,25 @@
 /**
- * SheepSync Pro - Community-Open Security Rules
+ * SheepSync Pro - Private-First Security Rules
  * 
- * CORE PRIVACY: Farm data is readable by all signed-in users to enable 
- * community-wide benchmarking and shared intelligence.
- * OWNERSHIP: Only the original creator (owner) can create, update, or delete their records.
+ * CORE PRIVACY: All user data is strictly private and only accessible by the owner.
+ * MARKETPLACE: Community marketplace remains public for explicitly shared listings.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // 1. Global Read Access
-    // Required for the "Community-Open" benchmarking model.
-    // Explicitly allow list at the root to support collectionGroup query validation.
-    match /{allPaths=**} {
-      allow read: if request.auth != null;
-    }
-    
-    // Support Collection Group queries by explicitly allowing listing on the documents root
-    allow list: if request.auth != null;
-
-    // 2. User Profiles & Farm Data (Write Access)
-    // Strictly restricted to the owner of the data.
+    // 1. User Profiles & Farm Data (Private)
+    // Strictly restricted to the owner of the data for both READ and WRITE.
     match /users/{userId} {
-      allow write: if request.auth != null && request.auth.uid == userId;
+      allow read, write: if request.auth != null && request.auth.uid == userId;
       
       match /{allSubcollections=**} {
-        allow write: if request.auth != null && request.auth.uid == userId;
+        allow read, write: if request.auth != null && request.auth.uid == userId;
       }
     }
 
-    // 3. Community Marketplace (Write Access)
+    // 2. Community Marketplace (Public)
+    // Only data explicitly posted to this top-level collection is viewable by others.
     match /communitySales/{saleId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null && request.resource.data.sellerId == request.auth.uid;
