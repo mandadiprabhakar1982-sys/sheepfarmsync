@@ -60,7 +60,8 @@ export function useCollection<T = any>(
         setIsLoading(false);
       },
       (err: FirestoreError) => {
-        console.error("useCollection error:", err);
+        // Log details to console but don't throw runtime error
+        console.warn("Firestore Permission Error: Check if your query includes the necessary filters (e.g. ownerId) required by your security rules.", err);
         setError(err);
         setData(null);
         setIsLoading(false);
