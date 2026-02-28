@@ -61,9 +61,9 @@ export function useCollection<T = any>(
       },
       (err: FirestoreError) => {
         // Log details to console but don't throw runtime error
-        console.warn("Firestore Permission Error: Check if your query includes the necessary filters (e.g. ownerId) required by your security rules.", err);
+        console.warn("Firestore Error in useCollection:", err.message);
         setError(err);
-        setData(null);
+        setData([]); // Set to empty array to allow UI to render empty state
         setIsLoading(false);
       }
     );

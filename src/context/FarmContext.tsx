@@ -83,7 +83,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const firestore = useFirestore();
 
   // --- MERGED DATA QUERIES (Collection Groups) ---
-  // Using collectionGroup to aggregate data from all shepherds, regardless of where it's stored.
+  // Using collectionGroup to aggregate data from all shepherds, regardless of which user document they are nested under.
   
   const purchasesRef = useMemoFirebase(() => query(collectionGroup(firestore, 'livestockPurchases')), [firestore]);
   const { data: purchases, isLoading: isLoadingPurchases } = useCollection<LivestockPurchase>(purchasesRef);
@@ -116,8 +116,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const { data: communitySales, isLoading: isLoadingMarketplace } = useCollection<PublicSale>(marketplaceRef);
 
   // --- CRUD HELPERS ---
-  // We maintain a nested structure for writes to keep data organized by shepherd, 
-  // but we read globally via collectionGroup above.
+  // Writes are saved in the user's specific subcollection path to preserve organization.
   const upsert = useCallback((subColName: string, id: string | undefined, data: any) => {
     if (!user) return;
     const finalId = id || generateId();
