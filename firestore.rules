@@ -6,55 +6,22 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // --- PRIVATE COLLECTIONS (Owner-based access) ---
-    // These collections require an 'ownerId' field on every document.
-    match /livestockPurchases/{id} {
-      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
-      allow read, update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
-    }
-    match /animalSales/{id} {
-      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
-      allow read, update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
-    }
-    match /feedExpenses/{id} {
-      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
-      allow read, update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
-    }
-    match /medicineExpenses/{id} {
-      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
-      allow read, update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
-    }
-    match /laborExpenses/{id} {
-      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
-      allow read, update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
-    }
-    match /deadAnimals/{id} {
-      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
-      allow read, update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
-    }
-    match /trackedSheep/{id} {
-      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
-      allow read, update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
-    }
-    match /farmExpenses/{id} {
-      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
-      allow read, update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
-    }
-    match /healthTasks/{id} {
-      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
-      allow read, update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+    // --- USER PROFILE & PRIVATE DATA ---
+    // This allows a user to read/write their own document and ANY subcollection nested under it.
+    // Example path: /users/pjUjan2Su5U91KL035Q1z4qOO7U2/trackedSheep/someDocId
+    match /users/{userId} {
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
+      
+      match /{allSubcollections=**} {
+        allow read, write: if isSignedIn() && request.auth.uid == userId;
+      }
     }
 
-    // --- SHARED COLLECTIONS ---
+    // --- COMMUNITY MARKETPLACE (Shared) ---
     match /communitySales/{saleId} {
       allow read: if isSignedIn();
       allow create: if isSignedIn() && request.resource.data.sellerId == request.auth.uid;
       allow update, delete: if isSignedIn() && resource.data.sellerId == request.auth.uid;
-    }
-
-    // --- USER PROFILE ---
-    match /users/{userId} {
-      allow read, write: if isSignedIn() && request.auth.uid == userId;
     }
   }
 }
