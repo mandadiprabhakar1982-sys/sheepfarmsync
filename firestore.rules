@@ -7,10 +7,12 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // Role-based helper: Safely checks if the user has the 'collaborator' role
+    // Role-based helper: Checks if the user is a verified collaborator or admin
     function isCollaborator() {
       let userPath = /databases/$(database)/documents/users/$(request.auth.uid);
-      return isSignedIn() && exists(userPath) && get(userPath).data.role == 'collaborator';
+      return isSignedIn() && 
+             exists(userPath) && 
+             (get(userPath).data.role == 'collaborator' || get(userPath).data.role == 'admin');
     }
 
     // --- USER PROFILES ---
@@ -19,7 +21,7 @@ service cloud.firestore {
     }
 
     // --- COLLABORATIVE DATA (Global Read for Collaborators) ---
-    // This allows the Merged Collaborative View to function across all shepherds
+    // This enables the Merged Collaborative View across all farm subcollections
     match /{path=**}/livestockPurchases/{id} { allow read: if isCollaborator(); }
     match /{path=**}/animalSales/{id} { allow read: if isCollaborator(); }
     match /{path=**}/feedExpenses/{id} { allow read: if isCollaborator(); }
@@ -31,6 +33,7 @@ service cloud.firestore {
     match /{path=**}/healthTasks/{id} { allow read: if isCollaborator(); }
 
     // --- EXPLICIT OWNERSHIP (For Writes) ---
+    // Only the document owner can create, update, or delete their own data
     match /users/{userId}/{collectionName}/{id} {
       allow read, write: if isSignedIn() && request.auth.uid == userId;
     }
@@ -38,7 +41,7 @@ service cloud.firestore {
     // --- COMMUNITY MARKETPLACE ---
     match /communitySales/{saleId} {
       allow read: if isSignedIn();
-      allow write: if isSignedIn();
+      allow write: if isSignedIn() && (request.resource.data.sellerId == request.auth.uid || resource.data.sellerId == request.auth.uid);
     }
   }
 }

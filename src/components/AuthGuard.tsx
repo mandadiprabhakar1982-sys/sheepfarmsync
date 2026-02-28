@@ -25,26 +25,28 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
   // Proactive profile initialization and role verification
   useEffect(() => {
-    if (!mounted || isUserLoading || isProfileLoading || !firestore || !user) return;
+    if (!mounted || isUserLoading || !firestore || !user) return;
 
     const syncProfile = async () => {
       const userRef = doc(firestore, 'users', user.uid);
-      if (!profile) {
-        // Automatically create the shepherd profile if missing
+      
+      // If profile is missing completely, initialize it
+      if (!isProfileLoading && !profile) {
         try {
           await setDoc(userRef, {
             id: user.uid,
             email: user.email,
             displayName: user.displayName || 'Shepherd',
-            role: 'collaborator',
+            role: 'collaborator', // Default role to unlock data
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp(),
-          });
+          }, { merge: true });
         } catch (e) {
           console.error("Critical: Failed to initialize shepherd profile", e);
         }
-      } else if (!profile.role) {
-        // Repair missing role field immediately to unlock collaborative data
+      } 
+      // If profile exists but role is missing, repair it
+      else if (!isProfileLoading && profile && !profile.role) {
         try {
           await updateDoc(userRef, { 
             role: 'collaborator',

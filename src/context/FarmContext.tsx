@@ -81,13 +81,13 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
   const firestore = useFirestore();
 
-  // Watch the profile switch to unlock collaborative data flow
+  // Reactive role monitoring to unlock collaborative streams
   const userProfileRef = useMemoFirebase(() => (firestore && user) ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
   const { data: userProfile, isLoading: isLoadingProfile } = useDoc<UserProfile>(userProfileRef);
   
   const isCollaboratorVerified = userProfile?.role === 'collaborator' || userProfile?.role === 'admin';
 
-  // Collaborative real-time data streams (Collection Group Queries)
+  // Collaborative Query Gate: Queries only execute when role is confirmed
   const purchasesRef = useMemoFirebase(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'livestockPurchases')) : null, [firestore, isCollaboratorVerified]);
   const { data: allPurchases, isLoading: isLoadingPurchases } = useCollection<LivestockPurchase>(purchasesRef);
 
@@ -115,7 +115,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const healthTasksRef = useMemoFirebase(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'healthTasks')) : null, [firestore, isCollaboratorVerified]);
   const { data: allHealthTasks, isLoading: isLoadingHealth } = useCollection<HealthTask>(healthTasksRef);
 
-  const marketplaceRef = useMemoFirebase(() => firestore ? query(collectionGroup(firestore, 'communitySales')) : null, [firestore]);
+  const marketplaceRef = useMemoFirebase(() => firestore ? query(collection(firestore, 'communitySales')) : null, [firestore]);
   const { data: communitySales, isLoading: isLoadingMarketplace } = useCollection<PublicSale>(marketplaceRef);
 
   const sorted = useCallback((list: any[] | null, dateKey: string) => list ? [...list].sort((a, b) => new Date(b[dateKey]).getTime() - new Date(a[dateKey]).getTime()) : null, []);
@@ -203,11 +203,11 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     deleteDocumentNonBlocking(doc(firestore, 'communitySales', id));
   }, [firestore]);
 
-  // Unified loading state gated by profile verification
+  // Unified loading state gated by profile and query readiness
   const isSyncing = isLoadingProfile || (user && !isCollaboratorVerified);
   const isLoading = isSyncing || isLoadingPurchases || isLoadingSales || isLoadingFeed || isLoadingMedicine || isLoadingLabor || isLoadingDead || isLoadingTracked || isLoadingFarmExpenses || isLoadingHealth || isLoadingMarketplace;
 
-  // Aggregated totals for the Merged Collaborative View
+  // Final Aggregation Logic: Strict numeric coercion for all dashboard fields
   const totalDeadCount = useMemo(() => (allDeadAnimals || []).reduce((sum, a) => sum + Number(a.sheepCount || 0), 0), [allDeadAnimals]);
   const totalTrackedCount = useMemo(() => (allTrackedSheep || []).length, [allTrackedSheep]);
   const totalSheepCount = useMemo(() => {
