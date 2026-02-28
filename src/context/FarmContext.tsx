@@ -1,4 +1,3 @@
-
 'use client';
 
 import { createContext, useContext, ReactNode, useMemo, useCallback } from 'react';
@@ -84,40 +83,39 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const firestore = useFirestore();
 
   // --- MERGED COLLABORATIVE QUERIES (Collection Groups) ---
-  // Using collectionGroup allows us to find records nested under any user's path.
-  // This is the key to the Merged Collaborative View.
+  // Using query(collectionGroup(...)) as recommended for stability in complex environments.
 
-  const purchasesRef = useMemoFirebase(() => collectionGroup(firestore, 'livestockPurchases'), [firestore]);
+  const purchasesRef = useMemoFirebase(() => query(collectionGroup(firestore, 'livestockPurchases')), [firestore]);
   const { data: rawPurchases, isLoading: isLoadingPurchases } = useCollection<LivestockPurchase>(purchasesRef);
 
-  const salesRef = useMemoFirebase(() => collectionGroup(firestore, 'animalSales'), [firestore]);
+  const salesRef = useMemoFirebase(() => query(collectionGroup(firestore, 'animalSales')), [firestore]);
   const { data: rawSales, isLoading: isLoadingSales } = useCollection<AnimalSale>(salesRef);
   
-  const feedCostsRef = useMemoFirebase(() => collectionGroup(firestore, 'feedExpenses'), [firestore]);
+  const feedCostsRef = useMemoFirebase(() => query(collectionGroup(firestore, 'feedExpenses')), [firestore]);
   const { data: rawFeedCosts, isLoading: isLoadingFeedCosts } = useCollection<FeedCost>(feedCostsRef);
 
-  const medicineExpensesRef = useMemoFirebase(() => collectionGroup(firestore, 'medicineExpenses'), [firestore]);
+  const medicineExpensesRef = useMemoFirebase(() => query(collectionGroup(firestore, 'medicineExpenses')), [firestore]);
   const { data: rawMedicineExpenses, isLoading: isLoadingMedicine } = useCollection<MedicineExpense>(medicineExpensesRef);
 
-  const laborCostsRef = useMemoFirebase(() => collectionGroup(firestore, 'laborExpenses'), [firestore]);
+  const laborCostsRef = useMemoFirebase(() => query(collectionGroup(firestore, 'laborExpenses')), [firestore]);
   const { data: rawLaborCosts, isLoading: isLoadingLabor } = useCollection<LaborCost>(laborCostsRef);
   
-  const deadAnimalsRef = useMemoFirebase(() => collectionGroup(firestore, 'deadAnimals'), [firestore]);
+  const deadAnimalsRef = useMemoFirebase(() => query(collectionGroup(firestore, 'deadAnimals')), [firestore]);
   const { data: rawDeadAnimals, isLoading: isLoadingDeadAnimals } = useCollection<DeadAnimal>(deadAnimalsRef);
 
-  const trackedSheepRef = useMemoFirebase(() => collectionGroup(firestore, 'trackedSheep'), [firestore]);
+  const trackedSheepRef = useMemoFirebase(() => query(collectionGroup(firestore, 'trackedSheep')), [firestore]);
   const { data: rawTrackedSheep, isLoading: isLoadingTrackedSheep } = useCollection<TrackedSheep>(trackedSheepRef);
 
-  const farmExpensesRef = useMemoFirebase(() => collectionGroup(firestore, 'farmExpenses'), [firestore]);
+  const farmExpensesRef = useMemoFirebase(() => query(collectionGroup(firestore, 'farmExpenses')), [firestore]);
   const { data: rawFarmExpenses, isLoading: isLoadingFarmExpenses } = useCollection<FarmExpense>(farmExpensesRef);
   
-  const healthTasksRef = useMemoFirebase(() => collectionGroup(firestore, 'healthTasks'), [firestore]);
+  const healthTasksRef = useMemoFirebase(() => query(collectionGroup(firestore, 'healthTasks')), [firestore]);
   const { data: rawHealthTasks, isLoading: isLoadingHealthTasks } = useCollection<HealthTask>(healthTasksRef);
 
-  const marketplaceRef = useMemoFirebase(() => collectionGroup(firestore, 'communitySales'), [firestore]);
+  const marketplaceRef = useMemoFirebase(() => query(collectionGroup(firestore, 'communitySales')), [firestore]);
   const { data: rawCommunitySales, isLoading: isLoadingMarketplace } = useCollection<PublicSale>(marketplaceRef);
 
-  // --- MEMORY-BASED SORTING (Collaborative Logic) ---
+  // --- MEMORY-BASED SORTING ---
   const purchases = useMemo(() => rawPurchases ? [...rawPurchases].sort((a, b) => new Date(b.purchaseDate).getTime() - new Date(a.purchaseDate).getTime()) : null, [rawPurchases]);
   const sales = useMemo(() => rawSales ? [...rawSales].sort((a, b) => new Date(b.saleDate).getTime() - new Date(a.saleDate).getTime()) : null, [rawSales]);
   const feedCosts = useMemo(() => rawFeedCosts ? [...rawFeedCosts].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()) : null, [rawFeedCosts]);
@@ -129,11 +127,10 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const healthTasks = useMemo(() => rawHealthTasks ? [...rawHealthTasks].sort((a, b) => new Date(a.nextDueDate).getTime() - new Date(b.nextDueDate).getTime()) : null, [rawHealthTasks]);
   const communitySales = useMemo(() => rawCommunitySales ? [...rawCommunitySales].sort((a, b) => new Date(b.saleDate).getTime() - new Date(a.saleDate).getTime()) : null, [rawCommunitySales]);
 
-  // --- NESTED SUBCOLLECTION HELPERS ---
+  // --- MUTATION HELPERS ---
   const upsert = useCallback((colName: string, id: string | undefined, data: any) => {
     if (!user) return;
     const finalId = id || generateId();
-    // Maintain the nested structure: users/{userId}/{collectionName}/{docId}
     const docRef = doc(firestore, 'users', user.uid, colName, finalId);
     setDocumentNonBlocking(docRef, { 
       ...data, 
@@ -187,7 +184,6 @@ export function FarmProvider({ children }: { children: ReactNode }) {
 
   const postToMarketplace = useCallback((sale: any) => {
     if (!user) return;
-    // Shared marketplace at the root level for easy browsing
     const docRef = doc(firestore, 'communitySales', generateId());
     setDocumentNonBlocking(docRef, {
       ...sale,

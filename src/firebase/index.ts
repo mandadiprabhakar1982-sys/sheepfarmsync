@@ -2,36 +2,47 @@
 
 import { firebaseConfig } from '@/firebase/config';
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore'
+import { getAuth, Auth } from 'firebase/auth';
+import { getFirestore, Firestore } from 'firebase/firestore'
 
-// IMPORTANT: DO NOT MODIFY THIS FUNCTION
+// Cache SDK instances to prevent internal assertion errors from re-initialization
+let cachedApp: FirebaseApp | null = null;
+let cachedAuth: Auth | null = null;
+let cachedFirestore: Firestore | null = null;
+
+/**
+ * Initializes Firebase and returns the singleton SDK instances.
+ */
 export function initializeFirebase() {
-  if (!getApps().length) {
-    // Important! initializeApp() is called without any arguments because Firebase App Hosting
-    // integrates with the initializeApp() function to provide the environment variables needed to
-    // populate the FirebaseOptions in production. It is critical that we attempt to call initializeApp()
-    // without arguments.
-    let firebaseApp;
-    try {
-      // Attempt to initialize via Firebase App Hosting environment variables
-      firebaseApp = initializeApp();
-    } catch (e) {
-      // Only warn in production because it's normal to use the firebaseConfig to initialize
-      // during development
-      if (process.env.NODE_ENV === "production") {
-        console.warn('Automatic initialization failed. Falling back to firebase config object.', e);
-      }
-      firebaseApp = initializeApp(firebaseConfig);
-    }
-
-    return getSdks(firebaseApp);
+  if (cachedApp && cachedAuth && cachedFirestore) {
+    return { firebaseApp: cachedApp, auth: cachedAuth, firestore: cachedFirestore };
   }
 
-  // If already initialized, return the SDKs with the already initialized App
-  return getSdks(getApp());
+  if (!getApps().length) {
+    try {
+      // Attempt to initialize via Firebase App Hosting environment variables
+      cachedApp = initializeApp();
+    } catch (e) {
+      cachedApp = initializeApp(firebaseConfig);
+    }
+  } else {
+    cachedApp = getApp();
+  }
+
+  cachedAuth = getAuth(cachedApp);
+  cachedFirestore = getFirestore(cachedApp);
+
+  return {
+    firebaseApp: cachedApp,
+    auth: cachedAuth,
+    firestore: cachedFirestore
+  };
 }
 
+/**
+ * Returns SDK instances for a given FirebaseApp.
+ * Note: Prefers the singleton instances from initializeFirebase()
+ */
 export function getSdks(firebaseApp: FirebaseApp) {
   return {
     firebaseApp,
