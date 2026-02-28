@@ -5,7 +5,7 @@ import { createContext, useContext, ReactNode, useMemo, useCallback, useState, u
 import type { LivestockPurchase, AnimalSale, FeedCost, MedicineExpense, LaborCost, TrackedSheep, DeadAnimal, FarmExpense, HealthTask, PublicSale, UserProfile } from '@/lib/types';
 import { useUser, useFirestore, useCollection, useDoc } from '@/firebase';
 import { collection, doc, serverTimestamp, collectionGroup, query } from 'firebase/firestore';
-import { setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { setDocumentNonBlocking, deleteDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 interface FarmContextType {
   purchases: LivestockPurchase[] | null;
@@ -56,6 +56,7 @@ interface FarmContextType {
   communitySales: PublicSale[] | null;
   postToMarketplace: (sale: Omit<PublicSale, 'id' | 'sellerId' | 'sellerEmail' | 'sellerName'>) => void;
   deleteMarketplaceSale: (id: string) => void;
+  updateMarketplaceSale: (id: string, data: Partial<Omit<PublicSale, 'id' | 'sellerId'>>) => void;
   
   isLoading: boolean;
 
@@ -151,6 +152,12 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     setDocumentNonBlocking(docRef, { ...sale, id: docRef.id, sellerId: user.uid, sellerEmail: user.email, sellerName: user.displayName, updatedAt: serverTimestamp() }, { merge: true });
   }, [user, firestore]);
 
+  const updateMarketplaceSale = useCallback((id: string, data: any) => {
+    if (!user || !firestore) return;
+    const docRef = doc(firestore, 'communitySales', id);
+    updateDocumentNonBlocking(docRef, { ...data, updatedAt: serverTimestamp() });
+  }, [user, firestore]);
+
   const stats = useMemo(() => {
     const deadCount = (qDead || []).reduce((s, a) => s + Number(a.sheepCount || 0), 0);
     const pCount = (qPurchases || []).reduce((s, p) => s + Number(p.animalCount || 0), 0);
@@ -189,13 +196,13 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     deadAnimals, addDeadAnimal: (a: any) => upsert('deadAnimals', undefined, a), updateDeadAnimal: (id: string, a: any) => upsert('deadAnimals', id, a), deleteDeadAnimal: (id: string) => remove('deadAnimals', id),
     farmExpenses, addFarmExpense: (e: any) => upsert('farmExpenses', undefined, e), updateFarmExpense: (id: string, e: any) => upsert('farmExpenses', id, e), deleteFarmExpense: (id: string) => remove('farmExpenses', id),
     healthTasks, addHealthTask: (t: any) => upsert('healthTasks', undefined, t), updateHealthTask: (id: string, t: any) => upsert('healthTasks', id, t), deleteHealthTask: (id: string) => remove('healthTasks', id),
-    communitySales: qMarket, postToMarketplace, deleteMarketplaceSale: (id: string) => deleteDocumentNonBlocking(doc(firestore!, 'communitySales', id)),
+    communitySales: qMarket, postToMarketplace, updateMarketplaceSale, deleteMarketplaceSale: (id: string) => deleteDocumentNonBlocking(doc(firestore!, 'communitySales', id)),
     isLoading: isLoadingProfile || (user && !isVerified) || lPurchases || lSales || lFeed || lMedicine || lLabor || lDead || lTracked || lExpenses || lHealth || lMarket,
     ...stats
   }), [
     purchases, sales, feedCosts, medicineExpenses, laborCosts, trackedSheep, deadAnimals, farmExpenses, healthTasks, qMarket, stats,
     isLoadingProfile, user, isVerified, lPurchases, lSales, lFeed, lMedicine, lLabor, lDead, lTracked, lExpenses, lHealth, lMarket,
-    upsert, remove, postToMarketplace, firestore
+    upsert, remove, postToMarketplace, updateMarketplaceSale, firestore
   ]);
 
   if (!mounted) return null;

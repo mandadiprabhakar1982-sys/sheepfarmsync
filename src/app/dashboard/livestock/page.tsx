@@ -1,10 +1,11 @@
+
 'use client';
 
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { PlusCircle, Trash2, Camera as CameraIcon, Pencil, ArrowUp, ArrowDown, Loader2, User, ImageIcon, ZoomIn, X } from 'lucide-react';
+import { PlusCircle, Trash2, Camera as CameraIcon, Pencil, ArrowUp, ArrowDown, Loader2, User, ImageIcon, ZoomIn, X, Save } from 'lucide-react';
 import Image from 'next/image';
 import { Bar, ComposedChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Line } from 'recharts';
 import { format } from 'date-fns';
@@ -173,7 +174,7 @@ export default function LivestockPage() {
     });
     setIsEditDialogOpen(false);
     setEditingSheep(null);
-    toast({ title: 'Updated!', description: 'Record updated.' });
+    toast({ title: 'Updated!', description: 'Record updated successfully.' });
   };
 
   const formatTimestamp = (ts: any) => {
@@ -321,8 +322,22 @@ export default function LivestockPage() {
                               <div className="flex items-center justify-end gap-1">
                                 {isOwner ? (
                                   <>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditingSheep(sheep); setIsEditDialogOpen(true); }}><Pencil className="h-4 w-4" /></Button>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => deleteTrackedSheep(sheep.id)}><Trash2 className="h-4 w-4" /></Button>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="icon" 
+                                      className="h-8 w-8 hover:bg-primary/10 hover:text-primary" 
+                                      onClick={() => { setEditingSheep(sheep); setIsEditDialogOpen(true); }}
+                                    >
+                                      <Pencil className="h-4 w-4" />
+                                    </Button>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="icon" 
+                                      className="h-8 w-8 text-destructive hover:bg-destructive/10" 
+                                      onClick={() => deleteTrackedSheep(sheep.id)}
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
                                   </>
                                 ) : (
                                   <User className="h-4 w-4 text-muted-foreground/30 mr-2" />
@@ -386,7 +401,7 @@ export default function LivestockPage() {
                   <FormItem><FormLabel>Age (mo)</FormLabel><FormControl><Input type="number" {...field} /></FormControl></FormItem>
                 )} />
               </div>
-              <DialogFooter><Button type="submit" className="w-full">Save Changes</Button></DialogFooter>
+              <DialogFooter><Button type="submit" className="w-full"><Save className="mr-2 h-4 w-4" /> Save Changes</Button></DialogFooter>
             </form>
           </Form>
         </DialogContent>

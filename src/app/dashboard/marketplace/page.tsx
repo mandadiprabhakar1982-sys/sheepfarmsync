@@ -1,21 +1,67 @@
+
 'use client';
 
+import { useState } from 'react';
+import { useForm, type SubmitHandler } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { useFarm } from '@/context/FarmContext';
 import { PageHeader } from '@/components/page-header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Globe, MapPin, Scale, MessageSquare, Loader2, Trash2, User, Info, CheckCircle2 } from 'lucide-react';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Globe, MapPin, Scale, MessageSquare, Loader2, Trash2, User, Info, CheckCircle2, Pencil, Save } from 'lucide-react';
 import { useUser } from '@/firebase';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useToast } from '@/hooks/use-toast';
+import type { PublicSale } from '@/lib/types';
+
+const editSaleSchema = z.object({
+  animalCount: z.coerce.number().int().positive('Must be positive'),
+  totalWeight: z.coerce.number().positive('Must be positive'),
+  askingPrice: z.coerce.number().positive('Must be positive'),
+  notes: z.string().optional(),
+});
+
+type EditSaleFormData = z.infer<typeof editSaleSchema>;
 
 export default function MarketplacePage() {
-  const { communitySales, deleteMarketplaceSale, isLoading } = useFarm();
+  const { communitySales, deleteMarketplaceSale, updateMarketplaceSale, isLoading } = useFarm();
   const { user } = useUser();
+  const { toast } = useToast();
+
+  const [editingSale, setEditingSale] = useState<PublicSale | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+
+  const editForm = useForm<EditSaleFormData>({
+    resolver: zodResolver(editSaleSchema),
+  });
 
   const mySales = communitySales?.filter(s => s.sellerId === user?.uid) || [];
   const othersSales = communitySales?.filter(s => s.sellerId !== user?.uid) || [];
+
+  const handleEditClick = (sale: PublicSale) => {
+    setEditingSale(sale);
+    editForm.reset({
+      animalCount: sale.animalCount,
+      totalWeight: sale.totalWeight,
+      askingPrice: sale.askingPrice,
+      notes: sale.notes || '',
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const onEditSubmit: SubmitHandler<EditSaleFormData> = (data) => {
+    if (!editingSale) return;
+    updateMarketplaceSale(editingSale.id, data);
+    setIsEditDialogOpen(false);
+    toast({ title: 'Success!', description: 'Marketplace listing updated.' });
+  };
 
   if (isLoading) {
     return (
@@ -85,14 +131,24 @@ export default function MarketplacePage() {
             Contact Seller
           </Button>
         ) : (
-          <Button 
-            variant="outline" 
-            className="flex-1 gap-2 rounded-xl font-bold h-11 text-destructive hover:bg-destructive/10"
-            onClick={() => deleteMarketplaceSale(sale.id)}
-          >
-            <Trash2 className="h-4 w-4" />
-            Remove My Listing
-          </Button>
+          <div className="flex w-full gap-2">
+            <Button 
+              variant="outline" 
+              className="flex-1 gap-2 rounded-xl font-bold h-11 border-primary/20 hover:bg-primary/5"
+              onClick={() => handleEditClick(sale)}
+            >
+              <Pencil className="h-4 w-4" />
+              Edit
+            </Button>
+            <Button 
+              variant="outline" 
+              className="flex-1 gap-2 rounded-xl font-bold h-11 text-destructive hover:bg-destructive/10"
+              onClick={() => deleteMarketplaceSale(sale.id)}
+            >
+              <Trash2 className="h-4 w-4" />
+              Remove
+            </Button>
+          </div>
         )}
       </CardFooter>
     </Card>
@@ -166,6 +222,39 @@ export default function MarketplacePage() {
           </Tabs>
         </div>
       </div>
+
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Listing</DialogTitle>
+            <DialogDescription>Update your marketplace post details.</DialogDescription>
+          </DialogHeader>
+          <Form {...editForm}>
+            <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <FormField control={editForm.control} name="animalCount" render={({ field }) => (
+                  <FormItem><FormLabel>Count</FormLabel><FormControl><Input type="number" {...field} /></FormControl></FormItem>
+                )} />
+                <FormField control={editForm.control} name="totalWeight" render={({ field }) => (
+                  <FormItem><FormLabel>Weight (kg)</FormLabel><FormControl><Input type="number" step="0.1" {...field} /></FormControl></FormItem>
+                )} />
+              </div>
+              <FormField control={editForm.control} name="askingPrice" render={({ field }) => (
+                <FormItem><FormLabel>Price (₹)</FormLabel><FormControl><Input type="number" {...field} /></FormControl></FormItem>
+              )} />
+              <FormField control={editForm.control} name="notes" render={({ field }) => (
+                <FormItem><FormLabel>Notes</FormLabel><FormControl><Textarea {...field} /></FormControl></FormItem>
+              )} />
+              <DialogFooter>
+                <Button type="submit" className="w-full">
+                  <Save className="mr-2 h-4 w-4" />
+                  Update Listing
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
