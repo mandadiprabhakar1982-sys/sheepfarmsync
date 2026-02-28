@@ -1,9 +1,10 @@
+
 'use client';
 
 import { createContext, useContext, ReactNode, useMemo, useCallback } from 'react';
 import type { LivestockPurchase, AnimalSale, FeedCost, MedicineExpense, LaborCost, TrackedSheep, DeadAnimal, FarmExpense, HealthTask, PublicSale } from '@/lib/types';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, doc, serverTimestamp, collectionGroup } from 'firebase/firestore';
+import { collection, doc, serverTimestamp, collectionGroup, query } from 'firebase/firestore';
 import { setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 interface FarmContextType {
@@ -84,7 +85,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
 
   // --- MERGED COLLABORATIVE QUERIES (Collection Groups) ---
   // Using collectionGroup allows us to find records nested under any user's path.
-  // We avoid server-side 'orderBy' to ensure queries work without manual indexing.
+  // This is the key to the Merged Collaborative View.
 
   const purchasesRef = useMemoFirebase(() => collectionGroup(firestore, 'livestockPurchases'), [firestore]);
   const { data: rawPurchases, isLoading: isLoadingPurchases } = useCollection<LivestockPurchase>(purchasesRef);
@@ -117,8 +118,6 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const { data: rawCommunitySales, isLoading: isLoadingMarketplace } = useCollection<PublicSale>(marketplaceRef);
 
   // --- MEMORY-BASED SORTING (Collaborative Logic) ---
-  // We sort locally to provide a consistent experience without requiring Firestore indexes.
-  
   const purchases = useMemo(() => rawPurchases ? [...rawPurchases].sort((a, b) => new Date(b.purchaseDate).getTime() - new Date(a.purchaseDate).getTime()) : null, [rawPurchases]);
   const sales = useMemo(() => rawSales ? [...rawSales].sort((a, b) => new Date(b.saleDate).getTime() - new Date(a.saleDate).getTime()) : null, [rawSales]);
   const feedCosts = useMemo(() => rawFeedCosts ? [...rawFeedCosts].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()) : null, [rawFeedCosts]);
@@ -134,7 +133,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const upsert = useCallback((colName: string, id: string | undefined, data: any) => {
     if (!user) return;
     const finalId = id || generateId();
-    // Writing to users/{userId}/{collectionName}/{docId} as per the provided Firestore image.
+    // Maintain the nested structure: users/{userId}/{collectionName}/{docId}
     const docRef = doc(firestore, 'users', user.uid, colName, finalId);
     setDocumentNonBlocking(docRef, { 
       ...data, 
@@ -147,7 +146,6 @@ export function FarmProvider({ children }: { children: ReactNode }) {
 
   const remove = useCallback((colName: string, id: string) => {
     if (!user) return;
-    // Deletions must target the specific user path to be authorized.
     deleteDocumentNonBlocking(doc(firestore, 'users', user.uid, colName, id));
   }, [user, firestore]);
 
@@ -189,19 +187,25 @@ export function FarmProvider({ children }: { children: ReactNode }) {
 
   const postToMarketplace = useCallback((sale: any) => {
     if (!user) return;
-    upsert('communitySales', undefined, {
+    // Shared marketplace at the root level for easy browsing
+    const docRef = doc(firestore, 'communitySales', generateId());
+    setDocumentNonBlocking(docRef, {
       ...sale,
+      id: docRef.id,
       sellerId: user.uid,
       sellerEmail: user.email,
       sellerName: user.displayName || 'Farmer',
-    });
-  }, [user, upsert]);
+      updatedAt: serverTimestamp(),
+    }, { merge: true });
+  }, [user, firestore]);
 
-  const deleteMarketplaceSale = useCallback((id: string) => remove('communitySales', id), [remove]);
+  const deleteMarketplaceSale = useCallback((id: string) => {
+    deleteDocumentNonBlocking(doc(firestore, 'communitySales', id));
+  }, [firestore]);
 
   const isLoading = isLoadingPurchases || isLoadingSales || isLoadingFeedCosts || isLoadingMedicine || isLoadingHealthTasks || isLoadingLabor || isLoadingDeadAnimals || isLoadingTrackedSheep || isLoadingFarmExpenses || isLoadingMarketplace;
 
-  // --- STATS CALCULATION (GLOBAL AGGREGATION) ---
+  // --- STATS CALCULATION ---
   const totalDeadCount = useMemo(() => (deadAnimals || []).reduce((sum, a) => sum + (a.sheepCount || 0), 0), [deadAnimals]);
   const totalTrackedCount = useMemo(() => (trackedSheep || []).length, [trackedSheep]);
   const totalSheepCount = useMemo(() => {
