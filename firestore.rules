@@ -18,9 +18,10 @@ service cloud.firestore {
       allow read, write: if isSignedIn() && request.auth.uid == userId;
     }
 
-    // --- PRIVATE FARM COLLECTIONS ---
+    // --- ALL OTHER PRIVATE COLLECTIONS ---
+    // (livestockPurchases, feedExpenses, medicineExpenses, laborExpenses, etc.)
     match /{collectionName}/{docId} {
-      // Allow creation if they attach their own UID
+      // Allow creation if they attach their own UID as ownerId
       allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
       
       // Allow reading/editing only if they are the owner
