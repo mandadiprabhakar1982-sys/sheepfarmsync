@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   Query,
   onSnapshot,
@@ -36,12 +36,16 @@ export function useCollection<T = any>(
   const [data, setData] = useState<WithId<T>[] | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<FirestoreError | null>(null);
+  
+  // Track the current query to avoid stale subscription updates
+  const lastQueryRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!memoizedTargetRefOrQuery) {
       setData(null);
       setIsLoading(false);
       setError(null);
+      lastQueryRef.current = null;
       return;
     }
 
@@ -60,10 +64,14 @@ export function useCollection<T = any>(
         setIsLoading(false);
       },
       (err: FirestoreError) => {
-        // Log details to console but don't throw runtime error
-        console.warn("Firestore Error in useCollection:", err.message);
+        // Prevent noisy errors for canceled listeners or permission issues
+        if (err.code === 'permission-denied' || err.code === 'unavailable') {
+          console.warn(`Firestore [${err.code}]:`, err.message);
+        } else {
+          console.error("Firestore Error in useCollection:", err);
+        }
         setError(err);
-        setData([]); // Set to empty array to allow UI to render empty state
+        setData([]); // Provide empty array to prevent UI crashes
         setIsLoading(false);
       }
     );

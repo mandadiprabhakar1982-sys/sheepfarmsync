@@ -82,9 +82,9 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
   const firestore = useFirestore();
 
-  // --- MERGED COLLABORATIVE QUERIES (Collection Groups) ---
-  // Using query(collectionGroup(...)) as recommended for stability in complex environments.
-
+  // --- MERGED COLLABORATIVE QUERIES ---
+  // We explicitly wrap collectionGroup in query() for stability and SDK internal consistency
+  
   const purchasesRef = useMemoFirebase(() => query(collectionGroup(firestore, 'livestockPurchases')), [firestore]);
   const { data: rawPurchases, isLoading: isLoadingPurchases } = useCollection<LivestockPurchase>(purchasesRef);
 

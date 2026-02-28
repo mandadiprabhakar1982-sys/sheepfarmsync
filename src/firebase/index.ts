@@ -5,37 +5,34 @@ import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore'
 
-// Cache SDK instances to prevent internal assertion errors from re-initialization
-let cachedApp: FirebaseApp | null = null;
-let cachedAuth: Auth | null = null;
-let cachedFirestore: Firestore | null = null;
+// Global singletons to prevent multiple instances during hot reloads
+let firebaseApp: FirebaseApp | undefined;
+let firebaseAuth: Auth | undefined;
+let firestore: Firestore | undefined;
 
 /**
  * Initializes Firebase and returns the singleton SDK instances.
+ * This ensures only one instance of each service exists globally.
  */
 export function initializeFirebase() {
-  if (cachedApp && cachedAuth && cachedFirestore) {
-    return { firebaseApp: cachedApp, auth: cachedAuth, firestore: cachedFirestore };
-  }
-
   if (!getApps().length) {
-    try {
-      // Attempt to initialize via Firebase App Hosting environment variables
-      cachedApp = initializeApp();
-    } catch (e) {
-      cachedApp = initializeApp(firebaseConfig);
-    }
+    firebaseApp = initializeApp(firebaseConfig);
   } else {
-    cachedApp = getApp();
+    firebaseApp = getApp();
   }
 
-  cachedAuth = getAuth(cachedApp);
-  cachedFirestore = getFirestore(cachedApp);
+  if (!firebaseAuth) {
+    firebaseAuth = getAuth(firebaseApp);
+  }
+  
+  if (!firestore) {
+    firestore = getFirestore(firebaseApp);
+  }
 
   return {
-    firebaseApp: cachedApp,
-    auth: cachedAuth,
-    firestore: cachedFirestore
+    firebaseApp,
+    auth: firebaseAuth,
+    firestore
   };
 }
 
@@ -43,11 +40,11 @@ export function initializeFirebase() {
  * Returns SDK instances for a given FirebaseApp.
  * Note: Prefers the singleton instances from initializeFirebase()
  */
-export function getSdks(firebaseApp: FirebaseApp) {
+export function getSdks(app: FirebaseApp) {
   return {
-    firebaseApp,
-    auth: getAuth(firebaseApp),
-    firestore: getFirestore(firebaseApp)
+    firebaseApp: app,
+    auth: getAuth(app),
+    firestore: getFirestore(app)
   };
 }
 
