@@ -5,6 +5,7 @@ type AnalyzeFarmCostsInput = Parameters<typeof analyzeFarmCosts>[0];
 
 export type LivestockPurchase = AnalyzeFarmCostsInput['livestockPurchases'][0] & { 
   id: string;
+  _path?: string;
   createdBy?: string;
   creatorEmail?: string;
   creatorName?: string;
@@ -12,6 +13,7 @@ export type LivestockPurchase = AnalyzeFarmCostsInput['livestockPurchases'][0] &
 
 export type MedicineExpense = AnalyzeFarmCostsInput['medicineExpenses'][0] & { 
   id: string;
+  _path?: string;
   createdBy?: string;
   creatorEmail?: string;
   creatorName?: string;
@@ -19,6 +21,7 @@ export type MedicineExpense = AnalyzeFarmCostsInput['medicineExpenses'][0] & {
 
 export type FeedCost = AnalyzeFarmCostsInput['feedCosts'][0] & { 
   id: string;
+  _path?: string;
   createdBy?: string;
   creatorEmail?: string;
   creatorName?: string;
@@ -26,6 +29,7 @@ export type FeedCost = AnalyzeFarmCostsInput['feedCosts'][0] & {
 
 export type LaborCost = AnalyzeFarmCostsInput['laborCosts'][0] & { 
   id: string;
+  _path?: string;
   createdBy?: string;
   creatorEmail?: string;
   creatorName?: string;
@@ -33,6 +37,7 @@ export type LaborCost = AnalyzeFarmCostsInput['laborCosts'][0] & {
 
 export type FarmExpense = AnalyzeFarmCostsInput['farmExpenses'][0] & { 
   id: string;
+  _path?: string;
   createdBy?: string;
   creatorEmail?: string;
   creatorName?: string;
@@ -40,6 +45,7 @@ export type FarmExpense = AnalyzeFarmCostsInput['farmExpenses'][0] & {
 
 export type AnimalSale = {
   id: string;
+  _path?: string;
   saleDate: string;
   buyerName: string;
   buyerVillage: string;
@@ -56,6 +62,7 @@ export type AnimalSale = {
 
 export type PublicSale = {
   id: string;
+  _path?: string;
   sellerId: string;
   sellerEmail: string;
   sellerName?: string;
@@ -69,6 +76,7 @@ export type PublicSale = {
 
 export type TrackedSheep = {
   id: string;
+  _path?: string;
   tagId: string;
   currentWeight: number;
   previousWeight?: number;
@@ -83,6 +91,7 @@ export type TrackedSheep = {
 
 export type HealthTask = {
   id: string;
+  _path?: string;
   taskName: 'Deworming' | 'Vaccination' | 'Vitamin & Liver Support' | 'Other';
   dewormerName?: 'Albendazole' | 'Fenbendazole' | 'Ivermectin';
   dosePerKg?: number;
@@ -104,6 +113,7 @@ export type HealthTask = {
 
 export type DeadAnimal = {
   id: string;
+  _path?: string;
   dateOfDeath: string;
   sheepCount: number;
   tagId?: string;
@@ -116,6 +126,7 @@ export type DeadAnimal = {
 
 export type UserProfile = {
   id: string;
+  _path?: string;
   email: string;
   displayName: string | null;
   role: 'collaborator' | 'admin' | 'viewer';

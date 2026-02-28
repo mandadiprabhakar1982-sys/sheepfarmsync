@@ -9,15 +9,15 @@ import {
   QuerySnapshot,
 } from 'firebase/firestore';
 
-/** Utility type to add an 'id' field to a given type T. */
-export type WithId<T> = T & { id: string };
+/** Utility type to add an 'id' and '_path' field to a given type T. */
+export type WithId<T> = T & { id: string; _path: string };
 
 /**
  * Interface for the return value of the useCollection hook.
  * @template T Type of the document data.
  */
 export interface UseCollectionResult<T> {
-  data: WithId<T>[] | null; // Document data with ID, or null.
+  data: WithId<T>[] | null; // Document data with ID and Path, or null.
   isLoading: boolean;       // True if loading.
   error: FirestoreError | null; // Firestore error object, or null.
 }
@@ -28,7 +28,6 @@ export interface UseCollectionResult<T> {
 export function useCollection<T = any>(
   memoizedTargetRefOrQuery: Query<DocumentData> | null | undefined,
 ): UseCollectionResult<T> {
-  // Start with loading true if we have a target, false if we're waiting for one
   const [data, setData] = useState<WithId<T>[] | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(!!memoizedTargetRefOrQuery);
   const [error, setError] = useState<FirestoreError | null>(null);
@@ -61,7 +60,11 @@ export function useCollection<T = any>(
 
         const results: WithId<T>[] = [];
         snapshot.forEach((doc) => {
-          results.push({ ...(doc.data() as T), id: doc.id });
+          results.push({ 
+            ...(doc.data() as T), 
+            id: doc.id,
+            _path: doc.ref.path 
+          });
         });
         
         setData(results);
@@ -78,7 +81,7 @@ export function useCollection<T = any>(
         }
         
         setError(err);
-        setData([]); // Fail to empty array
+        setData([]);
         setIsLoading(false);
       }
     );

@@ -9,15 +9,15 @@ import {
   DocumentSnapshot,
 } from 'firebase/firestore';
 
-/** Utility type to add an 'id' field to a given type T. */
-type WithId<T> = T & { id: string };
+/** Utility type to add an 'id' and '_path' field to a given type T. */
+type WithId<T> = T & { id: string; _path: string };
 
 /**
  * Interface for the return value of the useDoc hook.
  * @template T Type of the document data.
  */
 export interface UseDocResult<T> {
-  data: WithId<T> | null; // Document data with ID, or null.
+  data: WithId<T> | null; // Document data with ID and Path, or null.
   isLoading: boolean;       // True if loading.
   error: FirestoreError | null; // Firestore error object, or null.
 }
@@ -50,7 +50,11 @@ export function useDoc<T = any>(
       memoizedDocRef,
       (snapshot: DocumentSnapshot<DocumentData>) => {
         if (snapshot.exists()) {
-          setData({ ...(snapshot.data() as T), id: snapshot.id });
+          setData({ 
+            ...(snapshot.data() as T), 
+            id: snapshot.id,
+            _path: snapshot.ref.path 
+          });
         } else {
           setData(null);
         }

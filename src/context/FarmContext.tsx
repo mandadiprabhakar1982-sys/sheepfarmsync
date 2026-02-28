@@ -8,56 +8,57 @@ import { setDocumentNonBlocking, deleteDocumentNonBlocking, updateDocumentNonBlo
 
 interface FarmContextType {
   purchases: LivestockPurchase[] | null;
-  addPurchase: (purchase: Omit<LivestockPurchase, 'id'>) => void;
-  deletePurchase: (id: string) => void;
-  updatePurchase: (id: string, data: Omit<LivestockPurchase, 'id'>) => void;
+  addPurchase: (purchase: Omit<LivestockPurchase, 'id' | '_path'>) => void;
+  deletePurchase: (id: string, path?: string) => void;
+  updatePurchase: (id: string, data: Omit<LivestockPurchase, 'id' | '_path'>, path?: string) => void;
   
   sales: AnimalSale[] | null;
-  addSale: (sale: Omit<AnimalSale, 'id'>) => void;
-  deleteSale: (id: string) => void;
-  updateSale: (id: string, data: Omit<AnimalSale, 'id'>) => void;
+  addSale: (sale: Omit<AnimalSale, 'id' | '_path'>) => void;
+  deleteSale: (id: string, path?: string) => void;
+  updateSale: (id: string, data: Omit<AnimalSale, 'id' | '_path'>, path?: string) => void;
   
   feedCosts: FeedCost[] | null;
-  addFeedCost: (cost: Omit<FeedCost, 'id'>) => void;
-  deleteFeedCost: (id: string) => void;
-  updateFeedCost: (id: string, data: Omit<FeedCost, 'id'>) => void;
+  addFeedCost: (cost: Omit<FeedCost, 'id' | '_path'>) => void;
+  deleteFeedCost: (id: string, path?: string) => void;
+  updateFeedCost: (id: string, data: Omit<FeedCost, 'id' | '_path'>, path?: string) => void;
 
   medicineExpenses: MedicineExpense[] | null;
-  addMedicineExpense: (expense: Omit<MedicineExpense, 'id'>) => void;
-  deleteMedicineExpense: (id: string) => void;
-  updateMedicineExpense: (id: string, data: Omit<MedicineExpense, 'id'>) => void;
+  addMedicineExpense: (expense: Omit<MedicineExpense, 'id' | '_path'>) => void;
+  deleteMedicineExpense: (id: string, path?: string) => void;
+  updateMedicineExpense: (id: string, data: Omit<MedicineExpense, 'id' | '_path'>, path?: string) => void;
 
   laborCosts: LaborCost[] | null;
-  addLaborCost: (cost: Omit<LaborCost, 'id'>) => void;
-  deleteLaborCost: (id: string) => void;
-  updateLaborCost: (id: string, data: Omit<LaborCost, 'id'>) => void;
+  addLaborCost: (cost: Omit<LaborCost, 'id' | '_path'>) => void;
+  deleteLaborCost: (id: string, path?: string) => void;
+  updateLaborCost: (id: string, data: Omit<LaborCost, 'id' | '_path'>, path?: string) => void;
 
   trackedSheep: TrackedSheep[] | null;
-  addTrackedSheep: (sheep: Omit<TrackedSheep, 'id'>) => void;
-  deleteTrackedSheep: (id: string) => void;
-  updateTrackedSheep: (id: string, data: Omit<TrackedSheep, 'id'>) => void;
+  addTrackedSheep: (sheep: Omit<TrackedSheep, 'id' | '_path'>) => void;
+  deleteTrackedSheep: (id: string, path?: string) => void;
+  updateTrackedSheep: (id: string, data: Omit<TrackedSheep, 'id' | '_path'>, path?: string) => void;
 
   deadAnimals: DeadAnimal[] | null;
-  addDeadAnimal: (animal: Omit<DeadAnimal, 'id'>) => void;
-  deleteDeadAnimal: (id: string) => void;
-  updateDeadAnimal: (id: string, data: Omit<DeadAnimal, 'id'>) => void;
+  addDeadAnimal: (animal: Omit<DeadAnimal, 'id' | '_path'>) => void;
+  deleteDeadAnimal: (id: string, path?: string) => void;
+  updateDeadAnimal: (id: string, data: Omit<DeadAnimal, 'id' | '_path'>, path?: string) => void;
 
   farmExpenses: FarmExpense[] | null;
-  addFarmExpense: (expense: Omit<FarmExpense, 'id'>) => void;
-  deleteFarmExpense: (id: string) => void;
-  updateFarmExpense: (id: string, data: Omit<FarmExpense, 'id'>) => void;
+  addFarmExpense: (expense: Omit<FarmExpense, 'id' | '_path'>) => void;
+  deleteFarmExpense: (id: string, path?: string) => void;
+  updateFarmExpense: (id: string, data: Omit<FarmExpense, 'id' | '_path'>, path?: string) => void;
   
   healthTasks: HealthTask[] | null;
-  addHealthTask: (task: Omit<HealthTask, 'id'>) => void;
-  deleteHealthTask: (id: string) => void;
-  updateHealthTask: (id: string, data: Omit<HealthTask, 'id'>) => void;
+  addHealthTask: (task: Omit<HealthTask, 'id' | '_path'>) => void;
+  deleteHealthTask: (id: string, path?: string) => void;
+  updateHealthTask: (id: string, data: Omit<HealthTask, 'id' | '_path'>, path?: string) => void;
 
   communitySales: PublicSale[] | null;
-  postToMarketplace: (sale: Omit<PublicSale, 'id' | 'sellerId' | 'sellerEmail' | 'sellerName'>) => void;
-  deleteMarketplaceSale: (id: string) => void;
-  updateMarketplaceSale: (id: string, data: Partial<Omit<PublicSale, 'id' | 'sellerId'>>) => void;
+  postToMarketplace: (sale: Omit<PublicSale, 'id' | 'sellerId' | 'sellerEmail' | 'sellerName' | '_path'>) => void;
+  deleteMarketplaceSale: (id: string, path?: string) => void;
+  updateMarketplaceSale: (id: string, data: Partial<Omit<PublicSale, 'id' | 'sellerId' | '_path'>>, path?: string) => void;
   
   isLoading: boolean;
+  userRole: string | null;
 
   totalSheep: number;
   totalTracked: number;
@@ -88,7 +89,6 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   
   const isVerified = useMemo(() => userProfile?.role === 'collaborator' || userProfile?.role === 'admin', [userProfile]);
 
-  // Collection Group queries allow us to see data across ALL users for a specific subcollection
   const pRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'livestockPurchases')) : null, [firestore, isVerified]);
   const sRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'animalSales')) : null, [firestore, isVerified]);
   const fRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'feedExpenses')) : null, [firestore, isVerified]);
@@ -127,29 +127,31 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const farmExpenses = useMemo(() => sort(qExpenses, 'expenseDate'), [qExpenses, sort]);
   const healthTasks = useMemo(() => sort(qHealth, 'nextDueDate'), [qHealth, sort]);
 
-  const upsert = useCallback((col: string, id: string | undefined, data: any) => {
+  const upsert = useCallback((col: string, id: string | undefined, data: any, path?: string) => {
     if (!user || !firestore) return;
-    const finalId = id || generateId();
-    const docRef = doc(firestore, 'users', user.uid, col, finalId);
     
-    // Explicitly attach metadata to ensure owner visibility in community views
-    const creatorMetadata = {
+    // ADMIN POWER: If path is provided, use it directly. Otherwise construct default path.
+    const docRef = path ? doc(firestore, path) : doc(firestore, 'users', user.uid, col, id || generateId());
+    
+    const creatorMetadata = !path ? {
       createdBy: user.uid,
       creatorEmail: user.email || 'No Email',
       creatorName: user.displayName || user.email?.split('@')[0] || 'Shepherd',
-    };
+    } : {};
 
     setDocumentNonBlocking(docRef, { 
       ...data, 
-      id: finalId, 
+      id: id || docRef.id, 
       ...creatorMetadata,
       updatedAt: serverTimestamp() 
     }, { merge: true });
   }, [user, firestore]);
 
-  const remove = useCallback((col: string, id: string) => {
+  const remove = useCallback((col: string, id: string, path?: string) => {
     if (!user || !firestore) return;
-    deleteDocumentNonBlocking(doc(firestore, 'users', user.uid, col, id));
+    // ADMIN POWER: Use explicit path from collectionGroup metadata
+    const docRef = path ? doc(firestore, path) : doc(firestore, 'users', user.uid, col, id);
+    deleteDocumentNonBlocking(docRef);
   }, [user, firestore]);
 
   const postToMarketplace = useCallback((sale: any) => {
@@ -165,9 +167,9 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     }, { merge: true });
   }, [user, firestore]);
 
-  const updateMarketplaceSale = useCallback((id: string, data: any) => {
+  const updateMarketplaceSale = useCallback((id: string, data: any, path?: string) => {
     if (!user || !firestore) return;
-    const docRef = doc(firestore, 'communitySales', id);
+    const docRef = path ? doc(firestore, path) : doc(firestore, 'communitySales', id);
     updateDocumentNonBlocking(docRef, { ...data, updatedAt: serverTimestamp() });
   }, [user, firestore]);
 
@@ -200,22 +202,23 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   }, [qDead, qPurchases, qSales, qFeed, qLabor, qMedicine, qHealth, qExpenses, qTracked]);
 
   const value = useMemo(() => ({
-    purchases, addPurchase: (p: any) => upsert('livestockPurchases', undefined, p), updatePurchase: (id: string, p: any) => upsert('livestockPurchases', id, p), deletePurchase: (id: string) => remove('livestockPurchases', id),
-    sales, addSale: (s: any) => upsert('animalSales', undefined, s), updateSale: (id: string, s: any) => upsert('animalSales', id, s), deleteSale: (id: string) => remove('animalSales', id),
-    feedCosts, addFeedCost: (c: any) => upsert('feedExpenses', undefined, c), updateFeedCost: (id: string, c: any) => upsert('feedExpenses', id, c), deleteFeedCost: (id: string) => remove('feedExpenses', id),
-    medicineExpenses, addMedicineExpense: (e: any) => upsert('medicineExpenses', undefined, e), updateMedicineExpense: (id: string, e: any) => upsert('medicineExpenses', id, e), deleteMedicineExpense: (id: string) => remove('medicineExpenses', id),
-    laborCosts, addLaborCost: (c: any) => upsert('laborExpenses', undefined, c), updateLaborCost: (id: string, c: any) => upsert('laborExpenses', id, c), deleteLaborCost: (id: string) => remove('laborExpenses', id),
-    trackedSheep, addTrackedSheep: (s: any) => upsert('trackedSheep', undefined, { ...s, createdAt: serverTimestamp() }), updateTrackedSheep: (id: string, s: any) => upsert('trackedSheep', id, s), deleteTrackedSheep: (id: string) => remove('trackedSheep', id),
-    deadAnimals, addDeadAnimal: (a: any) => upsert('deadAnimals', undefined, a), updateDeadAnimal: (id: string, a: any) => upsert('deadAnimals', id, a), deleteDeadAnimal: (id: string) => remove('deadAnimals', id),
-    farmExpenses, addFarmExpense: (e: any) => upsert('farmExpenses', undefined, e), updateFarmExpense: (id: string, e: any) => upsert('farmExpenses', id, e), deleteFarmExpense: (id: string) => remove('farmExpenses', id),
-    healthTasks, addHealthTask: (t: any) => upsert('healthTasks', undefined, t), updateHealthTask: (id: string, t: any) => upsert('healthTasks', id, t), deleteHealthTask: (id: string) => remove('healthTasks', id),
-    communitySales: qMarket, postToMarketplace, updateMarketplaceSale, deleteMarketplaceSale: (id: string) => deleteDocumentNonBlocking(doc(firestore!, 'communitySales', id)),
+    purchases, addPurchase: (p: any) => upsert('livestockPurchases', undefined, p), updatePurchase: (id: string, p: any, path?: string) => upsert('livestockPurchases', id, p, path), deletePurchase: (id: string, path?: string) => remove('livestockPurchases', id, path),
+    sales, addSale: (s: any) => upsert('animalSales', undefined, s), updateSale: (id: string, s: any, path?: string) => upsert('animalSales', id, s, path), deleteSale: (id: string, path?: string) => remove('animalSales', id, path),
+    feedCosts, addFeedCost: (c: any) => upsert('feedExpenses', undefined, c), updateFeedCost: (id: string, c: any, path?: string) => upsert('feedExpenses', id, c, path), deleteFeedCost: (id: string, path?: string) => remove('feedExpenses', id, path),
+    medicineExpenses, addMedicineExpense: (e: any) => upsert('medicineExpenses', undefined, e), updateMedicineExpense: (id: string, e: any, path?: string) => upsert('medicineExpenses', id, e, path), deleteMedicineExpense: (id: string, path?: string) => remove('medicineExpenses', id, path),
+    laborCosts, addLaborCost: (c: any) => upsert('laborExpenses', undefined, c), updateLaborCost: (id: string, c: any, path?: string) => upsert('laborExpenses', id, c, path), deleteLaborCost: (id: string, path?: string) => remove('laborExpenses', id, path),
+    trackedSheep, addTrackedSheep: (s: any) => upsert('trackedSheep', undefined, { ...s, createdAt: serverTimestamp() }), updateTrackedSheep: (id: string, s: any, path?: string) => upsert('trackedSheep', id, s, path), deleteTrackedSheep: (id: string, path?: string) => remove('trackedSheep', id, path),
+    deadAnimals, addDeadAnimal: (a: any) => upsert('deadAnimals', undefined, a), updateDeadAnimal: (id: string, a: any, path?: string) => upsert('deadAnimals', id, a, path), deleteDeadAnimal: (id: string, path?: string) => remove('deadAnimals', id, path),
+    farmExpenses, addFarmExpense: (e: any) => upsert('farmExpenses', undefined, e), updateFarmExpense: (id: string, e: any, path?: string) => upsert('farmExpenses', id, e, path), deleteFarmExpense: (id: string, path?: string) => remove('farmExpenses', id, path),
+    healthTasks, addHealthTask: (t: any) => upsert('healthTasks', undefined, t), updateHealthTask: (id: string, t: any, path?: string) => upsert('healthTasks', id, t, path), deleteHealthTask: (id: string, path?: string) => remove('healthTasks', id, path),
+    communitySales: qMarket, postToMarketplace, updateMarketplaceSale, deleteMarketplaceSale: (id: string, path?: string) => deleteDocumentNonBlocking(doc(firestore!, path || `communitySales/${id}`)),
     isLoading: isLoadingProfile || (user && !isVerified) || lPurchases || lSales || lFeed || lMedicine || lLabor || lDead || lTracked || lExpenses || lHealth || lMarket,
+    userRole: userProfile?.role || null,
     ...stats
   }), [
     purchases, sales, feedCosts, medicineExpenses, laborCosts, trackedSheep, deadAnimals, farmExpenses, healthTasks, qMarket, stats,
     isLoadingProfile, user, isVerified, lPurchases, lSales, lFeed, lMedicine, lLabor, lDead, lTracked, lExpenses, lHealth, lMarket,
-    upsert, remove, postToMarketplace, updateMarketplaceSale, firestore
+    userProfile, upsert, remove, postToMarketplace, updateMarketplaceSale, firestore
   ]);
 
   if (!mounted) return null;

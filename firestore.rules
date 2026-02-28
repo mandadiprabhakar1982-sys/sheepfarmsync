@@ -20,9 +20,8 @@ service cloud.firestore {
       allow read, write: if isSignedIn() && request.auth.uid == userId;
     }
 
-    // --- GLOBAL COLLABORATIVE PERMISSIONS ---
-    // Allows collaborators/admins to manage data across the entire system
-    // handles collectionGroup queries and direct document access
+    // --- CONSOLIDATED COLLABORATIVE PERMISSIONS ---
+    // Grants full CRUD power to collaborators across all community logs
     match /{path=**}/livestockPurchases/{id} { allow read, write: if isCollaborator(); }
     match /{path=**}/medicineExpenses/{id}  { allow read, write: if isCollaborator(); }
     match /{path=**}/feedExpenses/{id}      { allow read, write: if isCollaborator(); }

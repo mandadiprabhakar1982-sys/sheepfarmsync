@@ -1,11 +1,10 @@
-
 'use client';
 
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { PlusCircle, Trash2, Camera as CameraIcon, Pencil, ArrowUp, ArrowDown, Loader2, User, ImageIcon, ZoomIn, X, Save, Mail } from 'lucide-react';
+import { PlusCircle, Trash2, Camera as CameraIcon, Pencil, ArrowUp, ArrowDown, Loader2, User, ImageIcon, ZoomIn, X, Save, Mail, ShieldAlert } from 'lucide-react';
 import Image from 'next/image';
 import { Bar, ComposedChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Line } from 'recharts';
 import { format } from 'date-fns';
@@ -52,7 +51,7 @@ const chartConfig = {
 export default function LivestockPage() {
   const { toast } = useToast();
   const { user } = useUser();
-  const { trackedSheep, addTrackedSheep, deleteTrackedSheep, updateTrackedSheep, isLoading } = useFarm();
+  const { trackedSheep, addTrackedSheep, deleteTrackedSheep, updateTrackedSheep, isLoading, userRole } = useFarm();
   
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -171,7 +170,7 @@ export default function LivestockPage() {
       currentWeight: data.weight,
       previousWeight: weightChanged ? editingSheep.currentWeight : (editingSheep.previousWeight || undefined),
       photoDataUrl: editingSheep.photoDataUrl,
-    });
+    }, editingSheep._path);
     setIsEditDialogOpen(false);
     setEditingSheep(null);
     toast({ title: 'Updated!', description: 'Record updated successfully.' });
@@ -186,6 +185,9 @@ export default function LivestockPage() {
       return 'Invalid Date';
     }
   };
+
+  // ADMIN POWER: Check if user has permission to manage ALL records
+  const canManageAll = userRole === 'admin' || userRole === 'collaborator';
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -275,6 +277,10 @@ export default function LivestockPage() {
                       sortedTrackedSheep.map((sheep) => {
                         const weightChange = sheep.previousWeight != null ? sheep.currentWeight - sheep.previousWeight : null;
                         const isOwner = user?.uid === sheep.createdBy;
+                        
+                        // ADMIN POWER: Allow edit/delete if owner OR if collaborator/admin
+                        const canManage = isOwner || canManageAll;
+
                         return (
                           <TableRow key={sheep.id} className="group transition-colors">
                             <TableCell>
@@ -317,8 +323,9 @@ export default function LivestockPage() {
                             </TableCell>
                             <TableCell className="max-w-[150px]">
                               <div className="flex flex-col gap-0.5">
-                                <span className="text-[10px] font-black truncate text-foreground/80 leading-none">
+                                <span className="text-[10px] font-black truncate text-foreground/80 leading-none flex items-center gap-1">
                                   {sheep.creatorName || 'Shepherd'}
+                                  {!isOwner && canManageAll && <ShieldAlert className="h-2 w-2 text-primary" title="Collaborative Edit Active" />}
                                 </span>
                                 <span className="text-[9px] font-medium text-muted-foreground truncate flex items-center gap-1">
                                   <Mail className="h-2 w-2" />
@@ -328,7 +335,7 @@ export default function LivestockPage() {
                             </TableCell>
                             <TableCell className="text-right">
                               <div className="flex items-center justify-end gap-1">
-                                {isOwner ? (
+                                {canManage ? (
                                   <>
                                     <Button 
                                       variant="ghost" 
@@ -342,7 +349,7 @@ export default function LivestockPage() {
                                       variant="ghost" 
                                       size="icon" 
                                       className="h-8 w-8 text-destructive hover:bg-destructive/10" 
-                                      onClick={() => deleteTrackedSheep(sheep.id)}
+                                      onClick={() => deleteTrackedSheep(sheep.id, sheep._path)}
                                     >
                                       <Trash2 className="h-4 w-4" />
                                     </Button>
