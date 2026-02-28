@@ -1,8 +1,8 @@
 'use client';
 
-import { createContext, useContext, ReactNode, useMemo, useCallback, useEffect } from 'react';
+import { createContext, useContext, ReactNode, useMemo, useCallback } from 'react';
 import type { LivestockPurchase, AnimalSale, FeedCost, MedicineExpense, LaborCost, TrackedSheep, DeadAnimal, FarmExpense, HealthTask, PublicSale } from '@/lib/types';
-import { useUser, useFirestore, useCollection, useMemoFirebase, useAuth } from '@/firebase';
+import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, doc, serverTimestamp } from 'firebase/firestore';
 import { setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
@@ -82,7 +82,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
   const firestore = useFirestore();
 
-  // Scoped queries to current user only
+  // STRICTLY SCOPED QUERIES - No Collection Groups
   const purchasesRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'livestockPurchases') : null, [firestore, user]);
   const { data: purchases, isLoading: isLoadingPurchases } = useCollection<LivestockPurchase>(purchasesRef);
 
@@ -110,7 +110,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const healthTasksRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'healthTasks') : null, [firestore, user]);
   const { data: healthTasks, isLoading: isLoadingHealthTasks } = useCollection<HealthTask>(healthTasksRef);
 
-  // Marketplace remains global for sharing specific listings
+  // Marketplace remains a root collection but is NOT used for private farm metrics
   const marketplaceRef = useMemoFirebase(() => user ? collection(firestore, 'communitySales') : null, [firestore, user]);
   const { data: communitySales, isLoading: isLoadingMarketplace } = useCollection<PublicSale>(marketplaceRef);
 
@@ -118,7 +118,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     if (!user) return;
     const finalId = id || generateId();
     const docRef = doc(firestore, 'users', user.uid, colName, finalId);
-    setDocumentNonBlocking(docRef, { ...data, id: finalId, ownerUid: user.uid }, { merge: true });
+    setDocumentNonBlocking(docRef, { ...data, id: finalId }, { merge: true });
   }, [user, firestore]);
 
   const addPurchase = useCallback((p: any) => upsert('livestockPurchases', undefined, p), [upsert]);
