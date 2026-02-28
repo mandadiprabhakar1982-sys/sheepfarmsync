@@ -81,13 +81,13 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
   const firestore = useFirestore();
 
-  // Fetch the current user profile to verify collaborator status before querying
+  // Fetch the current user profile to verify collaborator status before querying shared data
   const userProfileRef = useMemoFirebase(() => (firestore && user) ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
   const { data: userProfile, isLoading: isLoadingProfile } = useDoc<UserProfile>(userProfileRef);
 
   const isCollaboratorVerified = userProfile?.role === 'collaborator';
 
-  // Only establish queries once the user is confirmed as a collaborator
+  // SHARED COLLABORATIVE QUERIES (Financial Benchmarking)
   const purchasesRef = useMemoFirebase(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'livestockPurchases')) : null, [firestore, isCollaboratorVerified]);
   const { data: rawPurchases, isLoading: isLoadingPurchases } = useCollection<LivestockPurchase>(purchasesRef);
 
@@ -102,17 +102,19 @@ export function FarmProvider({ children }: { children: ReactNode }) {
 
   const laborCostsRef = useMemoFirebase(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'laborExpenses')) : null, [firestore, isCollaboratorVerified]);
   const { data: rawLaborCosts, isLoading: isLoadingLabor } = useCollection<LaborCost>(laborCostsRef);
-  
-  const deadAnimalsRef = useMemoFirebase(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'deadAnimals')) : null, [firestore, isCollaboratorVerified]);
+
+  // PRIVATE OWNER QUERIES (Individual Logs)
+  // These use the user's specific path to ensure strict privacy
+  const deadAnimalsRef = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'users', user.uid, 'deadAnimals') : null, [firestore, user]);
   const { data: rawDeadAnimals, isLoading: isLoadingDeadAnimals } = useCollection<DeadAnimal>(deadAnimalsRef);
 
-  const trackedSheepRef = useMemoFirebase(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'trackedSheep')) : null, [firestore, isCollaboratorVerified]);
+  const trackedSheepRef = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'users', user.uid, 'trackedSheep') : null, [firestore, user]);
   const { data: rawTrackedSheep, isLoading: isLoadingTrackedSheep } = useCollection<TrackedSheep>(trackedSheepRef);
 
-  const farmExpensesRef = useMemoFirebase(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'farmExpenses')) : null, [firestore, isCollaboratorVerified]);
+  const farmExpensesRef = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'users', user.uid, 'farmExpenses') : null, [firestore, user]);
   const { data: rawFarmExpenses, isLoading: isLoadingFarmExpenses } = useCollection<FarmExpense>(farmExpensesRef);
   
-  const healthTasksRef = useMemoFirebase(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'healthTasks')) : null, [firestore, isCollaboratorVerified]);
+  const healthTasksRef = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'users', user.uid, 'healthTasks') : null, [firestore, user]);
   const { data: rawHealthTasks, isLoading: isLoadingHealthTasks } = useCollection<HealthTask>(healthTasksRef);
 
   const marketplaceRef = useMemoFirebase(() => firestore ? query(collectionGroup(firestore, 'communitySales')) : null, [firestore]);
@@ -202,7 +204,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     deleteDocumentNonBlocking(doc(firestore, 'communitySales', id));
   }, [firestore]);
 
-  // Combine loading states including the critical profile verification
+  // Combined loading states
   const isLoading = isLoadingProfile || isLoadingPurchases || isLoadingSales || isLoadingFeedCosts || isLoadingMedicine || isLoadingHealthTasks || isLoadingLabor || isLoadingDeadAnimals || isLoadingTrackedSheep || isLoadingFarmExpenses || isLoadingMarketplace;
 
   // Robust aggregations with explicit number coercion
@@ -211,6 +213,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const totalSheepCount = useMemo(() => {
     const purchased = (purchases || []).reduce((sum, p) => sum + Number(p.animalCount || 0), 0);
     const sold = (sales || []).reduce((sum, s) => sum + Number(s.animalCount || 0), 0);
+    // Note: totalDeadCount is now private, so this live sheep count is specific to your farm
     return Math.max(0, purchased - sold - totalDeadCount);
   }, [purchases, sales, totalDeadCount]);
 

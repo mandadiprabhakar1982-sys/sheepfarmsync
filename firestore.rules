@@ -18,17 +18,20 @@ service cloud.firestore {
       allow read, write: if isSignedIn() && request.auth.uid == userId;
     }
 
-    // --- OPERATIONAL DATA (Collection Groups) ---
-    // Explicitly allow collaborative access to subcollections across all users
+    // --- COLLABORATIVE DATA (Shared for Benchmarking) ---
+    // These drive the "Merged View" financial stats
     match /{path=**}/livestockPurchases/{id} { allow read, write: if isCollaborator(); }
     match /{path=**}/animalSales/{id} { allow read, write: if isCollaborator(); }
     match /{path=**}/feedExpenses/{id} { allow read, write: if isCollaborator(); }
     match /{path=**}/medicineExpenses/{id} { allow read, write: if isCollaborator(); }
     match /{path=**}/laborExpenses/{id} { allow read, write: if isCollaborator(); }
-    match /{path=**}/deadAnimals/{id} { allow read, write: if isCollaborator(); }
-    match /{path=**}/trackedSheep/{id} { allow read, write: if isCollaborator(); }
-    match /{path=**}/farmExpenses/{id} { allow read, write: if isCollaborator(); }
-    match /{path=**}/healthTasks/{id} { allow read, write: if isCollaborator(); }
+
+    // --- PRIVATE DATA (Owner Restricted) ---
+    // Individual animal tracking, specific health tasks, and misc expenses
+    match /users/{userId}/deadAnimals/{id} { allow read, write: if isSignedIn() && request.auth.uid == userId; }
+    match /users/{userId}/trackedSheep/{id} { allow read, write: if isSignedIn() && request.auth.uid == userId; }
+    match /users/{userId}/farmExpenses/{id} { allow read, write: if isSignedIn() && request.auth.uid == userId; }
+    match /users/{userId}/healthTasks/{id} { allow read, write: if isSignedIn() && request.auth.uid == userId; }
 
     // --- COMMUNITY MARKETPLACE ---
     match /communitySales/{saleId} {
