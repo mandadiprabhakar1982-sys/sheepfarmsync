@@ -3,36 +3,23 @@
 import { useUser, useFirestore } from '@/firebase';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Loader2 } from 'lucide-react';
 import { doc, getDoc, setDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
 
 const publicPaths = ['/login'];
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // Return a static shell during hydration to prevent mismatches
-  if (!mounted) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center bg-background" />
-    );
-  }
-
-  return <AuthContent>{children}</AuthContent>;
-}
-
-function AuthContent({ children }: { children: React.ReactNode }) {
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
   const pathname = usePathname();
   const router = useRouter();
 
   useEffect(() => {
-    if (isUserLoading) return;
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted || isUserLoading) return;
 
     if (!user) {
       if (!publicPaths.includes(pathname)) {
@@ -41,7 +28,6 @@ function AuthContent({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // Ensure user document exists with collaborator role in lowercase 'users' collection
     const initUser = async () => {
       const userRef = doc(firestore, 'users', user.uid);
       try {
@@ -64,7 +50,7 @@ function AuthContent({ children }: { children: React.ReactNode }) {
           }
         }
       } catch (e) {
-        // Silently fail, errors handled by global listener if needed
+        // Errors handled by global listener
       }
     };
 
@@ -73,15 +59,24 @@ function AuthContent({ children }: { children: React.ReactNode }) {
     if (publicPaths.includes(pathname)) {
       router.push('/dashboard');
     }
-  }, [isUserLoading, user, pathname, router, firestore]);
+  }, [mounted, isUserLoading, user, pathname, router, firestore]);
 
+  // Initial render must be consistent between server and client to avoid hydration errors
+  if (!mounted) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-background" />
+    );
+  }
+
+  // Determine if we should show the loading shell
   const isAuthChecking = isUserLoading || (user && publicPaths.includes(pathname)) || (!user && !publicPaths.includes(pathname));
   
   if (isAuthChecking) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          {/* Use a pure CSS spinner to avoid Lucide hydration mismatches */}
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
           <p className="text-xs font-bold tracking-widest text-muted-foreground animate-pulse uppercase">Authenticating Shepherd...</p>
         </div>
       </div>
