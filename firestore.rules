@@ -1,11 +1,14 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Global Collaborative Access: 
-    // Allows anyone to read or write any document in the database.
-    // This supports a fully shared real-time farm management ecosystem.
+
+    // Collaborative Access Model:
+    // This allows all users to see the shared farm data in real-time.
+    // 'read' is set to true to ensure the dashboard can aggregate data from everyone.
     match /{document=**} {
-      allow read, write: if true;
+      allow read: if true;
+      allow write: if request.auth != null;
     }
+    
   }
 }
