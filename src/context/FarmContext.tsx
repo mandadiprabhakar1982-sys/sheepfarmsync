@@ -1,3 +1,4 @@
+
 'use client';
 
 import { createContext, useContext, ReactNode, useMemo, useCallback } from 'react';
@@ -78,185 +79,111 @@ function generateId() {
 }
 
 export function FarmProvider({ children }: { children: ReactNode }) {
+  // 1. Core Hooks (Always called first)
   const { user } = useUser();
   const firestore = useFirestore();
 
-  // Reactive role monitoring to unlock collaborative streams
   const userProfileRef = useMemo(() => (firestore && user) ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
   const { data: userProfile, isLoading: isLoadingProfile } = useDoc<UserProfile>(userProfileRef);
   
-  const isCollaboratorVerified = userProfile?.role === 'collaborator' || userProfile?.role === 'admin';
+  const isVerified = useMemo(() => userProfile?.role === 'collaborator' || userProfile?.role === 'admin', [userProfile]);
 
-  // Collaborative Query Gate: Queries only execute when role is confirmed
-  const purchasesRef = useMemo(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'livestockPurchases')) : null, [firestore, isCollaboratorVerified]);
-  const { data: allPurchases, isLoading: isLoadingPurchases } = useCollection<LivestockPurchase>(purchasesRef);
+  const pRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'livestockPurchases')) : null, [firestore, isVerified]);
+  const sRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'animalSales')) : null, [firestore, isVerified]);
+  const fRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'feedExpenses')) : null, [firestore, isVerified]);
+  const mRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'medicineExpenses')) : null, [firestore, isVerified]);
+  const lRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'laborExpenses')) : null, [firestore, isVerified]);
+  const dRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'deadAnimals')) : null, [firestore, isVerified]);
+  const tRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'trackedSheep')) : null, [firestore, isVerified]);
+  const eRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'farmExpenses')) : null, [firestore, isVerified]);
+  const hRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'healthTasks')) : null, [firestore, isVerified]);
+  const mkRef = useMemo(() => firestore ? query(collection(firestore, 'communitySales')) : null, [firestore]);
 
-  const salesRef = useMemo(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'animalSales')) : null, [firestore, isCollaboratorVerified]);
-  const { data: allSales, isLoading: isLoadingSales } = useCollection<AnimalSale>(salesRef);
+  const { data: qPurchases, isLoading: lPurchases } = useCollection<LivestockPurchase>(pRef);
+  const { data: qSales, isLoading: lSales } = useCollection<AnimalSale>(sRef);
+  const { data: qFeed, isLoading: lFeed } = useCollection<FeedCost>(fRef);
+  const { data: qMedicine, isLoading: lMedicine } = useCollection<MedicineExpense>(mRef);
+  const { data: qLabor, isLoading: lLabor } = useCollection<LaborCost>(lRef);
+  const { data: qDead, isLoading: lDead } = useCollection<DeadAnimal>(dRef);
+  const { data: qTracked, isLoading: lTracked } = useCollection<TrackedSheep>(tRef);
+  const { data: qExpenses, isLoading: lExpenses } = useCollection<FarmExpense>(eRef);
+  const { data: qHealth, isLoading: lHealth } = useCollection<HealthTask>(hRef);
+  const { data: qMarket, isLoading: lMarket } = useCollection<PublicSale>(mkRef);
 
-  const feedRef = useMemo(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'feedExpenses')) : null, [firestore, isCollaboratorVerified]);
-  const { data: allFeedCosts, isLoading: isLoadingFeed } = useCollection<FeedCost>(feedRef);
+  // 2. Data sorting and aggregation logic
+  const sort = useCallback((list: any[] | null, k: string) => list ? [...list].sort((a, b) => new Date(b[k]).getTime() - new Date(a[k]).getTime()) : null, []);
 
-  const medicineRef = useMemo(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'medicineExpenses')) : null, [firestore, isCollaboratorVerified]);
-  const { data: allMedicineExpenses, isLoading: isLoadingMedicine } = useCollection<MedicineExpense>(medicineRef);
+  const purchases = useMemo(() => sort(qPurchases, 'purchaseDate'), [qPurchases, sort]);
+  const sales = useMemo(() => sort(qSales, 'saleDate'), [qSales, sort]);
+  const feedCosts = useMemo(() => sort(qFeed, 'date'), [qFeed, sort]);
+  const medicineExpenses = useMemo(() => sort(qMedicine, 'date'), [qMedicine, sort]);
+  const laborCosts = useMemo(() => sort(qLabor, 'date'), [qLabor, sort]);
+  const deadAnimals = useMemo(() => sort(qDead, 'dateOfDeath'), [qDead, sort]);
+  const trackedSheep = useMemo(() => qTracked ? [...qTracked].sort((a, b) => (a.tagId || '').localeCompare(b.tagId || '')) : null, [qTracked]);
+  const farmExpenses = useMemo(() => sort(qExpenses, 'expenseDate'), [qExpenses, sort]);
+  const healthTasks = useMemo(() => sort(qHealth, 'nextDueDate'), [qHealth, sort]);
 
-  const laborRef = useMemo(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'laborExpenses')) : null, [firestore, isCollaboratorVerified]);
-  const { data: allLaborCosts, isLoading: isLoadingLabor } = useCollection<LaborCost>(laborRef);
-
-  const deadAnimalsRef = useMemo(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'deadAnimals')) : null, [firestore, isCollaboratorVerified]);
-  const { data: allDeadAnimals, isLoading: isLoadingDead } = useCollection<DeadAnimal>(deadAnimalsRef);
-
-  const trackedSheepRef = useMemo(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'trackedSheep')) : null, [firestore, isCollaboratorVerified]);
-  const { data: allTrackedSheep, isLoading: isLoadingTracked } = useCollection<TrackedSheep>(trackedSheepRef);
-
-  const farmExpensesRef = useMemo(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'farmExpenses')) : null, [firestore, isCollaboratorVerified]);
-  const { data: allFarmExpenses, isLoading: isLoadingFarmExpenses } = useCollection<FarmExpense>(farmExpensesRef);
-  
-  const healthTasksRef = useMemo(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'healthTasks')) : null, [firestore, isCollaboratorVerified]);
-  const { data: allHealthTasks, isLoading: isLoadingHealth } = useCollection<HealthTask>(healthTasksRef);
-
-  const marketplaceRef = useMemo(() => firestore ? query(collection(firestore, 'communitySales')) : null, [firestore]);
-  const { data: communitySales, isLoading: isLoadingMarketplace } = useCollection<PublicSale>(marketplaceRef);
-
-  const sorted = useCallback((list: any[] | null, dateKey: string) => list ? [...list].sort((a, b) => new Date(b[dateKey]).getTime() - new Date(a[dateKey]).getTime()) : null, []);
-
-  const purchases = useMemo(() => sorted(allPurchases, 'purchaseDate'), [allPurchases, sorted]);
-  const sales = useMemo(() => sorted(allSales, 'saleDate'), [allSales, sorted]);
-  const feedCosts = useMemo(() => sorted(allFeedCosts, 'date'), [allFeedCosts, sorted]);
-  const medicineExpenses = useMemo(() => sorted(allMedicineExpenses, 'date'), [allMedicineExpenses, sorted]);
-  const laborCosts = useMemo(() => sorted(allLaborCosts, 'date'), [allLaborCosts, sorted]);
-  const deadAnimals = useMemo(() => sorted(allDeadAnimals, 'dateOfDeath'), [allDeadAnimals, sorted]);
-  const trackedSheep = useMemo(() => allTrackedSheep ? [...allTrackedSheep].sort((a, b) => (a.tagId || '').localeCompare(b.tagId || '')) : null, [allTrackedSheep]);
-  const farmExpenses = useMemo(() => sorted(allFarmExpenses, 'expenseDate'), [allFarmExpenses, sorted]);
-  const healthTasks = useMemo(() => sorted(allHealthTasks, 'nextDueDate'), [allHealthTasks, sorted]);
-
-  const upsert = useCallback((colName: string, id: string | undefined, data: any) => {
+  // 3. Action Handlers
+  const upsert = useCallback((col: string, id: string | undefined, data: any) => {
     if (!user || !firestore) return;
     const finalId = id || generateId();
-    const docRef = doc(firestore, 'users', user.uid, colName, finalId);
-    setDocumentNonBlocking(docRef, { 
-      ...data, 
-      id: finalId,
-      createdBy: user.uid,
-      creatorEmail: user.email || 'anonymous@farm.com',
-      creatorName: user.displayName || 'Verified Shepherd',
-      updatedAt: serverTimestamp() 
-    }, { merge: true });
+    const docRef = doc(firestore, 'users', user.uid, col, finalId);
+    setDocumentNonBlocking(docRef, { ...data, id: finalId, createdBy: user.uid, creatorEmail: user.email, creatorName: user.displayName || 'Shepherd', updatedAt: serverTimestamp() }, { merge: true });
   }, [user, firestore]);
 
-  const remove = useCallback((colName: string, id: string) => {
+  const remove = useCallback((col: string, id: string) => {
     if (!user || !firestore) return;
-    deleteDocumentNonBlocking(doc(firestore, 'users', user.uid, colName, id));
+    deleteDocumentNonBlocking(doc(firestore, 'users', user.uid, col, id));
   }, [user, firestore]);
-
-  const addPurchase = useCallback((p: any) => upsert('livestockPurchases', undefined, p), [upsert]);
-  const updatePurchase = useCallback((id: string, p: any) => upsert('livestockPurchases', id, p), [upsert]);
-  const deletePurchase = useCallback((id: string) => remove('livestockPurchases', id), [remove]);
-
-  const addSale = useCallback((s: any) => upsert('animalSales', undefined, s), [upsert]);
-  const updateSale = useCallback((id: string, s: any) => upsert('animalSales', id, s), [upsert]);
-  const deleteSale = useCallback((id: string) => remove('animalSales', id), [remove]);
-
-  const addFeedCost = useCallback((c: any) => upsert('feedExpenses', undefined, c), [upsert]);
-  const updateFeedCost = useCallback((id: string, c: any) => upsert('feedExpenses', id, c), [upsert]);
-  const deleteFeedCost = useCallback((id: string) => remove('feedExpenses', id), [remove]);
-
-  const addMedicineExpense = useCallback((e: any) => upsert('medicineExpenses', undefined, e), [upsert]);
-  const updateMedicineExpense = useCallback((id: string, e: any) => upsert('medicineExpenses', id, e), [upsert]);
-  const deleteMedicineExpense = useCallback((id: string) => remove('medicineExpenses', id), [remove]);
-
-  const addLaborCost = useCallback((c: any) => upsert('laborExpenses', undefined, c), [upsert]);
-  const updateLaborCost = useCallback((id: string, c: any) => upsert('laborExpenses', id, c), [upsert]);
-  const deleteLaborCost = useCallback((id: string) => remove('laborExpenses', id), [remove]);
-
-  const addTrackedSheep = useCallback((s: any) => upsert('trackedSheep', undefined, { ...s, createdAt: serverTimestamp() }), [upsert]);
-  const updateTrackedSheep = useCallback((id: string, s: any) => upsert('trackedSheep', id, s), [upsert]);
-  const deleteTrackedSheep = useCallback((id: string) => remove('trackedSheep', id), [remove]);
-
-  const addDeadAnimal = useCallback((a: any) => upsert('deadAnimals', undefined, a), [upsert]);
-  const updateDeadAnimal = useCallback((id: string, a: any) => upsert('deadAnimals', id, a), [upsert]);
-  const deleteDeadAnimal = useCallback((id: string) => remove('deadAnimals', id), [remove]);
-
-  const addFarmExpense = useCallback((e: any) => upsert('farmExpenses', undefined, e), [upsert]);
-  const updateFarmExpense = useCallback((id: string, e: any) => upsert('farmExpenses', id, e), [upsert]);
-  const deleteFarmExpense = useCallback((id: string) => remove('farmExpenses', id), [remove]);
-
-  const addHealthTask = useCallback((t: any) => upsert('healthTasks', undefined, t), [upsert]);
-  const updateHealthTask = useCallback((id: string, t: any) => upsert('healthTasks', id, t), [upsert]);
-  const deleteHealthTask = useCallback((id: string) => remove('healthTasks', id), [remove]);
 
   const postToMarketplace = useCallback((sale: any) => {
     if (!user || !firestore) return;
     const docRef = doc(firestore, 'communitySales', generateId());
-    setDocumentNonBlocking(docRef, {
-      ...sale,
-      id: docRef.id,
-      sellerId: user.uid,
-      sellerEmail: user.email,
-      sellerName: user.displayName || 'Farmer',
-      updatedAt: serverTimestamp(),
-    }, { merge: true });
+    setDocumentNonBlocking(docRef, { ...sale, id: docRef.id, sellerId: user.uid, sellerEmail: user.email, sellerName: user.displayName, updatedAt: serverTimestamp() }, { merge: true });
   }, [user, firestore]);
 
-  const deleteMarketplaceSale = useCallback((id: string) => {
-    if (!firestore) return;
-    deleteDocumentNonBlocking(doc(firestore, 'communitySales', id));
-  }, [firestore]);
+  const isLoading = isLoadingProfile || (user && !isVerified) || lPurchases || lSales || lFeed || lMedicine || lLabor || lDead || lTracked || lExpenses || lHealth || lMarket;
 
-  // Unified loading state gated by profile and query readiness
-  const isSyncing = isLoadingProfile || (user && !isCollaboratorVerified);
-  const isLoading = isSyncing || isLoadingPurchases || isLoadingSales || isLoadingFeed || isLoadingMedicine || isLoadingLabor || isLoadingDead || isLoadingTracked || isLoadingFarmExpenses || isLoadingHealth || isLoadingMarketplace;
+  const stats = useMemo(() => {
+    const deadCount = (qDead || []).reduce((s, a) => s + Number(a.sheepCount || 0), 0);
+    const pCount = (qPurchases || []).reduce((s, p) => s + Number(p.animalCount || 0), 0);
+    const sCount = (qSales || []).reduce((s, x) => s + Number(x.animalCount || 0), 0);
+    const fCost = (qFeed || []).reduce((s, f) => s + Number(f.cost || 0), 0);
+    const lCost = (qLabor || []).reduce((s, l) => s + Number(l.totalLaborCosts || 0), 0);
+    const mCost = (qMedicine || []).reduce((s, m) => s + Number(m.totalAmountSpent || 0), 0) + (qHealth || []).reduce((s, h) => s + Number(h.cost || 0), 0);
+    const eCost = (qExpenses || []).reduce((s, e) => s + Number(e.amount || 0), 0);
+    const pTotal = (qPurchases || []).reduce((s, p) => s + Number(p.purchasePrice || 0) + Number(p.transportCost || 0), 0);
+    const rev = (qSales || []).reduce((s, x) => s + Number(x.salePrice || 0), 0);
+    const rec = (qSales || []).reduce((s, x) => s + Number(x.outstandingDuesFromBuyer || 0), 0);
+    const pay = (qPurchases || []).reduce((s, p) => s + Number(p.dueAmount || 0), 0);
 
-  // Final Aggregation Logic: Strict numeric coercion for all dashboard fields
-  const totalDeadCount = useMemo(() => (allDeadAnimals || []).reduce((sum, a) => sum + Number(a.sheepCount || 0), 0), [allDeadAnimals]);
-  const totalTrackedCount = useMemo(() => (allTrackedSheep || []).length, [allTrackedSheep]);
-  const totalSheepCount = useMemo(() => {
-    const purchased = (allPurchases || []).reduce((sum, p) => sum + Number(p.animalCount || 0), 0);
-    const sold = (allSales || []).reduce((sum, s) => sum + Number(s.animalCount || 0), 0);
-    return Math.max(0, purchased - sold - totalDeadCount);
-  }, [allPurchases, allSales, totalDeadCount]);
-
-  const totalFeedCostVal = useMemo(() => (allFeedCosts || []).reduce((sum, f) => sum + Number(f.cost || 0), 0), [allFeedCosts]);
-  const totalLaborCostVal = useMemo(() => (allLaborCosts || []).reduce((sum, l) => sum + Number(l.totalLaborCosts || 0), 0), [allLaborCosts]);
-  const totalMedicineCostVal = useMemo(() => {
-    const legacy = (allMedicineExpenses || []).reduce((sum, m) => sum + Number(m.totalAmountSpent || 0), 0);
-    const tasks = (allHealthTasks || []).reduce((sum, t) => sum + Number(t.cost || 0), 0);
-    return legacy + tasks;
-  }, [allMedicineExpenses, allHealthTasks]);
-  const totalFarmExpensesVal = useMemo(() => (allFarmExpenses || []).reduce((sum, e) => sum + Number(e.amount || 0), 0), [allFarmExpenses]);
-
-  const totalExpensesVal = useMemo(() => {
-    const purchaseExpense = (allPurchases || []).reduce((sum, p) => sum + Number(p.purchasePrice || 0) + Number(p.transportCost || 0), 0);
-    return purchaseExpense + totalFeedCostVal + totalMedicineCostVal + totalLaborCostVal + totalFarmExpensesVal;
-  }, [allPurchases, totalFeedCostVal, totalMedicineCostVal, totalLaborCostVal, totalFarmExpensesVal]);
-
-  const totalSalesRevenueVal = useMemo(() => (allSales || []).reduce((sum, s) => sum + Number(s.salePrice || 0), 0), [allSales]);
-  const totalReceivablesVal = useMemo(() => (allSales || []).reduce((sum, s) => sum + Number(s.outstandingDuesFromBuyer || 0), 0), [allSales]);
-  const totalPayablesVal = useMemo(() => (allPurchases || []).reduce((sum, p) => sum + Number(p.dueAmount || 0), 0), [allPurchases]);
+    return { 
+      totalSheep: Math.max(0, pCount - sCount - deadCount),
+      totalTracked: (qTracked || []).length,
+      totalExpenses: pTotal + fCost + mCost + lCost + eCost,
+      totalSales: rev,
+      totalDead: deadCount,
+      totalFeedCost: fCost,
+      totalLaborCost: lCost,
+      totalMedicineCost: mCost,
+      totalFarmExpenses: eCost,
+      totalReceivables: rec,
+      totalPayables: pay
+    };
+  }, [qDead, qPurchases, qSales, qFeed, qLabor, qMedicine, qHealth, qExpenses, qTracked]);
 
   const value = {
-    purchases, addPurchase, deletePurchase, updatePurchase,
-    sales, addSale, deleteSale, updateSale,
-    feedCosts, addFeedCost, deleteFeedCost, updateFeedCost,
-    medicineExpenses, addMedicineExpense, deleteMedicineExpense, updateMedicineExpense,
-    laborCosts, addLaborCost, deleteLaborCost, updateLaborCost,
-    trackedSheep, addTrackedSheep, deleteTrackedSheep, updateTrackedSheep,
-    deadAnimals, addDeadAnimal, deleteDeadAnimal, updateDeadAnimal,
-    farmExpenses, addFarmExpense, deleteFarmExpense, updateFarmExpense,
-    healthTasks, addHealthTask, deleteHealthTask, updateHealthTask,
-    communitySales, postToMarketplace, deleteMarketplaceSale,
-    isLoading, 
-    totalSheep: totalSheepCount, 
-    totalTracked: totalTrackedCount, 
-    totalExpenses: totalExpensesVal, 
-    totalSales: totalSalesRevenueVal, 
-    totalDead: totalDeadCount, 
-    totalFeedCost: totalFeedCostVal, 
-    totalLaborCost: totalLaborCostVal, 
-    totalMedicineCost: totalMedicineCostVal, 
-    totalFarmExpenses: totalFarmExpensesVal, 
-    totalReceivables: totalReceivablesVal, 
-    totalPayables: totalPayablesVal,
+    purchases, addPurchase: (p: any) => upsert('livestockPurchases', undefined, p), updatePurchase: (id: string, p: any) => upsert('livestockPurchases', id, p), deletePurchase: (id: string) => remove('livestockPurchases', id),
+    sales, addSale: (s: any) => upsert('animalSales', undefined, s), updateSale: (id: string, s: any) => upsert('animalSales', id, s), deleteSale: (id: string) => remove('animalSales', id),
+    feedCosts, addFeedCost: (c: any) => upsert('feedExpenses', undefined, c), updateFeedCost: (id: string, c: any) => upsert('feedExpenses', id, c), deleteFeedCost: (id: string) => remove('feedExpenses', id),
+    medicineExpenses, addMedicineExpense: (e: any) => upsert('medicineExpenses', undefined, e), updateMedicineExpense: (id: string, e: any) => upsert('medicineExpenses', id, e), deleteMedicineExpense: (id: string) => remove('medicineExpenses', id),
+    laborCosts, addLaborCost: (c: any) => upsert('laborExpenses', undefined, c), updateLaborCost: (id: string, c: any) => upsert('laborExpenses', id, c), deleteLaborCost: (id: string) => remove('laborExpenses', id),
+    trackedSheep, addTrackedSheep: (s: any) => upsert('trackedSheep', undefined, { ...s, createdAt: serverTimestamp() }), updateTrackedSheep: (id: string, s: any) => upsert('trackedSheep', id, s), deleteTrackedSheep: (id: string) => remove('trackedSheep', id),
+    deadAnimals, addDeadAnimal: (a: any) => upsert('deadAnimals', undefined, a), updateDeadAnimal: (id: string, a: any) => upsert('deadAnimals', id, a), deleteDeadAnimal: (id: string) => remove('deadAnimals', id),
+    farmExpenses, addFarmExpense: (e: any) => upsert('farmExpenses', undefined, e), updateFarmExpense: (id: string, e: any) => upsert('farmExpenses', id, e), deleteFarmExpense: (id: string) => remove('farmExpenses', id),
+    healthTasks, addHealthTask: (t: any) => upsert('healthTasks', undefined, t), updateHealthTask: (id: string, t: any) => upsert('healthTasks', id, t), deleteHealthTask: (id: string) => remove('healthTasks', id),
+    communitySales, postToMarketplace, deleteMarketplaceSale: (id: string) => deleteDocumentNonBlocking(doc(firestore!, 'communitySales', id)),
+    isLoading, ...stats
   };
 
   return <FarmContext.Provider value={value}>{children}</FarmContext.Provider>;
