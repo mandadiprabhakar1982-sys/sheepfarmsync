@@ -2,7 +2,7 @@
 
 import { createContext, useContext, ReactNode, useMemo, useCallback, useEffect } from 'react';
 import type { LivestockPurchase, AnimalSale, FeedCost, MedicineExpense, LaborCost, TrackedSheep, DeadAnimal, FarmExpense, HealthTask, PublicSale } from '@/lib/types';
-import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { useUser, useFirestore, useCollection, useMemoFirebase, useAuth } from '@/firebase';
 import { collection, doc, serverTimestamp, collectionGroup } from 'firebase/firestore';
 import { setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
@@ -80,16 +80,17 @@ function generateId() {
 
 export function FarmProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
+  const auth = useAuth();
   const firestore = useFirestore();
 
-  // Debugging log as requested to verify auth state before queries
+  // Debugging log to verify auth state before queries
   useEffect(() => {
-    if (user) {
-      console.log('Firebase Auth initialized for:', user.email, 'UID:', user.uid);
+    if (auth.currentUser) {
+      console.log('Firebase Auth initialized for:', auth.currentUser.email, 'UID:', auth.currentUser.uid);
     } else {
-      console.log('Firebase Auth: No user session detected.');
+      console.log('Firebase Auth: No user session detected yet.');
     }
-  }, [user]);
+  }, [auth.currentUser]);
 
   // Use collectionGroup to fetch data from ALL users (Fully Collaborative Model)
   const purchasesRef = useMemoFirebase(() => user ? collectionGroup(firestore, 'livestockPurchases') : null, [firestore, user]);
@@ -125,8 +126,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const upsert = useCallback((colName: string, id: string | undefined, data: any) => {
     if (!user) return;
     const finalId = id || generateId();
-    // In collaborative mode, we still store under the current user's path for data lineage,
-    // but the rules allow anyone to edit.
+    // In collaborative mode, we store under the current user's path but everyone can edit.
     const docRef = doc(firestore, 'users', user.uid, colName, finalId);
     setDocumentNonBlocking(docRef, { ...data, id: finalId, ownerUid: user.uid }, { merge: true });
   }, [user, firestore]);
