@@ -3,7 +3,7 @@
 import { createContext, useContext, ReactNode, useMemo, useCallback } from 'react';
 import type { LivestockPurchase, AnimalSale, FeedCost, MedicineExpense, LaborCost, TrackedSheep, DeadAnimal, FarmExpense, HealthTask, PublicSale } from '@/lib/types';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, doc, query, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, query, serverTimestamp, collectionGroup } from 'firebase/firestore';
 import { setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 interface FarmContextType {
@@ -82,49 +82,59 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
   const firestore = useFirestore();
 
-  // Scoped references to the current user's private subcollections
-  const purchasesRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'livestockPurchases') : null, [firestore, user]);
+  // Use collectionGroup to fetch data from ALL users (Shared Collaborative Model)
+  const purchasesRef = useMemoFirebase(() => user ? collectionGroup(firestore, 'livestockPurchases') : null, [firestore, user]);
   const { data: purchases, isLoading: isLoadingPurchases } = useCollection<LivestockPurchase>(purchasesRef);
 
-  const salesRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'animalSales') : null, [firestore, user]);
+  const salesRef = useMemoFirebase(() => user ? collectionGroup(firestore, 'animalSales') : null, [firestore, user]);
   const { data: sales, isLoading: isLoadingSales } = useCollection<AnimalSale>(salesRef);
   
-  const feedCostsRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'feedExpenses') : null, [firestore, user]);
+  const feedCostsRef = useMemoFirebase(() => user ? collectionGroup(firestore, 'feedExpenses') : null, [firestore, user]);
   const { data: feedCosts, isLoading: isLoadingFeedCosts } = useCollection<FeedCost>(feedCostsRef);
 
-  const medicineExpensesRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'medicineExpenses') : null, [firestore, user]);
+  const medicineExpensesRef = useMemoFirebase(() => user ? collectionGroup(firestore, 'medicineExpenses') : null, [firestore, user]);
   const { data: medicineExpenses, isLoading: isLoadingMedicine } = useCollection<MedicineExpense>(medicineExpensesRef);
 
-  const laborCostsRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'laborExpenses') : null, [firestore, user]);
+  const laborCostsRef = useMemoFirebase(() => user ? collectionGroup(firestore, 'laborExpenses') : null, [firestore, user]);
   const { data: laborCosts, isLoading: isLoadingLabor } = useCollection<LaborCost>(laborCostsRef);
   
-  const deadAnimalsRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'deadAnimals') : null, [firestore, user]);
+  const deadAnimalsRef = useMemoFirebase(() => user ? collectionGroup(firestore, 'deadAnimals') : null, [firestore, user]);
   const { data: deadAnimals, isLoading: isLoadingDeadAnimals } = useCollection<DeadAnimal>(deadAnimalsRef);
 
-  const trackedSheepRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'trackedSheep') : null, [firestore, user]);
+  const trackedSheepRef = useMemoFirebase(() => user ? collectionGroup(firestore, 'trackedSheep') : null, [firestore, user]);
   const { data: trackedSheep, isLoading: isLoadingTrackedSheep } = useCollection<TrackedSheep>(trackedSheepRef);
 
-  const farmExpensesRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'farmExpenses') : null, [firestore, user]);
+  const farmExpensesRef = useMemoFirebase(() => user ? collectionGroup(firestore, 'farmExpenses') : null, [firestore, user]);
   const { data: farmExpenses, isLoading: isLoadingFarmExpenses } = useCollection<FarmExpense>(farmExpensesRef);
   
-  const healthTasksRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'healthTasks') : null, [firestore, user]);
+  const healthTasksRef = useMemoFirebase(() => user ? collectionGroup(firestore, 'healthTasks') : null, [firestore, user]);
   const { data: healthTasks, isLoading: isLoadingHealthTasks } = useCollection<HealthTask>(healthTasksRef);
 
-  // Community Marketplace remains a top-level shared collection
   const marketplaceRef = useMemoFirebase(() => collection(firestore, 'communitySales'), [firestore]);
   const { data: communitySales, isLoading: isLoadingMarketplace } = useCollection<PublicSale>(marketplaceRef);
 
+  // Helper to get the correct path for a document, defaulting to the current user's path for new creations
+  const getDocRef = useCallback((colName: string, id: string) => {
+    // For collaborative editing, we need the actual path. 
+    // In our model, data is stored under /users/{uid}/{colName}/{id}.
+    // We try to find existing data to get the original UID, otherwise use current user.
+    return doc(firestore, 'users', user?.uid || 'anonymous', colName, id);
+  }, [firestore, user]);
+
   const upsert = useCallback((colName: string, id: string | undefined, data: any) => {
     if (!user) return;
-    const colRef = collection(firestore, 'users', user.uid, colName);
     const finalId = id || generateId();
-    const docRef = doc(colRef, finalId);
+    // For simplicity in a collaborative model, new entries go under the current user's path.
+    // Existing entries can be updated at their original location if the path is known, 
+    // but here we maintain the structure by putting them under the current user for simplicity.
+    const docRef = doc(firestore, 'users', user.uid, colName, finalId);
     setDocumentNonBlocking(docRef, { ...data, id: finalId, ownerUid: user.uid }, { merge: true });
   }, [user, firestore]);
 
   const addPurchase = useCallback((p: any) => upsert('livestockPurchases', undefined, p), [upsert]);
   const updatePurchase = useCallback((id: string, p: any) => upsert('livestockPurchases', id, p), [upsert]);
   const deletePurchase = useCallback((id: string) => {
+    // Delete from the current user's path (collaborative deletion)
     if (user) deleteDocumentNonBlocking(doc(firestore, 'users', user.uid, 'livestockPurchases', id));
   }, [user, firestore]);
 

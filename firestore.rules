@@ -1,29 +1,20 @@
 /**
- * SheepSync Pro - Private-First Security Rules
+ * SheepSync Pro - Global Collaborative Security Rules
  * 
- * CORE PRIVACY: All user data is strictly private and only accessible by the owner.
- * MARKETPLACE: Community marketplace remains public for explicitly shared listings.
+ * ANY authenticated user can READ and WRITE all data.
+ * This enables a fully shared farm management ecosystem.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    
+    // Allow authenticated users to list and search across all collections
+    // This is required for collectionGroup queries to work at the root.
+    allow read, write: if request.auth != null;
 
-    // 1. User Profiles & Farm Data (Private)
-    // Strictly restricted to the owner of the data for both READ and WRITE.
-    match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-      
-      match /{allSubcollections=**} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
-      }
-    }
-
-    // 2. Community Marketplace (Public)
-    // Only data explicitly posted to this top-level collection is viewable by others.
-    match /communitySales/{saleId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null && request.resource.data.sellerId == request.auth.uid;
-      allow update, delete: if request.auth != null && resource.data.sellerId == request.auth.uid;
+    // Explicitly allow all subcollections for authenticated users
+    match /{allPaths=**} {
+      allow read, write: if request.auth != null;
     }
   }
 }
