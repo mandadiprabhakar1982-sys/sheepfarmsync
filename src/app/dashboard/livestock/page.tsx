@@ -424,6 +424,9 @@ export default function LivestockPage() {
 
       <Dialog open={!!previewPhoto} onOpenChange={() => setPreviewPhoto(null)}>
         <DialogContent className="max-w-4xl p-0 overflow-hidden bg-transparent border-none shadow-none flex items-center justify-center">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Photo Preview</DialogTitle>
+          </DialogHeader>
           <div className="relative w-full aspect-square md:aspect-video rounded-2xl overflow-hidden shadow-2xl">
             {previewPhoto && (
               <Image 
