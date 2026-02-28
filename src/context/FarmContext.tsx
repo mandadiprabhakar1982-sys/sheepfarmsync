@@ -1,4 +1,3 @@
-
 'use client';
 
 import { createContext, useContext, ReactNode, useMemo, useCallback } from 'react';
@@ -83,36 +82,37 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
   const firestore = useFirestore();
 
+  // Helper to ensure queries are strictly scoped to the authenticated user's private document path
   const getCollectionRef = (name: string) => user ? collection(firestore, 'users', user.uid, name) : null;
 
-  const purchasesRef = useMemoFirebase(() => getCollectionRef('livestockPurchases'), [firestore, user]);
+  const purchasesRef = useMemoFirebase(() => getCollectionRef('livestockPurchases'), [firestore, user?.uid]);
   const { data: purchases, isLoading: isLoadingPurchases } = useCollection<LivestockPurchase>(purchasesRef);
 
-  const salesRef = useMemoFirebase(() => getCollectionRef('animalSales'), [firestore, user]);
+  const salesRef = useMemoFirebase(() => getCollectionRef('animalSales'), [firestore, user?.uid]);
   const { data: sales, isLoading: isLoadingSales } = useCollection<AnimalSale>(salesRef);
   
-  const feedCostsRef = useMemoFirebase(() => getCollectionRef('feedExpenses'), [firestore, user]);
+  const feedCostsRef = useMemoFirebase(() => getCollectionRef('feedExpenses'), [firestore, user?.uid]);
   const { data: feedCosts, isLoading: isLoadingFeedCosts } = useCollection<FeedCost>(feedCostsRef);
 
-  const medicineExpensesRef = useMemoFirebase(() => getCollectionRef('medicineExpenses'), [firestore, user]);
+  const medicineExpensesRef = useMemoFirebase(() => getCollectionRef('medicineExpenses'), [firestore, user?.uid]);
   const { data: medicineExpenses, isLoading: isLoadingMedicine } = useCollection<MedicineExpense>(medicineExpensesRef);
 
-  const laborCostsRef = useMemoFirebase(() => getCollectionRef('laborExpenses'), [firestore, user]);
+  const laborCostsRef = useMemoFirebase(() => getCollectionRef('laborExpenses'), [firestore, user?.uid]);
   const { data: laborCosts, isLoading: isLoadingLabor } = useCollection<LaborCost>(laborCostsRef);
   
-  const deadAnimalsRef = useMemoFirebase(() => getCollectionRef('deadAnimals'), [firestore, user]);
+  const deadAnimalsRef = useMemoFirebase(() => getCollectionRef('deadAnimals'), [firestore, user?.uid]);
   const { data: deadAnimals, isLoading: isLoadingDeadAnimals } = useCollection<DeadAnimal>(deadAnimalsRef);
 
-  const trackedSheepRef = useMemoFirebase(() => getCollectionRef('trackedSheep'), [firestore, user]);
+  const trackedSheepRef = useMemoFirebase(() => getCollectionRef('trackedSheep'), [firestore, user?.uid]);
   const { data: trackedSheep, isLoading: isLoadingTrackedSheep } = useCollection<TrackedSheep>(trackedSheepRef);
 
-  const farmExpensesRef = useMemoFirebase(() => getCollectionRef('farmExpenses'), [firestore, user]);
+  const farmExpensesRef = useMemoFirebase(() => getCollectionRef('farmExpenses'), [firestore, user?.uid]);
   const { data: farmExpenses, isLoading: isLoadingFarmExpenses } = useCollection<FarmExpense>(farmExpensesRef);
   
-  const healthTasksRef = useMemoFirebase(() => getCollectionRef('healthTasks'), [firestore, user]);
+  const healthTasksRef = useMemoFirebase(() => getCollectionRef('healthTasks'), [firestore, user?.uid]);
   const { data: healthTasks, isLoading: isLoadingHealthTasks } = useCollection<HealthTask>(healthTasksRef);
 
-  // Community Marketplace
+  // Shared Community Marketplace - Root Collection
   const marketplaceRef = useMemoFirebase(() => collection(firestore, 'communitySales'), [firestore]);
   const { data: communitySales, isLoading: isLoadingMarketplace } = useCollection<PublicSale>(marketplaceRef);
 

@@ -1,8 +1,8 @@
-
 /**
- * Core Philosophy:
- * Private user data is protected under /users/{userId}.
- * Community data is readable by all authenticated users under /communitySales.
+ * SheepSync Pro - Security Rules
+ * 
+ * CORE PRIVACY: All farm-specific data under /users/{userId} is strictly private.
+ * COMMUNITY: Marketplace data under /communitySales is shared but protected against spoofing.
  */
 rules_version = '2';
 service cloud.firestore {
@@ -16,26 +16,28 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    // Community Marketplace - Anyone signed in can read, only creators can delete/update
-    match /communitySales/{saleId} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn();
-      allow update, delete: if isSignedIn() && request.auth.uid == resource.data.sellerId;
+    // User Private Data - Strict Ownership
+    match /users/{userId} {
+      allow get, create, update, delete: if isOwner(userId);
+
+      // Deeply nested subcollections inherit ownership logic
+      match /{allSubcollections=**} {
+        allow read, write: if isOwner(userId);
+      }
     }
 
-    match /users/{userId} {
-      allow get, create, update: if isOwner(userId);
-      allow list, delete: if isOwner(userId);
-
-      match /livestockPurchases/{id} { allow read, write: if isOwner(userId); }
-      match /medicineExpenses/{id} { allow read, write: if isOwner(userId); }
-      match /feedExpenses/{id} { allow read, write: if isOwner(userId); }
-      match /laborExpenses/{id} { allow read, write: if isOwner(userId); }
-      match /animalSales/{id} { allow read, write: if isOwner(userId); }
-      match /deadAnimals/{id} { allow read, write: if isOwner(userId); }
-      match /trackedSheep/{id} { allow read, write: if isOwner(userId); }
-      match /farmExpenses/{id} { allow read, write: if isOwner(userId); }
-      match /healthTasks/{id} { allow read, write: if isOwner(userId); }
+    // Community Marketplace
+    match /communitySales/{saleId} {
+      // Anyone signed in can view community data for benchmarking
+      allow read: if isSignedIn();
+      
+      // Only the authenticated user can create a listing for themselves
+      allow create: if isSignedIn() && 
+                    request.resource.data.sellerId == request.auth.uid;
+      
+      // Only the original seller can modify or remove their listing
+      allow update, delete: if isSignedIn() && 
+                            resource.data.sellerId == request.auth.uid;
     }
   }
 }
