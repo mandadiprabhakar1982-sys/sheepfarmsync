@@ -3,7 +3,7 @@
 import { createContext, useContext, ReactNode, useMemo, useCallback } from 'react';
 import type { LivestockPurchase, AnimalSale, FeedCost, MedicineExpense, LaborCost, TrackedSheep, DeadAnimal, FarmExpense, HealthTask, PublicSale } from '@/lib/types';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, doc, serverTimestamp, query, where, orderBy } from 'firebase/firestore';
+import { collection, doc, serverTimestamp, query, orderBy } from 'firebase/firestore';
 import { setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 interface FarmContextType {
@@ -82,57 +82,36 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
   const firestore = useFirestore();
 
-  // --- PRIVATE DATA LISTENERS (Strictly filtered by ownerId to comply with Security Rules) ---
+  // --- SHARED DATA LISTENERS (No individual owner filters to ensure data visibility) ---
   
-  const purchasesRef = useMemoFirebase(() => 
-    user ? query(collection(firestore, 'livestockPurchases'), where('ownerId', '==', user.uid)) : null, 
-  [firestore, user]);
+  const purchasesRef = useMemoFirebase(() => collection(firestore, 'livestockPurchases'), [firestore]);
   const { data: purchases, isLoading: isLoadingPurchases } = useCollection<LivestockPurchase>(purchasesRef);
 
-  const salesRef = useMemoFirebase(() => 
-    user ? query(collection(firestore, 'animalSales'), where('ownerId', '==', user.uid)) : null, 
-  [firestore, user]);
+  const salesRef = useMemoFirebase(() => collection(firestore, 'animalSales'), [firestore]);
   const { data: sales, isLoading: isLoadingSales } = useCollection<AnimalSale>(salesRef);
   
-  const feedCostsRef = useMemoFirebase(() => 
-    user ? query(collection(firestore, 'feedExpenses'), where('ownerId', '==', user.uid)) : null, 
-  [firestore, user]);
+  const feedCostsRef = useMemoFirebase(() => collection(firestore, 'feedExpenses'), [firestore]);
   const { data: feedCosts, isLoading: isLoadingFeedCosts } = useCollection<FeedCost>(feedCostsRef);
 
-  const medicineExpensesRef = useMemoFirebase(() => 
-    user ? query(collection(firestore, 'medicineExpenses'), where('ownerId', '==', user.uid)) : null, 
-  [firestore, user]);
+  const medicineExpensesRef = useMemoFirebase(() => collection(firestore, 'medicineExpenses'), [firestore]);
   const { data: medicineExpenses, isLoading: isLoadingMedicine } = useCollection<MedicineExpense>(medicineExpensesRef);
 
-  const laborCostsRef = useMemoFirebase(() => 
-    user ? query(collection(firestore, 'laborExpenses'), where('ownerId', '==', user.uid)) : null, 
-  [firestore, user]);
+  const laborCostsRef = useMemoFirebase(() => collection(firestore, 'laborExpenses'), [firestore]);
   const { data: laborCosts, isLoading: isLoadingLabor } = useCollection<LaborCost>(laborCostsRef);
   
-  const deadAnimalsRef = useMemoFirebase(() => 
-    user ? query(collection(firestore, 'deadAnimals'), where('ownerId', '==', user.uid)) : null, 
-  [firestore, user]);
+  const deadAnimalsRef = useMemoFirebase(() => collection(firestore, 'deadAnimals'), [firestore]);
   const { data: deadAnimals, isLoading: isLoadingDeadAnimals } = useCollection<DeadAnimal>(deadAnimalsRef);
 
-  const trackedSheepRef = useMemoFirebase(() => 
-    user ? query(collection(firestore, 'trackedSheep'), where('ownerId', '==', user.uid)) : null, 
-  [firestore, user]);
+  const trackedSheepRef = useMemoFirebase(() => collection(firestore, 'trackedSheep'), [firestore]);
   const { data: trackedSheep, isLoading: isLoadingTrackedSheep } = useCollection<TrackedSheep>(trackedSheepRef);
 
-  const farmExpensesRef = useMemoFirebase(() => 
-    user ? query(collection(firestore, 'farmExpenses'), where('ownerId', '==', user.uid)) : null, 
-  [firestore, user]);
+  const farmExpensesRef = useMemoFirebase(() => collection(firestore, 'farmExpenses'), [firestore]);
   const { data: farmExpenses, isLoading: isLoadingFarmExpenses } = useCollection<FarmExpense>(farmExpensesRef);
   
-  const healthTasksRef = useMemoFirebase(() => 
-    user ? query(collection(firestore, 'healthTasks'), where('ownerId', '==', user.uid)) : null, 
-  [firestore, user]);
+  const healthTasksRef = useMemoFirebase(() => collection(firestore, 'healthTasks'), [firestore]);
   const { data: healthTasks, isLoading: isLoadingHealthTasks } = useCollection<HealthTask>(healthTasksRef);
 
-  // --- PUBLIC COMMUNITY DATA ---
-  const marketplaceRef = useMemoFirebase(() => 
-    user ? collection(firestore, 'communitySales') : null, 
-  [firestore, user]);
+  const marketplaceRef = useMemoFirebase(() => collection(firestore, 'communitySales'), [firestore]);
   const { data: communitySales, isLoading: isLoadingMarketplace } = useCollection<PublicSale>(marketplaceRef);
 
   // --- CRUD HELPERS ---
@@ -143,7 +122,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     setDocumentNonBlocking(docRef, { 
       ...data, 
       id: finalId,
-      ownerId: user.uid, 
+      ownerId: user.uid, // Keep owner info for reference, but don't filter by it
       ownerEmail: user.email,
       updatedAt: serverTimestamp() 
     }, { merge: true });

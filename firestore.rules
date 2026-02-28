@@ -6,27 +6,11 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // --- COMMUNITY MARKETPLACE ---
-    // Public read, private write (owner only)
-    match /communitySales/{saleId} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn() && request.resource.data.sellerId == request.auth.uid;
-      allow update, delete: if isSignedIn() && resource.data.sellerId == request.auth.uid;
-    }
-
-    // --- PRIVATE FARM COLLECTIONS ---
-    // Strictly private: Users only see and edit their own data.
-    // This matches: livestockPurchases, animalSales, feedExpenses, medicineExpenses, 
-    // laborExpenses, deadAnimals, trackedSheep, farmExpenses, healthTasks
+    // --- COLLABORATIVE FARM MODEL ---
+    // All authenticated users can read and write to all collections.
+    // This ensures no data is "missing" and enables a shared community dashboard.
     match /{collectionName}/{docId} {
-      // Allow creation if they attach their own UID as ownerId
-      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
-      
-      // Allow reading (get/list), updating, and deleting only if they are the owner
-      // NOTE: Queries MUST include a where('ownerId', '==', auth.uid) filter to succeed.
-      allow read, update, delete: if isSignedIn() && (
-        resource == null || resource.data.ownerId == request.auth.uid
-      );
+      allow read, write: if isSignedIn();
     }
   }
 }

@@ -26,8 +26,8 @@ export interface UseCollectionResult<T> {
  * React hook to subscribe to a Firestore collection or query in real-time.
  * Handles nullable references/queries.
  * 
- * IMPORTANT! YOU MUST MEMOIZE the inputted memoizedTargetRefOrQuery or BAD THINGS WILL HAPPEN
- * use useMemoFirebase to memoize it per React guidence.
+ * IMPORTANT! YOU MUST MEMOIZE the inputted memoizedTargetRefOrQuery.
+ * Use useMemoFirebase to memoize it per React guidance.
  *
  * @template T Optional type for document data. Defaults to any.
  * @param {Query<DocumentData> | null | undefined} memoizedTargetRefOrQuery - 
