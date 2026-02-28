@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useMemo } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { PlusCircle, Trash2, Camera as CameraIcon, Pencil, ArrowUp, ArrowDown, Loader2 } from 'lucide-react';
+import { PlusCircle, Trash2, Camera as CameraIcon, Pencil, ArrowUp, ArrowDown, Loader2, User } from 'lucide-react';
 import Image from 'next/image';
 import { Bar, ComposedChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, Line } from 'recharts';
 import { format } from 'date-fns';
@@ -27,6 +27,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import type { TrackedSheep } from '@/lib/types';
+import { useUser } from '@/firebase';
 
 const trackingFormSchema = z.object({
   tagId: z.string().min(1, 'Tag ID is required'),
@@ -49,6 +50,7 @@ const chartConfig = {
 
 export default function LivestockPage() {
   const { toast } = useToast();
+  const { user } = useUser();
   const { trackedSheep, addTrackedSheep, deleteTrackedSheep, updateTrackedSheep, isLoading } = useFarm();
   
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
@@ -187,7 +189,7 @@ export default function LivestockPage() {
     <div className="container mx-auto py-8 px-4">
       <PageHeader
         title="Flock Records"
-        description="Private growth tracking for your individual sheep."
+        description="Collaborative community log of individually tracked sheep."
       />
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
         <div className="lg:col-span-4">
@@ -243,8 +245,8 @@ export default function LivestockPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle className="text-lg">Your Flock</CardTitle>
-                <CardDescription>Records for your individually tracked sheep.</CardDescription>
+                <CardTitle className="text-lg">Community Flock</CardTitle>
+                <CardDescription>Records from all shepherds in the community.</CardDescription>
               </div>
               {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
             </CardHeader>
@@ -266,6 +268,7 @@ export default function LivestockPage() {
                     {sortedTrackedSheep.length > 0 ? (
                       sortedTrackedSheep.map((sheep) => {
                         const weightChange = sheep.previousWeight != null ? sheep.currentWeight - sheep.previousWeight : null;
+                        const isOwner = user?.uid === sheep.createdBy;
                         return (
                           <TableRow key={sheep.id}>
                             <TableCell className="font-bold">{sheep.tagId}</TableCell>
@@ -282,20 +285,26 @@ export default function LivestockPage() {
                             <TableCell className="text-[10px] text-muted-foreground">
                               {formatTimestamp(sheep.createdAt)}
                             </TableCell>
-                            <TableCell className="text-[10px] truncate max-w-[100px] font-medium" title={sheep.creatorEmail}>
-                              {sheep.creatorEmail || 'Unknown'}
+                            <TableCell className="text-[10px] truncate max-w-[120px] font-medium" title={sheep.creatorEmail}>
+                              {sheep.creatorName || sheep.creatorEmail || 'Shepherd'}
                             </TableCell>
                             <TableCell className="text-right">
                               <div className="flex items-center justify-end gap-1">
-                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditingSheep(sheep); setIsEditDialogOpen(true); }}><Pencil className="h-4 w-4" /></Button>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => deleteTrackedSheep(sheep.id)}><Trash2 className="h-4 w-4" /></Button>
+                                {isOwner ? (
+                                  <>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditingSheep(sheep); setIsEditDialogOpen(true); }}><Pencil className="h-4 w-4" /></Button>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => deleteTrackedSheep(sheep.id)}><Trash2 className="h-4 w-4" /></Button>
+                                  </>
+                                ) : (
+                                  <User className="h-4 w-4 text-muted-foreground/30 mr-2" />
+                                )}
                               </div>
                             </TableCell>
                           </TableRow>
                         );
                       })
                     ) : (
-                      <TableRow><TableCell colSpan={7} className="text-center py-12 text-muted-foreground italic">No records found.</TableCell></TableRow>
+                      <TableRow><TableCell colSpan={7} className="text-center py-12 text-muted-foreground italic">No community records found.</TableCell></TableRow>
                     )}
                   </TableBody>
                 </Table>
@@ -306,7 +315,7 @@ export default function LivestockPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Growth Analytics</CardTitle>
-              <CardDescription>Visualizing your flock's performance over time.</CardDescription>
+              <CardDescription>Visualizing community-wide flock performance.</CardDescription>
             </CardHeader>
             <CardContent>
               {chartData.length > 0 ? (
@@ -324,7 +333,7 @@ export default function LivestockPage() {
                 </ChartContainer>
               ) : (
                 <div className="flex h-[300px] items-center justify-center p-6 text-center border-2 border-dashed rounded-lg">
-                  <p className="text-muted-foreground text-sm max-w-[250px]">Add more records to visualize growth trends.</p>
+                  <p className="text-muted-foreground text-sm max-w-[250px]">Record more sheep to see community growth trends.</p>
                 </div>
               )}
             </CardContent>

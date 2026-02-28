@@ -18,30 +18,22 @@ service cloud.firestore {
       allow read, write: if isSignedIn() && request.auth.uid == userId;
     }
 
-    // --- COLLABORATIVE DATA (Shared for Benchmarking) ---
-    // These drive the regional averages and anonymized financial stats
-    match /{path=**}/livestockPurchases/{id} { 
-      allow read: if isCollaborator(); 
-      allow write: if isSignedIn() && request.auth.uid == id.split('/')[1] || request.auth.uid == userId;
-    }
+    // --- COLLABORATIVE DATA (Global Read for Collaborators) ---
+    // This allows the Merged Collaborative View to function across all shepherds
+    match /{path=**}/livestockPurchases/{id} { allow read: if isCollaborator(); }
     match /{path=**}/animalSales/{id} { allow read: if isCollaborator(); }
     match /{path=**}/feedExpenses/{id} { allow read: if isCollaborator(); }
     match /{path=**}/medicineExpenses/{id} { allow read: if isCollaborator(); }
     match /{path=**}/laborExpenses/{id} { allow read: if isCollaborator(); }
+    match /{path=**}/deadAnimals/{id} { allow read: if isCollaborator(); }
+    match /{path=**}/trackedSheep/{id} { allow read: if isCollaborator(); }
+    match /{path=**}/farmExpenses/{id} { allow read: if isCollaborator(); }
+    match /{path=**}/healthTasks/{id} { allow read: if isCollaborator(); }
 
-    // --- PRIVATE DATA (Owner Restricted) ---
-    // Individual animal tracking, specific health tasks, and misc expenses
-    match /users/{userId}/deadAnimals/{id} { allow read, write: if isSignedIn() && request.auth.uid == userId; }
-    match /users/{userId}/trackedSheep/{id} { allow read, write: if isSignedIn() && request.auth.uid == userId; }
-    match /users/{userId}/farmExpenses/{id} { allow read, write: if isSignedIn() && request.auth.uid == userId; }
-    match /users/{userId}/healthTasks/{id} { allow read, write: if isSignedIn() && request.auth.uid == userId; }
-    
-    // Explicit ownership for financial records to allow personal dashboard updates
-    match /users/{userId}/livestockPurchases/{id} { allow read, write: if isSignedIn() && request.auth.uid == userId; }
-    match /users/{userId}/animalSales/{id} { allow read, write: if isSignedIn() && request.auth.uid == userId; }
-    match /users/{userId}/feedExpenses/{id} { allow read, write: if isSignedIn() && request.auth.uid == userId; }
-    match /users/{userId}/medicineExpenses/{id} { allow read, write: if isSignedIn() && request.auth.uid == userId; }
-    match /users/{userId}/laborExpenses/{id} { allow read, write: if isSignedIn() && request.auth.uid == userId; }
+    // --- EXPLICIT OWNERSHIP (For Writes) ---
+    match /users/{userId}/{collectionName}/{id} {
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
+    }
 
     // --- COMMUNITY MARKETPLACE ---
     match /communitySales/{saleId} {

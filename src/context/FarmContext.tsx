@@ -7,7 +7,6 @@ import { collection, doc, serverTimestamp, collectionGroup, query } from 'fireba
 import { setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 interface FarmContextType {
-  // PRIVATE DATA (For Dashboard)
   purchases: LivestockPurchase[] | null;
   addPurchase: (purchase: Omit<LivestockPurchase, 'id'>) => void;
   deletePurchase: (id: string) => void;
@@ -53,16 +52,12 @@ interface FarmContextType {
   deleteHealthTask: (id: string) => void;
   updateHealthTask: (id: string, data: Omit<HealthTask, 'id'>) => void;
 
-  // COMMUNITY DATA (For Benchmarking & Marketplace)
   communitySales: PublicSale[] | null;
   postToMarketplace: (sale: Omit<PublicSale, 'id' | 'sellerId' | 'sellerEmail' | 'sellerName'>) => void;
   deleteMarketplaceSale: (id: string) => void;
   
-  communityPurchases: LivestockPurchase[] | null; // For AI Analysis
-
   isLoading: boolean;
 
-  // AGGREGATED METRICS (Calculated from Private Data)
   totalSheep: number;
   totalTracked: number;
   totalExpenses: number;
@@ -86,58 +81,51 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
   const firestore = useFirestore();
 
-  // 1. IDENTITY GATE
   const userProfileRef = useMemoFirebase(() => (firestore && user) ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
   const { data: userProfile, isLoading: isLoadingProfile } = useDoc<UserProfile>(userProfileRef);
   const isCollaboratorVerified = userProfile?.role === 'collaborator';
 
-  // 2. PRIVATE DATA QUERIES (Owned by Current User)
-  const myPurchasesRef = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'users', user.uid, 'livestockPurchases') : null, [firestore, user]);
-  const { data: myPurchases, isLoading: isLoadingMyPurchases } = useCollection<LivestockPurchase>(myPurchasesRef);
+  // SHARED COMMUNITY DATA QUERIES (Collection Group)
+  const purchasesRef = useMemoFirebase(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'livestockPurchases')) : null, [firestore, isCollaboratorVerified]);
+  const { data: allPurchases, isLoading: isLoadingPurchases } = useCollection<LivestockPurchase>(purchasesRef);
 
-  const mySalesRef = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'users', user.uid, 'animalSales') : null, [firestore, user]);
-  const { data: mySales, isLoading: isLoadingMySales } = useCollection<AnimalSale>(mySalesRef);
+  const salesRef = useMemoFirebase(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'animalSales')) : null, [firestore, isCollaboratorVerified]);
+  const { data: allSales, isLoading: isLoadingSales } = useCollection<AnimalSale>(salesRef);
 
-  const myFeedRef = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'users', user.uid, 'feedExpenses') : null, [firestore, user]);
-  const { data: myFeedCosts, isLoading: isLoadingMyFeed } = useCollection<FeedCost>(myFeedRef);
+  const feedRef = useMemoFirebase(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'feedExpenses')) : null, [firestore, isCollaboratorVerified]);
+  const { data: allFeedCosts, isLoading: isLoadingFeed } = useCollection<FeedCost>(feedRef);
 
-  const myMedicineRef = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'users', user.uid, 'medicineExpenses') : null, [firestore, user]);
-  const { data: myMedicineExpenses, isLoading: isLoadingMyMedicine } = useCollection<MedicineExpense>(myMedicineRef);
+  const medicineRef = useMemoFirebase(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'medicineExpenses')) : null, [firestore, isCollaboratorVerified]);
+  const { data: allMedicineExpenses, isLoading: isLoadingMedicine } = useCollection<MedicineExpense>(medicineRef);
 
-  const myLaborRef = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'users', user.uid, 'laborExpenses') : null, [firestore, user]);
-  const { data: myLaborCosts, isLoading: isLoadingMyLabor } = useCollection<LaborCost>(myLaborRef);
+  const laborRef = useMemoFirebase(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'laborExpenses')) : null, [firestore, isCollaboratorVerified]);
+  const { data: allLaborCosts, isLoading: isLoadingLabor } = useCollection<LaborCost>(laborRef);
 
-  const myDeadAnimalsRef = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'users', user.uid, 'deadAnimals') : null, [firestore, user]);
-  const { data: myDeadAnimals, isLoading: isLoadingMyDead } = useCollection<DeadAnimal>(myDeadAnimalsRef);
+  const deadAnimalsRef = useMemoFirebase(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'deadAnimals')) : null, [firestore, isCollaboratorVerified]);
+  const { data: allDeadAnimals, isLoading: isLoadingDead } = useCollection<DeadAnimal>(deadAnimalsRef);
 
-  const myTrackedSheepRef = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'users', user.uid, 'trackedSheep') : null, [firestore, user]);
-  const { data: myTrackedSheep, isLoading: isLoadingMyTracked } = useCollection<TrackedSheep>(myTrackedSheepRef);
+  const trackedSheepRef = useMemoFirebase(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'trackedSheep')) : null, [firestore, isCollaboratorVerified]);
+  const { data: allTrackedSheep, isLoading: isLoadingTracked } = useCollection<TrackedSheep>(trackedSheepRef);
 
-  const myFarmExpensesRef = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'users', user.uid, 'farmExpenses') : null, [firestore, user]);
-  const { data: myFarmExpenses, isLoading: isLoadingMyFarmExpenses } = useCollection<FarmExpense>(myFarmExpensesRef);
+  const farmExpensesRef = useMemoFirebase(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'farmExpenses')) : null, [firestore, isCollaboratorVerified]);
+  const { data: allFarmExpenses, isLoading: isLoadingFarmExpenses } = useCollection<FarmExpense>(farmExpensesRef);
   
-  const myHealthTasksRef = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'users', user.uid, 'healthTasks') : null, [firestore, user]);
-  const { data: myHealthTasks, isLoading: isLoadingMyHealth } = useCollection<HealthTask>(myHealthTasksRef);
-
-  // 3. COMMUNITY DATA QUERIES (Shared Benchmarks)
-  const commPurchasesRef = useMemoFirebase(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'livestockPurchases')) : null, [firestore, isCollaboratorVerified]);
-  const { data: commPurchases, isLoading: isLoadingCommPurchases } = useCollection<LivestockPurchase>(commPurchasesRef);
+  const healthTasksRef = useMemoFirebase(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'healthTasks')) : null, [firestore, isCollaboratorVerified]);
+  const { data: allHealthTasks, isLoading: isLoadingHealth } = useCollection<HealthTask>(healthTasksRef);
 
   const marketplaceRef = useMemoFirebase(() => firestore ? query(collectionGroup(firestore, 'communitySales')) : null, [firestore]);
   const { data: communitySales, isLoading: isLoadingMarketplace } = useCollection<PublicSale>(marketplaceRef);
 
-  // MEMOIZED DERIVED DATA
-  const purchases = useMemo(() => myPurchases ? [...myPurchases].sort((a, b) => new Date(b.purchaseDate).getTime() - new Date(a.purchaseDate).getTime()) : null, [myPurchases]);
-  const sales = useMemo(() => mySales ? [...mySales].sort((a, b) => new Date(b.saleDate).getTime() - new Date(a.saleDate).getTime()) : null, [mySales]);
-  const feedCosts = useMemo(() => myFeedCosts ? [...myFeedCosts].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()) : null, [myFeedCosts]);
-  const medicineExpenses = useMemo(() => myMedicineExpenses ? [...myMedicineExpenses].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()) : null, [myMedicineExpenses]);
-  const laborCosts = useMemo(() => myLaborCosts ? [...myLaborCosts].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()) : null, [myLaborCosts]);
-  const deadAnimals = useMemo(() => myDeadAnimals ? [...myDeadAnimals].sort((a, b) => new Date(b.dateOfDeath).getTime() - new Date(a.dateOfDeath).getTime()) : null, [myDeadAnimals]);
-  const trackedSheep = useMemo(() => myTrackedSheep ? [...myTrackedSheep].sort((a, b) => (a.tagId || '').localeCompare(b.tagId || '')) : null, [myTrackedSheep]);
-  const farmExpenses = useMemo(() => myFarmExpenses ? [...myFarmExpenses].sort((a, b) => new Date(b.expenseDate).getTime() - new Date(a.expenseDate).getTime()) : null, [myFarmExpenses]);
-  const healthTasks = useMemo(() => myHealthTasks ? [...myHealthTasks].sort((a, b) => new Date(a.nextDueDate).getTime() - new Date(b.nextDueDate).getTime()) : null, [myHealthTasks]);
+  const purchases = useMemo(() => allPurchases ? [...allPurchases].sort((a, b) => new Date(b.purchaseDate).getTime() - new Date(a.purchaseDate).getTime()) : null, [allPurchases]);
+  const sales = useMemo(() => allSales ? [...allSales].sort((a, b) => new Date(b.saleDate).getTime() - new Date(a.saleDate).getTime()) : null, [allSales]);
+  const feedCosts = useMemo(() => allFeedCosts ? [...allFeedCosts].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()) : null, [allFeedCosts]);
+  const medicineExpenses = useMemo(() => allMedicineExpenses ? [...allMedicineExpenses].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()) : null, [allMedicineExpenses]);
+  const laborCosts = useMemo(() => allLaborCosts ? [...allLaborCosts].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()) : null, [allLaborCosts]);
+  const deadAnimals = useMemo(() => allDeadAnimals ? [...allDeadAnimals].sort((a, b) => new Date(b.dateOfDeath).getTime() - new Date(a.dateOfDeath).getTime()) : null, [allDeadAnimals]);
+  const trackedSheep = useMemo(() => allTrackedSheep ? [...allTrackedSheep].sort((a, b) => (a.tagId || '').localeCompare(b.tagId || '')) : null, [allTrackedSheep]);
+  const farmExpenses = useMemo(() => allFarmExpenses ? [...allFarmExpenses].sort((a, b) => new Date(b.expenseDate).getTime() - new Date(a.expenseDate).getTime()) : null, [allFarmExpenses]);
+  const healthTasks = useMemo(() => allHealthTasks ? [...allHealthTasks].sort((a, b) => new Date(a.nextDueDate).getTime() - new Date(b.nextDueDate).getTime()) : null, [allHealthTasks]);
 
-  // CRUD HELPERS
   const upsert = useCallback((colName: string, id: string | undefined, data: any) => {
     if (!user || !firestore) return;
     const finalId = id || generateId();
@@ -146,7 +134,8 @@ export function FarmProvider({ children }: { children: ReactNode }) {
       ...data, 
       id: finalId,
       createdBy: user.uid,
-      creatorEmail: user.email,
+      creatorEmail: user.email || 'anonymous@farm.com',
+      creatorName: user.displayName || 'Verified Shepherd',
       updatedAt: serverTimestamp() 
     }, { merge: true });
   }, [user, firestore]);
@@ -210,35 +199,33 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     deleteDocumentNonBlocking(doc(firestore, 'communitySales', id));
   }, [firestore]);
 
-  // COMBINED LOADING STATE
-  const isLoading = isLoadingProfile || isLoadingMyPurchases || isLoadingMySales || isLoadingMyFeed || isLoadingMyMedicine || isLoadingMyLabor || isLoadingMyDead || isLoadingMyTracked || isLoadingMyFarmExpenses || isLoadingMyHealth || isLoadingMarketplace;
+  const isLoading = isLoadingProfile || isLoadingPurchases || isLoadingSales || isLoadingFeed || isLoadingMedicine || isLoadingLabor || isLoadingDead || isLoadingTracked || isLoadingFarmExpenses || isLoadingHealth || isLoadingMarketplace;
 
-  // AGGREGATIONS (Based on My Private Data)
-  const totalDeadCount = useMemo(() => (myDeadAnimals || []).reduce((sum, a) => sum + Number(a.sheepCount || 0), 0), [myDeadAnimals]);
-  const totalTrackedCount = useMemo(() => (myTrackedSheep || []).length, [myTrackedSheep]);
+  const totalDeadCount = useMemo(() => (allDeadAnimals || []).reduce((sum, a) => sum + Number(a.sheepCount || 0), 0), [allDeadAnimals]);
+  const totalTrackedCount = useMemo(() => (allTrackedSheep || []).length, [allTrackedSheep]);
   const totalSheepCount = useMemo(() => {
-    const purchased = (myPurchases || []).reduce((sum, p) => sum + Number(p.animalCount || 0), 0);
-    const sold = (mySales || []).reduce((sum, s) => sum + Number(s.animalCount || 0), 0);
+    const purchased = (allPurchases || []).reduce((sum, p) => sum + Number(p.animalCount || 0), 0);
+    const sold = (allSales || []).reduce((sum, s) => sum + Number(s.animalCount || 0), 0);
     return Math.max(0, purchased - sold - totalDeadCount);
-  }, [myPurchases, mySales, totalDeadCount]);
+  }, [allPurchases, allSales, totalDeadCount]);
 
-  const totalFeedCostVal = useMemo(() => (myFeedCosts || []).reduce((sum, f) => sum + Number(f.cost || 0), 0), [myFeedCosts]);
-  const totalLaborCostVal = useMemo(() => (myLaborCosts || []).reduce((sum, l) => sum + Number(l.totalLaborCosts || 0), 0), [myLaborCosts]);
+  const totalFeedCostVal = useMemo(() => (allFeedCosts || []).reduce((sum, f) => sum + Number(f.cost || 0), 0), [allFeedCosts]);
+  const totalLaborCostVal = useMemo(() => (allLaborCosts || []).reduce((sum, l) => sum + Number(l.totalLaborCosts || 0), 0), [allLaborCosts]);
   const totalMedicineCostVal = useMemo(() => {
-    const legacy = (myMedicineExpenses || []).reduce((sum, m) => sum + Number(m.totalAmountSpent || 0), 0);
-    const tasks = (myHealthTasks || []).reduce((sum, t) => sum + Number(t.cost || 0), 0);
+    const legacy = (allMedicineExpenses || []).reduce((sum, m) => sum + Number(m.totalAmountSpent || 0), 0);
+    const tasks = (allHealthTasks || []).reduce((sum, t) => sum + Number(t.cost || 0), 0);
     return legacy + tasks;
-  }, [myMedicineExpenses, myHealthTasks]);
-  const totalFarmExpensesVal = useMemo(() => (myFarmExpenses || []).reduce((sum, e) => sum + Number(e.amount || 0), 0), [myFarmExpenses]);
+  }, [allMedicineExpenses, allHealthTasks]);
+  const totalFarmExpensesVal = useMemo(() => (allFarmExpenses || []).reduce((sum, e) => sum + Number(e.amount || 0), 0), [allFarmExpenses]);
 
   const totalExpensesVal = useMemo(() => {
-    const purchaseExpense = (myPurchases || []).reduce((sum, p) => sum + Number(p.purchasePrice || 0) + Number(p.transportCost || 0), 0);
+    const purchaseExpense = (allPurchases || []).reduce((sum, p) => sum + Number(p.purchasePrice || 0) + Number(p.transportCost || 0), 0);
     return purchaseExpense + totalFeedCostVal + totalMedicineCostVal + totalLaborCostVal + totalFarmExpensesVal;
-  }, [myPurchases, totalFeedCostVal, totalMedicineCostVal, totalLaborCostVal, totalFarmExpensesVal]);
+  }, [allPurchases, totalFeedCostVal, totalMedicineCostVal, totalLaborCostVal, totalFarmExpensesVal]);
 
-  const totalSalesRevenueVal = useMemo(() => (mySales || []).reduce((sum, s) => sum + Number(s.salePrice || 0), 0), [mySales]);
-  const totalReceivablesVal = useMemo(() => (mySales || []).reduce((sum, s) => sum + Number(s.outstandingDuesFromBuyer || 0), 0), [mySales]);
-  const totalPayablesVal = useMemo(() => (myPurchases || []).reduce((sum, p) => sum + Number(p.dueAmount || 0), 0), [myPurchases]);
+  const totalSalesRevenueVal = useMemo(() => (allSales || []).reduce((sum, s) => sum + Number(s.salePrice || 0), 0), [allSales]);
+  const totalReceivablesVal = useMemo(() => (allSales || []).reduce((sum, s) => sum + Number(s.outstandingDuesFromBuyer || 0), 0), [allSales]);
+  const totalPayablesVal = useMemo(() => (allPurchases || []).reduce((sum, p) => sum + Number(p.dueAmount || 0), 0), [allPurchases]);
 
   const value = {
     purchases, addPurchase, deletePurchase, updatePurchase,
@@ -251,7 +238,6 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     farmExpenses, addFarmExpense, deleteFarmExpense, updateFarmExpense,
     healthTasks, addHealthTask, deleteHealthTask, updateHealthTask,
     communitySales, postToMarketplace, deleteMarketplaceSale,
-    communityPurchases: commPurchases,
     isLoading, 
     totalSheep: totalSheepCount, 
     totalTracked: totalTrackedCount, 

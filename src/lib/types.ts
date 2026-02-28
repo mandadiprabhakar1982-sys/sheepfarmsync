@@ -7,26 +7,35 @@ export type LivestockPurchase = AnalyzeFarmCostsInput['livestockPurchases'][0] &
   id: string;
   createdBy?: string;
   creatorEmail?: string;
+  creatorName?: string;
 };
 
 export type MedicineExpense = AnalyzeFarmCostsInput['medicineExpenses'][0] & { 
   id: string;
   createdBy?: string;
+  creatorEmail?: string;
+  creatorName?: string;
 };
 
 export type FeedCost = AnalyzeFarmCostsInput['feedCosts'][0] & { 
   id: string;
   createdBy?: string;
+  creatorEmail?: string;
+  creatorName?: string;
 };
 
 export type LaborCost = AnalyzeFarmCostsInput['laborCosts'][0] & { 
   id: string;
   createdBy?: string;
+  creatorEmail?: string;
+  creatorName?: string;
 };
 
 export type FarmExpense = AnalyzeFarmCostsInput['farmExpenses'][0] & { 
   id: string;
   createdBy?: string;
+  creatorEmail?: string;
+  creatorName?: string;
 };
 
 export type AnimalSale = {
@@ -42,6 +51,7 @@ export type AnimalSale = {
   isPublic?: boolean;
   createdBy?: string;
   creatorEmail?: string;
+  creatorName?: string;
 };
 
 export type PublicSale = {
@@ -66,6 +76,7 @@ export type TrackedSheep = {
   photoDataUrl?: string;
   createdBy?: string;
   creatorEmail?: string;
+  creatorName?: string;
   createdAt?: any;
   updatedAt?: any;
 };
@@ -87,6 +98,8 @@ export type HealthTask = {
   frequency: 'Once' | 'Daily' | 'Monthly' | 'Every 2 Months' | 'Every 6 Months' | 'Annually';
   notes?: string;
   createdBy?: string;
+  creatorEmail?: string;
+  creatorName?: string;
 };
 
 export type DeadAnimal = {
@@ -97,6 +110,8 @@ export type DeadAnimal = {
   causeOfDeath: string;
   notes?: string;
   createdBy?: string;
+  creatorEmail?: string;
+  creatorName?: string;
 };
 
 export type UserProfile = {
