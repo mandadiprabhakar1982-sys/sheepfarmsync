@@ -24,10 +24,6 @@ export default function OverviewPage() {
     totalExpenses, 
     totalSales, 
     isLoading, 
-    totalFeedCost, 
-    totalLaborCost, 
-    totalMedicineCost, 
-    totalFarmExpenses, 
     totalReceivables, 
     totalPayables, 
     totalDead 
@@ -35,8 +31,17 @@ export default function OverviewPage() {
   
   if (isLoading) {
     return (
-       <div className="flex h-[calc(100vh-80px)] w-full items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+       <div className="flex h-[calc(100vh-80px)] w-full items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-6">
+          <div className="relative">
+            <div className="w-12 h-12 border-4 border-primary/20 rounded-full"></div>
+            <div className="absolute top-0 w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <p className="text-[10px] font-black tracking-[0.3em] text-primary uppercase animate-pulse">Syncing Farm Data</p>
+            <p className="text-[8px] font-bold text-muted-foreground/60 uppercase tracking-widest">Establishing Secure Connection...</p>
+          </div>
+        </div>
       </div>
     )
   }
@@ -45,7 +50,7 @@ export default function OverviewPage() {
     <div className="container mx-auto py-8 px-4 md:px-10">
       <PageHeader
         title="Farm Overview"
-        description="Comprehensive dashboard of your operational metrics."
+        description="COMPREHENSIVE DASHBOARD OF YOUR OPERATIONAL METRICS."
       />
       
       <div className="grid gap-10">
@@ -56,21 +61,21 @@ export default function OverviewPage() {
           </h2>
           <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             <StatCard
-                title="Live Sheep"
+                title="LIVE SHEEP"
                 value={totalSheep.toString()}
                 icon={SheepIcon}
                 variant="success"
                 description="Estimated current flock"
             />
             <StatCard
-                title="Individually Tracked"
+                title="INDIVIDUALLY TRACKED"
                 value={totalTracked.toString()}
                 icon={ListChecks}
                 variant="success"
                 description="Sheep with growth logs"
             />
              <StatCard
-                title="Total Mortalities"
+                title="TOTAL MORTALITIES"
                 value={totalDead.toString()}
                 icon={Skull}
                 variant="destructive"
@@ -86,63 +91,30 @@ export default function OverviewPage() {
           </h2>
           <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard
-                title="Total Revenue"
+                title="TOTAL REVENUE"
                 value={`₹${totalSales.toLocaleString()}`}
                 icon={TrendingUp}
                 variant="success"
             />
             <StatCard
-                title="Total Cost"
+                title="TOTAL COST"
                 value={`₹${totalExpenses.toLocaleString()}`}
                 icon={IndianRupee}
                 variant="success"
             />
              <StatCard
-              title="Receivables"
+              title="RECEIVABLES"
               value={`₹${totalReceivables.toLocaleString()}`}
               icon={TrendingUp}
               variant="success"
               description="Unpaid sales"
             />
             <StatCard
-              title="Payables"
+              title="PAYABLES"
               value={`₹${totalPayables.toLocaleString()}`}
               icon={TrendingDown}
               variant="success"
               description="Outstanding debts"
-            />
-          </div>
-        </section>
-
-        <section>
-          <h2 className="text-base font-black mb-6 flex items-center gap-2 tracking-tight">
-            <span className="bg-primary h-2 w-2 rounded-full"></span>
-            Operational Breakdown
-          </h2>
-          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-            <StatCard
-                title="Feed Usage"
-                value={`₹${totalFeedCost.toLocaleString()}`}
-                icon={Wheat}
-                variant="info"
-            />
-            <StatCard
-                title="Labor Costs"
-                value={`₹${totalLaborCost.toLocaleString()}`}
-                icon={Users}
-                variant="info"
-            />
-            <StatCard
-                title="Medical"
-                value={`₹${totalMedicineCost.toLocaleString()}`}
-                icon={Syringe}
-                variant="info"
-            />
-            <StatCard
-                title="Misc."
-                value={`₹${totalFarmExpenses.toLocaleString()}`}
-                icon={Receipt}
-                variant="info"
             />
           </div>
         </section>
