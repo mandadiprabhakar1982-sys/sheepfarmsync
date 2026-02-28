@@ -2,22 +2,38 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // Helper functions
     function isSignedIn() {
       return request.auth != null;
     }
+    
+    function isCollaborator() {
+      return isSignedIn() && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'collaborator';
+    }
 
-    // --- COLLABORATIVE MERGED VIEW ---
-    // Allow any authenticated shepherd to read any record across the entire database,
-    // including nested subcollections (required for Merged Collaborative View).
-    match /{path=**} {
+    // --- USER PROFILES ---
+    match /users/{userId} {
       allow read: if isSignedIn();
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // --- COLLABORATIVE MERGED VIEW (Collection Groups) ---
+    // Allow users with the 'collaborator' role to perform collectionGroup queries
+    // This allows the app to aggregate data from all shepherds' folders.
+    match /{path=**} {
+      allow read: if isCollaborator();
     }
 
     // --- NESTED SUBCOLLECTION ACCESS ---
-    // Specifically allow writing to user subcollections (purchases, trackedSheep, etc.).
-    // We allow any signed-in user to write to ensure the merged collaborative pool is accessible.
+    // Allow users to write to their own private subcollections.
     match /users/{userId}/{collectionName}/{docId} {
-      allow write: if isSignedIn();
+      allow write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    // --- TOP-LEVEL SHARED COLLECTIONS (Optional fallback) ---
+    match /{collectionName}/{docId} {
+      allow read, write: if isSignedIn();
     }
   }
 }

@@ -23,13 +23,18 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
     // If a user object exists, handle logic for new users and routing
     if (user) {
-      // On first sign-in, create a user document in Firestore
+      // On first sign-in, create a user document in Firestore with a default 'collaborator' role
       if (user.metadata.creationTime === user.metadata.lastSignInTime) {
         const userDocRef = doc(firestore, `users/${user.uid}`);
-        setDocumentNonBlocking(userDocRef, { email: user.email, createdAt: new Date() }, {});
+        setDocumentNonBlocking(userDocRef, { 
+          email: user.email, 
+          role: 'collaborator',
+          createdAt: new Date() 
+        }, { merge: true });
+        
         toast({
             title: 'Welcome!',
-            description: 'Your account has been created.',
+            description: 'Your collaborative shepherd account has been initialized.',
         });
       }
 

@@ -5,28 +5,28 @@ type AnalyzeFarmCostsInput = Parameters<typeof analyzeFarmCosts>[0];
 
 export type LivestockPurchase = AnalyzeFarmCostsInput['livestockPurchases'][0] & { 
   id: string;
-  ownerId?: string;
-  ownerEmail?: string;
+  createdBy?: string;
+  creatorEmail?: string;
 };
 
 export type MedicineExpense = AnalyzeFarmCostsInput['medicineExpenses'][0] & { 
   id: string;
-  ownerId?: string;
+  createdBy?: string;
 };
 
 export type FeedCost = AnalyzeFarmCostsInput['feedCosts'][0] & { 
   id: string;
-  ownerId?: string;
+  createdBy?: string;
 };
 
 export type LaborCost = AnalyzeFarmCostsInput['laborCosts'][0] & { 
   id: string;
-  ownerId?: string;
+  createdBy?: string;
 };
 
 export type FarmExpense = AnalyzeFarmCostsInput['farmExpenses'][0] & { 
   id: string;
-  ownerId?: string;
+  createdBy?: string;
 };
 
 export type AnimalSale = {
@@ -40,8 +40,8 @@ export type AnimalSale = {
   amountReceived: number;
   outstandingDuesFromBuyer: number;
   isPublic?: boolean;
-  ownerId?: string;
-  ownerEmail?: string;
+  createdBy?: string;
+  creatorEmail?: string;
 };
 
 export type PublicSale = {
@@ -67,8 +67,6 @@ export type TrackedSheep = {
   createdBy?: string;
   createdAt?: any;
   updatedAt?: any;
-  ownerId?: string;
-  ownerEmail?: string;
 };
 
 export type HealthTask = {
@@ -87,7 +85,7 @@ export type HealthTask = {
   nextDueDate: string;
   frequency: 'Once' | 'Daily' | 'Monthly' | 'Every 2 Months' | 'Every 6 Months' | 'Annually';
   notes?: string;
-  ownerId?: string;
+  createdBy?: string;
 };
 
 export type DeadAnimal = {
@@ -97,13 +95,14 @@ export type DeadAnimal = {
   tagId?: string;
   causeOfDeath: string;
   notes?: string;
-  ownerId?: string;
+  createdBy?: string;
 };
 
 export type UserProfile = {
   id: string;
   email: string;
   displayName: string | null;
+  role: 'collaborator' | 'admin' | 'viewer';
   createdAt: any;
   updatedAt?: any;
 };
