@@ -3,7 +3,7 @@
 import { createContext, useContext, ReactNode, useMemo, useCallback } from 'react';
 import type { LivestockPurchase, AnimalSale, FeedCost, MedicineExpense, LaborCost, TrackedSheep, DeadAnimal, FarmExpense, HealthTask, PublicSale } from '@/lib/types';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, doc, serverTimestamp, query, where } from 'firebase/firestore';
+import { collection, doc, serverTimestamp, query } from 'firebase/firestore';
 import { setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 interface FarmContextType {
@@ -82,70 +82,70 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
   const firestore = useFirestore();
 
-  // SCOPED DATA LISTENERS - Filters all operational data by user.uid to match security rules
+  // --- MERGED DATA LISTENERS ---
+  // These fetch data from the entire community collection (no ownerId filters)
   
   const purchasesRef = useMemoFirebase(() => 
-    user ? query(collection(firestore, 'livestockPurchases'), where('ownerId', '==', user.uid)) : null, 
+    user ? collection(firestore, 'livestockPurchases') : null, 
     [firestore, user]
   );
   const { data: purchases, isLoading: isLoadingPurchases } = useCollection<LivestockPurchase>(purchasesRef);
 
   const salesRef = useMemoFirebase(() => 
-    user ? query(collection(firestore, 'animalSales'), where('ownerId', '==', user.uid)) : null, 
+    user ? collection(firestore, 'animalSales') : null, 
     [firestore, user]
   );
   const { data: sales, isLoading: isLoadingSales } = useCollection<AnimalSale>(salesRef);
   
   const feedCostsRef = useMemoFirebase(() => 
-    user ? query(collection(firestore, 'feedExpenses'), where('ownerId', '==', user.uid)) : null, 
+    user ? collection(firestore, 'feedExpenses') : null, 
     [firestore, user]
   );
   const { data: feedCosts, isLoading: isLoadingFeedCosts } = useCollection<FeedCost>(feedCostsRef);
 
   const medicineExpensesRef = useMemoFirebase(() => 
-    user ? query(collection(firestore, 'medicineExpenses'), where('ownerId', '==', user.uid)) : null, 
+    user ? collection(firestore, 'medicineExpenses') : null, 
     [firestore, user]
   );
   const { data: medicineExpenses, isLoading: isLoadingMedicine } = useCollection<MedicineExpense>(medicineExpensesRef);
 
   const laborCostsRef = useMemoFirebase(() => 
-    user ? query(collection(firestore, 'laborExpenses'), where('ownerId', '==', user.uid)) : null, 
+    user ? collection(firestore, 'laborExpenses') : null, 
     [firestore, user]
   );
   const { data: laborCosts, isLoading: isLoadingLabor } = useCollection<LaborCost>(laborCostsRef);
   
   const deadAnimalsRef = useMemoFirebase(() => 
-    user ? query(collection(firestore, 'deadAnimals'), where('ownerId', '==', user.uid)) : null, 
+    user ? collection(firestore, 'deadAnimals') : null, 
     [firestore, user]
   );
   const { data: deadAnimals, isLoading: isLoadingDeadAnimals } = useCollection<DeadAnimal>(deadAnimalsRef);
 
   const trackedSheepRef = useMemoFirebase(() => 
-    user ? query(collection(firestore, 'trackedSheep'), where('ownerId', '==', user.uid)) : null, 
+    user ? collection(firestore, 'trackedSheep') : null, 
     [firestore, user]
   );
   const { data: trackedSheep, isLoading: isLoadingTrackedSheep } = useCollection<TrackedSheep>(trackedSheepRef);
 
   const farmExpensesRef = useMemoFirebase(() => 
-    user ? query(collection(firestore, 'farmExpenses'), where('ownerId', '==', user.uid)) : null, 
+    user ? collection(firestore, 'farmExpenses') : null, 
     [firestore, user]
   );
   const { data: farmExpenses, isLoading: isLoadingFarmExpenses } = useCollection<FarmExpense>(farmExpensesRef);
   
   const healthTasksRef = useMemoFirebase(() => 
-    user ? query(collection(firestore, 'healthTasks'), where('ownerId', '==', user.uid)) : null, 
+    user ? collection(firestore, 'healthTasks') : null, 
     [firestore, user]
   );
   const { data: healthTasks, isLoading: isLoadingHealthTasks } = useCollection<HealthTask>(healthTasksRef);
 
-  // Marketplace remains community-wide (publicly readable)
   const marketplaceRef = useMemoFirebase(() => 
     user ? collection(firestore, 'communitySales') : null, 
     [firestore, user]
   );
   const { data: communitySales, isLoading: isLoadingMarketplace } = useCollection<PublicSale>(marketplaceRef);
 
-  // SHARED UPSERT - Attaches ownerId for security rule validation
+  // SHARED UPSERT - Attaches ownerId for tracking who added what
   const upsert = useCallback((colName: string, id: string | undefined, data: any) => {
     if (!user) return;
     const finalId = id || generateId();
@@ -162,56 +162,56 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const addPurchase = useCallback((p: any) => upsert('livestockPurchases', undefined, p), [upsert]);
   const updatePurchase = useCallback((id: string, p: any) => upsert('livestockPurchases', id, p), [upsert]);
   const deletePurchase = useCallback((id: string) => {
-    if (user) deleteDocumentNonBlocking(doc(firestore, 'livestockPurchases', id));
-  }, [user, firestore]);
+    deleteDocumentNonBlocking(doc(firestore, 'livestockPurchases', id));
+  }, [firestore]);
 
   const addSale = useCallback((s: any) => upsert('animalSales', undefined, s), [upsert]);
   const updateSale = useCallback((id: string, s: any) => upsert('animalSales', id, s), [upsert]);
   const deleteSale = useCallback((id: string) => {
-    if (user) deleteDocumentNonBlocking(doc(firestore, 'animalSales', id));
-  }, [user, firestore]);
+    deleteDocumentNonBlocking(doc(firestore, 'animalSales', id));
+  }, [firestore]);
 
   const addFeedCost = useCallback((c: any) => upsert('feedExpenses', undefined, c), [upsert]);
   const updateFeedCost = useCallback((id: string, c: any) => upsert('feedExpenses', id, c), [upsert]);
   const deleteFeedCost = useCallback((id: string) => {
-    if (user) deleteDocumentNonBlocking(doc(firestore, 'feedExpenses', id));
-  }, [user, firestore]);
+    deleteDocumentNonBlocking(doc(firestore, 'feedExpenses', id));
+  }, [firestore]);
 
   const addMedicineExpense = useCallback((e: any) => upsert('medicineExpenses', undefined, e), [upsert]);
   const updateMedicineExpense = useCallback((id: string, e: any) => upsert('medicineExpenses', id, e), [upsert]);
   const deleteMedicineExpense = useCallback((id: string) => {
-    if (user) deleteDocumentNonBlocking(doc(firestore, 'medicineExpenses', id));
-  }, [user, firestore]);
+    deleteDocumentNonBlocking(doc(firestore, 'medicineExpenses', id));
+  }, [firestore]);
 
   const addLaborCost = useCallback((c: any) => upsert('laborExpenses', undefined, c), [upsert]);
   const updateLaborCost = useCallback((id: string, c: any) => upsert('laborExpenses', id, c), [upsert]);
   const deleteLaborCost = useCallback((id: string) => {
-    if (user) deleteDocumentNonBlocking(doc(firestore, 'laborExpenses', id));
-  }, [user, firestore]);
+    deleteDocumentNonBlocking(doc(firestore, 'laborExpenses', id));
+  }, [firestore]);
 
   const addTrackedSheep = useCallback((s: any) => upsert('trackedSheep', undefined, { ...s, createdAt: serverTimestamp() }), [upsert]);
   const updateTrackedSheep = useCallback((id: string, s: any) => upsert('trackedSheep', id, s), [upsert]);
   const deleteTrackedSheep = useCallback((id: string) => {
-    if (user) deleteDocumentNonBlocking(doc(firestore, 'trackedSheep', id));
-  }, [user, firestore]);
+    deleteDocumentNonBlocking(doc(firestore, 'trackedSheep', id));
+  }, [firestore]);
 
   const addDeadAnimal = useCallback((a: any) => upsert('deadAnimals', undefined, a), [upsert]);
   const updateDeadAnimal = useCallback((id: string, a: any) => upsert('deadAnimals', id, a), [upsert]);
   const deleteDeadAnimal = useCallback((id: string) => {
-    if (user) deleteDocumentNonBlocking(doc(firestore, 'deadAnimals', id));
-  }, [user, firestore]);
+    deleteDocumentNonBlocking(doc(firestore, 'deadAnimals', id));
+  }, [firestore]);
 
   const addFarmExpense = useCallback((e: any) => upsert('farmExpenses', undefined, e), [upsert]);
   const updateFarmExpense = useCallback((id: string, e: any) => upsert('farmExpenses', id, e), [upsert]);
   const deleteFarmExpense = useCallback((id: string) => {
-    if (user) deleteDocumentNonBlocking(doc(firestore, 'farmExpenses', id));
-  }, [user, firestore]);
+    deleteDocumentNonBlocking(doc(firestore, 'farmExpenses', id));
+  }, [firestore]);
 
   const addHealthTask = useCallback((t: any) => upsert('healthTasks', undefined, t), [upsert]);
   const updateHealthTask = useCallback((id: string, t: any) => upsert('healthTasks', id, t), [upsert]);
   const deleteHealthTask = useCallback((id: string) => {
-    if (user) deleteDocumentNonBlocking(doc(firestore, 'healthTasks', id));
-  }, [user, firestore]);
+    deleteDocumentNonBlocking(doc(firestore, 'healthTasks', id));
+  }, [firestore]);
 
   const postToMarketplace = useCallback((sale: any) => {
     if (!user) return;
@@ -228,8 +228,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   }, [user, firestore]);
 
   const deleteMarketplaceSale = useCallback((id: string) => {
-    const docRef = doc(firestore, 'communitySales', id);
-    deleteDocumentNonBlocking(docRef);
+    deleteDocumentNonBlocking(doc(firestore, 'communitySales', id));
   }, [firestore]);
 
   const isLoading = isLoadingPurchases || isLoadingSales || isLoadingFeedCosts || isLoadingMedicine || isLoadingHealthTasks || isLoadingLabor || isLoadingDeadAnimals || isLoadingTrackedSheep || isLoadingFarmExpenses || isLoadingMarketplace;

@@ -2,37 +2,29 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
+    // Check if the user is authenticated via Firebase Auth
     function isSignedIn() {
       return request.auth != null;
     }
 
-    function isOwner(data) {
-      return isSignedIn() && data.ownerId == request.auth.uid;
-    }
-
-    // User profiles are private to the owner
+    // --- SHARED COMMUNITY FARM MODEL ---
+    // All authenticated shepherds share the same database.
+    // This allows for real-time data merging and collaborative management.
+    
+    match /livestockPurchases/{id} { allow read, write: if isSignedIn(); }
+    match /medicineExpenses/{id} { allow read, write: if isSignedIn(); }
+    match /feedExpenses/{id} { allow read, write: if isSignedIn(); }
+    match /laborExpenses/{id} { allow read, write: if isSignedIn(); }
+    match /animalSales/{id} { allow read, write: if isSignedIn(); }
+    match /deadAnimals/{id} { allow read, write: if isSignedIn(); }
+    match /trackedSheep/{id} { allow read, write: if isSignedIn(); }
+    match /farmExpenses/{id} { allow read, write: if isSignedIn(); }
+    match /healthTasks/{id} { allow read, write: if isSignedIn(); }
+    match /communitySales/{id} { allow read, write: if isSignedIn(); }
+    
+    // User profiles remain private to the individual
     match /users/{userId} {
       allow read, write: if isSignedIn() && request.auth.uid == userId;
     }
-
-    // Marketplace listings are publicly readable but editable only by the seller
-    match /communitySales/{saleId} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn() && request.resource.data.sellerId == request.auth.uid;
-      allow update, delete: if isSignedIn() && resource.data.sellerId == request.auth.uid;
-    }
-
-    // All private farm collections (livestockPurchases, feedExpenses, medicineExpenses, etc.)
-    // These require the data to have an ownerId field matching the user's UID.
-    match /livestockPurchases/{id} { allow read, write: if isOwner(resource.data) || (request.method == 'create' && isOwner(request.resource.data)); }
-    match /medicineExpenses/{id} { allow read, write: if isOwner(resource.data) || (request.method == 'create' && isOwner(request.resource.data)); }
-    match /feedExpenses/{id} { allow read, write: if isOwner(resource.data) || (request.method == 'create' && isOwner(request.resource.data)); }
-    match /laborExpenses/{id} { allow read, write: if isOwner(resource.data) || (request.method == 'create' && isOwner(request.resource.data)); }
-    match /animalSales/{id} { allow read, write: if isOwner(resource.data) || (request.method == 'create' && isOwner(request.resource.data)); }
-    match /deadAnimals/{id} { allow read, write: if isOwner(resource.data) || (request.method == 'create' && isOwner(request.resource.data)); }
-    match /trackedSheep/{id} { allow read, write: if isOwner(resource.data) || (request.method == 'create' && isOwner(request.resource.data)); }
-    match /farmExpenses/{id} { allow read, write: if isOwner(resource.data) || (request.method == 'create' && isOwner(request.resource.data)); }
-    match /healthTasks/{id} { allow read, write: if isOwner(resource.data) || (request.method == 'create' && isOwner(request.resource.data)); }
-
   }
 }
