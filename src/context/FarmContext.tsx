@@ -83,8 +83,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const firestore = useFirestore();
 
   // REAL-TIME COLLABORATIVE LISTENERS
-  // We gate the queries so they only start after the user is authenticated.
-  // We use collectionGroup to subscribe to data entered by ALL shepherds.
+  // We use collectionGroup to subscribe to data entered by ALL shepherds for real-time benchmarking.
   
   const purchasesRef = useMemoFirebase(() => user ? collectionGroup(firestore, 'livestockPurchases') : null, [firestore, user]);
   const { data: purchases, isLoading: isLoadingPurchases } = useCollection<LivestockPurchase>(purchasesRef);

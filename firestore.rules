@@ -3,14 +3,14 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // GLOBAL COLLABORATIVE PERMISSIONS
-    // Allows any authenticated user to read and write data.
-    // This is a community-driven app where shepherds share data for real-time benchmarking.
+    // Allows any authenticated user to read and write data across the entire database.
+    // This supports real-time community benchmarking and shared marketplace features.
     match /{document=**} {
       allow read, write: if request.auth != null;
     }
 
     // Explicitly authorize the 'list' method for all collection groups used in the app.
-    // This ensures that queries like collectionGroup(db, 'livestockPurchases') function correctly.
+    // This is a specific requirement for collectionGroup() queries to function correctly.
     match /{path=**}/livestockPurchases/{id} { allow list: if request.auth != null; }
     match /{path=**}/animalSales/{id} { allow list: if request.auth != null; }
     match /{path=**}/feedExpenses/{id} { allow list: if request.auth != null; }
@@ -20,6 +20,7 @@ service cloud.firestore {
     match /{path=**}/trackedSheep/{id} { allow list: if request.auth != null; }
     match /{path=**}/farmExpenses/{id} { allow list: if request.auth != null; }
     match /{path=**}/healthTasks/{id} { allow list: if request.auth != null; }
+    match /{path=**}/communitySales/{id} { allow list: if request.auth != null; }
     
   }
 }
