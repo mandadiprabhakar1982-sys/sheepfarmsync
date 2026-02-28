@@ -6,16 +6,27 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // --- COLLABORATIVE SHARED MODEL ---
-    // Allow any signed-in user to read and write any document.
-    // This supports the Merged Dashboard view where all shepherds share data.
+    // --- COLLABORATIVE SHARED MODEL (NESTED) ---
+    // This allows all authenticated shepherds to read and write to the shared pool.
+    // It covers both top-level collections and nested subcollections.
     match /{document=**} {
       allow read, write: if isSignedIn();
     }
 
-    // Explicitly allow Marketplace access (redundant but for clarity)
+    // Explicitly allow Marketplace access
     match /communitySales/{saleId} {
       allow read, write: if isSignedIn();
     }
+    
+    // Allow collection group queries for the merged dashboard
+    match /{path=**}/livestockPurchases/{docId} { allow read, write: if isSignedIn(); }
+    match /{path=**}/animalSales/{docId} { allow read, write: if isSignedIn(); }
+    match /{path=**}/feedExpenses/{docId} { allow read, write: if isSignedIn(); }
+    match /{path=**}/medicineExpenses/{docId} { allow read, write: if isSignedIn(); }
+    match /{path=**}/laborExpenses/{docId} { allow read, write: if isSignedIn(); }
+    match /{path=**}/trackedSheep/{docId} { allow read, write: if isSignedIn(); }
+    match /{path=**}/deadAnimals/{docId} { allow read, write: if isSignedIn(); }
+    match /{path=**}/farmExpenses/{docId} { allow read, write: if isSignedIn(); }
+    match /{path=**}/healthTasks/{docId} { allow read, write: if isSignedIn(); }
   }
 }
