@@ -47,13 +47,14 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
           await setDoc(userRef, {
             id: user.uid,
             email: user.email,
-            displayName: user.displayName || 'Farmer',
+            displayName: user.displayName || 'Shepherd',
             role: 'collaborator',
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp(),
           });
         } else {
           const data = snap.data();
+          // Ensure role is ALWAYS set to collaborator if missing or different
           if (!data.role || data.role !== 'collaborator') {
             await updateDoc(userRef, { 
               role: 'collaborator',
@@ -62,10 +63,10 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
           }
         }
       } catch (e) {
-        console.error("Critical: Failed to initialize shepherd role:", e);
+        console.error("Critical: Failed to verify shepherd identity:", e);
       } finally {
-        // We delay finishing initialization slightly to ensure Firestore replication
-        setTimeout(() => setIsInitializingUser(false), 500);
+        // Delay slightly to allow Firestore replication
+        setTimeout(() => setIsInitializingUser(false), 800);
       }
     };
 
@@ -88,7 +89,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
           </div>
           <div className="flex flex-col items-center gap-2">
             <p className="text-[10px] font-black tracking-[0.3em] text-primary uppercase animate-pulse">Syncing Farm Data</p>
-            <p className="text-[8px] font-bold text-muted-foreground/60 uppercase tracking-widest">Establishing Secure Connection...</p>
+            <p className="text-[8px] font-bold text-muted-foreground/60 uppercase tracking-widest">Verifying Shepherd Identity...</p>
           </div>
         </div>
       </div>

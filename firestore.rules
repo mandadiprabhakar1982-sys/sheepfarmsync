@@ -19,12 +19,15 @@ service cloud.firestore {
     }
 
     // --- COLLABORATIVE DATA (Shared for Benchmarking) ---
-    // These drive the "Merged View" financial stats
-    match /{path=**}/livestockPurchases/{id} { allow read, write: if isCollaborator(); }
-    match /{path=**}/animalSales/{id} { allow read, write: if isCollaborator(); }
-    match /{path=**}/feedExpenses/{id} { allow read, write: if isCollaborator(); }
-    match /{path=**}/medicineExpenses/{id} { allow read, write: if isCollaborator(); }
-    match /{path=**}/laborExpenses/{id} { allow read, write: if isCollaborator(); }
+    // These drive the regional averages and anonymized financial stats
+    match /{path=**}/livestockPurchases/{id} { 
+      allow read: if isCollaborator(); 
+      allow write: if isSignedIn() && request.auth.uid == id.split('/')[1] || request.auth.uid == userId;
+    }
+    match /{path=**}/animalSales/{id} { allow read: if isCollaborator(); }
+    match /{path=**}/feedExpenses/{id} { allow read: if isCollaborator(); }
+    match /{path=**}/medicineExpenses/{id} { allow read: if isCollaborator(); }
+    match /{path=**}/laborExpenses/{id} { allow read: if isCollaborator(); }
 
     // --- PRIVATE DATA (Owner Restricted) ---
     // Individual animal tracking, specific health tasks, and misc expenses
@@ -32,6 +35,13 @@ service cloud.firestore {
     match /users/{userId}/trackedSheep/{id} { allow read, write: if isSignedIn() && request.auth.uid == userId; }
     match /users/{userId}/farmExpenses/{id} { allow read, write: if isSignedIn() && request.auth.uid == userId; }
     match /users/{userId}/healthTasks/{id} { allow read, write: if isSignedIn() && request.auth.uid == userId; }
+    
+    // Explicit ownership for financial records to allow personal dashboard updates
+    match /users/{userId}/livestockPurchases/{id} { allow read, write: if isSignedIn() && request.auth.uid == userId; }
+    match /users/{userId}/animalSales/{id} { allow read, write: if isSignedIn() && request.auth.uid == userId; }
+    match /users/{userId}/feedExpenses/{id} { allow read, write: if isSignedIn() && request.auth.uid == userId; }
+    match /users/{userId}/medicineExpenses/{id} { allow read, write: if isSignedIn() && request.auth.uid == userId; }
+    match /users/{userId}/laborExpenses/{id} { allow read, write: if isSignedIn() && request.auth.uid == userId; }
 
     // --- COMMUNITY MARKETPLACE ---
     match /communitySales/{saleId} {
