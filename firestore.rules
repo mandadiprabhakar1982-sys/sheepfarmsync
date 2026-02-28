@@ -2,27 +2,29 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // GLOBAL COLLABORATIVE PERMISSIONS
-    // Allows any authenticated user to read and write data across the entire database.
-    // This supports real-time community benchmarking and shared farm management.
-    match /{document=**} {
-      allow read, write: if request.auth != null;
+    function isSignedIn() {
+      return request.auth != null;
     }
 
-    // COLLECTION GROUP AUTHORIZATION
-    // Explicitly authorize the 'list' method for all collection groups.
-    // This is a mandatory requirement for collectionGroup() queries to function correctly at the root.
-    // This allows the app to aggregate data from all users into the shared dashboard.
-    match /{path=**}/livestockPurchases/{id} { allow list: if request.auth != null; }
-    match /{path=**}/animalSales/{id} { allow list: if request.auth != null; }
-    match /{path=**}/feedExpenses/{id} { allow list: if request.auth != null; }
-    match /{path=**}/medicineExpenses/{id} { allow list: if request.auth != null; }
-    match /{path=**}/laborExpenses/{id} { allow list: if request.auth != null; }
-    match /{path=**}/deadAnimals/{id} { allow list: if request.auth != null; }
-    match /{path=**}/trackedSheep/{id} { allow list: if request.auth != null; }
-    match /{path=**}/farmExpenses/{id} { allow list: if request.auth != null; }
-    match /{path=**}/healthTasks/{id} { allow list: if request.auth != null; }
-    match /{path=**}/communitySales/{id} { allow list: if request.auth != null; }
+    // --- COMMUNITY MARKETPLACE ---
+    // Public listings shared by shepherds
+    match /communitySales/{saleId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.sellerId == request.auth.uid;
+      allow update, delete: if isSignedIn() && resource.data.sellerId == request.auth.uid;
+    }
+
+    // --- PRIVATE USER DATA ---
+    // Securely scoped to individual shepherds
+    match /users/{userId}/{collectionName}/{docId} {
+      allow create: if isSignedIn() && userId == request.auth.uid && request.resource.data.ownerId == request.auth.uid;
+      allow read, update, delete: if isSignedIn() && userId == request.auth.uid && resource.data.ownerId == request.auth.uid;
+    }
     
+    // Legacy support for top-level catch-all if needed (matching user's provided snippet)
+    match /{collectionName}/{docId} {
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow read, update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+    }
   }
 }

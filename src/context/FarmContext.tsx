@@ -3,7 +3,7 @@
 import { createContext, useContext, ReactNode, useMemo, useCallback } from 'react';
 import type { LivestockPurchase, AnimalSale, FeedCost, MedicineExpense, LaborCost, TrackedSheep, DeadAnimal, FarmExpense, HealthTask, PublicSale } from '@/lib/types';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, collectionGroup, doc, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, serverTimestamp, query } from 'firebase/firestore';
 import { setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 interface FarmContextType {
@@ -82,41 +82,40 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
   const firestore = useFirestore();
 
-  // REAL-TIME MERGED LISTENERS
-  // We use collectionGroup to subscribe to data entered by ALL shepherds for real-time community-wide management.
+  // SCOPED PRIVATE LISTENERS
+  // We use direct collection references under the user's path to ensure strict privacy and resolve root listing errors.
   
-  const purchasesRef = useMemoFirebase(() => user ? collectionGroup(firestore, 'livestockPurchases') : null, [firestore, user]);
+  const purchasesRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'livestockPurchases') : null, [firestore, user]);
   const { data: purchases, isLoading: isLoadingPurchases } = useCollection<LivestockPurchase>(purchasesRef);
 
-  const salesRef = useMemoFirebase(() => user ? collectionGroup(firestore, 'animalSales') : null, [firestore, user]);
+  const salesRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'animalSales') : null, [firestore, user]);
   const { data: sales, isLoading: isLoadingSales } = useCollection<AnimalSale>(salesRef);
   
-  const feedCostsRef = useMemoFirebase(() => user ? collectionGroup(firestore, 'feedExpenses') : null, [firestore, user]);
+  const feedCostsRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'feedExpenses') : null, [firestore, user]);
   const { data: feedCosts, isLoading: isLoadingFeedCosts } = useCollection<FeedCost>(feedCostsRef);
 
-  const medicineExpensesRef = useMemoFirebase(() => user ? collectionGroup(firestore, 'medicineExpenses') : null, [firestore, user]);
+  const medicineExpensesRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'medicineExpenses') : null, [firestore, user]);
   const { data: medicineExpenses, isLoading: isLoadingMedicine } = useCollection<MedicineExpense>(medicineExpensesRef);
 
-  const laborCostsRef = useMemoFirebase(() => user ? collectionGroup(firestore, 'laborExpenses') : null, [firestore, user]);
+  const laborCostsRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'laborExpenses') : null, [firestore, user]);
   const { data: laborCosts, isLoading: isLoadingLabor } = useCollection<LaborCost>(laborCostsRef);
   
-  const deadAnimalsRef = useMemoFirebase(() => user ? collectionGroup(firestore, 'deadAnimals') : null, [firestore, user]);
+  const deadAnimalsRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'deadAnimals') : null, [firestore, user]);
   const { data: deadAnimals, isLoading: isLoadingDeadAnimals } = useCollection<DeadAnimal>(deadAnimalsRef);
 
-  const trackedSheepRef = useMemoFirebase(() => user ? collectionGroup(firestore, 'trackedSheep') : null, [firestore, user]);
+  const trackedSheepRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'trackedSheep') : null, [firestore, user]);
   const { data: trackedSheep, isLoading: isLoadingTrackedSheep } = useCollection<TrackedSheep>(trackedSheepRef);
 
-  const farmExpensesRef = useMemoFirebase(() => user ? collectionGroup(firestore, 'farmExpenses') : null, [firestore, user]);
+  const farmExpensesRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'farmExpenses') : null, [firestore, user]);
   const { data: farmExpenses, isLoading: isLoadingFarmExpenses } = useCollection<FarmExpense>(farmExpensesRef);
   
-  const healthTasksRef = useMemoFirebase(() => user ? collectionGroup(firestore, 'healthTasks') : null, [firestore, user]);
+  const healthTasksRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'healthTasks') : null, [firestore, user]);
   const { data: healthTasks, isLoading: isLoadingHealthTasks } = useCollection<HealthTask>(healthTasksRef);
 
+  // Marketplace remains shared
   const marketplaceRef = useMemoFirebase(() => user ? collection(firestore, 'communitySales') : null, [firestore, user]);
   const { data: communitySales, isLoading: isLoadingMarketplace } = useCollection<PublicSale>(marketplaceRef);
 
-  // UPSERT: Data is still stored under the user's ID path to maintain record attribution, 
-  // but listeners pull from everywhere.
   const upsert = useCallback((colName: string, id: string | undefined, data: any) => {
     if (!user) return;
     const finalId = id || generateId();
@@ -124,7 +123,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     setDocumentNonBlocking(docRef, { 
       ...data, 
       id: finalId,
-      ownerUid: user.uid,
+      ownerId: user.uid, // Using ownerId as per rule requirement
       ownerEmail: user.email,
       updatedAt: serverTimestamp() 
     }, { merge: true });
@@ -212,10 +211,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     return purchased - sold - totalDead;
   }, [purchases, sales, totalDead]);
 
-  const totalFeedCost = useMemo(() => {
-    const communityFeed = (feedCosts || []).reduce((sum, f) => sum + f.cost, 0);
-    return communityFeed;
-  }, [feedCosts]);
+  const totalFeedCost = useMemo(() => (feedCosts || []).reduce((sum, f) => sum + f.cost, 0), [feedCosts]);
 
   const totalLaborCost = useMemo(() => (laborCosts || []).reduce((sum, l) => sum + l.totalLaborCosts, 0), [laborCosts]);
   
