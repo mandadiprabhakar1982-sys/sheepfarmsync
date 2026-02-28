@@ -6,9 +6,9 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // --- COLLABORATIVE SHARED MODEL (NESTED) ---
+    // --- COLLABORATIVE SHARED MODEL ---
     // This allows all authenticated shepherds to read and write to the shared pool.
-    // It covers both top-level collections and nested subcollections.
+    // It covers both top-level collections and nested subcollections (Collection Groups).
     match /{document=**} {
       allow read, write: if isSignedIn();
     }

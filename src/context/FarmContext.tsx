@@ -83,7 +83,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const firestore = useFirestore();
 
   // --- MERGED DATA QUERIES (Collection Groups) ---
-  // Using collectionGroup to aggregate data from all users' subcollections for the Merged Dashboard.
+  // Using collectionGroup to aggregate data from all shepherds, regardless of where it's stored.
   
   const purchasesRef = useMemoFirebase(() => query(collectionGroup(firestore, 'livestockPurchases')), [firestore]);
   const { data: purchases, isLoading: isLoadingPurchases } = useCollection<LivestockPurchase>(purchasesRef);
@@ -116,10 +116,11 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const { data: communitySales, isLoading: isLoadingMarketplace } = useCollection<PublicSale>(marketplaceRef);
 
   // --- CRUD HELPERS ---
+  // We maintain a nested structure for writes to keep data organized by shepherd, 
+  // but we read globally via collectionGroup above.
   const upsert = useCallback((subColName: string, id: string | undefined, data: any) => {
     if (!user) return;
     const finalId = id || generateId();
-    // Maintain nested subcollection structure: users/{userId}/{subColName}/{id}
     const docRef = doc(firestore, 'users', user.uid, subColName, finalId);
     setDocumentNonBlocking(docRef, { 
       ...data, 
@@ -132,7 +133,6 @@ export function FarmProvider({ children }: { children: ReactNode }) {
 
   const remove = useCallback((subColName: string, id: string) => {
     if (!user) return;
-    // Note: In merged mode, shepherds manage their own documents within their path.
     deleteDocumentNonBlocking(doc(firestore, 'users', user.uid, subColName, id));
   }, [user, firestore]);
 
@@ -192,7 +192,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
 
   const isLoading = isLoadingPurchases || isLoadingSales || isLoadingFeedCosts || isLoadingMedicine || isLoadingHealthTasks || isLoadingLabor || isLoadingDeadAnimals || isLoadingTrackedSheep || isLoadingFarmExpenses || isLoadingMarketplace;
 
-  // --- STATS CALCULATION ---
+  // --- STATS CALCULATION (GLOBAL AGGREGATION) ---
   const totalDeadCount = useMemo(() => (deadAnimals || []).reduce((sum, a) => sum + (a.sheepCount || 0), 0), [deadAnimals]);
   const totalTrackedCount = useMemo(() => (trackedSheep || []).length, [trackedSheep]);
   const totalSheepCount = useMemo(() => {
