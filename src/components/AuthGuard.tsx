@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useUser, useFirestore } from '@/firebase';
@@ -65,12 +64,18 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     }
   }, [isUserLoading, user, pathname, router, firestore, mounted]);
 
-  // Handle hydration: Render a consistent loading state on server and first client pass
+  // To prevent hydration errors, we render a completely static, empty state until mounted.
+  // This ensures the server HTML and initial client HTML match perfectly.
+  if (!mounted) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-background" />
+    );
+  }
+
+  // Once mounted, we can safely perform conditional rendering based on auth state.
   const isAuthChecking = isUserLoading || (user && publicPaths.includes(pathname)) || (!user && !publicPaths.includes(pathname));
   
-  // During hydration, we show the loading screen if we're not mounted yet or if we're checking auth.
-  // This ensures the server and client initial HTML match perfectly.
-  if (!mounted || isAuthChecking) {
+  if (isAuthChecking) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
