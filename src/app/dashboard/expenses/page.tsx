@@ -98,7 +98,7 @@ export default function ExpensesPage() {
   const onEditSubmit: SubmitHandler<ExpenseFormData> = (data) => {
     if (!editingExpense) return;
     const updatedData = { ...data, expenseDate: format(data.expenseDate, 'yyyy-MM-dd') };
-    updateFarmExpense(editingExpense.id, updatedData);
+    updateFarmExpense(editingExpense.id, updatedData, editingExpense._path);
     setIsEditDialogOpen(false);
     setEditingExpense(null);
     toast({
@@ -107,8 +107,8 @@ export default function ExpensesPage() {
     });
   };
   
-  const handleDeleteExpense = (id: string) => {
-    deleteFarmExpense(id);
+  const handleDeleteExpense = (id: string, path?: string) => {
+    deleteFarmExpense(id, path);
      toast({
       title: 'Deleted',
       description: 'Expense record has been deleted.',
@@ -241,7 +241,7 @@ export default function ExpensesPage() {
                               <Button variant="ghost" size="icon" onClick={() => handleEditClick(e)}>
                                   <Pencil className="h-4 w-4" />
                               </Button>
-                              <Button variant="ghost" size="icon" onClick={() => handleDeleteExpense(e.id)}>
+                              <Button variant="ghost" size="icon" onClick={() => handleDeleteExpense(e.id, e._path)}>
                                   <Trash2 className="h-4 w-4 text-destructive" />
                               </Button>
                             </div>

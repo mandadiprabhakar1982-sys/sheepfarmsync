@@ -123,7 +123,7 @@ export default function PurchasePage() {
       purchaseDate: format(data.purchaseDate, 'yyyy-MM-dd'),
     };
 
-    updatePurchase(editingPurchase.id, updatedData);
+    updatePurchase(editingPurchase.id, updatedData, editingPurchase._path);
     
     setIsEditDialogOpen(false);
     setEditingPurchase(null);
@@ -133,8 +133,8 @@ export default function PurchasePage() {
     });
   };
 
-  const handleDeletePurchase = (id: string) => {
-    deletePurchase(id);
+  const handleDeletePurchase = (id: string, path?: string) => {
+    deletePurchase(id, path);
     toast({
       title: 'Deleted',
       description: 'Purchase record has been deleted.',
@@ -329,7 +329,7 @@ export default function PurchasePage() {
                               <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => handleEditClick(purchase)}>
                                 <Pencil className="h-3.5 w-3.5" />
                               </Button>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-destructive hover:bg-destructive/10" onClick={() => handleDeletePurchase(purchase.id)}>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-destructive hover:bg-destructive/10" onClick={() => handleDeletePurchase(purchase.id, purchase._path)}>
                                 <Trash2 className="h-3.5 w-3.5" />
                               </Button>
                             </div>

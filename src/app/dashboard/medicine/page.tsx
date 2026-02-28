@@ -136,7 +136,7 @@ export default function MedicinePage() {
       ...data,
       lastAdministered: format(data.lastAdministered, 'yyyy-MM-dd'),
       nextDueDate: format(nextDueDate, 'yyyy-MM-dd'),
-    });
+    }, editingHealthTask._path);
     setIsTaskEditDialogOpen(false);
     toast({ title: 'Updated!', description: 'Task record updated.' });
   };
@@ -288,7 +288,7 @@ export default function MedicinePage() {
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-1">
                               <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => {setEditingHealthTask(task); setIsTaskEditDialogOpen(true)}}><Pencil className="h-4 w-4" /></Button>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => deleteHealthTask(task.id)}><Trash2 className="h-4 w-4" /></Button>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => deleteHealthTask(task.id, task._path)}><Trash2 className="h-4 w-4" /></Button>
                             </div>
                           </TableCell>
                         </TableRow>
@@ -316,7 +316,7 @@ export default function MedicinePage() {
                         <TableCell className="max-w-[120px] truncate">{exp.shopName || exp.description}</TableCell>
                         <TableCell>₹{exp.totalAmountSpent.toLocaleString()}</TableCell>
                         <TableCell className="text-right">
-                          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => deleteMedicineExpense(exp.id)}><Trash2 className="h-3 w-3 text-destructive" /></Button>
+                          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => deleteMedicineExpense(exp.id, exp._path)}><Trash2 className="h-3 w-3 text-destructive" /></Button>
                         </TableCell>
                       </TableRow>
                     ))}

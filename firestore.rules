@@ -2,40 +2,50 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper functions
+    // --- HELPER FUNCTIONS ---
     function isSignedIn() {
       return request.auth != null;
     }
 
-    // Role-based helper: Checks if the user is a verified collaborator or admin
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Checks the /users/{uid} document for the 'collaborator' role
     function isCollaborator() {
-      let userPath = /databases/$(database)/documents/users/$(request.auth.uid);
       return isSignedIn() && 
-             exists(userPath) && 
-             (get(userPath).data.role == 'collaborator' || get(userPath).data.role == 'admin');
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'collaborator';
     }
-
-    // --- USER PROFILES ---
-    match /users/{userId} {
-      allow read, write: if isSignedIn() && request.auth.uid == userId;
-    }
-
-    // --- CONSOLIDATED COLLABORATIVE PERMISSIONS ---
-    // Grants full CRUD power to collaborators across all community logs
-    match /{path=**}/livestockPurchases/{id} { allow read, write: if isCollaborator(); }
-    match /{path=**}/medicineExpenses/{id}  { allow read, write: if isCollaborator(); }
-    match /{path=**}/feedExpenses/{id}      { allow read, write: if isCollaborator(); }
-    match /{path=**}/laborExpenses/{id}     { allow read, write: if isCollaborator(); }
-    match /{path=**}/animalSales/{id}       { allow read, write: if isCollaborator(); }
-    match /{path=**}/deadAnimals/{id}       { allow read, write: if isCollaborator(); }
-    match /{path=**}/trackedSheep/{id}      { allow read, write: if isCollaborator(); }
-    match /{path=**}/farmExpenses/{id}      { allow read, write: if isCollaborator(); }
-    match /{path=**}/healthTasks/{id}       { allow read, write: if isCollaborator(); }
 
     // --- COMMUNITY MARKETPLACE ---
     match /communitySales/{saleId} {
       allow read: if isSignedIn();
-      allow write: if isCollaborator() || (isSignedIn() && (request.resource.data.sellerId == request.auth.uid || resource.data.sellerId == request.auth.uid));
+      allow create: if isSignedIn();
+      allow update, delete: if isSignedIn() && (request.auth.uid == resource.data.sellerId || isCollaborator());
     }
+
+    // --- PRIVATE USER DATA (Direct Path for Shepherds) ---
+    match /users/{userId} {
+      allow get, create, update, delete: if isOwner(userId);
+
+      // Matches all subcollections for the shepherd who owns them
+      match /{allSubcollections=**} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+
+    // --- ADMIN/COLLABORATOR ACCESS (The Merged View) ---
+    // This unlocks READ, EDIT (update), and DELETE for the Admin Dashboard
+    // across EVERY user's subcollections.
+    
+    match /{path=**}/livestockPurchases/{id} { allow read, update, delete: if isCollaborator(); }
+    match /{path=**}/medicineExpenses/{id}  { allow read, update, delete: if isCollaborator(); }
+    match /{path=**}/feedExpenses/{id}      { allow read, update, delete: if isCollaborator(); }
+    match /{path=**}/laborExpenses/{id}     { allow read, update, delete: if isCollaborator(); }
+    match /{path=**}/animalSales/{id}       { allow read, update, delete: if isCollaborator(); }
+    match /{path=**}/deadAnimals/{id}       { allow read, update, delete: if isCollaborator(); }
+    match /{path=**}/trackedSheep/{id}      { allow read, update, delete: if isCollaborator(); }
+    match /{path=**}/farmExpenses/{id}      { allow read, update, delete: if isCollaborator(); }
+    match /{path=**}/healthTasks/{id}       { allow read, update, delete: if isCollaborator(); }
   }
 }

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
@@ -127,7 +126,7 @@ export default function SalesPage() {
   const onEditSubmit: SubmitHandler<SalesFormData> = (data) => {
     if (!editingSale) return;
     const updatedData = { ...data, saleDate: format(data.saleDate, 'yyyy-MM-dd') };
-    updateSale(editingSale.id, updatedData);
+    updateSale(editingSale.id, updatedData, editingSale._path);
     setIsEditDialogOpen(false);
     setEditingSale(null);
     toast({
@@ -304,7 +303,7 @@ export default function SalesPage() {
                               <Button variant="ghost" size="icon" onClick={() => {setEditingSale(t); setIsEditDialogOpen(true)}}>
                                   <Pencil className="h-4 w-4" />
                               </Button>
-                              <Button variant="ghost" size="icon" onClick={() => deleteSale(t.id)}>
+                              <Button variant="ghost" size="icon" onClick={() => deleteSale(t.id, t._path)}>
                                   <Trash2 className="h-4 w-4 text-destructive" />
                               </Button>
                             </div>

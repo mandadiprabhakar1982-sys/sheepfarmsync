@@ -103,7 +103,7 @@ export default function MortalityPage() {
   const onEditSubmit: SubmitHandler<MortalityFormData> = (data) => {
     if (!editingDeadAnimal) return;
     const updatedData = { ...data, dateOfDeath: format(data.dateOfDeath, 'yyyy-MM-dd') };
-    updateDeadAnimal(editingDeadAnimal.id, updatedData);
+    updateDeadAnimal(editingDeadAnimal.id, updatedData, editingDeadAnimal._path);
     setIsEditDialogOpen(false);
     setEditingDeadAnimal(null);
     toast({
@@ -112,8 +112,8 @@ export default function MortalityPage() {
     });
   };
 
-  const handleDeleteRecord = (id: string) => {
-    deleteDeadAnimal(id);
+  const handleDeleteRecord = (id: string, path?: string) => {
+    deleteDeadAnimal(id, path);
      toast({
       title: 'Deleted',
       description: 'Record has been deleted.',
@@ -276,7 +276,7 @@ export default function MortalityPage() {
                               <Button variant="ghost" size="icon" onClick={() => handleEditClick(animal)}>
                                   <Pencil className="h-4 w-4" />
                               </Button>
-                              <Button variant="ghost" size="icon" onClick={() => handleDeleteRecord(animal.id)}>
+                              <Button variant="ghost" size="icon" onClick={() => handleDeleteRecord(animal.id, animal._path)}>
                                   <Trash2 className="h-4 w-4 text-destructive" />
                               </Button>
                             </div>

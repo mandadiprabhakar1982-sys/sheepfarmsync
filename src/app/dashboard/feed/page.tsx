@@ -64,8 +64,9 @@ type FeedFormData = z.infer<typeof formSchema>;
 export default function FeedPage() {
   const { toast } = useToast();
   const { feedCosts, addFeedCost, deleteFeedCost, updateFeedCost } = useFarm();
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isEditDialogOpen] = useState(false);
   const [editingFeedCost, setEditingFeedCost] = useState<FeedCost | null>(null);
+  const [isEditOpen, setIsEditOpen] = useState(false);
   
   const form = useForm<FeedFormData>({
     resolver: zodResolver(formSchema),
@@ -106,8 +107,8 @@ export default function FeedPage() {
   const onEditSubmit: SubmitHandler<FeedFormData> = (data) => {
     if (!editingFeedCost) return;
     const updatedData = { ...data, date: format(data.date, 'yyyy-MM-dd') };
-    updateFeedCost(editingFeedCost.id, updatedData);
-    setIsEditDialogOpen(false);
+    updateFeedCost(editingFeedCost.id, updatedData, editingFeedCost._path);
+    setIsEditOpen(false);
     setEditingFeedCost(null);
     toast({
       title: 'Updated!',
@@ -115,8 +116,8 @@ export default function FeedPage() {
     });
   };
   
-  const handleDeleteCost = (id: string) => {
-    deleteFeedCost(id);
+  const handleDeleteCost = (id: string, path?: string) => {
+    deleteFeedCost(id, path);
      toast({
       title: 'Deleted',
       description: 'Cost record has been deleted.',
@@ -126,7 +127,7 @@ export default function FeedPage() {
 
   const handleEditClick = (cost: FeedCost) => {
     setEditingFeedCost(cost);
-    setIsEditDialogOpen(true);
+    setIsEditOpen(true);
   };
 
 
@@ -275,7 +276,7 @@ export default function FeedPage() {
                               <Button variant="ghost" size="icon" onClick={() => handleEditClick(c)}>
                                   <Pencil className="h-4 w-4" />
                               </Button>
-                              <Button variant="ghost" size="icon" onClick={() => handleDeleteCost(c.id)}>
+                              <Button variant="ghost" size="icon" onClick={() => handleDeleteCost(c.id, c._path)}>
                                   <Trash2 className="h-4 w-4 text-destructive" />
                               </Button>
                             </div>
@@ -295,7 +296,7 @@ export default function FeedPage() {
           </Card>
         </div>
       </div>
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Edit Feed Cost Record</DialogTitle>

@@ -138,7 +138,7 @@ export default function LaborPage() {
   const onEditSubmit: SubmitHandler<LaborFormData> = (data) => {
     if (!editingLaborCost) return;
     const updatedData = { ...data, date: format(data.date, 'yyyy-MM-dd') };
-    updateLaborCost(editingLaborCost.id, updatedData);
+    updateLaborCost(editingLaborCost.id, updatedData, editingLaborCost._path);
     setIsEditDialogOpen(false);
     setEditingLaborCost(null);
     toast({
@@ -147,8 +147,8 @@ export default function LaborPage() {
     });
   };
   
-   const handleDeleteCost = (id: string) => {
-    deleteLaborCost(id);
+   const handleDeleteCost = (id: string, path?: string) => {
+    deleteLaborCost(id, path);
      toast({
       title: 'Deleted',
       description: 'Cost record has been deleted.',
@@ -306,7 +306,7 @@ export default function LaborPage() {
                               <Button variant="ghost" size="icon" onClick={() => handleEditClick(c)}>
                                 <Pencil className="h-4 w-4" />
                               </Button>
-                              <Button variant="ghost" size="icon" onClick={() => handleDeleteCost(c.id)}>
+                              <Button variant="ghost" size="icon" onClick={() => handleDeleteCost(c.id, c._path)}>
                                 <Trash2 className="h-4 w-4 text-destructive" />
                               </Button>
                             </div>

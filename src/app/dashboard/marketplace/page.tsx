@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -13,9 +12,8 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Globe, MapPin, Scale, MessageSquare, Loader2, Trash2, User, Info, CheckCircle2, Pencil, Save } from 'lucide-react';
+import { Globe, MapPin, Scale, MessageSquare, Loader2, Trash2, User, CheckCircle2, Pencil, Save } from 'lucide-react';
 import { useUser } from '@/firebase';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
@@ -31,7 +29,7 @@ const editSaleSchema = z.object({
 type EditSaleFormData = z.infer<typeof editSaleSchema>;
 
 export default function MarketplacePage() {
-  const { communitySales, deleteMarketplaceSale, updateMarketplaceSale, isLoading } = useFarm();
+  const { communitySales, deleteMarketplaceSale, updateMarketplaceSale, isLoading, userRole } = useFarm();
   const { user } = useUser();
   const { toast } = useToast();
 
@@ -43,7 +41,6 @@ export default function MarketplacePage() {
   });
 
   const mySales = communitySales?.filter(s => s.sellerId === user?.uid) || [];
-  const othersSales = communitySales?.filter(s => s.sellerId !== user?.uid) || [];
 
   const handleEditClick = (sale: PublicSale) => {
     setEditingSale(sale);
@@ -58,7 +55,7 @@ export default function MarketplacePage() {
 
   const onEditSubmit: SubmitHandler<EditSaleFormData> = (data) => {
     if (!editingSale) return;
-    updateMarketplaceSale(editingSale.id, data);
+    updateMarketplaceSale(editingSale.id, data, editingSale._path);
     setIsEditDialogOpen(false);
     toast({ title: 'Success!', description: 'Marketplace listing updated.' });
   };
@@ -71,88 +68,93 @@ export default function MarketplacePage() {
     );
   }
 
-  const SaleCard = ({ sale, isOwner }: { sale: any, isOwner: boolean }) => (
-    <Card key={sale.id} className={`overflow-hidden border-none shadow-xl hover:shadow-2xl transition-all duration-300 group rounded-[2rem] bg-white ${isOwner ? 'ring-2 ring-primary/20' : ''}`}>
-      <CardHeader className="bg-neutral-50 pb-6 border-b border-neutral-100">
-        <div className="flex justify-between items-start">
-          <div>
-            <div className="flex items-center gap-2">
-              <CardTitle className="text-lg font-black tracking-tight">Sheep Listing</CardTitle>
-              {isOwner && <Badge className="bg-primary text-white text-[8px] uppercase font-black">Your Listing</Badge>}
+  const SaleCard = ({ sale, isOwner }: { sale: any, isOwner: boolean }) => {
+    const isCollaborator = userRole === 'collaborator';
+    const canManage = isOwner || isCollaborator;
+
+    return (
+      <Card key={sale.id} className={`overflow-hidden border-none shadow-xl hover:shadow-2xl transition-all duration-300 group rounded-[2rem] bg-white ${isOwner ? 'ring-2 ring-primary/20' : ''}`}>
+        <CardHeader className="bg-neutral-50 pb-6 border-b border-neutral-100">
+          <div className="flex justify-between items-start">
+            <div>
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-lg font-black tracking-tight">Sheep Listing</CardTitle>
+                {isOwner && <Badge className="bg-primary text-white text-[8px] uppercase font-black">Your Listing</Badge>}
+              </div>
+              <CardDescription className="text-[10px] font-bold uppercase tracking-widest opacity-60">Posted {sale.saleDate}</CardDescription>
             </div>
-            <CardDescription className="text-[10px] font-bold uppercase tracking-widest opacity-60">Posted {sale.saleDate}</CardDescription>
+            <Badge variant="secondary" className="bg-primary/10 text-primary border-none rounded-lg px-3 py-1 font-bold">
+              {sale.animalCount} Head
+            </Badge>
           </div>
-          <Badge variant="secondary" className="bg-primary/10 text-primary border-none rounded-lg px-3 py-1 font-bold">
-            {sale.animalCount} Head
-          </Badge>
-        </div>
-      </CardHeader>
-      <CardContent className="pt-8 space-y-6">
-        <div className="flex items-center gap-3">
-           <div className={`rounded-2xl p-3 shadow-inner transition-colors ${isOwner ? 'bg-primary text-white' : 'bg-primary/5 text-primary group-hover:bg-primary group-hover:text-white'}`}>
-             <User className="h-5 w-5" />
-           </div>
-           <div className="min-w-0">
-             <p className="text-sm font-black leading-none truncate">{isOwner ? 'You (Verified)' : (sale.sellerName || 'Verified Farmer')}</p>
-             <p className="text-[10px] text-muted-foreground mt-1 font-bold truncate opacity-60">{isOwner ? user?.email : 'Identity Hidden'}</p>
-           </div>
-        </div>
+        </CardHeader>
+        <CardContent className="pt-8 space-y-6">
+          <div className="flex items-center gap-3">
+             <div className={`rounded-2xl p-3 shadow-inner transition-colors ${isOwner ? 'bg-primary text-white' : 'bg-primary/5 text-primary group-hover:bg-primary group-hover:text-white'}`}>
+               <User className="h-5 w-5" />
+             </div>
+             <div className="min-w-0">
+               <p className="text-sm font-black leading-none truncate">{isOwner ? 'You (Verified)' : (sale.sellerName || 'Verified Farmer')}</p>
+               <p className="text-[10px] text-muted-foreground mt-1 font-bold truncate opacity-60">{isOwner ? user?.email : 'Identity Hidden'}</p>
+             </div>
+          </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div className="flex items-center gap-2 p-3 rounded-xl bg-neutral-50/50">
-            <MapPin className="h-4 w-4 text-primary shrink-0" />
-            <span className="text-xs font-bold text-muted-foreground truncate">{sale.village}</span>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex items-center gap-2 p-3 rounded-xl bg-neutral-50/50">
+              <MapPin className="h-4 w-4 text-primary shrink-0" />
+              <span className="text-xs font-bold text-muted-foreground truncate">{sale.village}</span>
+            </div>
+            <div className="flex items-center gap-2 p-3 rounded-xl bg-neutral-50/50">
+              <Scale className="h-4 w-4 text-primary shrink-0" />
+              <span className="text-xs font-bold text-muted-foreground truncate">{sale.totalWeight}kg Wt.</span>
+            </div>
           </div>
-          <div className="flex items-center gap-2 p-3 rounded-xl bg-neutral-50/50">
-            <Scale className="h-4 w-4 text-primary shrink-0" />
-            <span className="text-xs font-bold text-muted-foreground truncate">{sale.totalWeight}kg Wt.</span>
-          </div>
-        </div>
 
-        <div className="pt-2">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-40 mb-1">Asking Price</p>
-          <div className="text-3xl font-black tracking-tighter text-foreground">
-            ₹{sale.askingPrice.toLocaleString()}
+          <div className="pt-2">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-40 mb-1">Asking Price</p>
+            <div className="text-3xl font-black tracking-tighter text-foreground">
+              ₹{sale.askingPrice.toLocaleString()}
+            </div>
           </div>
-        </div>
 
-        {sale.notes && (
-          <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-100 italic">
-            <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
-              "{sale.notes}"
-            </p>
-          </div>
-        )}
-      </CardContent>
-      <CardFooter className="bg-neutral-50/50 p-6 flex gap-3">
-        {!isOwner ? (
-          <Button className="flex-1 gap-2 rounded-xl font-bold h-11 shadow-sm" variant="default">
-            <MessageSquare className="h-4 w-4" />
-            Contact Seller
-          </Button>
-        ) : (
-          <div className="flex w-full gap-2">
-            <Button 
-              variant="outline" 
-              className="flex-1 gap-2 rounded-xl font-bold h-11 border-primary/20 hover:bg-primary/5"
-              onClick={() => handleEditClick(sale)}
-            >
-              <Pencil className="h-4 w-4" />
-              Edit
+          {sale.notes && (
+            <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-100 italic">
+              <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
+                "{sale.notes}"
+              </p>
+            </div>
+          )}
+        </CardContent>
+        <CardFooter className="bg-neutral-50/50 p-6 flex gap-3">
+          {!canManage ? (
+            <Button className="flex-1 gap-2 rounded-xl font-bold h-11 shadow-sm" variant="default">
+              <MessageSquare className="h-4 w-4" />
+              Contact Seller
             </Button>
-            <Button 
-              variant="outline" 
-              className="flex-1 gap-2 rounded-xl font-bold h-11 text-destructive hover:bg-destructive/10"
-              onClick={() => deleteMarketplaceSale(sale.id)}
-            >
-              <Trash2 className="h-4 w-4" />
-              Remove
-            </Button>
-          </div>
-        )}
-      </CardFooter>
-    </Card>
-  );
+          ) : (
+            <div className="flex w-full gap-2">
+              <Button 
+                variant="outline" 
+                className="flex-1 gap-2 rounded-xl font-bold h-11 border-primary/20 hover:bg-primary/5"
+                onClick={() => handleEditClick(sale)}
+              >
+                <Pencil className="h-4 w-4" />
+                Edit
+              </Button>
+              <Button 
+                variant="outline" 
+                className="flex-1 gap-2 rounded-xl font-bold h-11 text-destructive hover:bg-destructive/10"
+                onClick={() => deleteMarketplaceSale(sale.id, sale._path)}
+              >
+                <Trash2 className="h-4 w-4" />
+                Remove
+              </Button>
+            </div>
+          )}
+        </CardFooter>
+      </Card>
+    );
+  };
 
   return (
     <div className="container mx-auto py-8 px-4">
