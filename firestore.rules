@@ -6,15 +6,11 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // --- COLLABORATIVE SHARED MODEL ---
-    // All authenticated shepherds share a global pool of operational data.
-    // We use top-level collections for maximum reliability and performance.
-    match /{collectionName}/{document} {
-      allow read, write: if isSignedIn();
-    }
-    
-    // Explicitly allow Community Marketplace access
-    match /communitySales/{saleId} {
+    // --- MERGED COLLABORATIVE MODEL ---
+    // Allows all authenticated shepherds to view and contribute to the shared farm records.
+    // The recursive wildcard {document=**} ensures that both top-level and nested 
+    // subcollections (like users/{id}/trackedSheep) are accessible.
+    match /{document=**} {
       allow read, write: if isSignedIn();
     }
   }
