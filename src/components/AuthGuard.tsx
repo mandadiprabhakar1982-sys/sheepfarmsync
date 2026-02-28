@@ -1,77 +1,68 @@
 'use client';
 
-import { useUser, useFirestore } from '@/firebase';
+import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { doc, getDoc, setDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { doc, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
+import type { UserProfile } from '@/lib/types';
 
 const publicPaths = ['/login'];
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
-  const [isInitializingUser, setIsInitializingUser] = useState(false);
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
   const pathname = usePathname();
   const router = useRouter();
 
+  // Watch the user profile in real-time to detect role changes instantly
+  const profileRef = useMemoFirebase(() => (firestore && user) ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
+  const { data: profile, isLoading: isProfileLoading } = useDoc<UserProfile>(profileRef);
+
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  // Ensure user document exists and has the correct role
   useEffect(() => {
-    if (!mounted || isUserLoading || !firestore || !user) return;
+    if (!mounted || isUserLoading || isProfileLoading || !firestore || !user) return;
 
-    if (publicPaths.includes(pathname)) {
-      router.push('/dashboard');
-      return;
-    }
-
-    const initUser = async () => {
+    const syncProfile = async () => {
       const userRef = doc(firestore, 'users', user.uid);
-      try {
-        const snap = await getDoc(userRef);
-        if (!snap.exists()) {
-          setIsInitializingUser(true);
-          await setDoc(userRef, {
-            id: user.uid,
-            email: user.email,
-            displayName: user.displayName || 'Shepherd',
-            role: 'collaborator',
-            createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp(),
-          });
-          setIsInitializingUser(false);
-        } else {
-          const data = snap.data();
-          if (!data.role || data.role !== 'collaborator') {
-            setIsInitializingUser(true);
-            await updateDoc(userRef, { 
-              role: 'collaborator',
-              updatedAt: serverTimestamp() 
-            });
-            setIsInitializingUser(false);
-          }
-        }
-      } catch (e) {
-        console.error("Critical: Failed to verify shepherd identity:", e);
+      if (!profile) {
+        // Create profile if it doesn't exist
+        await setDoc(userRef, {
+          id: user.uid,
+          email: user.email,
+          displayName: user.displayName || 'Shepherd',
+          role: 'collaborator',
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        });
+      } else if (!profile.role) {
+        // Update profile if role is missing (fixes "Data Missing" issue)
+        await updateDoc(userRef, { 
+          role: 'collaborator',
+          updatedAt: serverTimestamp() 
+        });
       }
     };
 
-    initUser();
-  }, [mounted, isUserLoading, user, pathname, router, firestore]);
+    syncProfile();
+  }, [mounted, isUserLoading, isProfileLoading, user, profile, firestore]);
 
   useEffect(() => {
     if (mounted && !isUserLoading && !user && !publicPaths.includes(pathname)) {
       router.push('/login');
     }
+    if (mounted && user && publicPaths.includes(pathname)) {
+      router.push('/dashboard');
+    }
   }, [mounted, isUserLoading, user, pathname, router]);
 
-  if (!mounted) {
-    return <div className="flex h-screen w-full items-center justify-center bg-background" />;
-  }
+  if (!mounted) return <div className="flex h-screen w-full items-center justify-center bg-background" />;
 
-  const isAuthChecking = isUserLoading || isInitializingUser || (user && publicPaths.includes(pathname)) || (!user && !publicPaths.includes(pathname));
+  const isAuthChecking = isUserLoading || (user && !profile && isProfileLoading) || (user && publicPaths.includes(pathname)) || (!user && !publicPaths.includes(pathname));
   
   if (isAuthChecking) {
     return (

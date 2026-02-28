@@ -81,12 +81,13 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
   const firestore = useFirestore();
 
+  // Watch the profile to unlock data querying only when verified as a collaborator
   const userProfileRef = useMemoFirebase(() => (firestore && user) ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
   const { data: userProfile, isLoading: isLoadingProfile } = useDoc<UserProfile>(userProfileRef);
   
-  // Critical: Wait until the role is confirmed before attempting collectionGroup queries
-  const isCollaboratorVerified = userProfile?.role === 'collaborator';
+  const isCollaboratorVerified = userProfile?.role === 'collaborator' || userProfile?.role === 'admin';
 
+  // Collection Group queries aggregate data from ALL users for the Merged Collaborative View
   const purchasesRef = useMemoFirebase(() => (firestore && isCollaboratorVerified) ? query(collectionGroup(firestore, 'livestockPurchases')) : null, [firestore, isCollaboratorVerified]);
   const { data: allPurchases, isLoading: isLoadingPurchases } = useCollection<LivestockPurchase>(purchasesRef);
 
@@ -200,8 +201,8 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     deleteDocumentNonBlocking(doc(firestore, 'communitySales', id));
   }, [firestore]);
 
-  // Combined loading state ensures UI waits for profile verification AND community data
-  const isLoading = isLoadingProfile || !isCollaboratorVerified || isLoadingPurchases || isLoadingSales || isLoadingFeed || isLoadingMedicine || isLoadingLabor || isLoadingDead || isLoadingTracked || isLoadingFarmExpenses || isLoadingHealth || isLoadingMarketplace;
+  // Combined loading state: Sync begins with profile verification
+  const isLoading = isLoadingProfile || (user && !isCollaboratorVerified) || isLoadingPurchases || isLoadingSales || isLoadingFeed || isLoadingMedicine || isLoadingLabor || isLoadingDead || isLoadingTracked || isLoadingFarmExpenses || isLoadingHealth || isLoadingMarketplace;
 
   const totalDeadCount = useMemo(() => (allDeadAnimals || []).reduce((sum, a) => sum + Number(a.sheepCount || 0), 0), [allDeadAnimals]);
   const totalTrackedCount = useMemo(() => (allTrackedSheep || []).length, [allTrackedSheep]);

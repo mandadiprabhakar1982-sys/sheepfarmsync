@@ -1,7 +1,7 @@
 'use client';
 
 import { firebaseConfig } from '@/firebase/config';
-import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
+import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';
 
@@ -12,16 +12,13 @@ let firestore: Firestore | undefined;
 
 /**
  * Initializes Firebase and returns the singleton SDK instances.
+ * Strictly enforces a single instance to prevent Firestore ID: ca9 assertion failures.
  */
 export function initializeFirebase() {
   if (typeof window !== 'undefined') {
     if (!firebaseApp) {
       const apps = getApps();
-      if (!apps.length) {
-        firebaseApp = initializeApp(firebaseConfig);
-      } else {
-        firebaseApp = apps[0];
-      }
+      firebaseApp = apps.length ? apps[0] : initializeApp(firebaseConfig);
     }
 
     if (!firebaseAuth) {
@@ -40,9 +37,6 @@ export function initializeFirebase() {
   };
 }
 
-/**
- * Returns SDK instances for a given FirebaseApp.
- */
 export function getSdks(app: FirebaseApp) {
   return {
     firebaseApp: app,
