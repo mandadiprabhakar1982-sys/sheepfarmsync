@@ -8,20 +8,13 @@ service cloud.firestore {
     }
 
     // --- SHARED COMMUNITY FARM MODEL ---
-    // All authenticated shepherds share the same database.
-    // This allows for real-time data merging and collaborative management.
+    // This allows all authenticated shepherds to share the same database.
+    // It enables real-time data merging and collaborative management.
     
-    match /livestockPurchases/{id} { allow read, write: if isSignedIn(); }
-    match /medicineExpenses/{id} { allow read, write: if isSignedIn(); }
-    match /feedExpenses/{id} { allow read, write: if isSignedIn(); }
-    match /laborExpenses/{id} { allow read, write: if isSignedIn(); }
-    match /animalSales/{id} { allow read, write: if isSignedIn(); }
-    match /deadAnimals/{id} { allow read, write: if isSignedIn(); }
-    match /trackedSheep/{id} { allow read, write: if isSignedIn(); }
-    match /farmExpenses/{id} { allow read, write: if isSignedIn(); }
-    match /healthTasks/{id} { allow read, write: if isSignedIn(); }
-    match /communitySales/{id} { allow read, write: if isSignedIn(); }
-    
+    match /{collectionName}/{docId} {
+      allow read, write: if isSignedIn();
+    }
+
     // User profiles remain private to the individual
     match /users/{userId} {
       allow read, write: if isSignedIn() && request.auth.uid == userId;
