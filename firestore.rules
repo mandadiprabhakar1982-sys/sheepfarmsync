@@ -8,8 +8,8 @@ service cloud.firestore {
       allow read, write: if request.auth != null;
     }
 
-    // Collection Group Query Support:
-    // Explicitly allow 'list' operations for the shared entities used in the dashboard.
+    // Explicit Collection Group Permissions
+    // These are required for the SDK to authorize queries that look across all user folders.
     match /{path=**}/livestockPurchases/{id} { allow read, write: if request.auth != null; }
     match /{path=**}/animalSales/{id} { allow read, write: if request.auth != null; }
     match /{path=**}/feedExpenses/{id} { allow read, write: if request.auth != null; }
@@ -19,6 +19,10 @@ service cloud.firestore {
     match /{path=**}/trackedSheep/{id} { allow read, write: if request.auth != null; }
     match /{path=**}/farmExpenses/{id} { allow read, write: if request.auth != null; }
     match /{path=**}/healthTasks/{id} { allow read, write: if request.auth != null; }
-    match /communitySales/{saleId} { allow read, write: if request.auth != null; }
+    
+    // Root level shared collections
+    match /communitySales/{saleId} {
+      allow read, write: if request.auth != null;
+    }
   }
 }

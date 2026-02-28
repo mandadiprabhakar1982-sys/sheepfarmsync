@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, ReactNode, useMemo, useCallback } from 'react';
+import { createContext, useContext, ReactNode, useMemo, useCallback, useEffect } from 'react';
 import type { LivestockPurchase, AnimalSale, FeedCost, MedicineExpense, LaborCost, TrackedSheep, DeadAnimal, FarmExpense, HealthTask, PublicSale } from '@/lib/types';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, collectionGroup, doc, serverTimestamp } from 'firebase/firestore';
@@ -82,7 +82,14 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
   const firestore = useFirestore();
 
-  // COLLABORATIVE QUERIES - These use collectionGroup to fetch data from all users
+  // AUTH LOGGING: Verify session state before initializing listeners
+  useEffect(() => {
+    if (user) {
+      console.log("Farm Context initialized for authenticated user:", user.email);
+    }
+  }, [user]);
+
+  // COLLABORATIVE QUERIES: Gated by user authentication to avoid premature listener calls
   const purchasesRef = useMemoFirebase(() => user ? collectionGroup(firestore, 'livestockPurchases') : null, [firestore, user]);
   const { data: purchases, isLoading: isLoadingPurchases } = useCollection<LivestockPurchase>(purchasesRef);
 
@@ -110,11 +117,10 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const healthTasksRef = useMemoFirebase(() => user ? collectionGroup(firestore, 'healthTasks') : null, [firestore, user]);
   const { data: healthTasks, isLoading: isLoadingHealthTasks } = useCollection<HealthTask>(healthTasksRef);
 
-  // Community Marketplace - Root level shared collection
   const marketplaceRef = useMemoFirebase(() => user ? collection(firestore, 'communitySales') : null, [firestore, user]);
   const { data: communitySales, isLoading: isLoadingMarketplace } = useCollection<PublicSale>(marketplaceRef);
 
-  // Helper for adding/updating data - entries are still stored under the user's path for organization
+  // HELPER: Upsert data to the current user's folder
   const upsert = useCallback((colName: string, id: string | undefined, data: any) => {
     if (!user) return;
     const finalId = id || generateId();
@@ -129,13 +135,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   }, [user, firestore]);
 
   const addPurchase = useCallback((p: any) => upsert('livestockPurchases', undefined, p), [upsert]);
-  const updatePurchase = useCallback((id: string, p: any) => {
-    // For collaboration, we need to know the original path. 
-    // If id is provided, we assume update. For simplicity in this demo,
-    // we use the current user's path, but in a real app, you'd store the full path.
-    upsert('livestockPurchases', id, p);
-  }, [upsert]);
-  
+  const updatePurchase = useCallback((id: string, p: any) => upsert('livestockPurchases', id, p), [upsert]);
   const deletePurchase = useCallback((id: string) => {
     if (user) deleteDocumentNonBlocking(doc(firestore, 'users', user.uid, 'livestockPurchases', id));
   }, [user, firestore]);
@@ -206,7 +206,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     deleteDocumentNonBlocking(docRef);
   }, [firestore]);
 
-  const isLoading = isLoadingPurchases || isLoadingSales || isLoadingFeedCosts || isLoadingMedicine || isLoadingLabor || isLoadingDeadAnimals || isLoadingTrackedSheep || isLoadingFarmExpenses || isLoadingHealthTasks || isLoadingMarketplace;
+  const isLoading = isLoadingPurchases || isLoadingSales || isLoadingFeedCosts || isLoadingMedicine || isLoadingHealthTasks || isLoadingLabor || isLoadingDeadAnimals || isLoadingTrackedSheep || isLoadingFarmExpenses || isLoadingMarketplace;
 
   const totalDead = useMemo(() => (deadAnimals || []).reduce((sum, a) => sum + (a.sheepCount ?? 1), 0), [deadAnimals]);
   const totalTracked = useMemo(() => (trackedSheep || []).length, [trackedSheep]);
