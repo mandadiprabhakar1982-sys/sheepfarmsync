@@ -20,17 +20,18 @@ service cloud.firestore {
       allow read, write: if isSignedIn() && request.auth.uid == userId;
     }
 
-    // --- COLLABORATIVE DATA (Global Read for Collaborators) ---
-    // This enables the Merged Collaborative View across all farm subcollections
+    // --- THE MERGED "COLLABORATIVE" VIEW RULES ---
+    // These allow collectionGroup queries to bypass the /users/{userId} restriction
+    // This is the engine that powers the community dashboard
     match /{path=**}/livestockPurchases/{id} { allow read: if isCollaborator(); }
-    match /{path=**}/animalSales/{id} { allow read: if isCollaborator(); }
-    match /{path=**}/feedExpenses/{id} { allow read: if isCollaborator(); }
-    match /{path=**}/medicineExpenses/{id} { allow read: if isCollaborator(); }
-    match /{path=**}/laborExpenses/{id} { allow read: if isCollaborator(); }
-    match /{path=**}/deadAnimals/{id} { allow read: if isCollaborator(); }
-    match /{path=**}/trackedSheep/{id} { allow read: if isCollaborator(); }
-    match /{path=**}/farmExpenses/{id} { allow read: if isCollaborator(); }
-    match /{path=**}/healthTasks/{id} { allow read: if isCollaborator(); }
+    match /{path=**}/medicineExpenses/{id}  { allow read: if isCollaborator(); }
+    match /{path=**}/feedExpenses/{id}      { allow read: if isCollaborator(); }
+    match /{path=**}/laborExpenses/{id}     { allow read: if isCollaborator(); }
+    match /{path=**}/animalSales/{id}       { allow read: if isCollaborator(); }
+    match /{path=**}/deadAnimals/{id}       { allow read: if isCollaborator(); }
+    match /{path=**}/trackedSheep/{id}      { allow read: if isCollaborator(); }
+    match /{path=**}/farmExpenses/{id}      { allow read: if isCollaborator(); }
+    match /{path=**}/healthTasks/{id}       { allow read: if isCollaborator(); }
 
     // --- EXPLICIT OWNERSHIP (For Writes) ---
     // Only the document owner can create, update, or delete their own data

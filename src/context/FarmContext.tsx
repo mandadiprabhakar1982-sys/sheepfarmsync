@@ -1,4 +1,3 @@
-
 'use client';
 
 import { createContext, useContext, ReactNode, useMemo, useCallback, useState, useEffect } from 'react';
@@ -89,6 +88,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   
   const isVerified = useMemo(() => userProfile?.role === 'collaborator' || userProfile?.role === 'admin', [userProfile]);
 
+  // Collection Group queries allow us to see data across ALL users for a specific subcollection
   const pRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'livestockPurchases')) : null, [firestore, isVerified]);
   const sRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'animalSales')) : null, [firestore, isVerified]);
   const fRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'feedExpenses')) : null, [firestore, isVerified]);
@@ -132,7 +132,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     const finalId = id || generateId();
     const docRef = doc(firestore, 'users', user.uid, col, finalId);
     
-    // Explicitly ensure creator metadata is captured from current user state
+    // Explicitly attach metadata to ensure owner visibility in community views
     const creatorMetadata = {
       createdBy: user.uid,
       creatorEmail: user.email || 'No Email',
