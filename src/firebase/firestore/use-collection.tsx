@@ -66,13 +66,17 @@ export function useCollection<T = any>(
         setIsLoading(false);
       },
       (err: FirestoreError) => {
+        // Only report if this is still the active query
         if (activeSubscriptionRef.current !== memoizedTargetRefOrQuery) return;
 
+        // ID: ca9 often happens when listeners are created/destroyed too fast.
+        // We log it as a warning but don't crash the UI.
         if (err.code === 'permission-denied' || err.code === 'unavailable') {
           console.warn(`Firestore [${err.code}]:`, err.message);
         } else {
           console.error("Firestore Error in useCollection:", err);
         }
+        
         setError(err);
         setData([]);
         setIsLoading(false);
@@ -80,7 +84,10 @@ export function useCollection<T = any>(
     );
 
     return () => {
-      activeSubscriptionRef.current = null;
+      // Cleanup: only clear the ref if we are truly unmounting this specific query's listener
+      if (activeSubscriptionRef.current === memoizedTargetRefOrQuery) {
+        activeSubscriptionRef.current = null;
+      }
       unsubscribe();
     };
   }, [memoizedTargetRefOrQuery]);
