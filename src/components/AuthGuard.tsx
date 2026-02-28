@@ -1,8 +1,9 @@
+
 'use client';
 
 import { useUser, useFirestore } from '@/firebase';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { doc, getDoc, setDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
 
@@ -13,9 +14,14 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const firestore = useFirestore();
   const pathname = usePathname();
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (isUserLoading) return;
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted || isUserLoading) return;
 
     if (!user) {
       if (!publicPaths.includes(pathname)) {
@@ -57,9 +63,14 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     if (publicPaths.includes(pathname)) {
       router.push('/dashboard');
     }
-  }, [isUserLoading, user, pathname, router, firestore]);
+  }, [isUserLoading, user, pathname, router, firestore, mounted]);
 
-  if (isUserLoading || (user && publicPaths.includes(pathname)) || (!user && !publicPaths.includes(pathname))) {
+  // Handle hydration: Render a consistent loading state on server and first client pass
+  const isAuthChecking = isUserLoading || (user && publicPaths.includes(pathname)) || (!user && !publicPaths.includes(pathname));
+  
+  // During hydration, we show the loading screen if we're not mounted yet or if we're checking auth.
+  // This ensures the server and client initial HTML match perfectly.
+  if (!mounted || isAuthChecking) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
