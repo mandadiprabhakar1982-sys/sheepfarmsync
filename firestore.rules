@@ -1,9 +1,9 @@
 /**
  * SheepSync Pro - Community-Open Security Rules
  * 
- * CORE PRIVACY: Farm data is now readable by all signed-in users for transparency 
- * and community benchmarking.
- * OWNERSHIP: Only the original creator can modify or delete their records.
+ * CORE PRIVACY: Farm data is now readable by all signed-in users to enable 
+ * community-wide benchmarking and shared intelligence.
+ * OWNERSHIP: Only the original creator (owner) can create, update, or delete their records.
  */
 rules_version = '2';
 service cloud.firestore {
@@ -17,25 +17,25 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    // User Data - Public Read, Private Write
-    match /users/{userId} {
-      // Anyone signed in can read any farm profile to foster community learning
-      allow get, list: if isSignedIn();
-      // Only the owner can manage their own profile
-      allow create, update, delete: if isOwner(userId);
+    // Global Read Access: Allows all signed-in users to read any document.
+    // This is required for collectionGroup queries to work across the entire community.
+    match /{path=**} {
+      allow read: if isSignedIn();
+    }
 
-      // Subcollections (Purchases, Health, Sheep, etc.)
+    // Write Access: Strictly restricted to the owner of the data.
+    match /users/{userId} {
+      // Profile management
+      allow write: if isOwner(userId);
+
+      // All subcollections (Purchases, Health, Sheep, Sales, etc.)
       match /{allSubcollections=**} {
-        // Global visibility for all farm records
-        allow read: if isSignedIn();
-        // Modification restricted to the owner
         allow write: if isOwner(userId);
       }
     }
 
-    // Community Marketplace
+    // Community Marketplace specific write rules
     match /communitySales/{saleId} {
-      allow read: if isSignedIn();
       allow create: if isSignedIn() && request.resource.data.sellerId == request.auth.uid;
       allow update, delete: if isSignedIn() && resource.data.sellerId == request.auth.uid;
     }
