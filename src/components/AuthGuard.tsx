@@ -1,11 +1,10 @@
-
 'use client';
 
 import { useUser, useFirestore } from '@/firebase';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
 
 const publicPaths = ['/login'];
 
@@ -38,6 +37,15 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp(),
           });
+        } else {
+          // If the user exists but doesn't have the role, set it
+          const data = snap.data();
+          if (data && !data.role) {
+            await updateDoc(userRef, { 
+              role: 'collaborator',
+              updatedAt: serverTimestamp() 
+            });
+          }
         }
       } catch (e) {
         console.error("Error initializing user:", e);
@@ -54,7 +62,10 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   if (isUserLoading || (user && publicPaths.includes(pathname)) || (!user && !publicPaths.includes(pathname))) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-xs font-bold tracking-widest text-muted-foreground animate-pulse uppercase">Authenticating Shepherd...</p>
+        </div>
       </div>
     );
   }
