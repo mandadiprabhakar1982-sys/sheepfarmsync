@@ -82,7 +82,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
   const firestore = useFirestore();
 
-  // --- PRIVATE DATA LISTENERS (Filtered by ownerId) ---
+  // --- PRIVATE DATA LISTENERS (Filtered by ownerId as per security rules) ---
   
   const purchasesRef = useMemoFirebase(() => 
     user ? query(collection(firestore, 'livestockPurchases'), where('ownerId', '==', user.uid)) : null, 
@@ -129,7 +129,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   [firestore, user]);
   const { data: healthTasks, isLoading: isLoadingHealthTasks } = useCollection<HealthTask>(healthTasksRef);
 
-  // Community Marketplace is readable by all signed-in users
+  // Community Marketplace (Shared area, readable by all signed-in users)
   const marketplaceRef = useMemoFirebase(() => 
     user ? collection(firestore, 'communitySales') : null, 
   [firestore, user]);
