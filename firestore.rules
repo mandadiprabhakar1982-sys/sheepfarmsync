@@ -21,10 +21,9 @@ service cloud.firestore {
     }
 
     // --- USER PROFILES ---
-    // Explicitly allow users to read their own profile to bootstrap the collaborator check
+    // Explicitly allow users to read/write their own profile to bootstrap the collaborator check
     match /users/{userId} {
-      allow read: if isSignedIn() && request.auth.uid == userId;
-      allow write: if isSignedIn() && request.auth.uid == userId;
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
     }
 
     // --- COMMUNITY MARKETPLACE ---
