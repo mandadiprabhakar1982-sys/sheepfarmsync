@@ -82,7 +82,8 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
   const firestore = useFirestore();
 
-  // --- SHARED DATA LISTENERS (Collaborative Model: All users see all data) ---
+  // --- COLLABORATIVE SHARED FARM DATA LISTENERS ---
+  // We use top-level collections without individual ownership filters to enable a merged community view.
   
   const purchasesRef = useMemoFirebase(() => collection(firestore, 'livestockPurchases'), [firestore]);
   const { data: purchases, isLoading: isLoadingPurchases } = useCollection<LivestockPurchase>(purchasesRef);
@@ -225,7 +226,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     return purchaseExpense + totalFeedCost + totalMedicineCost + totalLaborCost + totalFarmExpenses;
   }, [purchases, totalFeedCost, totalMedicineCost, totalLaborCost, totalFarmExpenses]);
 
-  const totalSalesCount = useMemo(() => (sales || []).reduce((sum, s) => sum + (s.amountReceived || 0), 0), [sales]);
+  const totalSalesRevenue = useMemo(() => (sales || []).reduce((sum, s) => sum + (s.salePrice || 0), 0), [sales]);
   const totalReceivables = useMemo(() => (sales || []).reduce((sum, s) => sum + (s.outstandingDuesFromBuyer || 0), 0), [sales]);
   const totalPayables = useMemo(() => (purchases || []).reduce((sum, p) => sum + (p.dueAmount || 0), 0), [purchases]);
 
@@ -240,7 +241,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     farmExpenses, addFarmExpense, deleteFarmExpense, updateFarmExpense,
     healthTasks, addHealthTask, deleteHealthTask, updateHealthTask,
     communitySales, postToMarketplace, deleteMarketplaceSale,
-    isLoading, totalSheep, totalTracked, totalExpenses, totalSales: totalSalesCount, totalDead, totalFeedCost, totalLaborCost, totalMedicineCost, totalFarmExpenses, totalReceivables, totalPayables,
+    isLoading, totalSheep, totalTracked, totalExpenses, totalSales: totalSalesRevenue, totalDead, totalFeedCost, totalLaborCost, totalMedicineCost, totalFarmExpenses, totalReceivables, totalPayables,
   };
 
   return <FarmContext.Provider value={value}>{children}</FarmContext.Provider>;
