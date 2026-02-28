@@ -10,7 +10,6 @@ import type { UserProfile } from '@/lib/types';
 const publicPaths = ['/login'];
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
-  // 1. All hooks called at the absolute top level
   const [mounted, setMounted] = useState(false);
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
@@ -24,7 +23,6 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
   const { data: profile, isLoading: isProfileLoading } = useDoc<UserProfile>(profileRef);
 
-  // 2. Lifecycle effects
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -74,7 +72,6 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     }
   }, [mounted, isUserLoading, user, pathname, router]);
 
-  // 3. Early returns only after all hooks are called
   if (!mounted) return null;
 
   const isAuthChecking = isUserLoading || (user && !profile && isProfileLoading);

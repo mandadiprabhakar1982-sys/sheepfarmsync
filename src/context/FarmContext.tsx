@@ -1,7 +1,7 @@
 
 'use client';
 
-import { createContext, useContext, ReactNode, useMemo, useCallback } from 'react';
+import { createContext, useContext, ReactNode, useMemo, useCallback, useState, useEffect } from 'react';
 import type { LivestockPurchase, AnimalSale, FeedCost, MedicineExpense, LaborCost, TrackedSheep, DeadAnimal, FarmExpense, HealthTask, PublicSale, UserProfile } from '@/lib/types';
 import { useUser, useFirestore, useCollection, useDoc } from '@/firebase';
 import { collection, doc, serverTimestamp, collectionGroup, query } from 'firebase/firestore';
@@ -79,7 +79,7 @@ function generateId() {
 }
 
 export function FarmProvider({ children }: { children: ReactNode }) {
-  // 1. Core Hooks (Always called first)
+  const [mounted, setMounted] = useState(false);
   const { user } = useUser();
   const firestore = useFirestore();
 
@@ -110,7 +110,10 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const { data: qHealth, isLoading: lHealth } = useCollection<HealthTask>(hRef);
   const { data: qMarket, isLoading: lMarket } = useCollection<PublicSale>(mkRef);
 
-  // 2. Data sorting and aggregation logic
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const sort = useCallback((list: any[] | null, k: string) => list ? [...list].sort((a, b) => new Date(b[k]).getTime() - new Date(a[k]).getTime()) : null, []);
 
   const purchases = useMemo(() => sort(qPurchases, 'purchaseDate'), [qPurchases, sort]);
@@ -123,12 +126,18 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const farmExpenses = useMemo(() => sort(qExpenses, 'expenseDate'), [qExpenses, sort]);
   const healthTasks = useMemo(() => sort(qHealth, 'nextDueDate'), [qHealth, sort]);
 
-  // 3. Action Handlers
   const upsert = useCallback((col: string, id: string | undefined, data: any) => {
     if (!user || !firestore) return;
     const finalId = id || generateId();
     const docRef = doc(firestore, 'users', user.uid, col, finalId);
-    setDocumentNonBlocking(docRef, { ...data, id: finalId, createdBy: user.uid, creatorEmail: user.email, creatorName: user.displayName || 'Shepherd', updatedAt: serverTimestamp() }, { merge: true });
+    setDocumentNonBlocking(docRef, { 
+      ...data, 
+      id: finalId, 
+      createdBy: user.uid, 
+      creatorEmail: user.email, 
+      creatorName: user.displayName || 'Shepherd', 
+      updatedAt: serverTimestamp() 
+    }, { merge: true });
   }, [user, firestore]);
 
   const remove = useCallback((col: string, id: string) => {
@@ -141,8 +150,6 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     const docRef = doc(firestore, 'communitySales', generateId());
     setDocumentNonBlocking(docRef, { ...sale, id: docRef.id, sellerId: user.uid, sellerEmail: user.email, sellerName: user.displayName, updatedAt: serverTimestamp() }, { merge: true });
   }, [user, firestore]);
-
-  const isLoading = isLoadingProfile || (user && !isVerified) || lPurchases || lSales || lFeed || lMedicine || lLabor || lDead || lTracked || lExpenses || lHealth || lMarket;
 
   const stats = useMemo(() => {
     const deadCount = (qDead || []).reduce((s, a) => s + Number(a.sheepCount || 0), 0);
@@ -172,7 +179,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     };
   }, [qDead, qPurchases, qSales, qFeed, qLabor, qMedicine, qHealth, qExpenses, qTracked]);
 
-  const value = {
+  const value = useMemo(() => ({
     purchases, addPurchase: (p: any) => upsert('livestockPurchases', undefined, p), updatePurchase: (id: string, p: any) => upsert('livestockPurchases', id, p), deletePurchase: (id: string) => remove('livestockPurchases', id),
     sales, addSale: (s: any) => upsert('animalSales', undefined, s), updateSale: (id: string, s: any) => upsert('animalSales', id, s), deleteSale: (id: string) => remove('animalSales', id),
     feedCosts, addFeedCost: (c: any) => upsert('feedExpenses', undefined, c), updateFeedCost: (id: string, c: any) => upsert('feedExpenses', id, c), deleteFeedCost: (id: string) => remove('feedExpenses', id),
@@ -182,9 +189,16 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     deadAnimals, addDeadAnimal: (a: any) => upsert('deadAnimals', undefined, a), updateDeadAnimal: (id: string, a: any) => upsert('deadAnimals', id, a), deleteDeadAnimal: (id: string) => remove('deadAnimals', id),
     farmExpenses, addFarmExpense: (e: any) => upsert('farmExpenses', undefined, e), updateFarmExpense: (id: string, e: any) => upsert('farmExpenses', id, e), deleteFarmExpense: (id: string) => remove('farmExpenses', id),
     healthTasks, addHealthTask: (t: any) => upsert('healthTasks', undefined, t), updateHealthTask: (id: string, t: any) => upsert('healthTasks', id, t), deleteHealthTask: (id: string) => remove('healthTasks', id),
-    communitySales, postToMarketplace, deleteMarketplaceSale: (id: string) => deleteDocumentNonBlocking(doc(firestore!, 'communitySales', id)),
-    isLoading, ...stats
-  };
+    communitySales: qMarket, postToMarketplace, deleteMarketplaceSale: (id: string) => deleteDocumentNonBlocking(doc(firestore!, 'communitySales', id)),
+    isLoading: isLoadingProfile || (user && !isVerified) || lPurchases || lSales || lFeed || lMedicine || lLabor || lDead || lTracked || lExpenses || lHealth || lMarket,
+    ...stats
+  }), [
+    purchases, sales, feedCosts, medicineExpenses, laborCosts, trackedSheep, deadAnimals, farmExpenses, healthTasks, qMarket, stats,
+    isLoadingProfile, user, isVerified, lPurchases, lSales, lFeed, lMedicine, lLabor, lDead, lTracked, lExpenses, lHealth, lMarket,
+    upsert, remove, postToMarketplace, firestore
+  ]);
+
+  if (!mounted) return null;
 
   return <FarmContext.Provider value={value}>{children}</FarmContext.Provider>;
 }
