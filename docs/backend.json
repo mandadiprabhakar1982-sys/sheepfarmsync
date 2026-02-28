@@ -1,4 +1,3 @@
-
 {
   "entities": {
     "UserProfile": {
@@ -65,15 +64,15 @@
   "firestore": {
     "/users/{userId}": {
       "schema": { "$ref": "#/backend/entities/UserProfile" },
-      "description": "Public profile of a user."
+      "description": "Public profile of a user. Reads are community-open for benchmarking."
     },
     "/users/{userId}/healthTasks/{healthTaskId}": {
       "schema": { "$ref": "#/backend/entities/HealthTask" },
-      "description": "User-owned health tasks."
+      "description": "User-owned health tasks. Readable by community for trend analysis."
     },
     "/users/{userId}/trackedSheep/{sheepId}": {
       "schema": { "$ref": "#/backend/entities/TrackedSheep" },
-      "description": "Individually tracked flock members."
+      "description": "Individually tracked flock members. Aggregated for global growth charts."
     },
     "/communitySales/{saleId}": {
       "schema": { "$ref": "#/backend/entities/PublicSale" },
