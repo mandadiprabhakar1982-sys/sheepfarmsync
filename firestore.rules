@@ -7,7 +7,7 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // Role-based helper: Checks if the user has the 'collaborator' role in their user document
+    // Role-based helper: Checks if the user has the 'collaborator' role
     function isCollaborator() {
       return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'collaborator';
     }
@@ -20,14 +20,12 @@ service cloud.firestore {
     }
 
     // --- USER PROFILES ---
-    // Standard access to own profile, plus collaborator read-access for identity verification
     match /users/{userId} {
       allow read: if isSignedIn();
       allow write: if isSignedIn() && request.auth.uid == userId;
     }
 
     // --- COMMUNITY MARKETPLACE ---
-    // Root level marketplace accessible to all signed-in users
     match /communitySales/{saleId} {
       allow read: if isSignedIn();
       allow write: if isSignedIn();

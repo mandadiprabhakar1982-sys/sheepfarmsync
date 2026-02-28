@@ -8,6 +8,7 @@
         "id": { "type": "string" },
         "email": { "type": "string" },
         "displayName": { "type": "string" },
+        "role": { "type": "string", "enum": ["collaborator", "admin", "viewer"] },
         "createdAt": { "type": "string", "format": "date-time" },
         "updatedAt": { "type": "string", "format": "date-time" }
       },
@@ -16,46 +17,26 @@
     "HealthTask": {
       "title": "HealthTask",
       "type": "object",
-      "description": "Private records of health-related tasks like vaccinations and deworming.",
+      "description": "Health-related tasks like vaccinations and deworming.",
       "properties": {
         "id": { "type": "string" },
-        "taskName": { "type": "string", "enum": ["Deworming", "Vaccination", "Vitamin & Liver Support", "Other"] },
-        "cost": { "type": "number" },
+        "taskName": { "type": "string" },
         "lastAdministered": { "type": "string", "format": "date" },
-        "nextDueDate": { "type": "string", "format": "date" },
-        "notes": { "type": "string" }
+        "nextDueDate": { "type": "string", "format": "date" }
       },
       "required": ["id", "taskName", "lastAdministered", "nextDueDate"]
     },
     "TrackedSheep": {
       "title": "TrackedSheep",
       "type": "object",
-      "description": "Individual private animal tracking for growth logs.",
+      "description": "Individual animal tracking for growth logs.",
       "properties": {
         "id": { "type": "string" },
         "tagId": { "type": "string" },
         "currentWeight": { "type": "number" },
-        "age": { "type": "number" },
-        "createdBy": { "type": "string" },
-        "updatedAt": { "type": "string", "format": "date-time" }
+        "age": { "type": "number" }
       },
       "required": ["id", "tagId"]
-    },
-    "PublicSale": {
-      "title": "PublicSale",
-      "type": "object",
-      "description": "A sheep sale record shared by choice with the community marketplace.",
-      "properties": {
-        "id": { "type": "string" },
-        "sellerId": { "type": "string" },
-        "sellerEmail": { "type": "string" },
-        "sellerName": { "type": "string" },
-        "saleDate": { "type": "string", "format": "date" },
-        "village": { "type": "string" },
-        "animalCount": { "type": "number" },
-        "askingPrice": { "type": "number" }
-      },
-      "required": ["id", "sellerId", "animalCount", "askingPrice"]
     }
   },
   "auth": {
@@ -64,19 +45,43 @@
   "firestore": {
     "/users/{userId}": {
       "schema": { "$ref": "#/backend/entities/UserProfile" },
-      "description": "Private profile of a user."
+      "description": "User profiles with role-based access control."
     },
-    "/users/{userId}/healthTasks/{healthTaskId}": {
+    "/users/{userId}/healthTasks/{id}": {
       "schema": { "$ref": "#/backend/entities/HealthTask" },
-      "description": "User-owned private health tasks."
+      "description": "Subcollection for health records."
     },
-    "/users/{userId}/trackedSheep/{sheepId}": {
+    "/users/{userId}/trackedSheep/{id}": {
       "schema": { "$ref": "#/backend/entities/TrackedSheep" },
-      "description": "Individually tracked private flock members."
+      "description": "Subcollection for animal growth records."
+    },
+    "/users/{userId}/livestockPurchases/{id}": {
+      "schema": { "type": "object" },
+      "description": "Subcollection for purchase history."
+    },
+    "/users/{userId}/animalSales/{id}": {
+      "schema": { "type": "object" },
+      "description": "Subcollection for sales history."
+    },
+    "/users/{userId}/feedExpenses/{id}": {
+      "schema": { "type": "object" },
+      "description": "Subcollection for feed costs."
+    },
+    "/users/{userId}/laborExpenses/{id}": {
+      "schema": { "type": "object" },
+      "description": "Subcollection for labor costs."
+    },
+    "/users/{userId}/farmExpenses/{id}": {
+      "schema": { "type": "object" },
+      "description": "Subcollection for general expenses."
+    },
+    "/users/{userId}/deadAnimals/{id}": {
+      "schema": { "type": "object" },
+      "description": "Subcollection for mortality logs."
     },
     "/communitySales/{saleId}": {
-      "schema": { "$ref": "#/backend/entities/PublicSale" },
-      "description": "Publicly viewable livestock for sale, shared explicitly by users."
+      "schema": { "type": "object" },
+      "description": "Publicly viewable livestock for sale."
     }
   }
 }

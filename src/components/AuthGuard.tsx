@@ -9,18 +9,30 @@ import { doc, getDoc, setDoc, serverTimestamp, updateDoc } from 'firebase/firest
 const publicPaths = ['/login'];
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
-  const { user, isUserLoading } = useUser();
-  const firestore = useFirestore();
-  const pathname = usePathname();
-  const router = useRouter();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  // Return a static shell during hydration to prevent mismatches
+  if (!mounted) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-background" />
+    );
+  }
+
+  return <AuthContent>{children}</AuthContent>;
+}
+
+function AuthContent({ children }: { children: React.ReactNode }) {
+  const { user, isUserLoading } = useUser();
+  const firestore = useFirestore();
+  const pathname = usePathname();
+  const router = useRouter();
+
   useEffect(() => {
-    if (!mounted || isUserLoading) return;
+    if (isUserLoading) return;
 
     if (!user) {
       if (!publicPaths.includes(pathname)) {
@@ -29,7 +41,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // Ensure user document exists with collaborator role for merged view
+    // Ensure user document exists with collaborator role in lowercase 'users' collection
     const initUser = async () => {
       const userRef = doc(firestore, 'users', user.uid);
       try {
@@ -43,7 +55,6 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
             updatedAt: serverTimestamp(),
           });
         } else {
-          // If the user exists but doesn't have the role, set it
           const data = snap.data();
           if (data && !data.role) {
             await updateDoc(userRef, { 
@@ -53,7 +64,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
           }
         }
       } catch (e) {
-        console.error("Error initializing user:", e);
+        // Silently fail, errors handled by global listener if needed
       }
     };
 
@@ -62,17 +73,8 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     if (publicPaths.includes(pathname)) {
       router.push('/dashboard');
     }
-  }, [isUserLoading, user, pathname, router, firestore, mounted]);
+  }, [isUserLoading, user, pathname, router, firestore]);
 
-  // To prevent hydration errors, we render a completely static, empty state until mounted.
-  // This ensures the server HTML and initial client HTML match perfectly.
-  if (!mounted) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center bg-background" />
-    );
-  }
-
-  // Once mounted, we can safely perform conditional rendering based on auth state.
   const isAuthChecking = isUserLoading || (user && publicPaths.includes(pathname)) || (!user && !publicPaths.includes(pathname));
   
   if (isAuthChecking) {
