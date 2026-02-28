@@ -82,7 +82,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
   const firestore = useFirestore();
 
-  // --- PRIVATE DATA LISTENERS (Filtered by ownerId as per security rules) ---
+  // --- PRIVATE DATA LISTENERS (Filtered by ownerId to comply with Security Rules) ---
   
   const purchasesRef = useMemoFirebase(() => 
     user ? query(collection(firestore, 'livestockPurchases'), where('ownerId', '==', user.uid)) : null, 
@@ -231,26 +231,40 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     return purchased - sold - totalDead;
   }, [purchases, sales, totalDead]);
 
-  const totalFeedCost = useMemo(() => (feedCosts || []).reduce((sum, f) => sum + f.cost, 0), [feedCosts]);
+  const totalFeedCost = useMemo(() => {
+    return (feedCosts || []).reduce((sum, f) => sum + (f.cost || 0), 0);
+  }, [feedCosts]);
 
-  const totalLaborCost = useMemo(() => (laborCosts || []).reduce((sum, l) => sum + l.totalLaborCosts, 0), [laborCosts]);
+  const totalLaborCost = useMemo(() => {
+    return (laborCosts || []).reduce((sum, l) => sum + (l.totalLaborCosts || 0), 0);
+  }, [laborCosts]);
   
   const totalMedicineCost = useMemo(() => {
-    const legacyExpenses = (medicineExpenses || []).reduce((sum, m) => sum + m.totalAmountSpent, 0);
+    const legacyExpenses = (medicineExpenses || []).reduce((sum, m) => sum + (m.totalAmountSpent || 0), 0);
     const healthTaskExpenses = (healthTasks || []).reduce((sum, t) => sum + (t.cost || 0), 0);
     return legacyExpenses + healthTaskExpenses;
   }, [medicineExpenses, healthTasks]);
 
-  const totalFarmExpenses = useMemo(() => (farmExpenses || []).reduce((sum, e) => sum + e.amount, 0), [farmExpenses]);
+  const totalFarmExpenses = useMemo(() => {
+    return (farmExpenses || []).reduce((sum, e) => sum + (e.amount || 0), 0);
+  }, [farmExpenses]);
 
   const totalExpenses = useMemo(() => {
-    const purchaseExpense = (purchases || []).reduce((sum, p) => sum + p.purchasePrice + (p.transportCost || 0), 0);
+    const purchaseExpense = (purchases || []).reduce((sum, p) => sum + (p.purchasePrice || 0) + (p.transportCost || 0), 0);
     return purchaseExpense + totalFeedCost + totalMedicineCost + totalLaborCost + totalFarmExpenses;
   }, [purchases, totalFeedCost, totalMedicineCost, totalLaborCost, totalFarmExpenses]);
 
-  const totalSales = useMemo(() => (sales || []).reduce((sum, s) => sum + s.amountReceived, 0), [sales]);
-  const totalReceivables = useMemo(() => (sales || []).reduce((sum, s) => sum + s.outstandingDuesFromBuyer, 0), [sales]);
-  const totalPayables = useMemo(() => (purchases || []).reduce((sum, p) => sum + p.dueAmount, 0), [purchases]);
+  const totalSalesCount = useMemo(() => {
+    return (sales || []).reduce((sum, s) => sum + (s.amountReceived || 0), 0);
+  }, [sales]);
+  
+  const totalReceivables = useMemo(() => {
+    return (sales || []).reduce((sum, s) => sum + (s.outstandingDuesFromBuyer || 0), 0);
+  }, [sales]);
+  
+  const totalPayables = useMemo(() => {
+    return (purchases || []).reduce((sum, p) => sum + (p.dueAmount || 0), 0);
+  }, [purchases]);
 
   const value = {
     purchases, addPurchase, deletePurchase, updatePurchase,
@@ -263,7 +277,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     farmExpenses, addFarmExpense, deleteFarmExpense, updateFarmExpense,
     healthTasks, addHealthTask, deleteHealthTask, updateHealthTask,
     communitySales, postToMarketplace, deleteMarketplaceSale,
-    isLoading, totalSheep, totalTracked, totalExpenses, totalSales, totalDead, totalFeedCost, totalLaborCost, totalMedicineCost, totalFarmExpenses, totalReceivables, totalPayables,
+    isLoading, totalSheep, totalTracked, totalExpenses, totalSales: totalSalesCount, totalDead, totalFeedCost, totalLaborCost, totalMedicineCost, totalFarmExpenses, totalReceivables, totalPayables,
   };
 
   return <FarmContext.Provider value={value}>{children}</FarmContext.Provider>;

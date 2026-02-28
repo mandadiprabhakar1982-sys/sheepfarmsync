@@ -7,6 +7,7 @@ service cloud.firestore {
     }
 
     // --- COMMUNITY MARKETPLACE ---
+    // Publicly viewable by all members, but editable only by the seller.
     match /communitySales/{saleId} {
       allow read: if isSignedIn();
       allow create: if isSignedIn() && request.resource.data.sellerId == request.auth.uid;
@@ -14,9 +15,10 @@ service cloud.firestore {
     }
 
     // --- ALL OTHER PRIVATE COLLECTIONS ---
-    // (livestockPurchases, feedExpenses, medicineExpenses, etc.)
+    // (livestockPurchases, feedExpenses, medicineExpenses, laborExpenses, etc.)
+    // Strictly private: users can only see and edit their own data.
     match /{collectionName}/{docId} {
-      // Allow creation if they attach their own UID
+      // Allow creation if they attach their own UID as ownerId
       allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
       
       // Allow reading/editing only if they are the owner
