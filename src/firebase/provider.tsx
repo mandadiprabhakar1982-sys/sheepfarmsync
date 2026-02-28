@@ -104,10 +104,9 @@ export const useFirebase = (): FirebaseServicesAndUser | null => {
   const context = useContext(FirebaseContext);
 
   if (context === undefined) {
-    throw new Error('useFirebase must be used within a FirebaseProvider.');
+    return null;
   }
 
-  // Gracefully return null instead of throwing if services are not available (e.g. during SSR)
   if (!context.areServicesAvailable || !context.firebaseApp || !context.firestore || !context.auth) {
     return null;
   }

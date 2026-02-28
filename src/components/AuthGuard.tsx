@@ -16,6 +16,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   // Stable profile reference for the real-time role listener
+  // We keep hooks at the top level, never calling them conditionally
   const profileRef = useMemoFirebase(() => (firestore && user) ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
   const { data: profile, isLoading: isProfileLoading } = useDoc<UserProfile>(profileRef);
 
@@ -70,6 +71,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     }
   }, [mounted, isUserLoading, user, pathname, router]);
 
+  // Early returns happen AFTER all hook calls
   if (!mounted) return <div className="flex h-screen w-full items-center justify-center bg-background" />;
 
   const isAuthChecking = isUserLoading || (user && !profile && isProfileLoading) || (user && publicPaths.includes(pathname)) || (!user && !publicPaths.includes(pathname));
