@@ -2,14 +2,13 @@
 
 import { useUser, useFirestore } from '@/firebase';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { doc, getDoc, setDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
 
 const publicPaths = ['/login'];
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
-  const initializationRef = useRef(false);
   const [isInitializingUser, setIsInitializingUser] = useState(false);
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
@@ -21,29 +20,19 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (!mounted || isUserLoading) return;
-
-    if (!user) {
-      if (!publicPaths.includes(pathname)) {
-        router.push('/login');
-      }
-      return;
-    }
+    if (!mounted || isUserLoading || !firestore || !user) return;
 
     if (publicPaths.includes(pathname)) {
       router.push('/dashboard');
+      return;
     }
 
     const initUser = async () => {
-      if (!firestore || !user || initializationRef.current) return;
-      
-      initializationRef.current = true;
-      setIsInitializingUser(true);
-      
       const userRef = doc(firestore, 'users', user.uid);
       try {
         const snap = await getDoc(userRef);
         if (!snap.exists()) {
+          setIsInitializingUser(true);
           await setDoc(userRef, {
             id: user.uid,
             email: user.email,
@@ -52,26 +41,31 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp(),
           });
+          setIsInitializingUser(false);
         } else {
           const data = snap.data();
-          // Ensure role is ALWAYS set to collaborator if missing or different
           if (!data.role || data.role !== 'collaborator') {
+            setIsInitializingUser(true);
             await updateDoc(userRef, { 
               role: 'collaborator',
               updatedAt: serverTimestamp() 
             });
+            setIsInitializingUser(false);
           }
         }
       } catch (e) {
         console.error("Critical: Failed to verify shepherd identity:", e);
-      } finally {
-        // Delay slightly to allow Firestore replication
-        setTimeout(() => setIsInitializingUser(false), 800);
       }
     };
 
     initUser();
   }, [mounted, isUserLoading, user, pathname, router, firestore]);
+
+  useEffect(() => {
+    if (mounted && !isUserLoading && !user && !publicPaths.includes(pathname)) {
+      router.push('/login');
+    }
+  }, [mounted, isUserLoading, user, pathname, router]);
 
   if (!mounted) {
     return <div className="flex h-screen w-full items-center justify-center bg-background" />;

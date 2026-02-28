@@ -12,15 +12,16 @@ let firestore: Firestore | undefined;
 
 /**
  * Initializes Firebase and returns the singleton SDK instances.
- * This ensures only one instance of each service exists globally,
- * preventing 'ID: ca9' internal assertion errors.
  */
 export function initializeFirebase() {
   if (typeof window !== 'undefined') {
-    if (!getApps().length) {
-      firebaseApp = initializeApp(firebaseConfig);
-    } else {
-      firebaseApp = getApp();
+    if (!firebaseApp) {
+      const apps = getApps();
+      if (!apps.length) {
+        firebaseApp = initializeApp(firebaseConfig);
+      } else {
+        firebaseApp = apps[0];
+      }
     }
 
     if (!firebaseAuth) {
