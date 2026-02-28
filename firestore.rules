@@ -2,22 +2,10 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Allow any authenticated user to read, write, and list any document in any collection.
-    // This supports the "users all data merge" requirement for a collaborative community experience.
+    // Broadly authorize any authenticated user to read and write any document.
+    // This supports the "All Data Merge" community model where shepherds share a collaborative database.
     match /{document=**} {
       allow read, write: if request.auth != null;
     }
-
-    // Explicitly authorize collection group queries for all farm modules to resolve listing errors.
-    match /livestockPurchases/{id} { allow read, write: if request.auth != null; }
-    match /animalSales/{id} { allow read, write: if request.auth != null; }
-    match /feedExpenses/{id} { allow read, write: if request.auth != null; }
-    match /medicineExpenses/{id} { allow read, write: if request.auth != null; }
-    match /laborExpenses/{id} { allow read, write: if request.auth != null; }
-    match /deadAnimals/{id} { allow read, write: if request.auth != null; }
-    match /trackedSheep/{id} { allow read, write: if request.auth != null; }
-    match /farmExpenses/{id} { allow read, write: if request.auth != null; }
-    match /healthTasks/{id} { allow read, write: if request.auth != null; }
-    match /communitySales/{id} { allow read, write: if request.auth != null; }
   }
 }
