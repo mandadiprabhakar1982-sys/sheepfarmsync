@@ -6,34 +6,16 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // --- SHARED DATA ACCESS (Merged View) ---
-    // Allow any signed-in user to read any document in the farm subcollections
-    // This supports the Collection Group queries for the merged dashboard.
-    match /{path=**}/livestockPurchases/{docId} { allow read: if isSignedIn(); }
-    match /{path=**}/animalSales/{docId} { allow read: if isSignedIn(); }
-    match /{path=**}/feedExpenses/{docId} { allow read: if isSignedIn(); }
-    match /{path=**}/medicineExpenses/{docId} { allow read: if isSignedIn(); }
-    match /{path=**}/laborExpenses/{docId} { allow read: if isSignedIn(); }
-    match /{path=**}/deadAnimals/{docId} { allow read: if isSignedIn(); }
-    match /{path=**}/trackedSheep/{docId} { allow read: if isSignedIn(); }
-    match /{path=**}/farmExpenses/{docId} { allow read: if isSignedIn(); }
-    match /{path=**}/healthTasks/{docId} { allow read: if isSignedIn(); }
-
-    // --- USER PROFILE & OWNERSHIP ---
-    match /users/{userId} {
-      allow read, write: if isSignedIn() && request.auth.uid == userId;
-      
-      // Allow writing to own subcollections
-      match /{collectionName}/{docId} {
-        allow write: if isSignedIn() && request.auth.uid == userId;
-        allow read: if isSignedIn(); // Redundant with above but explicit
-      }
+    // --- COLLABORATIVE SHARED MODEL ---
+    // Allow any signed-in user to read and write any document.
+    // This supports the Merged Dashboard view where all shepherds share data.
+    match /{document=**} {
+      allow read, write: if isSignedIn();
     }
 
-    // --- COMMUNITY MARKETPLACE ---
+    // Explicitly allow Marketplace access (redundant but for clarity)
     match /communitySales/{saleId} {
-      allow read: if isSignedIn();
-      allow write: if isSignedIn();
+      allow read, write: if isSignedIn();
     }
   }
 }

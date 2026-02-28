@@ -83,7 +83,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const firestore = useFirestore();
 
   // --- MERGED DATA QUERIES (Collection Groups) ---
-  // We use collectionGroup to fetch data from all users' subcollections simultaneously
+  // Using collectionGroup to aggregate data from all users' subcollections for the Merged Dashboard.
   
   const purchasesRef = useMemoFirebase(() => query(collectionGroup(firestore, 'livestockPurchases')), [firestore]);
   const { data: purchases, isLoading: isLoadingPurchases } = useCollection<LivestockPurchase>(purchasesRef);
@@ -115,11 +115,11 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const marketplaceRef = useMemoFirebase(() => collection(firestore, 'communitySales'), [firestore]);
   const { data: communitySales, isLoading: isLoadingMarketplace } = useCollection<PublicSale>(marketplaceRef);
 
-  // --- CRUD HELPERS (Always write to CURRENT user's path) ---
+  // --- CRUD HELPERS ---
   const upsert = useCallback((subColName: string, id: string | undefined, data: any) => {
     if (!user) return;
     const finalId = id || generateId();
-    // Storage remains nested: users/{userId}/{subColName}/{id}
+    // Maintain nested subcollection structure: users/{userId}/{subColName}/{id}
     const docRef = doc(firestore, 'users', user.uid, subColName, finalId);
     setDocumentNonBlocking(docRef, { 
       ...data, 
@@ -132,7 +132,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
 
   const remove = useCallback((subColName: string, id: string) => {
     if (!user) return;
-    // We only allow deleting from our own path
+    // Note: In merged mode, users can still delete documents they previously owned via their own path
     deleteDocumentNonBlocking(doc(firestore, 'users', user.uid, subColName, id));
   }, [user, firestore]);
 
