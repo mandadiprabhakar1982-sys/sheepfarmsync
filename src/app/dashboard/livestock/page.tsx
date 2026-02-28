@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useMemo } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { PlusCircle, Trash2, Camera as CameraIcon, Pencil, ArrowUp, ArrowDown, Loader2, User, ImageIcon } from 'lucide-react';
+import { PlusCircle, Trash2, Camera as CameraIcon, Pencil, ArrowUp, ArrowDown, Loader2, User, ImageIcon, ZoomIn, X } from 'lucide-react';
 import Image from 'next/image';
 import { Bar, ComposedChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Line } from 'recharts';
 import { format } from 'date-fns';
@@ -56,6 +56,7 @@ export default function LivestockPage() {
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingSheep, setEditingSheep] = useState<TrackedSheep | null>(null);
+  const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -219,16 +220,19 @@ export default function LivestockPage() {
                           {!capturedImage ? (
                               <video ref={videoRef} className="h-full w-full object-cover" autoPlay muted playsInline />
                           ) : (
-                              <Image src={capturedImage} alt="Captured photo" layout="fill" objectFit="cover" unoptimized />
+                              <div className="relative h-full w-full">
+                                <Image src={capturedImage} alt="Captured photo" layout="fill" objectFit="cover" unoptimized />
+                                <Button variant="secondary" size="icon" className="absolute top-2 right-2 h-8 w-8 rounded-full bg-white/80 hover:bg-white" onClick={() => setCapturedImage(null)}>
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </div>
                           )}
                       </div>
                       <canvas ref={canvasRef} className="hidden"></canvas>
-                      {!capturedImage ? (
+                      {!capturedImage && (
                           <Button type="button" onClick={handleCapture} disabled={hasCameraPermission === false} className="w-full" variant="outline">
                               <CameraIcon className="mr-2 h-4 w-4" /> Capture
                           </Button>
-                      ) : (
-                          <Button type="button" variant="ghost" onClick={() => setCapturedImage(null)} className="w-full text-destructive">Retake</Button>
                       )}
                   </div>
 
@@ -271,17 +275,26 @@ export default function LivestockPage() {
                         const weightChange = sheep.previousWeight != null ? sheep.currentWeight - sheep.previousWeight : null;
                         const isOwner = user?.uid === sheep.createdBy;
                         return (
-                          <TableRow key={sheep.id}>
+                          <TableRow key={sheep.id} className="group transition-colors">
                             <TableCell>
-                              <div className="relative h-12 w-12 rounded-md overflow-hidden bg-muted border flex items-center justify-center">
+                              <div 
+                                className="relative h-12 w-12 rounded-lg overflow-hidden bg-muted border flex items-center justify-center cursor-zoom-in group/photo"
+                                onClick={() => sheep.photoDataUrl && setPreviewPhoto(sheep.photoDataUrl)}
+                              >
                                 {sheep.photoDataUrl ? (
-                                  <Image 
-                                    src={sheep.photoDataUrl} 
-                                    alt={`Sheep ${sheep.tagId}`} 
-                                    layout="fill" 
-                                    objectFit="cover" 
-                                    unoptimized
-                                  />
+                                  <>
+                                    <Image 
+                                      src={sheep.photoDataUrl} 
+                                      alt={`Sheep ${sheep.tagId}`} 
+                                      layout="fill" 
+                                      objectFit="cover" 
+                                      unoptimized
+                                      className="transition-transform duration-300 group-hover/photo:scale-125"
+                                    />
+                                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover/photo:opacity-100 transition-opacity flex items-center justify-center">
+                                      <ZoomIn className="h-4 w-4 text-white" />
+                                    </div>
+                                  </>
                                 ) : (
                                   <ImageIcon className="h-5 w-5 text-muted-foreground opacity-20" />
                                 )}
@@ -376,6 +389,31 @@ export default function LivestockPage() {
               <DialogFooter><Button type="submit" className="w-full">Save Changes</Button></DialogFooter>
             </form>
           </Form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!previewPhoto} onOpenChange={() => setPreviewPhoto(null)}>
+        <DialogContent className="max-w-4xl p-0 overflow-hidden bg-transparent border-none shadow-none flex items-center justify-center">
+          <div className="relative w-full aspect-square md:aspect-video rounded-2xl overflow-hidden shadow-2xl">
+            {previewPhoto && (
+              <Image 
+                src={previewPhoto} 
+                alt="Photo Preview" 
+                layout="fill" 
+                objectFit="contain" 
+                className="bg-black/90"
+                unoptimized 
+              />
+            )}
+            <Button 
+              variant="secondary" 
+              size="icon" 
+              className="absolute top-4 right-4 h-10 w-10 rounded-full bg-white/20 hover:bg-white/40 text-white border-none backdrop-blur-md"
+              onClick={() => setPreviewPhoto(null)}
+            >
+              <X className="h-6 w-6" />
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
