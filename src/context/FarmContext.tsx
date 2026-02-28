@@ -82,7 +82,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
   const firestore = useFirestore();
 
-  // --- SHARED DATA LISTENERS (No individual owner filters for the Collaborative Model) ---
+  // --- SHARED DATA LISTENERS (Collaborative Model: All users see all data) ---
   
   const purchasesRef = useMemoFirebase(() => collection(firestore, 'livestockPurchases'), [firestore]);
   const { data: purchases, isLoading: isLoadingPurchases } = useCollection<LivestockPurchase>(purchasesRef);
@@ -208,7 +208,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const totalSheep = useMemo(() => {
     const purchased = (purchases || []).reduce((sum, p) => sum + p.animalCount, 0);
     const sold = (sales || []).reduce((sum, s) => sum + s.animalCount, 0);
-    return purchased - sold - totalDead;
+    return Math.max(0, purchased - sold - totalDead);
   }, [purchases, sales, totalDead]);
 
   const totalFeedCost = useMemo(() => (feedCosts || []).reduce((sum, f) => sum + (f.cost || 0), 0), [feedCosts]);

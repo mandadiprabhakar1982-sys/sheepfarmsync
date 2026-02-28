@@ -1,16 +1,12 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
-    // --- COLLABORATIVE FARM MODEL ---
-    // All authenticated users can read and write to all collections.
-    // This ensures no data is "missing" and enables a shared community dashboard.
-    match /{collectionName}/{docId} {
-      allow read, write: if isSignedIn();
+    // --- COLLABORATIVE SHARED FARM MODEL ---
+    // All authenticated users can read and write to any document in the database.
+    // This merges all shepherd data into a single shared environment and enables
+    // a unified real-time community dashboard without permission errors.
+    match /{document=**} {
+      allow read, write: if request.auth != null;
     }
   }
 }
