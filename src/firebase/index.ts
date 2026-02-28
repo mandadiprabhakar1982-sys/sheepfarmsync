@@ -3,7 +3,7 @@
 import { firebaseConfig } from '@/firebase/config';
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth } from 'firebase/auth';
-import { getFirestore, Firestore } from 'firebase/firestore'
+import { getFirestore, Firestore, enableNetwork, disableNetwork } from 'firebase/firestore'
 
 // Global singletons to prevent multiple instances during hot reloads
 let firebaseApp: FirebaseApp | undefined;
