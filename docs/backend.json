@@ -74,7 +74,8 @@
         "monthlyEmi": { "type": "number" },
         "pendingTenure": { "type": "number" },
         "interest": { "type": "number" },
-        "paymentDate": { "type": "string" }
+        "paymentDate": { "type": "string" },
+        "startDate": { "type": "string", "format": "date" }
       },
       "required": ["id", "bankName", "totalLoan", "balanceLoan"]
     },

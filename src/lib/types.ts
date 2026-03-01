@@ -146,6 +146,7 @@ export interface BankLoan {
   pendingTenure: number;
   interest: number;
   paymentDate?: string;
+  startDate?: string;
   updatedAt?: any;
 }
 

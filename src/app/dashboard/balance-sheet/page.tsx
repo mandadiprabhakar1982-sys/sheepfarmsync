@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -8,11 +9,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { PlusCircle, CreditCard, Banknote, Landmark, Trash2, Pencil, Save, X, Info, Calendar as CalendarIcon, ReceiptIndianRupee } from 'lucide-react';
+import { PlusCircle, CreditCard, Banknote, Landmark, Trash2, Pencil, Save, X, Info, Calendar as CalendarIcon, ReceiptIndianRupee, Wand2 } from 'lucide-react';
 import { useFarm } from '@/context/FarmContext';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
+import { differenceInMonths, startOfMonth } from 'date-fns';
 import {
   Dialog,
   DialogContent,
@@ -42,6 +44,7 @@ export default function BalanceSheetPage() {
   const [pendingTenure, setPendingTenure] = useState('');
   const [interest, setInterest] = useState('');
   const [paymentDate, setPaymentDate] = useState('');
+  const [startDate, setStartDate] = useState('');
   
   // Credit Card Form States
   const [cardDueDate, setCardDueDate] = useState('');
@@ -59,6 +62,27 @@ export default function BalanceSheetPage() {
   // Edit States
   const [editingItem, setEditingItem] = useState<any>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+
+  // AUTOMATION: Bank Loan Auto-Calculation based on Month
+  useEffect(() => {
+    if (activeTab === 'loans' && startDate && totalLoan && totalTenure && monthlyEmi) {
+      const total = parseFloat(totalLoan);
+      const tenure = parseFloat(totalTenure);
+      const emi = parseFloat(monthlyEmi);
+      
+      if (!isNaN(total) && !isNaN(tenure) && !isNaN(emi)) {
+        const start = new Date(startDate);
+        const now = new Date();
+        const monthsPassed = Math.max(0, differenceInMonths(startOfMonth(now), startOfMonth(start)));
+        
+        const calculatedPending = Math.max(0, tenure - monthsPassed);
+        const calculatedBalance = Math.max(0, total - (monthsPassed * emi));
+        
+        setPendingTenure(calculatedPending.toString());
+        setBalanceLoan(calculatedBalance.toString());
+      }
+    }
+  }, [startDate, totalLoan, totalTenure, monthlyEmi, activeTab]);
 
   // SORTING LOGIC
   const sortedLoans = useMemo(() => {
@@ -105,6 +129,7 @@ export default function BalanceSheetPage() {
     setPendingTenure('');
     setInterest('');
     setPaymentDate('');
+    setStartDate('');
     setPersonName('');
     setAmount('');
     setDebtDate('');
@@ -127,7 +152,8 @@ export default function BalanceSheetPage() {
         monthlyEmi: parseFloat(monthlyEmi || '0'),
         pendingTenure: parseFloat(pendingTenure || '0'),
         interest: parseFloat(interest || '0'),
-        paymentDate
+        paymentDate,
+        startDate
       });
       toast({ title: "Loan Recorded", description: "Bank loan entry added successfully." });
     } else if (activeTab === 'cards') {
@@ -165,6 +191,7 @@ export default function BalanceSheetPage() {
       setPendingTenure(item.pendingTenure.toString());
       setInterest(item.interest.toString());
       setPaymentDate(item.paymentDate || '');
+      setStartDate(item.startDate || '');
     } else if (type === 'card') {
       setBankName(item.bankName);
       setCardDueDate(item.dueDate || '');
@@ -193,7 +220,8 @@ export default function BalanceSheetPage() {
         monthlyEmi: parseFloat(monthlyEmi),
         pendingTenure: parseFloat(pendingTenure),
         interest: parseFloat(interest),
-        paymentDate
+        paymentDate,
+        startDate
       }, editingItem._path);
     } else if (editingItem._type === 'card') {
       updateCreditCard(editingItem.id, {
@@ -267,6 +295,14 @@ export default function BalanceSheetPage() {
                       <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">EMI Day (1-31)</Label>
                       <Input value={paymentDate} onChange={(e) => setPaymentDate(e.target.value)} placeholder="e.g. 5" className="h-12 rounded-xl bg-white border-none shadow-sm font-bold" />
                     </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Loan Start Date</Label>
+                    <div className="relative">
+                      <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="h-12 rounded-xl bg-white border-none shadow-sm font-bold pr-10" />
+                      <Wand2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary opacity-40" />
+                    </div>
+                    <p className="text-[8px] text-muted-foreground font-medium italic">* Select to auto-calculate balance and pending tenure</p>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
@@ -589,6 +625,10 @@ export default function BalanceSheetPage() {
                     <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">EMI Day (1-31)</Label>
                     <Input value={paymentDate} onChange={(e) => setPaymentDate(e.target.value)} className="h-12 rounded-xl bg-accent/5 border-none shadow-sm font-bold" />
                   </div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Loan Start Date</Label>
+                  <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="h-12 rounded-xl bg-accent/5 border-none shadow-sm font-bold" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
