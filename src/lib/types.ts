@@ -145,6 +145,7 @@ export interface BankLoan {
   monthlyEmi: number;
   pendingTenure: string;
   interest: number;
+  paymentDate?: string;
   updatedAt?: any;
 }
 

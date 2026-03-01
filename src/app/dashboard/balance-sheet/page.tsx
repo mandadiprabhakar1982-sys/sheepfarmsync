@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { PlusCircle, CreditCard, Banknote, Landmark, Trash2, Pencil, Save, X, Info } from 'lucide-react';
+import { PlusCircle, CreditCard, Banknote, Landmark, Trash2, Pencil, Save, X, Info, Calendar as CalendarIcon } from 'lucide-react';
 import { useFarm } from '@/context/FarmContext';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -34,6 +34,7 @@ export default function BalanceSheetPage() {
   const [monthlyEmi, setMonthlyEmi] = useState('');
   const [pendingTenure, setPendingTenure] = useState('');
   const [interest, setInterest] = useState('');
+  const [paymentDate, setPaymentDate] = useState('');
   
   // Credit Card Form States
   const [cardDueDate, setCardDueDate] = useState('');
@@ -73,6 +74,7 @@ export default function BalanceSheetPage() {
     setMonthlyEmi('');
     setPendingTenure('');
     setInterest('');
+    setPaymentDate('');
     setPersonName('');
     setAmount('');
     setDebtDate('');
@@ -94,7 +96,8 @@ export default function BalanceSheetPage() {
         totalTenure,
         monthlyEmi: parseFloat(monthlyEmi || '0'),
         pendingTenure,
-        interest: parseFloat(interest || '0')
+        interest: parseFloat(interest || '0'),
+        paymentDate
       });
       toast({ title: "Loan Recorded", description: "Bank loan entry added successfully." });
     } else if (activeTab === 'cards') {
@@ -159,9 +162,15 @@ export default function BalanceSheetPage() {
             <CardContent className="pt-8 space-y-6">
               {activeTab === 'loans' && (
                 <>
-                  <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Bank Name</Label>
-                    <Input value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="e.g. Axis Bank HOME LOAN" className="h-12 rounded-xl bg-white border-none shadow-sm font-bold" />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Bank Name</Label>
+                      <Input value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="e.g. Axis Bank" className="h-12 rounded-xl bg-white border-none shadow-sm font-bold" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Payment Date</Label>
+                      <Input value={paymentDate} onChange={(e) => setPaymentDate(e.target.value)} placeholder="e.g. 5th of month" className="h-12 rounded-xl bg-white border-none shadow-sm font-bold" />
+                    </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
@@ -314,6 +323,12 @@ export default function BalanceSheetPage() {
                               <div className="flex flex-col">
                                 <span className="text-xs font-bold whitespace-nowrap">{loan.bankName}</span>
                                 <span className="text-[8px] uppercase tracking-widest text-muted-foreground">{loan.totalTenure || 'N/A'} Total</span>
+                                {loan.paymentDate && (
+                                  <span className="text-[8px] font-black text-blue-600 uppercase flex items-center gap-1 mt-0.5">
+                                    <CalendarIcon className="h-2 w-2" />
+                                    EMI: {loan.paymentDate}
+                                  </span>
+                                )}
                               </div>
                             </TableCell>
                             <TableCell className="min-w-[100px]">
