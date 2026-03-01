@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Logo, SheepIcon } from '@/components/logo';
+import { Logo, SyncProIcon } from '@/components/logo';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/firebase';
 import { initiateEmailSignIn, initiateEmailSignUp, initiateGoogleSignIn } from '@/firebase/non-blocking-login';
@@ -72,13 +72,13 @@ export default function LoginPage() {
       <Card className="w-full max-w-md border-none shadow-2xl overflow-hidden glass-card rounded-[2rem]">
         <div className="bg-primary p-12 text-center text-primary-foreground relative overflow-hidden">
            <div className="absolute top-0 right-0 p-4 opacity-10">
-              <SheepIcon className="h-32 w-32 rotate-12" />
+              <SyncProIcon className="h-32 w-32 rotate-12" />
            </div>
            <div className="inline-block bg-white/20 rounded-2xl p-4 mb-4">
-              <SheepIcon className="h-10 w-10 text-white" />
+              <SyncProIcon className="h-10 w-10 text-white" />
            </div>
-           <h1 className="text-3xl font-black uppercase tracking-tight">SheepSync Pro</h1>
-           <p className="text-white/70 text-sm mt-2 font-medium">Precision Sheep Management</p>
+           <h1 className="text-3xl font-black uppercase tracking-tight">SYNC PRO</h1>
+           <p className="text-white/70 text-sm mt-2 font-medium">Precision Management Suite</p>
         </div>
         <CardContent className="pt-10">
             <div className="grid gap-4">
@@ -113,7 +113,7 @@ export default function LoginPage() {
                         <div className="grid gap-4 py-4">
                             <div className="grid gap-2">
                                 <Label htmlFor="login-email">Email Address</Label>
-                                <Input id="login-email" type="email" placeholder="name@farm.com" className="h-11" required value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} disabled={isSubmitting} />
+                                <Input id="login-email" type="email" placeholder="name@syncpro.com" className="h-11" required value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} disabled={isSubmitting} />
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="login-password">Password</Label>
@@ -131,7 +131,7 @@ export default function LoginPage() {
                         <div className="grid gap-4 py-4">
                             <div className="grid gap-2">
                                 <Label htmlFor="signup-email">Email Address</Label>
-                                <Input id="signup-email" type="email" placeholder="name@farm.com" className="h-11" required value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} disabled={isSubmitting} />
+                                <Input id="signup-email" type="email" placeholder="name@syncpro.com" className="h-11" required value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} disabled={isSubmitting} />
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="signup-password">Choose Password</Label>

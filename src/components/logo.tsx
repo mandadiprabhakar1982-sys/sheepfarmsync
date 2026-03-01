@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
 
-export const SheepIcon = (props: React.SVGProps<SVGSVGElement>) => (
+export const SyncProIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 24 24"
@@ -12,18 +12,28 @@ export const SheepIcon = (props: React.SVGProps<SVGSVGElement>) => (
       {...props}
     >
       {/* Precision Frame */}
-      <rect x="2" y="2" width="20" height="20" rx="4" strokeWidth="1" strokeDasharray="3 3" className="opacity-20" />
-      {/* Pro Sheep Silhouette */}
-      <path d="M17 10c0-1.1-.9-2-2-2h-1c-.5 0-1-.2-1.4-.6C12.2 6.6 11.6 6 11 6s-1.2.6-1.6 1.4c-.4.4-.9.6-1.4.6H7c-1.1 0-2 .9-2 2 0 .5.2 1 .6 1.4.8.8.8 2.1 0 2.9-.4.4-.6.9-.6 1.4 0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2 0-.5-.2-1-.6-1.4-.8-.8-.8-2.1 0-2.9.4-.4.6-.9.6-1.4Z" />
-      <path d="M9 18v2" />
-      <path d="M13 18v2" />
-      {/* Financial/Sync Accent */}
-      <path d="M18 6l3 3-3 3" />
-      <path d="M21 9H15" />
-      <circle cx="10" cy="11" r="0.5" fill="currentColor" />
-      <circle cx="14" cy="11" r="0.5" fill="currentColor" />
+      <rect x="2" y="2" width="20" height="20" rx="4" strokeWidth="1" strokeDasharray="2 2" className="opacity-20" />
+      
+      {/* Sync Pro Abstract Icon */}
+      <path d="M12 6V2" />
+      <path d="M12 22v-4" />
+      <path d="M6 12H2" />
+      <path d="M22 12h-4" />
+      
+      {/* S-Sync Interlocking Paths */}
+      <path d="M16 8a6 6 0 0 0-8 0" />
+      <path d="M8 16a6 6 0 0 0 8 0" />
+      
+      {/* Central Precision Point */}
+      <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none" />
+      
+      {/* Outer Orbit */}
+      <path d="M19 12a7 7 0 0 1-7 7 7 7 0 0 1-7-7 7 7 0 0 1 7-7 7 7 0 0 1 7 7Z" className="opacity-30" />
     </svg>
   );
+
+// For backwards compatibility with existing components
+export const SheepIcon = SyncProIcon;
 
 export function Logo({ className, light = false, showManager = true }: { className?: string; light?: boolean; showManager?: boolean }) {
   return (
@@ -32,14 +42,14 @@ export function Logo({ className, light = false, showManager = true }: { classNa
          "rounded-xl p-2.5 shadow-lg transition-transform hover:scale-105 active:scale-95",
          light ? "bg-white text-primary" : "bg-primary text-white"
        )}>
-        <SheepIcon className="h-6 w-6" />
+        <SyncProIcon className="h-6 w-6" />
       </div>
       <div className="flex flex-col">
         <h1 className={cn(
           "text-xl font-black tracking-tighter leading-none",
           light ? "text-white" : "text-primary"
         )}>
-          SheepSync Pro
+          SYNC PRO
         </h1>
         {showManager && (
           <p className={cn(

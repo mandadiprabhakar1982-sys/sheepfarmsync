@@ -1,4 +1,3 @@
-
 'use client';
 import Link from 'next/link';
 import {
@@ -13,8 +12,9 @@ import {
   Calculator,
   Receipt,
   Loader2,
+  BookOpen,
 } from 'lucide-react';
-import { SheepIcon } from '@/components/logo';
+import { SyncProIcon } from '@/components/logo';
 import { Card, CardContent } from '@/components/ui/card';
 import { useFarm } from '@/context/FarmContext';
 import { cn } from '@/lib/utils';
@@ -26,6 +26,13 @@ const menuItems = [
     icon: LayoutDashboard,
     href: '/dashboard/overview',
     color: 'bg-blue-500',
+  },
+  {
+    title: 'BALANCE',
+    description: 'LEDGER',
+    icon: BookOpen,
+    href: '/dashboard/balance-sheet',
+    color: 'bg-indigo-600',
   },
   {
     title: 'FLOCK',
@@ -83,13 +90,6 @@ const menuItems = [
     href: '/dashboard/expenses',
     color: 'bg-slate-500',
   },
-  {
-    title: 'REPORTS',
-    description: 'INSIGHTS',
-    icon: BarChart,
-    href: '/dashboard/analysis',
-    color: 'bg-indigo-500',
-  },
 ];
 
 export default function DashboardPage() {
@@ -109,14 +109,14 @@ export default function DashboardPage() {
         <div className="container mx-auto px-6">
           <div className="flex justify-center mb-4">
             <div className="bg-white/20 p-4 rounded-full">
-              <SheepIcon className="h-10 w-10 text-white" />
+              <SyncProIcon className="h-10 w-10 text-white" />
             </div>
           </div>
-          <h1 className="text-3xl md:text-5xl font-black tracking-widest mb-2">
-            SHEEPSYNC PRO
+          <h1 className="text-3xl md:text-5xl font-black tracking-widest mb-2 uppercase">
+            SYNC PRO
           </h1>
           <p className="text-[10px] md:text-xs font-bold tracking-[0.3em] uppercase opacity-80">
-            PRECISION MANAGEMENT
+            PRECISION MANAGEMENT SUITE
           </p>
         </div>
       </section>
