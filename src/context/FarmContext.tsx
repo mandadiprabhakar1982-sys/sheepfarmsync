@@ -1,7 +1,8 @@
+
 'use client';
 
 import { createContext, useContext, ReactNode, useMemo, useCallback, useState, useEffect } from 'react';
-import type { LivestockPurchase, AnimalSale, FeedCost, MedicineExpense, LaborCost, TrackedSheep, DeadAnimal, FarmExpense, HealthTask, PublicSale, UserProfile } from '@/lib/types';
+import type { LivestockPurchase, AnimalSale, FeedCost, MedicineExpense, LaborCost, TrackedSheep, DeadAnimal, FarmExpense, HealthTask, PublicSale, UserProfile, BankLoan, CreditCard, PrivateDebt } from '@/lib/types';
 import { useUser, useFirestore, useCollection, useDoc } from '@/firebase';
 import { collection, doc, serverTimestamp, collectionGroup, query } from 'firebase/firestore';
 import { setDocumentNonBlocking, deleteDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase/non-blocking-updates';
@@ -52,6 +53,21 @@ interface FarmContextType {
   deleteHealthTask: (id: string, path?: string) => void;
   updateHealthTask: (id: string, data: Omit<HealthTask, 'id' | '_path'>, path?: string) => void;
 
+  bankLoans: BankLoan[] | null;
+  addBankLoan: (loan: Omit<BankLoan, 'id' | '_path'>) => void;
+  deleteBankLoan: (id: string, path?: string) => void;
+  updateBankLoan: (id: string, data: Omit<BankLoan, 'id' | '_path'>, path?: string) => void;
+
+  creditCards: CreditCard[] | null;
+  addCreditCard: (card: Omit<CreditCard, 'id' | '_path'>) => void;
+  deleteCreditCard: (id: string, path?: string) => void;
+  updateCreditCard: (id: string, data: Omit<CreditCard, 'id' | '_path'>, path?: string) => void;
+
+  privateDebts: PrivateDebt[] | null;
+  addPrivateDebt: (debt: Omit<PrivateDebt, 'id' | '_path'>) => void;
+  deletePrivateDebt: (id: string, path?: string) => void;
+  updatePrivateDebt: (id: string, data: Omit<PrivateDebt, 'id' | '_path'>, path?: string) => void;
+
   communitySales: PublicSale[] | null;
   postToMarketplace: (sale: Omit<PublicSale, 'id' | 'sellerId' | 'sellerEmail' | 'sellerName' | '_path'>) => void;
   deleteMarketplaceSale: (id: string, path?: string) => void;
@@ -71,6 +87,10 @@ interface FarmContextType {
   totalFarmExpenses: number;
   totalReceivables: number;
   totalPayables: number;
+  
+  totalLoanBalance: number;
+  totalCreditCardDebt: number;
+  totalPrivateDebt: number;
 }
 
 const FarmContext = createContext<FarmContextType | undefined>(undefined);
@@ -98,6 +118,9 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const tRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'trackedSheep')) : null, [firestore, isVerified]);
   const eRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'farmExpenses')) : null, [firestore, isVerified]);
   const hRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'healthTasks')) : null, [firestore, isVerified]);
+  const blRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'bankLoans')) : null, [firestore, isVerified]);
+  const ccRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'creditCards')) : null, [firestore, isVerified]);
+  const pdRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'privateDebts')) : null, [firestore, isVerified]);
   const mkRef = useMemo(() => firestore ? query(collection(firestore, 'communitySales')) : null, [firestore]);
 
   const { data: qPurchases, isLoading: lPurchases } = useCollection<LivestockPurchase>(pRef);
@@ -109,6 +132,9 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const { data: qTracked, isLoading: lTracked } = useCollection<TrackedSheep>(tRef);
   const { data: qExpenses, isLoading: lExpenses } = useCollection<FarmExpense>(eRef);
   const { data: qHealth, isLoading: lHealth } = useCollection<HealthTask>(hRef);
+  const { data: qLoans, isLoading: lLoans } = useCollection<BankLoan>(blRef);
+  const { data: qCards, isLoading: lCards } = useCollection<CreditCard>(ccRef);
+  const { data: qDebts, isLoading: lDebts } = useCollection<PrivateDebt>(pdRef);
   const { data: qMarket, isLoading: lMarket } = useCollection<PublicSale>(mkRef);
 
   useEffect(() => {
@@ -126,30 +152,18 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const trackedSheep = useMemo(() => qTracked ? [...qTracked].sort((a, b) => (a.tagId || '').localeCompare(b.tagId || '')) : null, [qTracked]);
   const farmExpenses = useMemo(() => sort(qExpenses, 'expenseDate'), [qExpenses, sort]);
   const healthTasks = useMemo(() => sort(qHealth, 'nextDueDate'), [qHealth, sort]);
+  const bankLoans = useMemo(() => qLoans, [qLoans]);
+  const creditCards = useMemo(() => qCards, [qCards]);
+  const privateDebts = useMemo(() => qDebts, [qDebts]);
 
   const upsert = useCallback((col: string, id: string | undefined, data: any, path?: string) => {
     if (!user || !firestore) return;
-    
-    // ADMIN POWER: If path is provided, use it directly. Otherwise construct default path.
     const docRef = path ? doc(firestore, path) : doc(firestore, 'users', user.uid, col, id || generateId());
-    
-    const creatorMetadata = !path ? {
-      createdBy: user.uid,
-      creatorEmail: user.email || 'No Email',
-      creatorName: user.displayName || user.email?.split('@')[0] || 'Shepherd',
-    } : {};
-
-    setDocumentNonBlocking(docRef, { 
-      ...data, 
-      id: id || docRef.id, 
-      ...creatorMetadata,
-      updatedAt: serverTimestamp() 
-    }, { merge: true });
+    setDocumentNonBlocking(docRef, { ...data, id: id || docRef.id, updatedAt: serverTimestamp() }, { merge: true });
   }, [user, firestore]);
 
   const remove = useCallback((col: string, id: string, path?: string) => {
     if (!user || !firestore) return;
-    // ADMIN POWER: Use explicit path from collectionGroup metadata
     const docRef = path ? doc(firestore, path) : doc(firestore, 'users', user.uid, col, id);
     deleteDocumentNonBlocking(docRef);
   }, [user, firestore]);
@@ -157,14 +171,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const postToMarketplace = useCallback((sale: any) => {
     if (!user || !firestore) return;
     const docRef = doc(firestore, 'communitySales', generateId());
-    setDocumentNonBlocking(docRef, { 
-      ...sale, 
-      id: docRef.id, 
-      sellerId: user.uid, 
-      sellerEmail: user.email || 'No Email', 
-      sellerName: user.displayName || user.email?.split('@')[0] || 'Shepherd', 
-      updatedAt: serverTimestamp() 
-    }, { merge: true });
+    setDocumentNonBlocking(docRef, { ...sale, id: docRef.id, sellerId: user.uid, sellerEmail: user.email || 'No Email', sellerName: user.displayName || user.email?.split('@')[0] || 'Shepherd', updatedAt: serverTimestamp() }, { merge: true });
   }, [user, firestore]);
 
   const updateMarketplaceSale = useCallback((id: string, data: any, path?: string) => {
@@ -185,6 +192,10 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     const rev = (qSales || []).reduce((s, x) => s + Number(x.salePrice || 0), 0);
     const rec = (qSales || []).reduce((s, x) => s + Number(x.outstandingDuesFromBuyer || 0), 0);
     const pay = (qPurchases || []).reduce((s, p) => s + Number(p.dueAmount || 0), 0);
+    
+    const blBal = (qLoans || []).reduce((s, l) => s + Number(l.balanceLoan || 0), 0);
+    const ccBal = (qCards || []).reduce((s, c) => s + Number(c.amount || 0), 0);
+    const pdBal = (qDebts || []).reduce((s, d) => s + Number(d.amount || 0), 0);
 
     return { 
       totalSheep: Math.max(0, pCount - sCount - deadCount),
@@ -197,9 +208,12 @@ export function FarmProvider({ children }: { children: ReactNode }) {
       totalMedicineCost: mCost,
       totalFarmExpenses: eCost,
       totalReceivables: rec,
-      totalPayables: pay
+      totalPayables: pay,
+      totalLoanBalance: blBal,
+      totalCreditCardDebt: ccBal,
+      totalPrivateDebt: pdBal
     };
-  }, [qDead, qPurchases, qSales, qFeed, qLabor, qMedicine, qHealth, qExpenses, qTracked]);
+  }, [qDead, qPurchases, qSales, qFeed, qLabor, qMedicine, qHealth, qExpenses, qTracked, qLoans, qCards, qDebts]);
 
   const value = useMemo(() => ({
     purchases, addPurchase: (p: any) => upsert('livestockPurchases', undefined, p), updatePurchase: (id: string, p: any, path?: string) => upsert('livestockPurchases', id, p, path), deletePurchase: (id: string, path?: string) => remove('livestockPurchases', id, path),
@@ -211,13 +225,16 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     deadAnimals, addDeadAnimal: (a: any) => upsert('deadAnimals', undefined, a), updateDeadAnimal: (id: string, a: any, path?: string) => upsert('deadAnimals', id, a, path), deleteDeadAnimal: (id: string, path?: string) => remove('deadAnimals', id, path),
     farmExpenses, addFarmExpense: (e: any) => upsert('farmExpenses', undefined, e), updateFarmExpense: (id: string, e: any, path?: string) => upsert('farmExpenses', id, e, path), deleteFarmExpense: (id: string, path?: string) => remove('farmExpenses', id, path),
     healthTasks, addHealthTask: (t: any) => upsert('healthTasks', undefined, t), updateHealthTask: (id: string, t: any, path?: string) => upsert('healthTasks', id, t, path), deleteHealthTask: (id: string, path?: string) => remove('healthTasks', id, path),
+    bankLoans, addBankLoan: (l: any) => upsert('bankLoans', undefined, l), updateBankLoan: (id: string, l: any, path?: string) => upsert('bankLoans', id, l, path), deleteBankLoan: (id: string, path?: string) => remove('bankLoans', id, path),
+    creditCards, addCreditCard: (c: any) => upsert('creditCards', undefined, c), updateCreditCard: (id: string, c: any, path?: string) => upsert('creditCards', id, c, path), deleteCreditCard: (id: string, path?: string) => remove('creditCards', id, path),
+    privateDebts, addPrivateDebt: (d: any) => upsert('privateDebts', undefined, d), updatePrivateDebt: (id: string, d: any, path?: string) => upsert('privateDebts', id, d, path), deletePrivateDebt: (id: string, path?: string) => remove('privateDebts', id, path),
     communitySales: qMarket, postToMarketplace, updateMarketplaceSale, deleteMarketplaceSale: (id: string, path?: string) => deleteDocumentNonBlocking(doc(firestore!, path || `communitySales/${id}`)),
-    isLoading: isLoadingProfile || (user && !isVerified) || lPurchases || lSales || lFeed || lMedicine || lLabor || lDead || lTracked || lExpenses || lHealth || lMarket,
+    isLoading: isLoadingProfile || (user && !isVerified) || lPurchases || lSales || lFeed || lMedicine || lLabor || lDead || lTracked || lExpenses || lHealth || lLoans || lCards || lDebts || lMarket,
     userRole: userProfile?.role || null,
     ...stats
   }), [
-    purchases, sales, feedCosts, medicineExpenses, laborCosts, trackedSheep, deadAnimals, farmExpenses, healthTasks, qMarket, stats,
-    isLoadingProfile, user, isVerified, lPurchases, lSales, lFeed, lMedicine, lLabor, lDead, lTracked, lExpenses, lHealth, lMarket,
+    purchases, sales, feedCosts, medicineExpenses, laborCosts, trackedSheep, deadAnimals, farmExpenses, healthTasks, bankLoans, creditCards, privateDebts, qMarket, stats,
+    isLoadingProfile, user, isVerified, lPurchases, lSales, lFeed, lMedicine, lLabor, lDead, lTracked, lExpenses, lHealth, lLoans, lCards, lDebts, lMarket,
     userProfile, upsert, remove, postToMarketplace, updateMarketplaceSale, firestore
   ]);
 

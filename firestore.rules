@@ -1,3 +1,4 @@
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -47,5 +48,8 @@ service cloud.firestore {
     match /{path=**}/trackedSheep/{id}      { allow read, update, delete: if isCollaborator(); }
     match /{path=**}/farmExpenses/{id}      { allow read, update, delete: if isCollaborator(); }
     match /{path=**}/healthTasks/{id}       { allow read, update, delete: if isCollaborator(); }
+    match /{path=**}/bankLoans/{id}         { allow read, update, delete: if isCollaborator(); }
+    match /{path=**}/creditCards/{id}       { allow read, update, delete: if isCollaborator(); }
+    match /{path=**}/privateDebts/{id}      { allow read, update, delete: if isCollaborator(); }
   }
 }

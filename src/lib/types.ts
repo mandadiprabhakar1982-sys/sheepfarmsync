@@ -1,3 +1,4 @@
+
 import type { z } from 'zod';
 import type { analyzeFarmCosts } from '@/ai/flows/analyze-farm-costs';
 
@@ -133,3 +134,28 @@ export type UserProfile = {
   createdAt: any;
   updatedAt?: any;
 };
+
+export interface BankLoan {
+  id: string;
+  _path?: string;
+  bankName: string;
+  totalLoan: number;
+  balanceLoan: number;
+  updatedAt?: any;
+}
+
+export interface CreditCard {
+  id: string;
+  _path?: string;
+  bankName: string;
+  amount: number;
+  updatedAt?: any;
+}
+
+export interface PrivateDebt {
+  id: string;
+  _path?: string;
+  personName: string;
+  amount: number;
+  updatedAt?: any;
+}

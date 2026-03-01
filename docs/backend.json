@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "UserProfile": {
@@ -37,6 +38,37 @@
         "age": { "type": "number" }
       },
       "required": ["id", "tagId"]
+    },
+    "BankLoan": {
+      "title": "BankLoan",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "bankName": { "type": "string" },
+        "totalLoan": { "type": "number" },
+        "balanceLoan": { "type": "number" }
+      },
+      "required": ["id", "bankName", "totalLoan", "balanceLoan"]
+    },
+    "CreditCard": {
+      "title": "CreditCard",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "bankName": { "type": "string" },
+        "amount": { "type": "number" }
+      },
+      "required": ["id", "bankName", "amount"]
+    },
+    "PrivateDebt": {
+      "title": "PrivateDebt",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "personName": { "type": "string" },
+        "amount": { "type": "number" }
+      },
+      "required": ["id", "personName", "amount"]
     }
   },
   "auth": {
@@ -78,6 +110,18 @@
     "/users/{userId}/deadAnimals/{id}": {
       "schema": { "type": "object" },
       "description": "Subcollection for mortality logs."
+    },
+    "/users/{userId}/bankLoans/{id}": {
+      "schema": { "$ref": "#/backend/entities/BankLoan" },
+      "description": "Subcollection for bank loan tracking."
+    },
+    "/users/{userId}/creditCards/{id}": {
+      "schema": { "$ref": "#/backend/entities/CreditCard" },
+      "description": "Subcollection for credit card tracking."
+    },
+    "/users/{userId}/privateDebts/{id}": {
+      "schema": { "$ref": "#/backend/entities/PrivateDebt" },
+      "description": "Subcollection for personal/private loan tracking."
     },
     "/communitySales/{saleId}": {
       "schema": { "type": "object" },
