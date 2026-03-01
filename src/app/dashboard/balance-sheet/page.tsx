@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { PlusCircle, CreditCard, Banknote, Landmark, Trash2, Pencil, Save, X, Info, Calendar as CalendarIcon, ReceiptIndianRupee, Wand2, Calculator } from 'lucide-react';
+import { PlusCircle, CreditCard, Banknote, Landmark, Trash2, Pencil, Save, X, Info, Calendar as CalendarIcon, ReceiptIndianRupee, Wand2, Calculator, ArrowRightLeft } from 'lucide-react';
 import { useFarm } from '@/context/FarmContext';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -479,10 +479,10 @@ export default function BalanceSheetPage() {
                         <TableHead className="text-[9px] font-black uppercase">SNO</TableHead>
                         <TableHead className="text-[9px] font-black uppercase">Bank Name</TableHead>
                         <TableHead className="text-[9px] font-black uppercase text-right">Progress</TableHead>
-                        <TableHead className="text-[9px] font-black uppercase text-right">Total Loan</TableHead>
                         <TableHead className="text-[9px] font-black uppercase text-right">Balance</TableHead>
-                        <TableHead className="text-[9px] font-black uppercase text-right">EMI</TableHead>
-                        <TableHead className="text-[9px] font-black uppercase text-right">Monthly Int.</TableHead>
+                        <TableHead className="text-[9px] font-black uppercase text-right">EMI Total</TableHead>
+                        <TableHead className="text-[9px] font-black uppercase text-right">Principal</TableHead>
+                        <TableHead className="text-[9px] font-black uppercase text-right">Interest</TableHead>
                         <TableHead className="w-[80px]"></TableHead>
                       </TableRow>
                     </TableHeader>
@@ -490,17 +490,20 @@ export default function BalanceSheetPage() {
                       {sortedLoans.map((loan, idx) => {
                         const progress = loan.totalLoan > 0 ? ((loan.totalLoan - loan.balanceLoan) / loan.totalLoan) * 100 : 0;
                         const monthlyIntAmount = loan.balanceLoan * (loan.interest / 12 / 100);
+                        const monthlyPrincipal = Math.max(0, (loan.monthlyEmi || 0) - monthlyIntAmount);
+                        const currentMonthNum = Math.max(1, (loan.totalTenure - (loan.pendingTenure || 0)));
+                        
                         return (
                           <TableRow key={loan.id} className="group">
                             <TableCell className="text-[10px] font-bold text-muted-foreground">{idx + 1}</TableCell>
                             <TableCell>
                               <div className="flex flex-col">
                                 <span className="text-xs font-bold whitespace-nowrap">{loan.bankName}</span>
-                                <span className="text-[8px] uppercase tracking-widest text-muted-foreground">{loan.totalTenure || 'N/A'} Months Total</span>
+                                <span className="text-[8px] uppercase font-black text-blue-600 tracking-tighter">Month {Math.round(currentMonthNum)} of {loan.totalTenure}</span>
                                 {loan.paymentDate && (
-                                  <span className="text-[8px] font-black text-blue-600 uppercase flex items-center gap-1 mt-0.5">
+                                  <span className="text-[8px] font-bold text-muted-foreground uppercase flex items-center gap-1 mt-0.5">
                                     <CalendarIcon className="h-2 w-2" />
-                                    EMI: {loan.paymentDate}
+                                    Day: {loan.paymentDate}
                                   </span>
                                 )}
                               </div>
@@ -514,9 +517,9 @@ export default function BalanceSheetPage() {
                                 </div>
                               </div>
                             </TableCell>
-                            <TableCell className="text-xs font-medium text-right">₹{loan.totalLoan.toLocaleString()}</TableCell>
                             <TableCell className="text-xs font-black text-right text-destructive">₹{loan.balanceLoan.toLocaleString()}</TableCell>
                             <TableCell className="text-xs font-bold text-right text-primary">₹{(loan.monthlyEmi || 0).toLocaleString()}</TableCell>
+                            <TableCell className="text-xs font-bold text-right text-emerald-600">₹{Math.round(monthlyPrincipal).toLocaleString()}</TableCell>
                             <TableCell className="text-xs text-right font-bold text-rose-600">
                               ₹{Math.round(monthlyIntAmount).toLocaleString()}
                               <span className="block text-[8px] font-medium text-muted-foreground">{loan.interest}% rate</span>
