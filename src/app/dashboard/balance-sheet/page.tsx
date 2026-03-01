@@ -14,6 +14,14 @@ import { useFarm } from '@/context/FarmContext';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 export default function BalanceSheetPage() {
   const { toast } = useToast();
@@ -49,6 +57,10 @@ export default function BalanceSheetPage() {
   const [monthlyInterest, setMonthlyInterest] = useState('');
   const [yearlyInterest, setYearlyInterest] = useState('');
 
+  // Edit States
+  const [editingItem, setEditingItem] = useState<any>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+
   // AUTOMATION: Private Debt Yearly Interest Calculation
   useEffect(() => {
     if (monthlyInterest && !isNaN(parseFloat(monthlyInterest))) {
@@ -60,7 +72,6 @@ export default function BalanceSheetPage() {
   // AUTOMATION: Credit Card Minimum Payment Suggestion (5%)
   useEffect(() => {
     if (cardOutstanding && !isNaN(parseFloat(cardOutstanding))) {
-      // Standard 5% min payment suggestion
       const suggestedMin = Math.ceil(parseFloat(cardOutstanding) * 0.05);
       setCardMinPayment(suggestedMin.toString());
     }
@@ -124,6 +135,72 @@ export default function BalanceSheetPage() {
     resetForms();
   };
 
+  const handleEditClick = (item: any, type: string) => {
+    setEditingItem({ ...item, _type: type });
+    // Pre-populate global states for editing (reusing the logic)
+    if (type === 'loan') {
+      setBankName(item.bankName);
+      setTotalLoan(item.totalLoan.toString());
+      setBalanceLoan(item.balanceLoan.toString());
+      setTotalTenure(item.totalTenure.toString());
+      setMonthlyEmi(item.monthlyEmi.toString());
+      setPendingTenure(item.pendingTenure.toString());
+      setInterest(item.interest.toString());
+      setPaymentDate(item.paymentDate || '');
+    } else if (type === 'card') {
+      setBankName(item.bankName);
+      setCardDueDate(item.dueDate || '');
+      setCardTotalLimit(item.totalLimit.toString());
+      setCardOutstanding(item.outstandingAmount.toString());
+      setCardMinPayment(item.minimumPayment.toString());
+    } else if (type === 'private') {
+      setPersonName(item.personName);
+      setAmount(item.amount.toString());
+      setDebtDate(item.date || '');
+      setMonthlyInterest(item.monthlyInterest?.toString() || '');
+      setYearlyInterest(item.yearlyInterest?.toString() || '');
+    }
+    setIsEditDialogOpen(true);
+  };
+
+  const handleSaveEdit = () => {
+    if (!editingItem) return;
+
+    if (editingItem._type === 'loan') {
+      updateBankLoan(editingItem.id, {
+        bankName,
+        totalLoan: parseFloat(totalLoan),
+        balanceLoan: parseFloat(balanceLoan),
+        totalTenure: parseFloat(totalTenure),
+        monthlyEmi: parseFloat(monthlyEmi),
+        pendingTenure: parseFloat(pendingTenure),
+        interest: parseFloat(interest),
+        paymentDate
+      }, editingItem._path);
+    } else if (editingItem._type === 'card') {
+      updateCreditCard(editingItem.id, {
+        bankName,
+        dueDate: cardDueDate,
+        totalLimit: parseFloat(cardTotalLimit),
+        outstandingAmount: parseFloat(cardOutstanding),
+        minimumPayment: parseFloat(cardMinPayment)
+      }, editingItem._path);
+    } else if (editingItem._type === 'private') {
+      updatePrivateDebt(editingItem.id, {
+        personName,
+        amount: parseFloat(amount),
+        date: debtDate,
+        monthlyInterest: parseFloat(monthlyInterest),
+        yearlyInterest: parseFloat(yearlyInterest)
+      }, editingItem._path);
+    }
+
+    toast({ title: "Update Success", description: "The record has been updated." });
+    setIsEditDialogOpen(false);
+    setEditingItem(null);
+    resetForms();
+  };
+
   const SummaryCard = ({ title, value, icon: Icon, color }: { title: string, value: number, icon: any, color: string }) => (
     <Card className="border-none shadow-lg rounded-2xl overflow-hidden bg-white">
       <CardContent className="p-6 flex items-center gap-4">
@@ -169,7 +246,7 @@ export default function BalanceSheetPage() {
                     </div>
                     <div className="space-y-2">
                       <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Payment Date</Label>
-                      <Input value={paymentDate} onChange={(e) => setPaymentDate(e.target.value)} placeholder="e.g. 5th of month" className="h-12 rounded-xl bg-white border-none shadow-sm font-bold" />
+                      <Input value={paymentDate} onChange={(e) => setPaymentDate(e.target.value)} placeholder="e.g. 5th" className="h-12 rounded-xl bg-white border-none shadow-sm font-bold" />
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
@@ -229,7 +306,7 @@ export default function BalanceSheetPage() {
                     <div className="space-y-2">
                       <Label className="text-[10px] font-black uppercase tracking-widest opacity-60 flex items-center gap-1">
                         Min. Payment (₹)
-                        <Info className="h-2 w-2 text-primary" title="Automatically calculated at 5%" />
+                        <Info className="h-2 w-2 text-primary" />
                       </Label>
                       <Input type="number" value={cardMinPayment} onChange={(e) => setCardMinPayment(e.target.value)} placeholder="0" className="h-12 rounded-xl bg-white border-none shadow-sm font-black" />
                     </div>
@@ -259,7 +336,6 @@ export default function BalanceSheetPage() {
                     <div className="space-y-2">
                       <Label className="text-[10px] font-black uppercase tracking-widest opacity-60 flex items-center gap-1">
                         Yearly Interest (₹)
-                        <Info className="h-2 w-2 text-primary" title="Automatically calculated: Monthly x 12" />
                       </Label>
                       <Input type="number" value={yearlyInterest} onChange={(e) => setYearlyInterest(e.target.value)} placeholder="0" className="h-12 rounded-xl bg-white border-none shadow-sm font-bold bg-muted/20" />
                     </div>
@@ -310,7 +386,7 @@ export default function BalanceSheetPage() {
                         <TableHead className="text-[9px] font-black uppercase text-right">Balance</TableHead>
                         <TableHead className="text-[9px] font-black uppercase text-right">EMI</TableHead>
                         <TableHead className="text-[9px] font-black uppercase text-right">Interest</TableHead>
-                        <TableHead className="w-[40px]"></TableHead>
+                        <TableHead className="w-[80px]"></TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -345,9 +421,14 @@ export default function BalanceSheetPage() {
                             <TableCell className="text-xs font-bold text-right text-primary">₹{(loan.monthlyEmi || 0).toLocaleString()}</TableCell>
                             <TableCell className="text-xs text-right font-medium">{loan.interest ? `${loan.interest}%` : 'N/A'}</TableCell>
                             <TableCell>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => deleteBankLoan(loan.id, loan._path)}>
-                                <Trash2 className="h-3 w-3 text-destructive" />
-                              </Button>
+                              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEditClick(loan, 'loan')}>
+                                  <Pencil className="h-3 w-3 text-muted-foreground" />
+                                </Button>
+                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => deleteBankLoan(loan.id, loan._path)}>
+                                  <Trash2 className="h-3 w-3 text-destructive" />
+                                </Button>
+                              </div>
                             </TableCell>
                           </TableRow>
                         );
@@ -378,7 +459,7 @@ export default function BalanceSheetPage() {
                         <TableHead className="text-[9px] font-black uppercase text-right">Limit</TableHead>
                         <TableHead className="text-[9px] font-black uppercase text-right">Outstanding</TableHead>
                         <TableHead className="text-[9px] font-black uppercase text-right">Min. Pay</TableHead>
-                        <TableHead className="w-[50px]"></TableHead>
+                        <TableHead className="w-[80px]"></TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -399,9 +480,14 @@ export default function BalanceSheetPage() {
                             <TableCell className="text-xs font-black text-right text-destructive">₹{card.outstandingAmount.toLocaleString()}</TableCell>
                             <TableCell className="text-xs font-bold text-right text-orange-600">₹{(card.minimumPayment || 0).toLocaleString()}</TableCell>
                             <TableCell>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => deleteCreditCard(card.id, card._path)}>
-                                <Trash2 className="h-3 w-3 text-destructive" />
-                              </Button>
+                              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEditClick(card, 'card')}>
+                                  <Pencil className="h-3 w-3 text-muted-foreground" />
+                                </Button>
+                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => deleteCreditCard(card.id, card._path)}>
+                                  <Trash2 className="h-3 w-3 text-destructive" />
+                                </Button>
+                              </div>
                             </TableCell>
                           </TableRow>
                         );
@@ -431,7 +517,7 @@ export default function BalanceSheetPage() {
                         <TableHead className="text-[9px] font-black uppercase text-right">Total Amount</TableHead>
                         <TableHead className="text-[9px] font-black uppercase text-right">Monthly Int.</TableHead>
                         <TableHead className="text-[9px] font-black uppercase text-right">Yearly Int.</TableHead>
-                        <TableHead className="w-[50px]"></TableHead>
+                        <TableHead className="w-[80px]"></TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -444,9 +530,14 @@ export default function BalanceSheetPage() {
                           <TableCell className="text-xs font-medium text-right text-muted-foreground">₹{(debt.monthlyInterest || 0).toLocaleString()}</TableCell>
                           <TableCell className="text-xs font-black text-right text-rose-600">₹{(debt.yearlyInterest || 0).toLocaleString()}</TableCell>
                           <TableCell>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => deletePrivateDebt(debt.id, debt._path)}>
-                              <Trash2 className="h-3 w-3 text-destructive" />
-                            </Button>
+                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEditClick(debt, 'private')}>
+                                <Pencil className="h-3 w-3 text-muted-foreground" />
+                              </Button>
+                              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => deletePrivateDebt(debt.id, debt._path)}>
+                                <Trash2 className="h-3 w-3 text-destructive" />
+                              </Button>
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -459,6 +550,125 @@ export default function BalanceSheetPage() {
           </Tabs>
         </div>
       </div>
+
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-lg rounded-[2rem]">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-black tracking-tight">Edit Entry</DialogTitle>
+            <DialogDescription>Update details for your financial liability records.</DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-6 py-4">
+            {editingItem?._type === 'loan' && (
+              <>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Bank Name</Label>
+                    <Input value={bankName} onChange={(e) => setBankName(e.target.value)} className="h-12 rounded-xl bg-accent/5 border-none shadow-sm font-bold" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Payment Date</Label>
+                    <Input value={paymentDate} onChange={(e) => setPaymentDate(e.target.value)} className="h-12 rounded-xl bg-accent/5 border-none shadow-sm font-bold" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Total Loan (₹)</Label>
+                    <Input type="number" value={totalLoan} onChange={(e) => setTotalLoan(e.target.value)} className="h-12 rounded-xl bg-accent/5 border-none shadow-sm font-black" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Balance (₹)</Label>
+                    <Input type="number" value={balanceLoan} onChange={(e) => setBalanceLoan(e.target.value)} className="h-12 rounded-xl bg-accent/5 border-none shadow-sm font-black text-destructive" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Total Months</Label>
+                    <Input type="number" value={totalTenure} onChange={(e) => setTotalTenure(e.target.value)} className="h-12 rounded-xl bg-accent/5 border-none shadow-sm font-bold" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Monthly EMI (₹)</Label>
+                    <Input type="number" value={monthlyEmi} onChange={(e) => setMonthlyEmi(e.target.value)} className="h-12 rounded-xl bg-accent/5 border-none shadow-sm font-black" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Pending Months</Label>
+                    <Input type="number" value={pendingTenure} onChange={(e) => setPendingTenure(e.target.value)} className="h-12 rounded-xl bg-accent/5 border-none shadow-sm font-bold text-orange-600" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Interest (%)</Label>
+                    <Input type="number" value={interest} onChange={(e) => setInterest(e.target.value)} step="0.1" className="h-12 rounded-xl bg-accent/5 border-none shadow-sm font-black" />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {editingItem?._type === 'card' && (
+              <>
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Bank Name</Label>
+                  <Input value={bankName} onChange={(e) => setBankName(e.target.value)} className="h-12 rounded-xl bg-accent/5 border-none shadow-sm font-bold" />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Due Date</Label>
+                    <Input type="date" value={cardDueDate} onChange={(e) => setCardDueDate(e.target.value)} className="h-12 rounded-xl bg-accent/5 border-none shadow-sm font-bold" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Total Limit (₹)</Label>
+                    <Input type="number" value={cardTotalLimit} onChange={(e) => setCardTotalLimit(e.target.value)} className="h-12 rounded-xl bg-accent/5 border-none shadow-sm font-black" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Outstanding (₹)</Label>
+                    <Input type="number" value={cardOutstanding} onChange={(e) => setCardOutstanding(e.target.value)} className="h-12 rounded-xl bg-accent/5 border-none shadow-sm font-black text-destructive" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Min. Payment (₹)</Label>
+                    <Input type="number" value={cardMinPayment} onChange={(e) => setCardMinPayment(e.target.value)} className="h-12 rounded-xl bg-accent/5 border-none shadow-sm font-black" />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {editingItem?._type === 'private' && (
+              <>
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Date</Label>
+                  <Input type="date" value={debtDate} onChange={(e) => setDebtDate(e.target.value)} className="h-12 rounded-xl bg-accent/5 border-none shadow-sm font-bold" />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Person Name</Label>
+                  <Input value={personName} onChange={(e) => setPersonName(e.target.value)} className="h-12 rounded-xl bg-accent/5 border-none shadow-sm font-bold" />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Total Amount (₹)</Label>
+                  <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} className="h-12 rounded-xl bg-accent/5 border-none shadow-sm font-black" />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Monthly Interest (₹)</Label>
+                    <Input type="number" value={monthlyInterest} onChange={(e) => setMonthlyInterest(e.target.value)} className="h-12 rounded-xl bg-accent/5 border-none shadow-sm font-bold" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Yearly Interest (₹)</Label>
+                    <Input type="number" value={yearlyInterest} onChange={(e) => setYearlyInterest(e.target.value)} className="h-12 rounded-xl bg-accent/5 border-none shadow-sm font-bold bg-muted/20" />
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)} className="rounded-xl font-bold">Cancel</Button>
+            <Button onClick={handleSaveEdit} className="rounded-xl font-black uppercase tracking-widest shadow-lg shadow-primary/20 px-8">
+              <Save className="mr-2 h-4 w-4" /> Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
