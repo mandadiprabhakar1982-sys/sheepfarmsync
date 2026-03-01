@@ -140,7 +140,11 @@ export interface BankLoan {
   _path?: string;
   bankName: string;
   totalLoan: number;
+  totalTenure: string;
   balanceLoan: number;
+  monthlyEmi: number;
+  pendingTenure: string;
+  interest: number;
   updatedAt?: any;
 }
 

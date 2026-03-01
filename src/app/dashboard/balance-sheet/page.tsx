@@ -29,6 +29,11 @@ export default function BalanceSheetPage() {
   const [bankName, setBankName] = useState('');
   const [totalLoan, setTotalLoan] = useState('');
   const [balanceLoan, setBalanceLoan] = useState('');
+  const [totalTenure, setTotalTenure] = useState('');
+  const [monthlyEmi, setMonthlyEmi] = useState('');
+  const [pendingTenure, setPendingTenure] = useState('');
+  const [interest, setInterest] = useState('');
+  
   const [personName, setPersonName] = useState('');
   const [amount, setAmount] = useState('');
 
@@ -36,6 +41,10 @@ export default function BalanceSheetPage() {
     setBankName('');
     setTotalLoan('');
     setBalanceLoan('');
+    setTotalTenure('');
+    setMonthlyEmi('');
+    setPendingTenure('');
+    setInterest('');
     setPersonName('');
     setAmount('');
   };
@@ -43,7 +52,15 @@ export default function BalanceSheetPage() {
   const handleAdd = () => {
     if (activeTab === 'loans') {
       if (!bankName || !totalLoan || !balanceLoan) return;
-      addBankLoan({ bankName, totalLoan: parseFloat(totalLoan), balanceLoan: parseFloat(balanceLoan) });
+      addBankLoan({ 
+        bankName, 
+        totalLoan: parseFloat(totalLoan), 
+        balanceLoan: parseFloat(balanceLoan),
+        totalTenure,
+        monthlyEmi: parseFloat(monthlyEmi || '0'),
+        pendingTenure,
+        interest: parseFloat(interest || '0')
+      });
       toast({ title: "Loan Recorded", description: "Bank loan entry added successfully." });
     } else if (activeTab === 'cards') {
       if (!bankName || !amount) return;
@@ -109,6 +126,26 @@ export default function BalanceSheetPage() {
                       <Input type="number" value={balanceLoan} onChange={(e) => setBalanceLoan(e.target.value)} placeholder="0" className="h-12 rounded-xl bg-white border-none shadow-sm font-black text-destructive" />
                     </div>
                   </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Total Tenure</Label>
+                      <Input value={totalTenure} onChange={(e) => setTotalTenure(e.target.value)} placeholder="e.g. 5 Years" className="h-12 rounded-xl bg-white border-none shadow-sm font-bold" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Monthly EMI (₹)</Label>
+                      <Input type="number" value={monthlyEmi} onChange={(e) => setMonthlyEmi(e.target.value)} placeholder="0" className="h-12 rounded-xl bg-white border-none shadow-sm font-black" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Pending Tenure</Label>
+                      <Input value={pendingTenure} onChange={(e) => setPendingTenure(e.target.value)} placeholder="e.g. 24 Months" className="h-12 rounded-xl bg-white border-none shadow-sm font-bold text-orange-600" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Interest (%)</Label>
+                      <Input type="number" value={interest} onChange={(e) => setInterest(e.target.value)} placeholder="0.0" step="0.1" className="h-12 rounded-xl bg-white border-none shadow-sm font-black" />
+                    </div>
+                  </div>
                 </>
               )}
 
@@ -154,7 +191,7 @@ export default function BalanceSheetPage() {
         </div>
 
         {/* Ledger Views */}
-        <div className="lg:col-span-8">
+        <div className="lg:col-span-8 overflow-hidden">
           <Tabs defaultValue="loans" onValueChange={setActiveTab} className="w-full">
             <TabsList className="mb-8 p-1 bg-muted/50 rounded-2xl grid grid-cols-3">
               <TabsTrigger value="loans" className="rounded-xl font-black text-[10px] uppercase tracking-widest">Bank Loans</TabsTrigger>
@@ -170,22 +207,32 @@ export default function BalanceSheetPage() {
                     <p className="text-lg font-black">₹{totalLoanBalance.toLocaleString()}</p>
                   </div>
                 </CardHeader>
-                <CardContent className="pt-6">
+                <CardContent className="pt-6 overflow-x-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="text-[10px] font-black uppercase">Bank Name</TableHead>
-                        <TableHead className="text-[10px] font-black uppercase text-right">Total Loan</TableHead>
-                        <TableHead className="text-[10px] font-black uppercase text-right">Balance</TableHead>
-                        <TableHead className="w-[50px]"></TableHead>
+                        <TableHead className="text-[9px] font-black uppercase">SNO</TableHead>
+                        <TableHead className="text-[9px] font-black uppercase">Bank Name</TableHead>
+                        <TableHead className="text-[9px] font-black uppercase text-right">Total Loan</TableHead>
+                        <TableHead className="text-[9px] font-black uppercase text-right">Total Tenure</TableHead>
+                        <TableHead className="text-[9px] font-black uppercase text-right">Balance</TableHead>
+                        <TableHead className="text-[9px] font-black uppercase text-right">EMI</TableHead>
+                        <TableHead className="text-[9px] font-black uppercase text-right">Pending</TableHead>
+                        <TableHead className="text-[9px] font-black uppercase text-right">Interest</TableHead>
+                        <TableHead className="w-[40px]"></TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {bankLoans?.map((loan) => (
+                      {bankLoans?.map((loan, idx) => (
                         <TableRow key={loan.id} className="group">
-                          <TableCell className="text-xs font-bold">{loan.bankName}</TableCell>
+                          <TableCell className="text-[10px] font-bold text-muted-foreground">{idx + 1}</TableCell>
+                          <TableCell className="text-xs font-bold whitespace-nowrap">{loan.bankName}</TableCell>
                           <TableCell className="text-xs font-medium text-right">₹{loan.totalLoan.toLocaleString()}</TableCell>
+                          <TableCell className="text-xs text-right text-muted-foreground">{loan.totalTenure || 'N/A'}</TableCell>
                           <TableCell className="text-xs font-black text-right text-destructive">₹{loan.balanceLoan.toLocaleString()}</TableCell>
+                          <TableCell className="text-xs font-bold text-right text-primary">₹{(loan.monthlyEmi || 0).toLocaleString()}</TableCell>
+                          <TableCell className="text-xs text-right text-orange-600 font-bold">{loan.pendingTenure || 'N/A'}</TableCell>
+                          <TableCell className="text-xs text-right font-medium">{loan.interest ? `${loan.interest}%` : 'N/A'}</TableCell>
                           <TableCell>
                             <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => deleteBankLoan(loan.id, loan._path)}>
                               <Trash2 className="h-3 w-3 text-destructive" />
@@ -193,7 +240,7 @@ export default function BalanceSheetPage() {
                           </TableCell>
                         </TableRow>
                       ))}
-                      {!bankLoans?.length && <TableRow><TableCell colSpan={4} className="text-center py-10 opacity-20 italic">No bank loans recorded</TableCell></TableRow>}
+                      {!bankLoans?.length && <TableRow><TableCell colSpan={9} className="text-center py-10 opacity-20 italic">No bank loans recorded</TableCell></TableRow>}
                     </TableBody>
                   </Table>
                 </CardContent>
