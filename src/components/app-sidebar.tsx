@@ -19,6 +19,7 @@ import {
   ListChecks,
   Smartphone,
   ChevronRight,
+  BookOpen,
 } from 'lucide-react';
 
 import {
@@ -55,12 +56,18 @@ const groups = [
     ]
   },
   {
+    label: "Financials",
+    links: [
+      { href: '/dashboard/balance-sheet', label: 'Balance Sheet', icon: BookOpen },
+      { href: '/dashboard/expenses', label: 'Misc Expenses', icon: Receipt },
+      { href: '/dashboard/labor', label: 'Staff/Labor', icon: Users },
+    ]
+  },
+  {
     label: "Operations",
     links: [
       { href: '/dashboard/medicine', label: 'Health & Medical', icon: Syringe },
       { href: '/dashboard/feed', label: 'Feed & Nutrition', icon: Wheat },
-      { href: '/dashboard/labor', label: 'Staff/Labor', icon: Users },
-      { href: '/dashboard/expenses', label: 'Misc Expenses', icon: Receipt },
     ]
   },
   {
@@ -121,7 +128,7 @@ export function AppSidebar() {
       <SidebarFooter className="border-t border-sidebar-border p-6 bg-sidebar">
         <div className="flex flex-col items-center gap-1 opacity-40">
           <p className="text-[9px] font-black uppercase tracking-[0.3em] text-sidebar-foreground">SheepSync Pro</p>
-          <p className="text-[7px] font-bold text-sidebar-foreground">Enterprise v2.4.0</p>
+          <p className="text-[7px] font-bold text-sidebar-foreground">Enterprise v2.5.0</p>
         </div>
       </SidebarFooter>
     </Sidebar>
