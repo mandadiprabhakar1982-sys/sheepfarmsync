@@ -1,22 +1,26 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/page-header';
-import { Calculator, Wheat, Leaf, Scale, ReceiptIndianRupee, TrendingDown, ArrowUpRight, Package, CalendarDays } from 'lucide-react';
+import { Calculator, Wheat, Leaf, Scale, ReceiptIndianRupee, TrendingDown, ArrowUpRight, Package, CalendarDays, RefreshCcw, CheckCircle2 } from 'lucide-react';
 import { SyncProIcon } from '@/components/logo';
+import { useFarm } from '@/context/FarmContext';
 import { cn } from '@/lib/utils';
 
 export default function FeedCalculatorPage() {
+  const { totalSheep, trackedSheep } = useFarm();
+
   // Input states
   const [sheepCount, setSheepCount] = useState('80');
   const [weight, setWeight] = useState('15');
   const [tmrCost, setTmrCost] = useState('21');
   const [groundnutCost, setGroundnutCost] = useState('10');
   const [bagSize, setBagSize] = useState('50');
+  const [isSynced, setIsSynced] = useState(false);
 
   const [results, setResults] = useState<{
     totalFeedPerSheep: number;
@@ -27,6 +31,22 @@ export default function FeedCalculatorPage() {
     totalTMR150: number;
     bagsNeeded: number;
   } | null>(null);
+
+  // LOGICAL SYNC: Pull metrics from Community Flock
+  const handleSyncFlockData = () => {
+    // Use totalSheep from context (Purchases - Sales - Mortalities)
+    setSheepCount(totalSheep.toString());
+
+    // Calculate average weight from tracked sheep
+    if (trackedSheep && trackedSheep.length > 0) {
+      const totalWeight = trackedSheep.reduce((acc, s) => acc + s.currentWeight, 0);
+      const avgWeight = totalWeight / trackedSheep.length;
+      setWeight(avgWeight.toFixed(1));
+    }
+    
+    setIsSynced(true);
+    setTimeout(() => setIsSynced(false), 3000);
+  };
 
   const calculateFeed = () => {
     const sheep = parseFloat(sheepCount);
@@ -94,13 +114,35 @@ export default function FeedCalculatorPage() {
         <div className="lg:col-span-4 space-y-10">
           <Card className="border-none bg-white rounded-[2.5rem] shadow-2xl overflow-hidden">
             <CardHeader className="bg-neutral-50 p-8 border-b border-neutral-100">
-              <CardTitle className="text-xl font-black tracking-tight flex items-center gap-3">
-                <Scale className="h-5 w-5 text-primary" />
-                Flock Metrics
-              </CardTitle>
-              <CardDescription className="text-[10px] font-bold uppercase tracking-widest opacity-60">Define your current feeding base</CardDescription>
+              <div className="flex justify-between items-start">
+                <div className="space-y-1">
+                  <CardTitle className="text-xl font-black tracking-tight flex items-center gap-3">
+                    <Scale className="h-5 w-5 text-primary" />
+                    Flock Metrics
+                  </CardTitle>
+                  <CardDescription className="text-[10px] font-bold uppercase tracking-widest opacity-60">Define your current feeding base</CardDescription>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={handleSyncFlockData}
+                  className={cn(
+                    "h-10 w-10 rounded-full transition-all",
+                    isSynced ? "text-emerald-600 bg-emerald-50" : "text-primary hover:bg-primary/10"
+                  )}
+                  title="Sync with Community Flock data"
+                >
+                  {isSynced ? <CheckCircle2 className="h-5 w-5 animate-in zoom-in" /> : <RefreshCcw className="h-5 w-5" />}
+                </Button>
+              </div>
             </CardHeader>
             <CardContent className="p-8 space-y-6">
+              {isSynced && (
+                <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center gap-2 animate-in slide-in-from-top-2 duration-300">
+                  <CheckCircle2 className="h-3 w-3 text-emerald-600" />
+                  <span className="text-[10px] font-black text-emerald-700 uppercase tracking-widest">Synchronized with Flock Records</span>
+                </div>
+              )}
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Total Sheep Count</Label>
