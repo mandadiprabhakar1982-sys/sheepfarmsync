@@ -22,10 +22,11 @@ import {
   Scale,
   MoreVertical,
   Camera,
-  Wheat
+  Wheat,
+  BarChart3
 } from 'lucide-react';
 import Image from 'next/image';
-import { Bar, ComposedChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Line } from 'recharts';
+import { Bar, ComposedChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Line, Area } from 'recharts';
 import { format } from 'date-fns';
 
 import { PageHeader } from '@/components/page-header';
@@ -62,11 +63,15 @@ type TrackingFormData = z.infer<typeof trackingFormSchema>;
 
 const chartConfig = {
   averageWeight: {
-    label: 'Avg. Weight',
+    label: 'Avg. Weight (kg)',
     color: 'hsl(var(--primary))',
   },
+  averageFeed: {
+    label: 'Daily Feed (kg)',
+    color: '#f59e0b', // Amber/Gold for nutrition
+  },
   growth: {
-    label: 'Monthly Growth',
+    label: 'Growth Rate',
     color: 'hsl(var(--chart-2))',
   },
 } satisfies ChartConfig;
@@ -128,7 +133,7 @@ export default function LivestockPage() {
   }, [trackedSheep]);
 
   const chartData = useMemo(() => {
-    if (!trackedSheep || trackedSheep.length < 2) return [];
+    if (!trackedSheep || trackedSheep.length === 0) return [];
 
     const weightByAge = trackedSheep.reduce((acc, sheep) => {
       const age = sheep.age;
@@ -138,24 +143,29 @@ export default function LivestockPage() {
       return acc;
     }, {} as Record<number, { totalWeight: number; count: number }>);
 
-    const sortedAverageWeights = Object.entries(weightByAge)
-      .map(([age, { totalWeight, count }]) => ({
-        age: parseInt(age),
-        averageWeight: parseFloat((totalWeight / count).toFixed(2)),
-      }))
+    const sortedAverages = Object.entries(weightByAge)
+      .map(([age, { totalWeight, count }]) => {
+        const avgWt = parseFloat((totalWeight / count).toFixed(2));
+        return {
+          age: parseInt(age),
+          averageWeight: avgWt,
+          averageFeed: parseFloat((avgWt * 0.04).toFixed(2)),
+        };
+      })
       .sort((a, b) => a.age - b.age);
 
-    return sortedAverageWeights.map((current, index) => {
+    return sortedAverages.map((current, index) => {
       let growth = 0;
       if (index > 0) {
-        const previous = sortedAverageWeights[index - 1];
+        const previous = sortedAverages[index - 1];
         const weightDiff = current.averageWeight - previous.averageWeight;
         const ageDiff = current.age - previous.age;
         if (ageDiff > 0) growth = parseFloat((weightDiff / ageDiff).toFixed(2));
       }
       return {
-        age: `${current.age} mo`,
+        batch: `${current.age} mo`,
         averageWeight: current.averageWeight,
+        averageFeed: current.averageFeed,
         growth: growth,
       };
     });
@@ -278,7 +288,7 @@ export default function LivestockPage() {
               <Form {...trackingForm}>
                 <form onSubmit={trackingForm.handleSubmit(onTrackingSubmit)} className="space-y-8">
                   <div className="space-y-4">
-                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-40">Identification</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Identification</Label>
                     <FormField control={trackingForm.control} name="tagId" render={({ field }) => (
                       <FormItem>
                         <FormControl>
@@ -290,6 +300,7 @@ export default function LivestockPage() {
                     <div className="grid grid-cols-2 gap-4">
                       <FormField control={trackingForm.control} name="weight" render={({ field }) => (
                         <FormItem>
+                          <Label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-2">Weight (kg)</Label>
                           <FormControl>
                             <Input type="number" step="0.1" placeholder="Weight (kg)" className="h-12 rounded-xl bg-neutral-50 border-none shadow-sm font-bold px-4" {...field} />
                           </FormControl>
@@ -297,6 +308,7 @@ export default function LivestockPage() {
                       )} />
                       <FormField control={trackingForm.control} name="age" render={({ field }) => (
                         <FormItem>
+                          <Label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-2">Age (months)</Label>
                           <FormControl>
                             <Input type="number" placeholder="Age (mo)" className="h-12 rounded-xl bg-neutral-50 border-none shadow-sm font-bold px-4" {...field} />
                           </FormControl>
@@ -306,7 +318,7 @@ export default function LivestockPage() {
                   </div>
                   
                   <div className="space-y-4">
-                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-40">Visual Reference</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Visual Reference</Label>
                     <div className="relative aspect-square w-full overflow-hidden rounded-[2rem] border-4 border-dashed border-neutral-100 bg-neutral-50 flex flex-col items-center justify-center group">
                         {!capturedImage ? (
                             <>
@@ -499,30 +511,90 @@ export default function LivestockPage() {
 
           <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
             <CardHeader className="bg-neutral-50 p-8 border-b border-neutral-100">
-              <CardTitle className="text-xl font-black tracking-tight flex items-center gap-3">
-                <Activity className="h-5 w-5 text-primary" />
-                Growth Analytics
-              </CardTitle>
-              <CardDescription className="text-[10px] font-bold uppercase tracking-widest opacity-60">Visualizing community-wide flock development lifecycle</CardDescription>
+              <div className="flex justify-between items-center">
+                <div className="space-y-1">
+                  <CardTitle className="text-xl font-black tracking-tight flex items-center gap-3">
+                    <BarChart3 className="h-5 w-5 text-primary" />
+                    Batch Analytics
+                  </CardTitle>
+                  <CardDescription className="text-[10px] font-bold uppercase tracking-widest opacity-60">Visualizing Batch-Wise weight performance & nutrition</CardDescription>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <div className="h-3 w-3 rounded-full bg-primary" />
+                    <span className="text-[9px] font-black uppercase tracking-widest opacity-40">Weight</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="h-3 w-3 rounded-full bg-amber-500" />
+                    <span className="text-[9px] font-black uppercase tracking-widest opacity-40">Feed</span>
+                  </div>
+                </div>
+              </div>
             </CardHeader>
             <CardContent className="p-8">
               {chartData.length > 0 ? (
-                <ChartContainer config={chartConfig} className="h-[350px] w-full">
+                <ChartContainer config={chartConfig} className="h-[400px] w-full">
                   <ComposedChart data={chartData} margin={{ top: 20, right: 20, left: -20, bottom: 0 }}>
                     <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#f0f0f0" />
-                    <XAxis dataKey="age" tickLine={false} tickMargin={15} axisLine={false} tick={{ fontSize: 10, fontWeight: 900, textTransform: 'uppercase' }} />
-                    <YAxis yAxisId="left" stroke="var(--color-averageWeight)" tickFormatter={(v) => `${v}kg`} tickLine={false} axisLine={false} tick={{ fontSize: 10, fontWeight: 900 }} />
-                    <YAxis yAxisId="right" orientation="right" stroke="var(--color-growth)" tickFormatter={(v) => `+${v}kg`} tickLine={false} axisLine={false} tick={{ fontSize: 10, fontWeight: 900 }} />
+                    <XAxis 
+                      dataKey="batch" 
+                      tickLine={false} 
+                      tickMargin={15} 
+                      axisLine={false} 
+                      tick={{ fontSize: 10, fontBold: 900, textTransform: 'uppercase' }} 
+                    />
+                    <YAxis 
+                      yAxisId="left" 
+                      stroke="var(--color-averageWeight)" 
+                      tickFormatter={(v) => `${v}kg`} 
+                      tickLine={false} 
+                      axisLine={false} 
+                      tick={{ fontSize: 10, fontWeight: 900 }} 
+                    />
+                    <YAxis 
+                      yAxisId="right" 
+                      orientation="right" 
+                      stroke="#f59e0b" 
+                      tickFormatter={(v) => `${v}kg`} 
+                      tickLine={false} 
+                      axisLine={false} 
+                      tick={{ fontSize: 10, fontWeight: 900 }} 
+                    />
                     <Tooltip content={<ChartTooltipContent indicator="dot" />} />
                     <Legend iconType="circle" />
-                    <Bar dataKey="averageWeight" yAxisId="left" fill="var(--color-averageWeight)" radius={[8, 8, 0, 0]} name="Avg. Weight" barSize={50} />
-                    <Line type="monotone" dataKey="growth" yAxisId="right" stroke="var(--color-growth)" strokeWidth={4} dot={{ r: 6, fill: "var(--color-growth)", strokeWidth: 3, stroke: "#fff" }} name="Growth Rate" />
+                    <Bar 
+                      dataKey="averageWeight" 
+                      yAxisId="left" 
+                      fill="var(--color-averageWeight)" 
+                      radius={[8, 8, 0, 0]} 
+                      name="Batch Avg. Weight" 
+                      barSize={40} 
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="averageFeed"
+                      yAxisId="right"
+                      fill="#f59e0b"
+                      stroke="#f59e0b"
+                      fillOpacity={0.1}
+                      strokeWidth={2}
+                      name="Required Feed Intake"
+                    />
+                    <Line 
+                      type="step" 
+                      dataKey="growth" 
+                      yAxisId="left" 
+                      stroke="var(--color-growth)" 
+                      strokeWidth={3} 
+                      dot={{ r: 4, fill: "var(--color-growth)", strokeWidth: 2, stroke: "#fff" }} 
+                      name="Batch Growth Rate" 
+                    />
                   </ComposedChart>
                 </ChartContainer>
               ) : (
                 <div className="flex h-[300px] flex-col items-center justify-center p-10 text-center border-4 border-dashed rounded-[2rem] border-neutral-50 gap-4 opacity-40">
                   <Activity className="h-12 w-12 text-primary" />
-                  <p className="text-xs font-black uppercase tracking-widest max-w-[250px]">Insufficient community data to render growth intelligence reports.</p>
+                  <p className="text-xs font-black uppercase tracking-widest max-w-[250px]">Insufficient community data to render batch intelligence reports.</p>
                 </div>
               )}
             </CardContent>
