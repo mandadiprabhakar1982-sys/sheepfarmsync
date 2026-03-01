@@ -120,6 +120,13 @@ export default function LivestockPage() {
     );
   }, [trackedSheep, searchTagId]);
 
+  const nutritionStats = useMemo(() => {
+    if (!trackedSheep || trackedSheep.length === 0) return { total: 0, avg: 0 };
+    const total = trackedSheep.reduce((acc, s) => acc + (s.currentWeight * 0.04), 0);
+    const avg = total / trackedSheep.length;
+    return { total, avg };
+  }, [trackedSheep]);
+
   const chartData = useMemo(() => {
     if (!trackedSheep || trackedSheep.length < 2) return [];
 
@@ -224,17 +231,35 @@ export default function LivestockPage() {
 
   return (
     <div className="container mx-auto py-8 px-4 md:px-10">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 mb-12">
         <PageHeader
           title="Flock Intelligence"
           description="High-precision community log of individually tracked livestock."
           className="mb-0"
         />
-        <div className="hidden lg:flex items-center gap-4 px-6 py-3 bg-neutral-900 rounded-2xl text-white shadow-xl">
-          <Activity className="h-5 w-5 text-emerald-400" />
-          <div>
-            <p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Global Tracked</p>
-            <p className="text-xl font-black tracking-tight">{(trackedSheep || []).length} Head</p>
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="flex items-center gap-4 px-6 py-3 bg-neutral-900 rounded-2xl text-white shadow-xl">
+            <Activity className="h-5 w-5 text-emerald-400" />
+            <div>
+              <p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Global Tracked</p>
+              <p className="text-xl font-black tracking-tight">{(trackedSheep || []).length} Head</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-4 px-6 py-3 bg-emerald-600 rounded-2xl text-white shadow-xl">
+            <Wheat className="h-5 w-5 text-emerald-200" />
+            <div>
+              <p className="text-[8px] font-black uppercase tracking-widest opacity-60 leading-none">Flock Daily Feed</p>
+              <p className="text-xl font-black tracking-tight">{nutritionStats.total.toFixed(1)} KG</p>
+            </div>
+          </div>
+
+          <div className="hidden sm:flex items-center gap-4 px-6 py-3 bg-white border border-neutral-100 rounded-2xl text-neutral-900 shadow-xl">
+            <Scale className="h-5 w-5 text-primary opacity-40" />
+            <div>
+              <p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Avg Feed/Head</p>
+              <p className="text-xl font-black tracking-tight">{nutritionStats.avg.toFixed(2)} KG</p>
+            </div>
           </div>
         </div>
       </div>
