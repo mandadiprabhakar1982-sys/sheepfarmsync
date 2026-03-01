@@ -426,7 +426,11 @@ export default function BalanceSheetPage() {
                         const currentMonthNum = Math.max(1, (loan.totalTenure - (loan.pendingTenure || 0)));
                         
                         return (
-                          <TableRow key={loan.id} className="group hover:bg-neutral-50 transition-colors border-neutral-100">
+                          <TableRow 
+                            key={loan.id} 
+                            className="group hover:bg-neutral-50 transition-all cursor-zoom-in border-neutral-100 active:scale-[0.995]"
+                            onClick={() => handleEditClick(loan, 'loan')}
+                          >
                             <TableCell className="pl-8 text-[10px] font-black text-muted-foreground/40">{idx + 1}</TableCell>
                             <TableCell>
                               <div className="flex flex-col">
@@ -462,7 +466,7 @@ export default function BalanceSheetPage() {
                                 <span className="text-[8px] font-bold text-muted-foreground mt-1 opacity-40">EMI: ₹{(loan.monthlyEmi || 0).toLocaleString()}</span>
                               </div>
                             </TableCell>
-                            <TableCell className="pr-8">
+                            <TableCell className="pr-8" onClick={(e) => e.stopPropagation()}>
                               <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl bg-neutral-100 text-neutral-600 hover:bg-neutral-200" onClick={() => handleEditClick(loan, 'loan')}>
                                   <Pencil className="h-4 w-4" />
@@ -509,7 +513,11 @@ export default function BalanceSheetPage() {
                       {creditCards?.map((card) => {
                         const usage = card.totalLimit > 0 ? (card.outstandingAmount / card.totalLimit) * 100 : 0;
                         return (
-                          <TableRow key={card.id} className="group hover:bg-neutral-50 transition-colors border-neutral-100">
+                          <TableRow 
+                            key={card.id} 
+                            className="group hover:bg-neutral-50 transition-all cursor-zoom-in border-neutral-100 active:scale-[0.995]"
+                            onClick={() => handleEditClick(card, 'card')}
+                          >
                             <TableCell className="pl-8 text-sm font-black whitespace-nowrap">{card.bankName}</TableCell>
                             <TableCell className="min-w-[120px]">
                                <div className="space-y-1.5 px-4">
@@ -522,7 +530,7 @@ export default function BalanceSheetPage() {
                             <TableCell className="text-[10px] font-black text-muted-foreground uppercase">{card.dueDate || 'N/A'}</TableCell>
                             <TableCell className="text-right text-[10px] font-bold text-muted-foreground">₹{(card.totalLimit || 0).toLocaleString()}</TableCell>
                             <TableCell className="text-right text-sm font-black text-rose-600">₹{card.outstandingAmount.toLocaleString()}</TableCell>
-                            <TableCell className="pr-8 text-right">
+                            <TableCell className="pr-8 text-right" onClick={(e) => e.stopPropagation()}>
                               <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl bg-neutral-100" onClick={() => handleEditClick(card, 'card')}>
                                   <Pencil className="h-4 w-4" />
@@ -567,7 +575,11 @@ export default function BalanceSheetPage() {
                     </TableHeader>
                     <TableBody>
                       {privateDebts?.map((debt) => (
-                        <TableRow key={debt.id} className="group hover:bg-neutral-50 transition-colors border-neutral-100">
+                        <TableRow 
+                          key={debt.id} 
+                          className="group hover:bg-neutral-50 transition-all cursor-zoom-in border-neutral-100 active:scale-[0.995]"
+                          onClick={() => handleEditClick(debt, 'private')}
+                        >
                           <TableCell className="pl-8 text-[10px] font-black text-muted-foreground uppercase">{debt.date || 'N/A'}</TableCell>
                           <TableCell className="text-sm font-black">{debt.personName}</TableCell>
                           <TableCell className="text-center text-[10px] font-black text-rose-600 bg-rose-50 rounded-lg mx-4 h-6 flex items-center justify-center mt-4">
@@ -575,7 +587,7 @@ export default function BalanceSheetPage() {
                           </TableCell>
                           <TableCell className="text-right text-[10px] font-black text-rose-600">₹{(debt.monthlyInterest || 0).toLocaleString()}</TableCell>
                           <TableCell className="text-right text-sm font-black">₹{debt.amount.toLocaleString()}</TableCell>
-                          <TableCell className="pr-8 text-right">
+                          <TableCell className="pr-8 text-right" onClick={(e) => e.stopPropagation()}>
                             <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                               <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl bg-neutral-100" onClick={() => handleEditClick(debt, 'private')}>
                                 <Pencil className="h-4 w-4" />
