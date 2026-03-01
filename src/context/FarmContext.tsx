@@ -222,7 +222,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     const pay = (qPurchases || []).reduce((s, p) => s + Number(p.dueAmount || 0), 0);
     
     const blBal = (qLoans || []).reduce((s, l) => s + Number(l.balanceLoan || 0), 0);
-    const ccBal = (qCards || []).reduce((s, c) => s + Number(c.amount || 0), 0);
+    const ccBal = (qCards || []).reduce((s, c) => s + Number(c.outstandingAmount || 0), 0);
     const pdBal = (qDebts || []).reduce((s, d) => s + Number(d.amount || 0), 0);
 
     const mIncome = (qIncomes || []).reduce((s, i) => s + Number(i.amount || 0), 0);

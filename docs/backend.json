@@ -83,9 +83,12 @@
       "properties": {
         "id": { "type": "string" },
         "bankName": { "type": "string" },
-        "amount": { "type": "number" }
+        "dueDate": { "type": "string", "format": "date" },
+        "totalLimit": { "type": "number" },
+        "outstandingAmount": { "type": "number" },
+        "minimumPayment": { "type": "number" }
       },
-      "required": ["id", "bankName", "amount"]
+      "required": ["id", "bankName", "totalLimit", "outstandingAmount"]
     },
     "PrivateDebt": {
       "title": "PrivateDebt",

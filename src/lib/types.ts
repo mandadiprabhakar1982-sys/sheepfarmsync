@@ -5,7 +5,7 @@ import type { analyzeFarmCosts } from '@/ai/flows/analyze-farm-costs';
 type AnalyzeFarmCostsInput = Parameters<typeof analyzeFarmCosts>[0];
 
 export type LivestockPurchase = AnalyzeFarmCostsInput['livestockPurchases'][0] & { 
-  id: string;
+  id: string; 
   _path?: string;
   createdBy?: string;
   creatorEmail?: string;
@@ -13,7 +13,7 @@ export type LivestockPurchase = AnalyzeFarmCostsInput['livestockPurchases'][0] &
 };
 
 export type MedicineExpense = AnalyzeFarmCostsInput['medicineExpenses'][0] & { 
-  id: string;
+  id: string; 
   _path?: string;
   createdBy?: string;
   creatorEmail?: string;
@@ -21,7 +21,7 @@ export type MedicineExpense = AnalyzeFarmCostsInput['medicineExpenses'][0] & {
 };
 
 export type FeedCost = AnalyzeFarmCostsInput['feedCosts'][0] & { 
-  id: string;
+  id: string; 
   _path?: string;
   createdBy?: string;
   creatorEmail?: string;
@@ -29,7 +29,7 @@ export type FeedCost = AnalyzeFarmCostsInput['feedCosts'][0] & {
 };
 
 export type LaborCost = AnalyzeFarmCostsInput['laborCosts'][0] & { 
-  id: string;
+  id: string; 
   _path?: string;
   createdBy?: string;
   creatorEmail?: string;
@@ -37,7 +37,7 @@ export type LaborCost = AnalyzeFarmCostsInput['laborCosts'][0] & {
 };
 
 export type FarmExpense = AnalyzeFarmCostsInput['farmExpenses'][0] & { 
-  id: string;
+  id: string; 
   _path?: string;
   createdBy?: string;
   creatorEmail?: string;
@@ -152,7 +152,10 @@ export interface CreditCard {
   id: string;
   _path?: string;
   bankName: string;
-  amount: number;
+  dueDate: string;
+  totalLimit: number;
+  outstandingAmount: number;
+  minimumPayment: number;
   updatedAt?: any;
 }
 

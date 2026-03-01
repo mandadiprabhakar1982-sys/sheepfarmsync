@@ -34,6 +34,12 @@ export default function BalanceSheetPage() {
   const [pendingTenure, setPendingTenure] = useState('');
   const [interest, setInterest] = useState('');
   
+  // Credit Card Form States
+  const [cardDueDate, setCardDueDate] = useState('');
+  const [cardTotalLimit, setCardTotalLimit] = useState('');
+  const [cardOutstanding, setCardOutstanding] = useState('');
+  const [cardMinPayment, setCardMinPayment] = useState('');
+
   const [personName, setPersonName] = useState('');
   const [amount, setAmount] = useState('');
 
@@ -47,6 +53,10 @@ export default function BalanceSheetPage() {
     setInterest('');
     setPersonName('');
     setAmount('');
+    setCardDueDate('');
+    setCardTotalLimit('');
+    setCardOutstanding('');
+    setCardMinPayment('');
   };
 
   const handleAdd = () => {
@@ -63,8 +73,14 @@ export default function BalanceSheetPage() {
       });
       toast({ title: "Loan Recorded", description: "Bank loan entry added successfully." });
     } else if (activeTab === 'cards') {
-      if (!bankName || !amount) return;
-      addCreditCard({ bankName, amount: parseFloat(amount) });
+      if (!bankName || !cardOutstanding) return;
+      addCreditCard({ 
+        bankName, 
+        dueDate: cardDueDate,
+        totalLimit: parseFloat(cardTotalLimit || '0'),
+        outstandingAmount: parseFloat(cardOutstanding),
+        minimumPayment: parseFloat(cardMinPayment || '0')
+      });
       toast({ title: "Card Recorded", description: "Credit card entry added successfully." });
     } else if (activeTab === 'private') {
       if (!personName || !amount) return;
@@ -152,12 +168,28 @@ export default function BalanceSheetPage() {
               {activeTab === 'cards' && (
                 <>
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Card Name</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Bank Name</Label>
                     <Input value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="e.g. AXIS Cash Back" className="h-12 rounded-xl bg-white border-none shadow-sm font-bold" />
                   </div>
-                  <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Outstanding (₹)</Label>
-                    <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0" className="h-12 rounded-xl bg-white border-none shadow-sm font-black" />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Due Date</Label>
+                      <Input type="date" value={cardDueDate} onChange={(e) => setCardDueDate(e.target.value)} className="h-12 rounded-xl bg-white border-none shadow-sm font-bold" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Total Limit (₹)</Label>
+                      <Input type="number" value={cardTotalLimit} onChange={(e) => setCardTotalLimit(e.target.value)} placeholder="0" className="h-12 rounded-xl bg-white border-none shadow-sm font-black" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Outstanding (₹)</Label>
+                      <Input type="number" value={cardOutstanding} onChange={(e) => setCardOutstanding(e.target.value)} placeholder="0" className="h-12 rounded-xl bg-white border-none shadow-sm font-black text-destructive" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Min. Payment (₹)</Label>
+                      <Input type="number" value={cardMinPayment} onChange={(e) => setCardMinPayment(e.target.value)} placeholder="0" className="h-12 rounded-xl bg-white border-none shadow-sm font-black" />
+                    </div>
                   </div>
                 </>
               )}
@@ -255,20 +287,28 @@ export default function BalanceSheetPage() {
                     <p className="text-lg font-black">₹{totalCreditCardDebt.toLocaleString()}</p>
                   </div>
                 </CardHeader>
-                <CardContent className="pt-6">
+                <CardContent className="pt-6 overflow-x-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="text-[10px] font-black uppercase">Bank Name</TableHead>
-                        <TableHead className="text-[10px] font-black uppercase text-right">Outstanding</TableHead>
+                        <TableHead className="text-[9px] font-black uppercase">SNO</TableHead>
+                        <TableHead className="text-[9px] font-black uppercase">Bank Name</TableHead>
+                        <TableHead className="text-[9px] font-black uppercase">Due Date</TableHead>
+                        <TableHead className="text-[9px] font-black uppercase text-right">Total Limit</TableHead>
+                        <TableHead className="text-[9px] font-black uppercase text-right">Outstanding</TableHead>
+                        <TableHead className="text-[9px] font-black uppercase text-right">Min. Payment</TableHead>
                         <TableHead className="w-[50px]"></TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {creditCards?.map((card) => (
+                      {creditCards?.map((card, idx) => (
                         <TableRow key={card.id} className="group">
+                          <TableCell className="text-[10px] font-bold text-muted-foreground">{idx + 1}</TableCell>
                           <TableCell className="text-xs font-bold">{card.bankName}</TableCell>
-                          <TableCell className="text-xs font-black text-right text-destructive">₹{card.amount.toLocaleString()}</TableCell>
+                          <TableCell className="text-xs font-medium">{card.dueDate || 'N/A'}</TableCell>
+                          <TableCell className="text-xs font-medium text-right">₹{(card.totalLimit || 0).toLocaleString()}</TableCell>
+                          <TableCell className="text-xs font-black text-right text-destructive">₹{card.outstandingAmount.toLocaleString()}</TableCell>
+                          <TableCell className="text-xs font-bold text-right text-orange-600">₹{(card.minimumPayment || 0).toLocaleString()}</TableCell>
                           <TableCell>
                             <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => deleteCreditCard(card.id, card._path)}>
                               <Trash2 className="h-3 w-3 text-destructive" />
@@ -276,7 +316,7 @@ export default function BalanceSheetPage() {
                           </TableCell>
                         </TableRow>
                       ))}
-                      {!creditCards?.length && <TableRow><TableCell colSpan={3} className="text-center py-10 opacity-20 italic">No credit cards recorded</TableCell></TableRow>}
+                      {!creditCards?.length && <TableRow><TableCell colSpan={7} className="text-center py-10 opacity-20 italic">No credit cards recorded</TableCell></TableRow>}
                     </TableBody>
                   </Table>
                 </CardContent>
