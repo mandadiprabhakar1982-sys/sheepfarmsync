@@ -92,7 +92,10 @@ export default function LivestockPage() {
       );
     }
     
-    return filtered.sort((a, b) => a.tagId.localeCompare(b.tagId));
+    // Natural alphanumeric sorting (e.g., A-2 comes before A-10)
+    return filtered.sort((a, b) => 
+      a.tagId.localeCompare(b.tagId, undefined, { numeric: true, sensitivity: 'base' })
+    );
   }, [trackedSheep, searchTagId]);
 
   const chartData = useMemo(() => {

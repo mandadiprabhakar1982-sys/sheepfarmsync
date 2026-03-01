@@ -170,7 +170,10 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const medicineExpenses = useMemo(() => sort(qMedicine, 'date'), [qMedicine, sort]);
   const laborCosts = useMemo(() => sort(qLabor, 'date'), [qLabor, sort]);
   const deadAnimals = useMemo(() => sort(qDead, 'dateOfDeath'), [qDead, sort]);
-  const trackedSheep = useMemo(() => qTracked ? [...qTracked].sort((a, b) => (a.tagId || '').localeCompare(b.tagId || '')) : null, [qTracked]);
+  
+  // Natural sorting for Tag IDs
+  const trackedSheep = useMemo(() => qTracked ? [...qTracked].sort((a, b) => (a.tagId || '').localeCompare(b.tagId || '', undefined, { numeric: true, sensitivity: 'base' })) : null, [qTracked]);
+  
   const farmExpenses = useMemo(() => sort(qExpenses, 'expenseDate'), [qExpenses, sort]);
   const healthTasks = useMemo(() => sort(qHealth, 'nextDueDate'), [qHealth, sort]);
   const bankLoans = useMemo(() => qLoans, [qLoans]);
@@ -265,8 +268,8 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     bankLoans, addBankLoan: (l: any) => upsert('bankLoans', undefined, l), updateBankLoan: (id: string, l: any, path?: string) => upsert('bankLoans', id, l, path), deleteBankLoan: (id: string, path?: string) => remove('bankLoans', id, path),
     creditCards, addCreditCard: (c: any) => upsert('creditCards', undefined, c), updateCreditCard: (id: string, c: any, path?: string) => upsert('creditCards', id, c, path), deleteCreditCard: (id: string, path?: string) => remove('creditCards', id, path),
     privateDebts, addPrivateDebt: (d: any) => upsert('privateDebts', undefined, d), updatePrivateDebt: (id: string, d: any, path?: string) => upsert('privateDebts', id, d, path), deletePrivateDebt: (id: string, path?: string) => remove('privateDebts', id, path),
-    monthlyIncomes, addMonthlyIncome: (i: any) => upsert('monthlyIncomes', undefined, i), updateMonthlyIncome: (id: string, i: any, path?: string) => upsert('monthlyIncomes', id, i, path), deleteMonthlyIncome: (id: string, path?: string) => remove('monthlyIncomes', id, path),
-    monthlyExpenses, addMonthlyExpense: (e: any) => upsert('monthlyExpenses', undefined, e), updateMonthlyExpense: (id: string, e: any, path?: string) => upsert('monthlyExpenses', id, e, path), deleteMonthlyExpense: (id: string, path?: string) => remove('monthlyExpenses', id, path),
+    monthlyIncomes, addMonthlyIncome: (i: any) => upsert('monthlyIncomes', undefined, i), updateMonthlyIncome: (id: string, i: any, path?: string) => { if (!user || !firestore) return; const docRef = path ? doc(firestore, path) : doc(firestore, 'users', user.uid, 'monthlyIncomes', id); updateDocumentNonBlocking(docRef, { ...i, updatedAt: serverTimestamp() }); }, deleteMonthlyIncome: (id: string, path?: string) => remove('monthlyIncomes', id, path),
+    monthlyExpenses, addMonthlyExpense: (e: any) => upsert('monthlyExpenses', undefined, e), updateMonthlyExpense: (id: string, e: any, path?: string) => { if (!user || !firestore) return; const docRef = path ? doc(firestore, path) : doc(firestore, 'users', user.uid, 'monthlyExpenses', id); updateDocumentNonBlocking(docRef, { ...e, updatedAt: serverTimestamp() }); }, deleteMonthlyExpense: (id: string, path?: string) => remove('monthlyExpenses', id, path),
     communitySales: qMarket, postToMarketplace, updateMarketplaceSale, deleteMarketplaceSale: (id: string, path?: string) => deleteDocumentNonBlocking(doc(firestore!, path || `communitySales/${id}`)),
     isLoading: isLoadingProfile || (user && !isVerified) || lPurchases || lSales || lFeed || lMedicine || lLabor || lDead || lTracked || lExpenses || lHealth || lLoans || lCards || lDebts || lIncomes || lMExpenses || lMarket,
     userRole: userProfile?.role || null,
