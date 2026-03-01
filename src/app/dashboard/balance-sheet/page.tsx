@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { PlusCircle, CreditCard, Banknote, Landmark, Trash2, Pencil, Save, X, Info, Calendar as CalendarIcon, ReceiptIndianRupee, Wand2 } from 'lucide-react';
+import { PlusCircle, CreditCard, Banknote, Landmark, Trash2, Pencil, Save, X, Info, Calendar as CalendarIcon, ReceiptIndianRupee, Wand2, Calculator } from 'lucide-react';
 import { useFarm } from '@/context/FarmContext';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -56,6 +56,7 @@ export default function BalanceSheetPage() {
   const [personName, setPersonName] = useState('');
   const [amount, setAmount] = useState('');
   const [debtDate, setDebtDate] = useState('');
+  const [privateInterestRate, setPrivateInterestRate] = useState('');
   const [monthlyInterest, setMonthlyInterest] = useState('');
   const [yearlyInterest, setYearlyInterest] = useState('');
 
@@ -99,6 +100,34 @@ export default function BalanceSheetPage() {
     }
   }, [startDate, totalLoan, totalTenure, monthlyEmi, interest, activeTab]);
 
+  // AUTOMATION: Private Debt Monthly Interest Calculation based on Rate
+  useEffect(() => {
+    if (activeTab === 'private' && amount && privateInterestRate) {
+      const pAmount = parseFloat(amount);
+      const pRate = parseFloat(privateInterestRate);
+      if (!isNaN(pAmount) && !isNaN(pRate)) {
+        const calculatedMonthly = (pAmount * pRate) / 100;
+        setMonthlyInterest(Math.round(calculatedMonthly).toString());
+      }
+    }
+  }, [amount, privateInterestRate, activeTab]);
+
+  // AUTOMATION: Private Debt Yearly Interest Calculation
+  useEffect(() => {
+    if (monthlyInterest && !isNaN(parseFloat(monthlyInterest))) {
+      const calculatedYearly = parseFloat(monthlyInterest) * 12;
+      setYearlyInterest(calculatedYearly.toString());
+    }
+  }, [monthlyInterest]);
+
+  // AUTOMATION: Credit Card Minimum Payment Suggestion (5%)
+  useEffect(() => {
+    if (cardOutstanding && !isNaN(parseFloat(cardOutstanding))) {
+      const suggestedMin = Math.ceil(parseFloat(cardOutstanding) * 0.05);
+      setCardMinPayment(suggestedMin.toString());
+    }
+  }, [cardOutstanding]);
+
   // SORTING LOGIC
   const sortedLoans = useMemo(() => {
     if (!bankLoans) return [];
@@ -119,22 +148,6 @@ export default function BalanceSheetPage() {
     return [...privateDebts].sort((a, b) => new Date(a.date || '').getTime() - new Date(b.date || '').getTime());
   }, [privateDebts]);
 
-  // AUTOMATION: Private Debt Yearly Interest Calculation
-  useEffect(() => {
-    if (monthlyInterest && !isNaN(parseFloat(monthlyInterest))) {
-      const calculatedYearly = parseFloat(monthlyInterest) * 12;
-      setYearlyInterest(calculatedYearly.toString());
-    }
-  }, [monthlyInterest]);
-
-  // AUTOMATION: Credit Card Minimum Payment Suggestion (5%)
-  useEffect(() => {
-    if (cardOutstanding && !isNaN(parseFloat(cardOutstanding))) {
-      const suggestedMin = Math.ceil(parseFloat(cardOutstanding) * 0.05);
-      setCardMinPayment(suggestedMin.toString());
-    }
-  }, [cardOutstanding]);
-
   const resetForms = () => {
     setBankName('');
     setTotalLoan('');
@@ -148,6 +161,7 @@ export default function BalanceSheetPage() {
     setPersonName('');
     setAmount('');
     setDebtDate('');
+    setPrivateInterestRate('');
     setMonthlyInterest('');
     setYearlyInterest('');
     setCardDueDate('');
@@ -187,6 +201,7 @@ export default function BalanceSheetPage() {
         personName, 
         amount: parseFloat(amount),
         date: debtDate,
+        interestRate: parseFloat(privateInterestRate || '0'),
         monthlyInterest: parseFloat(monthlyInterest || '0'),
         yearlyInterest: parseFloat(yearlyInterest || '0')
       });
@@ -217,6 +232,7 @@ export default function BalanceSheetPage() {
       setPersonName(item.personName);
       setAmount(item.amount.toString());
       setDebtDate(item.date || '');
+      setPrivateInterestRate(item.interestRate?.toString() || '');
       setMonthlyInterest(item.monthlyInterest?.toString() || '');
       setYearlyInterest(item.yearlyInterest?.toString() || '');
     }
@@ -251,6 +267,7 @@ export default function BalanceSheetPage() {
         personName,
         amount: parseFloat(amount),
         date: debtDate,
+        interestRate: parseFloat(privateInterestRate),
         monthlyInterest: parseFloat(monthlyInterest),
         yearlyInterest: parseFloat(yearlyInterest)
       }, editingItem._path);
@@ -386,9 +403,18 @@ export default function BalanceSheetPage() {
 
               {activeTab === 'private' && (
                 <>
-                  <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Date</Label>
-                    <Input type="date" value={debtDate} onChange={(e) => setDebtDate(e.target.value)} className="h-12 rounded-xl bg-white border-none shadow-sm font-bold" />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Date</Label>
+                      <Input type="date" value={debtDate} onChange={(e) => setDebtDate(e.target.value)} className="h-12 rounded-xl bg-white border-none shadow-sm font-bold" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Interest Rate (%)</Label>
+                      <div className="relative">
+                        <Input type="number" value={privateInterestRate} onChange={(e) => setPrivateInterestRate(e.target.value)} placeholder="2.0" step="0.1" className="h-12 rounded-xl bg-white border-none shadow-sm font-black pr-10" />
+                        <Calculator className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary opacity-40" />
+                      </div>
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Person Name</Label>
@@ -400,13 +426,14 @@ export default function BalanceSheetPage() {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Monthly Interest (₹)</Label>
+                      <Label className="text-[10px] font-black uppercase tracking-widest opacity-60 flex items-center gap-1">
+                        Monthly Int. (₹)
+                        <Wand2 className="h-2 w-2 text-primary" />
+                      </Label>
                       <Input type="number" value={monthlyInterest} onChange={(e) => setMonthlyInterest(e.target.value)} placeholder="0" className="h-12 rounded-xl bg-white border-none shadow-sm font-bold" />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-[10px] font-black uppercase tracking-widest opacity-60 flex items-center gap-1">
-                        Yearly Interest (₹)
-                      </Label>
+                      <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Yearly Interest (₹)</Label>
                       <Input type="number" value={yearlyInterest} onChange={(e) => setYearlyInterest(e.target.value)} placeholder="0" className="h-12 rounded-xl bg-white border-none shadow-sm font-bold bg-muted/20" />
                     </div>
                   </div>
@@ -455,13 +482,14 @@ export default function BalanceSheetPage() {
                         <TableHead className="text-[9px] font-black uppercase text-right">Total Loan</TableHead>
                         <TableHead className="text-[9px] font-black uppercase text-right">Balance</TableHead>
                         <TableHead className="text-[9px] font-black uppercase text-right">EMI</TableHead>
-                        <TableHead className="text-[9px] font-black uppercase text-right">Interest</TableHead>
+                        <TableHead className="text-[9px] font-black uppercase text-right">Monthly Int.</TableHead>
                         <TableHead className="w-[80px]"></TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {sortedLoans.map((loan, idx) => {
                         const progress = loan.totalLoan > 0 ? ((loan.totalLoan - loan.balanceLoan) / loan.totalLoan) * 100 : 0;
+                        const monthlyIntAmount = loan.balanceLoan * (loan.interest / 12 / 100);
                         return (
                           <TableRow key={loan.id} className="group">
                             <TableCell className="text-[10px] font-bold text-muted-foreground">{idx + 1}</TableCell>
@@ -489,7 +517,10 @@ export default function BalanceSheetPage() {
                             <TableCell className="text-xs font-medium text-right">₹{loan.totalLoan.toLocaleString()}</TableCell>
                             <TableCell className="text-xs font-black text-right text-destructive">₹{loan.balanceLoan.toLocaleString()}</TableCell>
                             <TableCell className="text-xs font-bold text-right text-primary">₹{(loan.monthlyEmi || 0).toLocaleString()}</TableCell>
-                            <TableCell className="text-xs text-right font-medium">{loan.interest ? `${loan.interest}%` : 'N/A'}</TableCell>
+                            <TableCell className="text-xs text-right font-bold text-rose-600">
+                              ₹{Math.round(monthlyIntAmount).toLocaleString()}
+                              <span className="block text-[8px] font-medium text-muted-foreground">{loan.interest}% rate</span>
+                            </TableCell>
                             <TableCell>
                               <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEditClick(loan, 'loan')}>
@@ -584,6 +615,7 @@ export default function BalanceSheetPage() {
                         <TableHead className="text-[9px] font-black uppercase">SNO</TableHead>
                         <TableHead className="text-[9px] font-black uppercase">Date</TableHead>
                         <TableHead className="text-[9px] font-black uppercase">Person</TableHead>
+                        <TableHead className="text-[9px] font-black uppercase text-right">Rate (%)</TableHead>
                         <TableHead className="text-[9px] font-black uppercase text-right">Total Amount</TableHead>
                         <TableHead className="text-[9px] font-black uppercase text-right">Monthly Int.</TableHead>
                         <TableHead className="text-[9px] font-black uppercase text-right">Yearly Int.</TableHead>
@@ -596,8 +628,9 @@ export default function BalanceSheetPage() {
                           <TableCell className="text-[10px] font-bold text-muted-foreground">{idx + 1}</TableCell>
                           <TableCell className="text-xs font-medium">{debt.date || 'N/A'}</TableCell>
                           <TableCell className="text-xs font-bold">{debt.personName}</TableCell>
+                          <TableCell className="text-xs text-right font-medium">{debt.interestRate ? `${debt.interestRate}%` : 'N/A'}</TableCell>
                           <TableCell className="text-xs font-black text-right text-destructive">₹{debt.amount.toLocaleString()}</TableCell>
-                          <TableCell className="text-xs font-medium text-right text-muted-foreground">₹{(debt.monthlyInterest || 0).toLocaleString()}</TableCell>
+                          <TableCell className="text-xs font-bold text-right text-rose-600">₹{(debt.monthlyInterest || 0).toLocaleString()}</TableCell>
                           <TableCell className="text-xs font-black text-right text-rose-600">₹{(debt.yearlyInterest || 0).toLocaleString()}</TableCell>
                           <TableCell>
                             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -611,7 +644,7 @@ export default function BalanceSheetPage() {
                           </TableCell>
                         </TableRow>
                       ))}
-                      {!sortedPrivate.length && <TableRow><TableCell colSpan={7} className="text-center py-10 opacity-20 italic">No private debts recorded</TableCell></TableRow>}
+                      {!sortedPrivate.length && <TableRow><TableCell colSpan={8} className="text-center py-10 opacity-20 italic">No private debts recorded</TableCell></TableRow>}
                     </TableBody>
                   </Table>
                 </CardContent>
@@ -709,9 +742,15 @@ export default function BalanceSheetPage() {
 
             {editingItem?._type === 'private' && (
               <>
-                <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Date</Label>
-                  <Input type="date" value={debtDate} onChange={(e) => setDebtDate(e.target.value)} className="h-12 rounded-xl bg-accent/5 border-none shadow-sm font-bold" />
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Date</Label>
+                    <Input type="date" value={debtDate} onChange={(e) => setDebtDate(e.target.value)} className="h-12 rounded-xl bg-accent/5 border-none shadow-sm font-bold" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Interest Rate (%)</Label>
+                    <Input type="number" value={privateInterestRate} onChange={(e) => setPrivateInterestRate(e.target.value)} step="0.1" className="h-12 rounded-xl bg-accent/5 border-none shadow-sm font-black" />
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Person Name</Label>

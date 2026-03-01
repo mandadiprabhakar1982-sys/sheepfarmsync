@@ -167,6 +167,7 @@ export interface PrivateDebt {
   date?: string;
   personName: string;
   amount: number;
+  interestRate?: number;
   monthlyInterest?: number;
   yearlyInterest?: number;
   updatedAt?: any;
