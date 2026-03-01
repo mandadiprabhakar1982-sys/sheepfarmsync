@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useRef, useEffect, useMemo } from 'react';
@@ -23,7 +24,8 @@ import {
   MoreVertical,
   Camera,
   Wheat,
-  BarChart3
+  BarChart3,
+  TrendingUp
 } from 'lucide-react';
 import Image from 'next/image';
 import { Bar, ComposedChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Line, Area } from 'recharts';
@@ -71,7 +73,7 @@ const chartConfig = {
     color: '#f59e0b', // Amber/Gold for nutrition
   },
   growth: {
-    label: 'Growth Rate',
+    label: 'Growth Velocity',
     color: 'hsl(var(--chart-2))',
   },
 } satisfies ChartConfig;
@@ -135,40 +137,41 @@ export default function LivestockPage() {
   const chartData = useMemo(() => {
     if (!trackedSheep || trackedSheep.length === 0) return [];
 
-    const weightByAge = trackedSheep.reduce((acc, sheep) => {
-      const age = sheep.age;
-      if (!acc[age]) acc[age] = { totalWeight: 0, count: 0 };
-      acc[age].totalWeight += sheep.currentWeight;
-      acc[age].count += 1;
-      return acc;
-    }, {} as Record<number, { totalWeight: number; count: number }>);
+    // Calculate baseline: current average metrics for the entire tracked flock
+    const totalWeight = trackedSheep.reduce((acc, s) => acc + s.currentWeight, 0);
+    const avgWeight = totalWeight / trackedSheep.length;
+    
+    const dailyGain = 0.20; // 200g per day
+    const daysInMonth = 30;
+    const monthlyGain = dailyGain * daysInMonth;
 
-    const sortedAverages = Object.entries(weightByAge)
-      .map(([age, { totalWeight, count }]) => {
-        const avgWt = parseFloat((totalWeight / count).toFixed(2));
-        return {
-          age: parseInt(age),
-          averageWeight: avgWt,
-          averageFeed: parseFloat((avgWt * 0.04).toFixed(2)),
-        };
-      })
-      .sort((a, b) => a.age - b.age);
-
-    return sortedAverages.map((current, index) => {
-      let growth = 0;
-      if (index > 0) {
-        const previous = sortedAverages[index - 1];
-        const weightDiff = current.averageWeight - previous.averageWeight;
-        const ageDiff = current.age - previous.age;
-        if (ageDiff > 0) growth = parseFloat((weightDiff / ageDiff).toFixed(2));
-      }
-      return {
-        batch: `${current.age} mo`,
-        averageWeight: current.averageWeight,
-        averageFeed: current.averageFeed,
-        growth: growth,
-      };
-    });
+    // Generate current + next 3 months projection
+    return [
+      {
+        batch: 'Current',
+        averageWeight: parseFloat(avgWeight.toFixed(2)),
+        averageFeed: parseFloat((avgWeight * 0.04).toFixed(2)),
+        growth: 0,
+      },
+      {
+        batch: '+1 Month',
+        averageWeight: parseFloat((avgWeight + monthlyGain).toFixed(2)),
+        averageFeed: parseFloat(((avgWeight + monthlyGain) * 0.04).toFixed(2)),
+        growth: monthlyGain,
+      },
+      {
+        batch: '+2 Months',
+        averageWeight: parseFloat((avgWeight + (monthlyGain * 2)).toFixed(2)),
+        averageFeed: parseFloat(((avgWeight + (monthlyGain * 2)) * 0.04).toFixed(2)),
+        growth: monthlyGain,
+      },
+      {
+        batch: '+3 Months',
+        averageWeight: parseFloat((avgWeight + (monthlyGain * 3)).toFixed(2)),
+        averageFeed: parseFloat(((avgWeight + (monthlyGain * 3)) * 0.04).toFixed(2)),
+        growth: monthlyGain,
+      },
+    ];
   }, [trackedSheep]);
 
   useEffect(() => {
@@ -514,10 +517,10 @@ export default function LivestockPage() {
               <div className="flex justify-between items-center">
                 <div className="space-y-1">
                   <CardTitle className="text-xl font-black tracking-tight flex items-center gap-3">
-                    <BarChart3 className="h-5 w-5 text-primary" />
-                    Batch Analytics
+                    <TrendingUp className="h-5 w-5 text-primary" />
+                    Growth Projections
                   </CardTitle>
-                  <CardDescription className="text-[10px] font-bold uppercase tracking-widest opacity-60">Visualizing Batch-Wise weight performance & nutrition</CardDescription>
+                  <CardDescription className="text-[10px] font-bold uppercase tracking-widest opacity-60">Next 90-day predictive analytics based on 200g daily gain</CardDescription>
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2">
@@ -541,7 +544,7 @@ export default function LivestockPage() {
                       tickLine={false} 
                       tickMargin={15} 
                       axisLine={false} 
-                      tick={{ fontSize: 10, fontBold: 900, textTransform: 'uppercase' }} 
+                      tick={{ fontSize: 10, fontWeight: 900, textTransform: 'uppercase' }} 
                     />
                     <YAxis 
                       yAxisId="left" 
@@ -567,7 +570,7 @@ export default function LivestockPage() {
                       yAxisId="left" 
                       fill="var(--color-averageWeight)" 
                       radius={[8, 8, 0, 0]} 
-                      name="Batch Avg. Weight" 
+                      name="Projected Avg. Weight" 
                       barSize={40} 
                     />
                     <Area
@@ -578,7 +581,7 @@ export default function LivestockPage() {
                       stroke="#f59e0b"
                       fillOpacity={0.1}
                       strokeWidth={2}
-                      name="Required Feed Intake"
+                      name="Daily Feed Intake"
                     />
                     <Line 
                       type="step" 
@@ -587,14 +590,14 @@ export default function LivestockPage() {
                       stroke="var(--color-growth)" 
                       strokeWidth={3} 
                       dot={{ r: 4, fill: "var(--color-growth)", strokeWidth: 2, stroke: "#fff" }} 
-                      name="Batch Growth Rate" 
+                      name="Gain Velocity" 
                     />
                   </ComposedChart>
                 </ChartContainer>
               ) : (
                 <div className="flex h-[300px] flex-col items-center justify-center p-10 text-center border-4 border-dashed rounded-[2rem] border-neutral-50 gap-4 opacity-40">
                   <Activity className="h-12 w-12 text-primary" />
-                  <p className="text-xs font-black uppercase tracking-widest max-w-[250px]">Insufficient community data to render batch intelligence reports.</p>
+                  <p className="text-xs font-black uppercase tracking-widest max-w-[250px]">Insufficient community data to render predictive intelligence reports.</p>
                 </div>
               )}
             </CardContent>
