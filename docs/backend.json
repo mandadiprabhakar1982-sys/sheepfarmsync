@@ -69,10 +69,10 @@
         "id": { "type": "string" },
         "bankName": { "type": "string" },
         "totalLoan": { "type": "number" },
-        "totalTenure": { "type": "string" },
+        "totalTenure": { "type": "number" },
         "balanceLoan": { "type": "number" },
         "monthlyEmi": { "type": "number" },
-        "pendingTenure": { "type": "string" },
+        "pendingTenure": { "type": "number" },
         "interest": { "type": "number" },
         "paymentDate": { "type": "string" }
       },

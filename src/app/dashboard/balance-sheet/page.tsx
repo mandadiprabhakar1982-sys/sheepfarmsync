@@ -93,9 +93,9 @@ export default function BalanceSheetPage() {
         bankName, 
         totalLoan: parseFloat(totalLoan), 
         balanceLoan: parseFloat(balanceLoan),
-        totalTenure,
+        totalTenure: parseFloat(totalTenure || '0'),
         monthlyEmi: parseFloat(monthlyEmi || '0'),
-        pendingTenure,
+        pendingTenure: parseFloat(pendingTenure || '0'),
         interest: parseFloat(interest || '0'),
         paymentDate
       });
@@ -184,8 +184,8 @@ export default function BalanceSheetPage() {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Total Tenure</Label>
-                      <Input value={totalTenure} onChange={(e) => setTotalTenure(e.target.value)} placeholder="e.g. 5 Years" className="h-12 rounded-xl bg-white border-none shadow-sm font-bold" />
+                      <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Total Tenure (Months)</Label>
+                      <Input type="number" value={totalTenure} onChange={(e) => setTotalTenure(e.target.value)} placeholder="60" className="h-12 rounded-xl bg-white border-none shadow-sm font-bold" />
                     </div>
                     <div className="space-y-2">
                       <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Monthly EMI (₹)</Label>
@@ -194,8 +194,8 @@ export default function BalanceSheetPage() {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Pending Tenure</Label>
-                      <Input value={pendingTenure} onChange={(e) => setPendingTenure(e.target.value)} placeholder="e.g. 24 Months" className="h-12 rounded-xl bg-white border-none shadow-sm font-bold text-orange-600" />
+                      <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Pending Tenure (Months)</Label>
+                      <Input type="number" value={pendingTenure} onChange={(e) => setPendingTenure(e.target.value)} placeholder="24" className="h-12 rounded-xl bg-white border-none shadow-sm font-bold text-orange-600" />
                     </div>
                     <div className="space-y-2">
                       <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Interest (%)</Label>
@@ -322,7 +322,7 @@ export default function BalanceSheetPage() {
                             <TableCell>
                               <div className="flex flex-col">
                                 <span className="text-xs font-bold whitespace-nowrap">{loan.bankName}</span>
-                                <span className="text-[8px] uppercase tracking-widest text-muted-foreground">{loan.totalTenure || 'N/A'} Total</span>
+                                <span className="text-[8px] uppercase tracking-widest text-muted-foreground">{loan.totalTenure || 'N/A'} Months Total</span>
                                 {loan.paymentDate && (
                                   <span className="text-[8px] font-black text-blue-600 uppercase flex items-center gap-1 mt-0.5">
                                     <CalendarIcon className="h-2 w-2" />
