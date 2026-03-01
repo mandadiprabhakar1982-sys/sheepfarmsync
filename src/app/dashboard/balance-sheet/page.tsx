@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -9,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { PlusCircle, CreditCard, Banknote, Landmark, Trash2, Pencil, Save, X, Info, Calendar as CalendarIcon } from 'lucide-react';
+import { PlusCircle, CreditCard, Banknote, Landmark, Trash2, Pencil, Save, X, Info, Calendar as CalendarIcon, ReceiptIndianRupee } from 'lucide-react';
 import { useFarm } from '@/context/FarmContext';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -29,7 +28,7 @@ export default function BalanceSheetPage() {
     bankLoans, addBankLoan, updateBankLoan, deleteBankLoan,
     creditCards, addCreditCard, updateCreditCard, deleteCreditCard,
     privateDebts, addPrivateDebt, updatePrivateDebt, deletePrivateDebt,
-    totalLoanBalance, totalCreditCardDebt, totalPrivateDebt
+    totalLoanBalance, totalCreditCardDebt, totalPrivateDebt, totalMonthlyEmi
   } = useFarm();
 
   const [activeTab, setActiveTab] = useState('loans');
@@ -241,7 +240,8 @@ export default function BalanceSheetPage() {
         description="Comprehensive audit of loans, credit cards, and private debts."
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+        <SummaryCard title="Monthly EMI Sum" value={totalMonthlyEmi} icon={ReceiptIndianRupee} color="bg-emerald-600" />
         <SummaryCard title="Bank Loan Balance" value={totalLoanBalance} icon={Landmark} color="bg-blue-600" />
         <SummaryCard title="Credit Card Debt" value={totalCreditCardDebt} icon={CreditCard} color="bg-indigo-600" />
         <SummaryCard title="Private Debts" value={totalPrivateDebt} icon={Banknote} color="bg-rose-600" />

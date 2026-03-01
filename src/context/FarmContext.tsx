@@ -1,4 +1,3 @@
-
 'use client';
 
 import { createContext, useContext, ReactNode, useMemo, useCallback, useState, useEffect } from 'react';
@@ -103,6 +102,7 @@ interface FarmContextType {
   totalLoanBalance: number;
   totalCreditCardDebt: number;
   totalPrivateDebt: number;
+  totalMonthlyEmi: number;
 
   totalMonthlyIncome: number;
   totalMonthlyExpense: number;
@@ -224,6 +224,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     const blBal = (qLoans || []).reduce((s, l) => s + Number(l.balanceLoan || 0), 0);
     const ccBal = (qCards || []).reduce((s, c) => s + Number(c.outstandingAmount || 0), 0);
     const pdBal = (qDebts || []).reduce((s, d) => s + Number(d.amount || 0), 0);
+    const mEmiTotal = (qLoans || []).reduce((s, l) => s + Number(l.monthlyEmi || 0), 0);
 
     const mIncome = (qIncomes || []).reduce((s, i) => s + Number(i.amount || 0), 0);
     const mExpense = (qMExpenses || []).reduce((s, e) => s + Number(e.amount || 0), 0);
@@ -238,11 +239,12 @@ export function FarmProvider({ children }: { children: ReactNode }) {
       totalLaborCost: lCost,
       totalMedicineCost: mCost,
       totalFarmExpenses: eCost,
-      totalReceivables: rec,
+      totalReceivables: rev > 0 ? rec : 0, // ensure no negative receivables logic error
       totalPayables: pay,
       totalLoanBalance: blBal,
       totalCreditCardDebt: ccBal,
       totalPrivateDebt: pdBal,
+      totalMonthlyEmi: mEmiTotal,
       totalMonthlyIncome: mIncome,
       totalMonthlyExpense: mExpense
     };
@@ -264,12 +266,12 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     monthlyIncomes, addMonthlyIncome: (i: any) => upsert('monthlyIncomes', undefined, i), deleteMonthlyIncome: (id: string, path?: string) => remove('monthlyIncomes', id, path),
     monthlyExpenses, addMonthlyExpense: (e: any) => upsert('monthlyExpenses', undefined, e), deleteMonthlyExpense: (id: string, path?: string) => remove('monthlyExpenses', id, path),
     communitySales: qMarket, postToMarketplace, updateMarketplaceSale, deleteMarketplaceSale: (id: string, path?: string) => deleteDocumentNonBlocking(doc(firestore!, path || `communitySales/${id}`)),
-    isLoading: isLoadingProfile || (user && !isVerified) || lPurchases || lSales || lFeed || lMedicine || lLabor || lDead || lTracked || lExpenses || lHealth || lLoans || lCards || lDebts || lIncomes || lMExpenses || lMarket,
+    isLoading: isLoadingProfile || (user && !isVerified) || lPurchases || lSales || lFeed || lMedicine || lLabor || lDead || lTracked || lExpenses || lHealth || lLoans || lCards || lBankLoans || lIncomes || lMExpenses || lMarket,
     userRole: userProfile?.role || null,
     ...stats
   }), [
     purchases, sales, feedCosts, medicineExpenses, laborCosts, trackedSheep, deadAnimals, farmExpenses, healthTasks, bankLoans, creditCards, privateDebts, monthlyIncomes, monthlyExpenses, qMarket, stats,
-    isLoadingProfile, user, isVerified, lPurchases, lSales, lFeed, lMedicine, lLabor, lDead, lTracked, lExpenses, lHealth, lLoans, lCards, lDebts, lIncomes, lMExpenses, lMarket,
+    isLoadingProfile, user, isVerified, lPurchases, lSales, lFeed, lMedicine, lLabor, lDead, lTracked, lExpenses, lHealth, lLoans, lCards, lIncomes, lMExpenses, lMarket,
     userProfile, upsert, remove, postToMarketplace, updateMarketplaceSale, firestore
   ]);
 
