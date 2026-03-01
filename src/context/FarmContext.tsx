@@ -74,10 +74,12 @@ interface FarmContextType {
   monthlyIncomes: MonthlyIncome[] | null;
   addMonthlyIncome: (income: Omit<MonthlyIncome, 'id' | '_path'>) => void;
   deleteMonthlyIncome: (id: string, path?: string) => void;
+  updateMonthlyIncome: (id: string, data: Omit<MonthlyIncome, 'id' | '_path'>, path?: string) => void;
 
   monthlyExpenses: MonthlyExpense[] | null;
   addMonthlyExpense: (expense: Omit<MonthlyExpense, 'id' | '_path'>) => void;
   deleteMonthlyExpense: (id: string, path?: string) => void;
+  updateMonthlyExpense: (id: string, data: Omit<MonthlyExpense, 'id' | '_path'>, path?: string) => void;
 
   communitySales: PublicSale[] | null;
   postToMarketplace: (sale: Omit<PublicSale, 'id' | 'sellerId' | 'sellerEmail' | 'sellerName' | '_path'>) => void;
@@ -263,8 +265,8 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     bankLoans, addBankLoan: (l: any) => upsert('bankLoans', undefined, l), updateBankLoan: (id: string, l: any, path?: string) => upsert('bankLoans', id, l, path), deleteBankLoan: (id: string, path?: string) => remove('bankLoans', id, path),
     creditCards, addCreditCard: (c: any) => upsert('creditCards', undefined, c), updateCreditCard: (id: string, c: any, path?: string) => upsert('creditCards', id, c, path), deleteCreditCard: (id: string, path?: string) => remove('creditCards', id, path),
     privateDebts, addPrivateDebt: (d: any) => upsert('privateDebts', undefined, d), updatePrivateDebt: (id: string, d: any, path?: string) => upsert('privateDebts', id, d, path), deletePrivateDebt: (id: string, path?: string) => remove('privateDebts', id, path),
-    monthlyIncomes, addMonthlyIncome: (i: any) => upsert('monthlyIncomes', undefined, i), deleteMonthlyIncome: (id: string, path?: string) => remove('monthlyIncomes', id, path),
-    monthlyExpenses, addMonthlyExpense: (e: any) => upsert('monthlyExpenses', undefined, e), deleteMonthlyExpense: (id: string, path?: string) => remove('monthlyExpenses', id, path),
+    monthlyIncomes, addMonthlyIncome: (i: any) => upsert('monthlyIncomes', undefined, i), updateMonthlyIncome: (id: string, i: any, path?: string) => upsert('monthlyIncomes', id, i, path), deleteMonthlyIncome: (id: string, path?: string) => remove('monthlyIncomes', id, path),
+    monthlyExpenses, addMonthlyExpense: (e: any) => upsert('monthlyExpenses', undefined, e), updateMonthlyExpense: (id: string, e: any, path?: string) => upsert('monthlyExpenses', id, e, path), deleteMonthlyExpense: (id: string, path?: string) => remove('monthlyExpenses', id, path),
     communitySales: qMarket, postToMarketplace, updateMarketplaceSale, deleteMarketplaceSale: (id: string, path?: string) => deleteDocumentNonBlocking(doc(firestore!, path || `communitySales/${id}`)),
     isLoading: isLoadingProfile || (user && !isVerified) || lPurchases || lSales || lFeed || lMedicine || lLabor || lDead || lTracked || lExpenses || lHealth || lLoans || lCards || lDebts || lIncomes || lMExpenses || lMarket,
     userRole: userProfile?.role || null,
