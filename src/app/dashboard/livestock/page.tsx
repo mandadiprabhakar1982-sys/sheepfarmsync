@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useMemo } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { PlusCircle, Trash2, Camera as CameraIcon, Pencil, ArrowUp, ArrowDown, Loader2, User, ImageIcon, ZoomIn, X, Save, Mail, ShieldAlert } from 'lucide-react';
+import { PlusCircle, Trash2, Camera as CameraIcon, Pencil, ArrowUp, ArrowDown, Loader2, User, ImageIcon, ZoomIn, X, Save, Mail, ShieldAlert, Search } from 'lucide-react';
 import Image from 'next/image';
 import { Bar, ComposedChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Line } from 'recharts';
 import { format } from 'date-fns';
@@ -57,6 +57,7 @@ export default function LivestockPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingSheep, setEditingSheep] = useState<TrackedSheep | null>(null);
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
+  const [searchTagId, setSearchTagId] = useState('');
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -81,10 +82,18 @@ export default function LivestockPage() {
     }
   }, [editingSheep, editForm]);
 
-  const sortedTrackedSheep = useMemo(() => {
+  const filteredAndSortedSheep = useMemo(() => {
     if (!trackedSheep) return [];
-    return [...trackedSheep].sort((a, b) => a.tagId.localeCompare(b.tagId));
-  }, [trackedSheep]);
+    let filtered = [...trackedSheep];
+    
+    if (searchTagId.trim()) {
+      filtered = filtered.filter(s => 
+        s.tagId.toLowerCase().includes(searchTagId.toLowerCase())
+      );
+    }
+    
+    return filtered.sort((a, b) => a.tagId.localeCompare(b.tagId));
+  }, [trackedSheep, searchTagId]);
 
   const chartData = useMemo(() => {
     if (!trackedSheep || trackedSheep.length < 2) return [];
@@ -186,7 +195,6 @@ export default function LivestockPage() {
     }
   };
 
-  // ADMIN POWER: Check if user has permission to manage ALL records
   const canManageAll = userRole === 'admin' || userRole === 'collaborator';
 
   return (
@@ -250,12 +258,25 @@ export default function LivestockPage() {
         
         <div className="lg:col-span-8 space-y-8">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle className="text-lg">Community Flock</CardTitle>
-                <CardDescription>Records from all shepherds in the community.</CardDescription>
+            <CardHeader>
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                  <CardTitle className="text-lg">Community Flock</CardTitle>
+                  <CardDescription>Records from all shepherds in the community.</CardDescription>
+                </div>
+                <div className="flex items-center gap-2 w-full md:w-64">
+                  <div className="relative w-full">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Filter by Tag ID..."
+                      className="pl-9 h-10 rounded-xl bg-neutral-50/50 border-none shadow-sm focus-visible:ring-primary/20"
+                      value={searchTagId}
+                      onChange={(e) => setSearchTagId(e.target.value)}
+                    />
+                  </div>
+                  {isLoading && <Loader2 className="h-4 w-4 animate-spin shrink-0 text-primary" />}
+                </div>
               </div>
-              {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
             </CardHeader>
             <CardContent>
               <div className="rounded-md border overflow-hidden">
@@ -273,12 +294,10 @@ export default function LivestockPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {sortedTrackedSheep.length > 0 ? (
-                      sortedTrackedSheep.map((sheep) => {
+                    {filteredAndSortedSheep.length > 0 ? (
+                      filteredAndSortedSheep.map((sheep) => {
                         const weightChange = sheep.previousWeight != null ? sheep.currentWeight - sheep.previousWeight : null;
                         const isOwner = user?.uid === sheep.createdBy;
-                        
-                        // ADMIN POWER: Allow edit/delete if owner OR if collaborator/admin
                         const canManage = isOwner || canManageAll;
 
                         return (
@@ -363,7 +382,9 @@ export default function LivestockPage() {
                         );
                       })
                     ) : (
-                      <TableRow><TableCell colSpan={8} className="text-center py-12 text-muted-foreground italic">No community records found.</TableCell></TableRow>
+                      <TableRow><TableCell colSpan={8} className="text-center py-12 text-muted-foreground italic">
+                        {searchTagId ? `No sheep found matching "${searchTagId}"` : 'No community records found.'}
+                      </TableCell></TableRow>
                     )}
                   </TableBody>
                 </Table>
