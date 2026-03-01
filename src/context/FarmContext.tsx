@@ -239,7 +239,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
       totalLaborCost: lCost,
       totalMedicineCost: mCost,
       totalFarmExpenses: eCost,
-      totalReceivables: rev > 0 ? rec : 0, // ensure no negative receivables logic error
+      totalReceivables: rev > 0 ? rec : 0, 
       totalPayables: pay,
       totalLoanBalance: blBal,
       totalCreditCardDebt: ccBal,
@@ -266,12 +266,12 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     monthlyIncomes, addMonthlyIncome: (i: any) => upsert('monthlyIncomes', undefined, i), deleteMonthlyIncome: (id: string, path?: string) => remove('monthlyIncomes', id, path),
     monthlyExpenses, addMonthlyExpense: (e: any) => upsert('monthlyExpenses', undefined, e), deleteMonthlyExpense: (id: string, path?: string) => remove('monthlyExpenses', id, path),
     communitySales: qMarket, postToMarketplace, updateMarketplaceSale, deleteMarketplaceSale: (id: string, path?: string) => deleteDocumentNonBlocking(doc(firestore!, path || `communitySales/${id}`)),
-    isLoading: isLoadingProfile || (user && !isVerified) || lPurchases || lSales || lFeed || lMedicine || lLabor || lDead || lTracked || lExpenses || lHealth || lLoans || lCards || lBankLoans || lIncomes || lMExpenses || lMarket,
+    isLoading: isLoadingProfile || (user && !isVerified) || lPurchases || lSales || lFeed || lMedicine || lLabor || lDead || lTracked || lExpenses || lHealth || lLoans || lCards || lDebts || lIncomes || lMExpenses || lMarket,
     userRole: userProfile?.role || null,
     ...stats
   }), [
     purchases, sales, feedCosts, medicineExpenses, laborCosts, trackedSheep, deadAnimals, farmExpenses, healthTasks, bankLoans, creditCards, privateDebts, monthlyIncomes, monthlyExpenses, qMarket, stats,
-    isLoadingProfile, user, isVerified, lPurchases, lSales, lFeed, lMedicine, lLabor, lDead, lTracked, lExpenses, lHealth, lLoans, lCards, lIncomes, lMExpenses, lMarket,
+    isLoadingProfile, user, isVerified, lPurchases, lSales, lFeed, lMedicine, lLabor, lDead, lTracked, lExpenses, lHealth, lLoans, lCards, lDebts, lIncomes, lMExpenses, lMarket,
     userProfile, upsert, remove, postToMarketplace, updateMarketplaceSale, firestore
   ]);
 
