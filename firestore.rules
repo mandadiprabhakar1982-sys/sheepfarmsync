@@ -12,10 +12,10 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    // Checks the /users/{uid} document for the 'collaborator' role
+    // Checks the /users/{uid} document for authorized roles
     function isCollaborator() {
       return isSignedIn() && 
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'collaborator';
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['collaborator', 'admin'];
     }
 
     // --- COMMUNITY MARKETPLACE ---
@@ -36,22 +36,22 @@ service cloud.firestore {
     }
 
     // --- ADMIN/COLLABORATOR ACCESS (The Merged View) ---
-    // This unlocks READ, EDIT (update), and DELETE for the Admin Dashboard
-    // across EVERY user's subcollections.
+    // This unlocks full CRUD for the Admin/Collaborator Dashboard
+    // across EVERY user's subcollections via collectionGroup.
     
-    match /{path=**}/livestockPurchases/{id} { allow read, update, delete: if isCollaborator(); }
-    match /{path=**}/medicineExpenses/{id}  { allow read, update, delete: if isCollaborator(); }
-    match /{path=**}/feedExpenses/{id}      { allow read, update, delete: if isCollaborator(); }
-    match /{path=**}/laborExpenses/{id}     { allow read, update, delete: if isCollaborator(); }
-    match /{path=**}/animalSales/{id}       { allow read, update, delete: if isCollaborator(); }
-    match /{path=**}/deadAnimals/{id}       { allow read, update, delete: if isCollaborator(); }
-    match /{path=**}/trackedSheep/{id}      { allow read, update, delete: if isCollaborator(); }
-    match /{path=**}/farmExpenses/{id}      { allow read, update, delete: if isCollaborator(); }
-    match /{path=**}/healthTasks/{id}       { allow read, update, delete: if isCollaborator(); }
-    match /{path=**}/bankLoans/{id}         { allow read, update, delete: if isCollaborator(); }
-    match /{path=**}/creditCards/{id}       { allow read, update, delete: if isCollaborator(); }
-    match /{path=**}/privateDebts/{id}      { allow read, update, delete: if isCollaborator(); }
-    match /{path=**}/monthlyIncomes/{id}    { allow read, update, delete: if isCollaborator(); }
-    match /{path=**}/monthlyExpenses/{id}   { allow read, update, delete: if isCollaborator(); }
+    match /{path=**}/livestockPurchases/{id} { allow read, create, update, delete: if isCollaborator(); }
+    match /{path=**}/medicineExpenses/{id}  { allow read, create, update, delete: if isCollaborator(); }
+    match /{path=**}/feedExpenses/{id}      { allow read, create, update, delete: if isCollaborator(); }
+    match /{path=**}/laborExpenses/{id}     { allow read, create, update, delete: if isCollaborator(); }
+    match /{path=**}/animalSales/{id}       { allow read, create, update, delete: if isCollaborator(); }
+    match /{path=**}/deadAnimals/{id}       { allow read, create, update, delete: if isCollaborator(); }
+    match /{path=**}/trackedSheep/{id}      { allow read, create, update, delete: if isCollaborator(); }
+    match /{path=**}/farmExpenses/{id}      { allow read, create, update, delete: if isCollaborator(); }
+    match /{path=**}/healthTasks/{id}       { allow read, create, update, delete: if isCollaborator(); }
+    match /{path=**}/bankLoans/{id}         { allow read, create, update, delete: if isCollaborator(); }
+    match /{path=**}/creditCards/{id}       { allow read, create, update, delete: if isCollaborator(); }
+    match /{path=**}/privateDebts/{id}      { allow read, create, update, delete: if isCollaborator(); }
+    match /{path=**}/monthlyIncomes/{id}    { allow read, create, update, delete: if isCollaborator(); }
+    match /{path=**}/monthlyExpenses/{id}   { allow read, create, update, delete: if isCollaborator(); }
   }
 }

@@ -180,7 +180,14 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const upsert = useCallback((col: string, id: string | undefined, data: any, path?: string) => {
     if (!user || !firestore) return;
     const docRef = path ? doc(firestore, path) : doc(firestore, 'users', user.uid, col, id || generateId());
-    setDocumentNonBlocking(docRef, { ...data, id: id || docRef.id, updatedAt: serverTimestamp() }, { merge: true });
+    setDocumentNonBlocking(docRef, { 
+      ...data, 
+      id: id || docRef.id, 
+      createdBy: user.uid,
+      creatorEmail: user.email || 'No Email',
+      creatorName: user.displayName || 'Shepherd',
+      updatedAt: serverTimestamp() 
+    }, { merge: true });
   }, [user, firestore]);
 
   const remove = useCallback((col: string, id: string, path?: string) => {
