@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { PageHeader } from '@/components/page-header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -9,10 +9,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { PlusCircle, CreditCard, Banknote, Landmark, Trash2, Pencil, Save, X } from 'lucide-react';
+import { PlusCircle, CreditCard, Banknote, Landmark, Trash2, Pencil, Save, X, Info } from 'lucide-react';
 import { useFarm } from '@/context/FarmContext';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { Progress } from '@/components/ui/progress';
 
 export default function BalanceSheetPage() {
   const { toast } = useToast();
@@ -46,6 +47,23 @@ export default function BalanceSheetPage() {
   const [debtDate, setDebtDate] = useState('');
   const [monthlyInterest, setMonthlyInterest] = useState('');
   const [yearlyInterest, setYearlyInterest] = useState('');
+
+  // AUTOMATION: Private Debt Yearly Interest Calculation
+  useEffect(() => {
+    if (monthlyInterest && !isNaN(parseFloat(monthlyInterest))) {
+      const calculatedYearly = parseFloat(monthlyInterest) * 12;
+      setYearlyInterest(calculatedYearly.toString());
+    }
+  }, [monthlyInterest]);
+
+  // AUTOMATION: Credit Card Minimum Payment Suggestion (5%)
+  useEffect(() => {
+    if (cardOutstanding && !isNaN(parseFloat(cardOutstanding))) {
+      // Standard 5% min payment suggestion
+      const suggestedMin = Math.ceil(parseFloat(cardOutstanding) * 0.05);
+      setCardMinPayment(suggestedMin.toString());
+    }
+  }, [cardOutstanding]);
 
   const resetForms = () => {
     setBankName('');
@@ -200,7 +218,10 @@ export default function BalanceSheetPage() {
                       <Input type="number" value={cardOutstanding} onChange={(e) => setCardOutstanding(e.target.value)} placeholder="0" className="h-12 rounded-xl bg-white border-none shadow-sm font-black text-destructive" />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Min. Payment (₹)</Label>
+                      <Label className="text-[10px] font-black uppercase tracking-widest opacity-60 flex items-center gap-1">
+                        Min. Payment (₹)
+                        <Info className="h-2 w-2 text-primary" title="Automatically calculated at 5%" />
+                      </Label>
                       <Input type="number" value={cardMinPayment} onChange={(e) => setCardMinPayment(e.target.value)} placeholder="0" className="h-12 rounded-xl bg-white border-none shadow-sm font-black" />
                     </div>
                   </div>
@@ -227,8 +248,11 @@ export default function BalanceSheetPage() {
                       <Input type="number" value={monthlyInterest} onChange={(e) => setMonthlyInterest(e.target.value)} placeholder="0" className="h-12 rounded-xl bg-white border-none shadow-sm font-bold" />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Yearly Interest (₹)</Label>
-                      <Input type="number" value={yearlyInterest} onChange={(e) => setYearlyInterest(e.target.value)} placeholder="0" className="h-12 rounded-xl bg-white border-none shadow-sm font-bold" />
+                      <Label className="text-[10px] font-black uppercase tracking-widest opacity-60 flex items-center gap-1">
+                        Yearly Interest (₹)
+                        <Info className="h-2 w-2 text-primary" title="Automatically calculated: Monthly x 12" />
+                      </Label>
+                      <Input type="number" value={yearlyInterest} onChange={(e) => setYearlyInterest(e.target.value)} placeholder="0" className="h-12 rounded-xl bg-white border-none shadow-sm font-bold bg-muted/20" />
                     </div>
                   </div>
                 </>
@@ -272,34 +296,48 @@ export default function BalanceSheetPage() {
                       <TableRow>
                         <TableHead className="text-[9px] font-black uppercase">SNO</TableHead>
                         <TableHead className="text-[9px] font-black uppercase">Bank Name</TableHead>
+                        <TableHead className="text-[9px] font-black uppercase text-right">Progress</TableHead>
                         <TableHead className="text-[9px] font-black uppercase text-right">Total Loan</TableHead>
-                        <TableHead className="text-[9px] font-black uppercase text-right">Total Tenure</TableHead>
                         <TableHead className="text-[9px] font-black uppercase text-right">Balance</TableHead>
                         <TableHead className="text-[9px] font-black uppercase text-right">EMI</TableHead>
-                        <TableHead className="text-[9px] font-black uppercase text-right">Pending</TableHead>
                         <TableHead className="text-[9px] font-black uppercase text-right">Interest</TableHead>
                         <TableHead className="w-[40px]"></TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {bankLoans?.map((loan, idx) => (
-                        <TableRow key={loan.id} className="group">
-                          <TableCell className="text-[10px] font-bold text-muted-foreground">{idx + 1}</TableCell>
-                          <TableCell className="text-xs font-bold whitespace-nowrap">{loan.bankName}</TableCell>
-                          <TableCell className="text-xs font-medium text-right">₹{loan.totalLoan.toLocaleString()}</TableCell>
-                          <TableCell className="text-xs text-right text-muted-foreground">{loan.totalTenure || 'N/A'}</TableCell>
-                          <TableCell className="text-xs font-black text-right text-destructive">₹{loan.balanceLoan.toLocaleString()}</TableCell>
-                          <TableCell className="text-xs font-bold text-right text-primary">₹{(loan.monthlyEmi || 0).toLocaleString()}</TableCell>
-                          <TableCell className="text-xs text-right text-orange-600 font-bold">{loan.pendingTenure || 'N/A'}</TableCell>
-                          <TableCell className="text-xs text-right font-medium">{loan.interest ? `${loan.interest}%` : 'N/A'}</TableCell>
-                          <TableCell>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => deleteBankLoan(loan.id, loan._path)}>
-                              <Trash2 className="h-3 w-3 text-destructive" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                      {!bankLoans?.length && <TableRow><TableCell colSpan={9} className="text-center py-10 opacity-20 italic">No bank loans recorded</TableCell></TableRow>}
+                      {bankLoans?.map((loan, idx) => {
+                        const progress = loan.totalLoan > 0 ? ((loan.totalLoan - loan.balanceLoan) / loan.totalLoan) * 100 : 0;
+                        return (
+                          <TableRow key={loan.id} className="group">
+                            <TableCell className="text-[10px] font-bold text-muted-foreground">{idx + 1}</TableCell>
+                            <TableCell>
+                              <div className="flex flex-col">
+                                <span className="text-xs font-bold whitespace-nowrap">{loan.bankName}</span>
+                                <span className="text-[8px] uppercase tracking-widest text-muted-foreground">{loan.totalTenure || 'N/A'} Total</span>
+                              </div>
+                            </TableCell>
+                            <TableCell className="min-w-[100px]">
+                              <div className="space-y-1">
+                                <Progress value={progress} className="h-1 bg-neutral-100" />
+                                <div className="flex justify-between text-[8px] font-black uppercase tracking-tighter">
+                                  <span className="text-emerald-600">{progress.toFixed(0)}% Clear</span>
+                                  <span className="text-orange-600">{loan.pendingTenure || 'N/A'} Left</span>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-xs font-medium text-right">₹{loan.totalLoan.toLocaleString()}</TableCell>
+                            <TableCell className="text-xs font-black text-right text-destructive">₹{loan.balanceLoan.toLocaleString()}</TableCell>
+                            <TableCell className="text-xs font-bold text-right text-primary">₹{(loan.monthlyEmi || 0).toLocaleString()}</TableCell>
+                            <TableCell className="text-xs text-right font-medium">{loan.interest ? `${loan.interest}%` : 'N/A'}</TableCell>
+                            <TableCell>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => deleteBankLoan(loan.id, loan._path)}>
+                                <Trash2 className="h-3 w-3 text-destructive" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                      {!bankLoans?.length && <TableRow><TableCell colSpan={8} className="text-center py-10 opacity-20 italic">No bank loans recorded</TableCell></TableRow>}
                     </TableBody>
                   </Table>
                 </CardContent>
@@ -320,30 +358,40 @@ export default function BalanceSheetPage() {
                       <TableRow>
                         <TableHead className="text-[9px] font-black uppercase">SNO</TableHead>
                         <TableHead className="text-[9px] font-black uppercase">Bank Name</TableHead>
+                        <TableHead className="text-[9px] font-black uppercase">Usage</TableHead>
                         <TableHead className="text-[9px] font-black uppercase">Due Date</TableHead>
-                        <TableHead className="text-[9px] font-black uppercase text-right">Total Limit</TableHead>
+                        <TableHead className="text-[9px] font-black uppercase text-right">Limit</TableHead>
                         <TableHead className="text-[9px] font-black uppercase text-right">Outstanding</TableHead>
-                        <TableHead className="text-[9px] font-black uppercase text-right">Min. Payment</TableHead>
+                        <TableHead className="text-[9px] font-black uppercase text-right">Min. Pay</TableHead>
                         <TableHead className="w-[50px]"></TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {creditCards?.map((card, idx) => (
-                        <TableRow key={card.id} className="group">
-                          <TableCell className="text-[10px] font-bold text-muted-foreground">{idx + 1}</TableCell>
-                          <TableCell className="text-xs font-bold">{card.bankName}</TableCell>
-                          <TableCell className="text-xs font-medium">{card.dueDate || 'N/A'}</TableCell>
-                          <TableCell className="text-xs font-medium text-right">₹{(card.totalLimit || 0).toLocaleString()}</TableCell>
-                          <TableCell className="text-xs font-black text-right text-destructive">₹{card.outstandingAmount.toLocaleString()}</TableCell>
-                          <TableCell className="text-xs font-bold text-right text-orange-600">₹{(card.minimumPayment || 0).toLocaleString()}</TableCell>
-                          <TableCell>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => deleteCreditCard(card.id, card._path)}>
-                              <Trash2 className="h-3 w-3 text-destructive" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                      {!creditCards?.length && <TableRow><TableCell colSpan={7} className="text-center py-10 opacity-20 italic">No credit cards recorded</TableCell></TableRow>}
+                      {creditCards?.map((card, idx) => {
+                        const usage = card.totalLimit > 0 ? (card.outstandingAmount / card.totalLimit) * 100 : 0;
+                        return (
+                          <TableRow key={card.id} className="group">
+                            <TableCell className="text-[10px] font-bold text-muted-foreground">{idx + 1}</TableCell>
+                            <TableCell className="text-xs font-bold">{card.bankName}</TableCell>
+                            <TableCell className="min-w-[80px]">
+                               <div className="space-y-1">
+                                  <Progress value={usage} className={cn("h-1", usage > 80 ? "bg-red-100" : "bg-neutral-100")} />
+                                  <span className={cn("text-[8px] font-black", usage > 80 ? "text-destructive" : "text-muted-foreground")}>{usage.toFixed(0)}%</span>
+                               </div>
+                            </TableCell>
+                            <TableCell className="text-xs font-medium">{card.dueDate || 'N/A'}</TableCell>
+                            <TableCell className="text-xs font-medium text-right">₹{(card.totalLimit || 0).toLocaleString()}</TableCell>
+                            <TableCell className="text-xs font-black text-right text-destructive">₹{card.outstandingAmount.toLocaleString()}</TableCell>
+                            <TableCell className="text-xs font-bold text-right text-orange-600">₹{(card.minimumPayment || 0).toLocaleString()}</TableCell>
+                            <TableCell>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => deleteCreditCard(card.id, card._path)}>
+                                <Trash2 className="h-3 w-3 text-destructive" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                      {!creditCards?.length && <TableRow><TableCell colSpan={8} className="text-center py-10 opacity-20 italic">No credit cards recorded</TableCell></TableRow>}
                     </TableBody>
                   </Table>
                 </CardContent>
@@ -366,8 +414,8 @@ export default function BalanceSheetPage() {
                         <TableHead className="text-[9px] font-black uppercase">Date</TableHead>
                         <TableHead className="text-[9px] font-black uppercase">Person</TableHead>
                         <TableHead className="text-[9px] font-black uppercase text-right">Total Amount</TableHead>
-                        <TableHead className="text-[9px] font-black uppercase text-right">Monthly Interest</TableHead>
-                        <TableHead className="text-[9px] font-black uppercase text-right">Yearly Interest</TableHead>
+                        <TableHead className="text-[9px] font-black uppercase text-right">Monthly Int.</TableHead>
+                        <TableHead className="text-[9px] font-black uppercase text-right">Yearly Int.</TableHead>
                         <TableHead className="w-[50px]"></TableHead>
                       </TableRow>
                     </TableHeader>
@@ -379,7 +427,7 @@ export default function BalanceSheetPage() {
                           <TableCell className="text-xs font-bold">{debt.personName}</TableCell>
                           <TableCell className="text-xs font-black text-right text-destructive">₹{debt.amount.toLocaleString()}</TableCell>
                           <TableCell className="text-xs font-medium text-right text-muted-foreground">₹{(debt.monthlyInterest || 0).toLocaleString()}</TableCell>
-                          <TableCell className="text-xs font-medium text-right text-muted-foreground">₹{(debt.yearlyInterest || 0).toLocaleString()}</TableCell>
+                          <TableCell className="text-xs font-black text-right text-rose-600">₹{(debt.yearlyInterest || 0).toLocaleString()}</TableCell>
                           <TableCell>
                             <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => deletePrivateDebt(debt.id, debt._path)}>
                               <Trash2 className="h-3 w-3 text-destructive" />
