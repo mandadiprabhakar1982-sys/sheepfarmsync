@@ -34,11 +34,13 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
       const userRef = doc(firestore, 'users', user.uid);
       if (!isProfileLoading && !profile) {
         try {
+          // Default new users to 'admin' so the primary user gets full access.
+          // Other users can be set to 'collaborator' manually in the Firebase console.
           await setDoc(userRef, {
             id: user.uid,
             email: user.email,
             displayName: user.displayName || 'Shepherd',
-            role: 'collaborator',
+            role: 'admin', 
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp(),
           }, { merge: true });
@@ -48,7 +50,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
       } else if (!isProfileLoading && profile && !profile.role) {
         try {
           await updateDoc(userRef, { 
-            role: 'collaborator',
+            role: 'admin',
             updatedAt: serverTimestamp() 
           });
         } catch (e) {

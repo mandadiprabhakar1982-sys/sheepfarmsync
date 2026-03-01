@@ -13,16 +13,23 @@ service cloud.firestore {
     }
 
     // Checks the /users/{uid} document for authorized roles
+    // Includes 'admin' to ensure full power for the owner
     function isCollaborator() {
       return isSignedIn() && 
              get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['collaborator', 'admin'];
+    }
+
+    // Checks if the user is an admin for sensitive financial data
+    function isAdmin() {
+      return isSignedIn() && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
 
     // --- COMMUNITY MARKETPLACE ---
     match /communitySales/{saleId} {
       allow read: if isSignedIn();
       allow create: if isSignedIn();
-      allow update, delete: if isSignedIn() && (request.auth.uid == resource.data.sellerId || isCollaborator());
+      allow update, delete: if isSignedIn() && (request.auth.uid == resource.data.sellerId || isAdmin());
     }
 
     // --- PRIVATE USER DATA (Direct Path for Shepherds) ---
@@ -35,23 +42,24 @@ service cloud.firestore {
       }
     }
 
-    // --- ADMIN/COLLABORATOR ACCESS (The Merged View) ---
-    // This unlocks full CRUD for the Admin/Collaborator Dashboard
-    // across EVERY user's subcollections via collectionGroup.
-    
-    match /{path=**}/livestockPurchases/{id} { allow read, create, update, delete: if isCollaborator(); }
-    match /{path=**}/medicineExpenses/{id}  { allow read, create, update, delete: if isCollaborator(); }
-    match /{path=**}/feedExpenses/{id}      { allow read, create, update, delete: if isCollaborator(); }
-    match /{path=**}/laborExpenses/{id}     { allow read, create, update, delete: if isCollaborator(); }
-    match /{path=**}/animalSales/{id}       { allow read, create, update, delete: if isCollaborator(); }
-    match /{path=**}/deadAnimals/{id}       { allow read, create, update, delete: if isCollaborator(); }
-    match /{path=**}/trackedSheep/{id}      { allow read, create, update, delete: if isCollaborator(); }
-    match /{path=**}/farmExpenses/{id}      { allow read, create, update, delete: if isCollaborator(); }
-    match /{path=**}/healthTasks/{id}       { allow read, create, update, delete: if isCollaborator(); }
-    match /{path=**}/bankLoans/{id}         { allow read, create, update, delete: if isCollaborator(); }
-    match /{path=**}/creditCards/{id}       { allow read, create, update, delete: if isCollaborator(); }
-    match /{path=**}/privateDebts/{id}      { allow read, create, update, delete: if isCollaborator(); }
-    match /{path=**}/monthlyIncomes/{id}    { allow read, create, update, delete: if isCollaborator(); }
-    match /{path=**}/monthlyExpenses/{id}   { allow read, create, update, delete: if isCollaborator(); }
+    // --- COLLABORATOR/ADMIN ACCESS (The Merged View) ---
+    // Operational data is shared with collaborators and admins
+    match /{path=**}/livestockPurchases/{id} { allow read, update, delete: if isCollaborator(); }
+    match /{path=**}/medicineExpenses/{id}  { allow read, update, delete: if isCollaborator(); }
+    match /{path=**}/feedExpenses/{id}      { allow read, update, delete: if isCollaborator(); }
+    match /{path=**}/laborExpenses/{id}     { allow read, update, delete: if isCollaborator(); }
+    match /{path=**}/animalSales/{id}       { allow read, update, delete: if isCollaborator(); }
+    match /{path=**}/deadAnimals/{id}       { allow read, update, delete: if isCollaborator(); }
+    match /{path=**}/trackedSheep/{id}      { allow read, update, delete: if isCollaborator(); }
+    match /{path=**}/farmExpenses/{id}      { allow read, update, delete: if isCollaborator(); }
+    match /{path=**}/healthTasks/{id}       { allow read, update, delete: if isCollaborator(); }
+
+    // --- PERSONAL FINANCIAL DATA (Admin Only) ---
+    // Sensitive ledgers are restricted strictly to Admins
+    match /{path=**}/bankLoans/{id}         { allow read, update, delete: if isAdmin(); }
+    match /{path=**}/creditCards/{id}       { allow read, update, delete: if isAdmin(); }
+    match /{path=**}/privateDebts/{id}      { allow read, update, delete: if isAdmin(); }
+    match /{path=**}/monthlyIncomes/{id}    { allow read, update, delete: if isAdmin(); }
+    match /{path=**}/monthlyExpenses/{id}   { allow read, update, delete: if isAdmin(); }
   }
 }

@@ -34,6 +34,7 @@ const menuItems = [
     icon: Wallet,
     href: '/dashboard/monthly-ledger',
     color: 'bg-indigo-600',
+    adminOnly: true,
   },
   {
     title: 'LIABILITIES',
@@ -41,6 +42,7 @@ const menuItems = [
     icon: BookOpen,
     href: '/dashboard/balance-sheet',
     color: 'bg-slate-700',
+    adminOnly: true,
   },
   {
     title: 'FLOCK',
@@ -94,7 +96,8 @@ const menuItems = [
 ];
 
 export default function DashboardPage() {
-  const { isLoading } = useFarm();
+  const { isLoading, userRole } = useFarm();
+  const isAdmin = userRole === 'admin';
 
   if (isLoading) {
     return (
@@ -125,6 +128,9 @@ export default function DashboardPage() {
       <section className="container mx-auto px-4 -mt-10 relative z-10">
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-8">
           {menuItems.map((item) => {
+            // Hide admin-only items for other users
+            if (item.adminOnly && !isAdmin) return null;
+
             const Icon = item.icon;
             return (
               <Link href={item.href} key={item.title} className="group">

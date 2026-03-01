@@ -38,6 +38,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Logo } from '@/components/logo';
 import { cn } from '@/lib/utils';
+import { useFarm } from '@/context/FarmContext';
 
 const groups = [
   {
@@ -50,6 +51,7 @@ const groups = [
   },
   {
     label: "Financial Audit",
+    adminOnly: true,
     links: [
       { href: '/dashboard/monthly-ledger', label: 'Monthly Ledger', icon: Wallet },
       { href: '/dashboard/balance-sheet', label: 'Liability Tracker', icon: BookOpen },
@@ -85,6 +87,8 @@ const groups = [
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const { userRole } = useFarm();
+  const isAdmin = userRole === 'admin';
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
@@ -92,41 +96,46 @@ export function AppSidebar() {
         <Logo showManager={false} light={false} />
       </SidebarHeader>
       <SidebarContent className="px-3 py-6 bg-sidebar">
-        {groups.map((group) => (
-          <SidebarGroup key={group.label} className="mb-6">
-            <SidebarGroupLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-sidebar-foreground/40 mb-3 px-3">
-              {group.label}
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {group.links.map((link) => {
-                  const isActive = pathname === link.href;
-                  return (
-                    <SidebarMenuItem key={link.href}>
-                      <SidebarMenuButton
-                        asChild
-                        isActive={isActive}
-                        tooltip={link.label}
-                        className={cn(
-                          "transition-all duration-200 h-11 px-3 rounded-xl",
-                          isActive 
-                            ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:bg-primary/90" 
-                            : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                        )}
-                      >
-                        <Link href={link.href} className="flex items-center w-full">
-                          <link.icon className={cn("shrink-0 h-5 w-5", isActive ? "scale-105" : "opacity-70")} />
-                          <span className="ml-3 font-bold text-[13px] tracking-tight">{link.label}</span>
-                          {isActive && <ChevronRight className="ml-auto h-3 w-3 opacity-50" />}
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ))}
+        {groups.map((group) => {
+          // Hide sensitive financial groups from non-admins
+          if (group.adminOnly && !isAdmin) return null;
+
+          return (
+            <SidebarGroup key={group.label} className="mb-6">
+              <SidebarGroupLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-sidebar-foreground/40 mb-3 px-3">
+                {group.label}
+              </SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {group.links.map((link) => {
+                    const isActive = pathname === link.href;
+                    return (
+                      <SidebarMenuItem key={link.href}>
+                        <SidebarMenuButton
+                          asChild
+                          isActive={isActive}
+                          tooltip={link.label}
+                          className={cn(
+                            "transition-all duration-200 h-11 px-3 rounded-xl",
+                            isActive 
+                              ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:bg-primary/90" 
+                              : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                          )}
+                        >
+                          <Link href={link.href} className="flex items-center w-full">
+                            <link.icon className={cn("shrink-0 h-5 w-5", isActive ? "scale-105" : "opacity-70")} />
+                            <span className="ml-3 font-bold text-[13px] tracking-tight">{link.label}</span>
+                            {isActive && <ChevronRight className="ml-auto h-3 w-3 opacity-50" />}
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          );
+        })}
       </SidebarContent>
       <SidebarFooter className="border-t border-sidebar-border p-6 bg-sidebar">
         <div className="flex flex-col items-center gap-1 opacity-40">
