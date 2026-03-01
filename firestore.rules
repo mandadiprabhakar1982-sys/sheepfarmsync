@@ -51,5 +51,7 @@ service cloud.firestore {
     match /{path=**}/bankLoans/{id}         { allow read, update, delete: if isCollaborator(); }
     match /{path=**}/creditCards/{id}       { allow read, update, delete: if isCollaborator(); }
     match /{path=**}/privateDebts/{id}      { allow read, update, delete: if isCollaborator(); }
+    match /{path=**}/monthlyIncomes/{id}    { allow read, update, delete: if isCollaborator(); }
+    match /{path=**}/monthlyExpenses/{id}   { allow read, update, delete: if isCollaborator(); }
   }
 }

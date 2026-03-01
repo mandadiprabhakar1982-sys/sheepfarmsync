@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -20,6 +21,7 @@ import {
   Smartphone,
   ChevronRight,
   BookOpen,
+  Wallet,
 } from 'lucide-react';
 
 import {
@@ -47,6 +49,14 @@ const groups = [
     ]
   },
   {
+    label: "Financial Audit",
+    links: [
+      { href: '/dashboard/monthly-ledger', label: 'Monthly Ledger', icon: Wallet },
+      { href: '/dashboard/balance-sheet', label: 'Liability Tracker', icon: BookOpen },
+      { href: '/dashboard/expenses', label: 'Misc Expenses', icon: Receipt },
+    ]
+  },
+  {
     label: "Inventory",
     links: [
       { href: '/dashboard/livestock', label: 'Flock Records', icon: ListChecks },
@@ -56,16 +66,9 @@ const groups = [
     ]
   },
   {
-    label: "Financials",
+    label: "Staff & Ops",
     links: [
-      { href: '/dashboard/balance-sheet', label: 'Balance Sheet', icon: BookOpen },
-      { href: '/dashboard/expenses', label: 'Misc Expenses', icon: Receipt },
       { href: '/dashboard/labor', label: 'Staff/Labor', icon: Users },
-    ]
-  },
-  {
-    label: "Operations",
-    links: [
       { href: '/dashboard/medicine', label: 'Health & Medical', icon: Syringe },
       { href: '/dashboard/feed', label: 'Feed & Nutrition', icon: Wheat },
     ]
@@ -127,8 +130,8 @@ export function AppSidebar() {
       </SidebarContent>
       <SidebarFooter className="border-t border-sidebar-border p-6 bg-sidebar">
         <div className="flex flex-col items-center gap-1 opacity-40">
-          <p className="text-[9px] font-black uppercase tracking-[0.3em] text-sidebar-foreground">SheepSync Pro</p>
-          <p className="text-[7px] font-bold text-sidebar-foreground">Enterprise v2.5.0</p>
+          <p className="text-[9px] font-black uppercase tracking-[0.3em] text-sidebar-foreground">Sync Pro</p>
+          <p className="text-[7px] font-bold text-sidebar-foreground">Enterprise v2.6.0</p>
         </div>
       </SidebarFooter>
     </Sidebar>

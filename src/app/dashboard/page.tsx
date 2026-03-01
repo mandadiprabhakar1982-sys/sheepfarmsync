@@ -1,3 +1,4 @@
+
 'use client';
 import Link from 'next/link';
 import {
@@ -8,11 +9,11 @@ import {
   Wheat,
   Users,
   BadgeIndianRupee,
-  BarChart,
   Calculator,
   Receipt,
   Loader2,
   BookOpen,
+  Wallet,
 } from 'lucide-react';
 import { SyncProIcon } from '@/components/logo';
 import { Card, CardContent } from '@/components/ui/card';
@@ -28,11 +29,18 @@ const menuItems = [
     color: 'bg-blue-500',
   },
   {
-    title: 'BALANCE',
-    description: 'LEDGER',
+    title: 'LEDGER',
+    description: 'MONTHLY BAL',
+    icon: Wallet,
+    href: '/dashboard/monthly-ledger',
+    color: 'bg-indigo-600',
+  },
+  {
+    title: 'LIABILITIES',
+    description: 'LOAN TRACKER',
     icon: BookOpen,
     href: '/dashboard/balance-sheet',
-    color: 'bg-indigo-600',
+    color: 'bg-slate-700',
   },
   {
     title: 'FLOCK',
@@ -75,13 +83,6 @@ const menuItems = [
     icon: BadgeIndianRupee,
     href: '/dashboard/sales',
     color: 'bg-green-600',
-  },
-  {
-    title: 'CALC',
-    description: 'FEED MATH',
-    icon: Calculator,
-    href: '/dashboard/feed-calculator',
-    color: 'bg-cyan-500',
   },
   {
     title: 'EXPENSES',

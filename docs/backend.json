@@ -15,6 +15,29 @@
       },
       "required": ["id", "email"]
     },
+    "MonthlyIncome": {
+      "title": "MonthlyIncome",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "source": { "type": "string" },
+        "amount": { "type": "number" }
+      },
+      "required": ["id", "date", "source", "amount"]
+    },
+    "MonthlyExpense": {
+      "title": "MonthlyExpense",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "source": { "type": "string" },
+        "amount": { "type": "number" },
+        "category": { "type": "string", "enum": ["loan", "card", "private", "household"] }
+      },
+      "required": ["id", "date", "source", "amount", "category"]
+    },
     "HealthTask": {
       "title": "HealthTask",
       "type": "object",
@@ -78,6 +101,14 @@
     "/users/{userId}": {
       "schema": { "$ref": "#/backend/entities/UserProfile" },
       "description": "User profiles with role-based access control."
+    },
+    "/users/{userId}/monthlyIncomes/{id}": {
+      "schema": { "$ref": "#/backend/entities/MonthlyIncome" },
+      "description": "Income streams for monthly balance sheet."
+    },
+    "/users/{userId}/monthlyExpenses/{id}": {
+      "schema": { "$ref": "#/backend/entities/MonthlyExpense" },
+      "description": "Categorized expenses for monthly balance sheet."
     },
     "/users/{userId}/healthTasks/{id}": {
       "schema": { "$ref": "#/backend/entities/HealthTask" },

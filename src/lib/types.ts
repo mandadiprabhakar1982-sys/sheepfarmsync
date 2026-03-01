@@ -159,3 +159,22 @@ export interface PrivateDebt {
   amount: number;
   updatedAt?: any;
 }
+
+export interface MonthlyIncome {
+  id: string;
+  _path?: string;
+  date: string;
+  source: string;
+  amount: number;
+  updatedAt?: any;
+}
+
+export interface MonthlyExpense {
+  id: string;
+  _path?: string;
+  date: string;
+  source: string;
+  amount: number;
+  category: 'loan' | 'card' | 'private' | 'household';
+  updatedAt?: any;
+}
