@@ -21,7 +21,8 @@ import {
   History,
   Scale,
   MoreVertical,
-  Camera
+  Camera,
+  Wheat
 } from 'lucide-react';
 import Image from 'next/image';
 import { Bar, ComposedChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Line } from 'recharts';
@@ -114,7 +115,6 @@ export default function LivestockPage() {
       );
     }
     
-    // Context handles natural sorting but we re-verify here for filtered state
     return filtered.sort((a, b) => 
       a.tagId.localeCompare(b.tagId, undefined, { numeric: true, sensitivity: 'base' })
     );
@@ -349,6 +349,7 @@ export default function LivestockPage() {
                     <TableHead className="w-[100px] pl-8 py-5 text-[9px] font-black uppercase">Reference</TableHead>
                     <TableHead className="text-[9px] font-black uppercase">Identity</TableHead>
                     <TableHead className="text-[9px] font-black uppercase">Metrics</TableHead>
+                    <TableHead className="text-[9px] font-black uppercase">Nutrition</TableHead>
                     <TableHead className="text-[9px] font-black uppercase">Growth Pulse</TableHead>
                     <TableHead className="text-[9px] font-black uppercase">Ownership</TableHead>
                     <TableHead className="w-[80px] pr-8"></TableHead>
@@ -360,6 +361,7 @@ export default function LivestockPage() {
                       const weightChange = sheep.previousWeight != null ? sheep.currentWeight - sheep.previousWeight : null;
                       const isOwner = user?.uid === sheep.createdBy;
                       const canManage = isOwner || canManageAll;
+                      const dailyFeed = sheep.currentWeight * 0.04;
 
                       return (
                         <TableRow key={sheep.id} className="group hover:bg-neutral-50 transition-all cursor-zoom-in active:scale-[0.995]" onClick={() => sheep.photoDataUrl && setPreviewPhoto(sheep.photoDataUrl)}>
@@ -402,6 +404,15 @@ export default function LivestockPage() {
                                 <History className="h-2.5 w-2.5 opacity-40" />
                                 {sheep.age} <span className="text-[8px] opacity-40 uppercase">Months</span>
                               </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex flex-col">
+                              <div className="flex items-center gap-1.5 text-xs font-black text-emerald-600">
+                                <Wheat className="h-3 w-3 opacity-60" />
+                                {dailyFeed.toFixed(2)} <span className="text-[8px] opacity-60">KG/DAY</span>
+                              </div>
+                              <span className="text-[7px] font-bold text-muted-foreground uppercase tracking-widest mt-1">4% Body weight</span>
                             </div>
                           </TableCell>
                           <TableCell>
@@ -451,7 +462,7 @@ export default function LivestockPage() {
                     })
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-24 text-muted-foreground italic opacity-40 uppercase tracking-widest text-[10px] font-black">
+                      <TableCell colSpan={7} className="text-center py-24 text-muted-foreground italic opacity-40 uppercase tracking-widest text-[10px] font-black">
                         {searchTagId ? `No sheep found matching "${searchTagId}"` : 'NO COMMUNITY RECORDS DISCOVERED'}
                       </TableCell>
                     </TableRow>
