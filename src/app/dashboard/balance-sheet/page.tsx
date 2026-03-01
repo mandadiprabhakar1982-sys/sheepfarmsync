@@ -61,6 +61,26 @@ export default function BalanceSheetPage() {
   const [editingItem, setEditingItem] = useState<any>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
+  // SORTING LOGIC
+  const sortedLoans = useMemo(() => {
+    if (!bankLoans) return [];
+    return [...bankLoans].sort((a, b) => {
+      const dayA = parseInt(a.paymentDate?.replace(/\D/g, '') || '0');
+      const dayB = parseInt(b.paymentDate?.replace(/\D/g, '') || '0');
+      return dayA - dayB;
+    });
+  }, [bankLoans]);
+
+  const sortedCards = useMemo(() => {
+    if (!creditCards) return [];
+    return [...creditCards].sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
+  }, [creditCards]);
+
+  const sortedPrivate = useMemo(() => {
+    if (!privateDebts) return [];
+    return [...privateDebts].sort((a, b) => new Date(a.date || '').getTime() - new Date(b.date || '').getTime());
+  }, [privateDebts]);
+
   // AUTOMATION: Private Debt Yearly Interest Calculation
   useEffect(() => {
     if (monthlyInterest && !isNaN(parseFloat(monthlyInterest))) {
@@ -137,7 +157,6 @@ export default function BalanceSheetPage() {
 
   const handleEditClick = (item: any, type: string) => {
     setEditingItem({ ...item, _type: type });
-    // Pre-populate global states for editing (reusing the logic)
     if (type === 'loan') {
       setBankName(item.bankName);
       setTotalLoan(item.totalLoan.toString());
@@ -245,8 +264,8 @@ export default function BalanceSheetPage() {
                       <Input value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="e.g. Axis Bank" className="h-12 rounded-xl bg-white border-none shadow-sm font-bold" />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Payment Date</Label>
-                      <Input value={paymentDate} onChange={(e) => setPaymentDate(e.target.value)} placeholder="e.g. 5th" className="h-12 rounded-xl bg-white border-none shadow-sm font-bold" />
+                      <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">EMI Day (1-31)</Label>
+                      <Input value={paymentDate} onChange={(e) => setPaymentDate(e.target.value)} placeholder="e.g. 5" className="h-12 rounded-xl bg-white border-none shadow-sm font-bold" />
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
@@ -390,7 +409,7 @@ export default function BalanceSheetPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {bankLoans?.map((loan, idx) => {
+                      {sortedLoans.map((loan, idx) => {
                         const progress = loan.totalLoan > 0 ? ((loan.totalLoan - loan.balanceLoan) / loan.totalLoan) * 100 : 0;
                         return (
                           <TableRow key={loan.id} className="group">
@@ -433,7 +452,7 @@ export default function BalanceSheetPage() {
                           </TableRow>
                         );
                       })}
-                      {!bankLoans?.length && <TableRow><TableCell colSpan={8} className="text-center py-10 opacity-20 italic">No bank loans recorded</TableCell></TableRow>}
+                      {!sortedLoans.length && <TableRow><TableCell colSpan={8} className="text-center py-10 opacity-20 italic">No bank loans recorded</TableCell></TableRow>}
                     </TableBody>
                   </Table>
                 </CardContent>
@@ -463,7 +482,7 @@ export default function BalanceSheetPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {creditCards?.map((card, idx) => {
+                      {sortedCards.map((card, idx) => {
                         const usage = card.totalLimit > 0 ? (card.outstandingAmount / card.totalLimit) * 100 : 0;
                         return (
                           <TableRow key={card.id} className="group">
@@ -492,7 +511,7 @@ export default function BalanceSheetPage() {
                           </TableRow>
                         );
                       })}
-                      {!creditCards?.length && <TableRow><TableCell colSpan={8} className="text-center py-10 opacity-20 italic">No credit cards recorded</TableCell></TableRow>}
+                      {!sortedCards.length && <TableRow><TableCell colSpan={8} className="text-center py-10 opacity-20 italic">No credit cards recorded</TableCell></TableRow>}
                     </TableBody>
                   </Table>
                 </CardContent>
@@ -521,7 +540,7 @@ export default function BalanceSheetPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {privateDebts?.map((debt, idx) => (
+                      {sortedPrivate.map((debt, idx) => (
                         <TableRow key={debt.id} className="group">
                           <TableCell className="text-[10px] font-bold text-muted-foreground">{idx + 1}</TableCell>
                           <TableCell className="text-xs font-medium">{debt.date || 'N/A'}</TableCell>
@@ -541,7 +560,7 @@ export default function BalanceSheetPage() {
                           </TableCell>
                         </TableRow>
                       ))}
-                      {!privateDebts?.length && <TableRow><TableCell colSpan={7} className="text-center py-10 opacity-20 italic">No private debts recorded</TableCell></TableRow>}
+                      {!sortedPrivate.length && <TableRow><TableCell colSpan={7} className="text-center py-10 opacity-20 italic">No private debts recorded</TableCell></TableRow>}
                     </TableBody>
                   </Table>
                 </CardContent>
@@ -567,7 +586,7 @@ export default function BalanceSheetPage() {
                     <Input value={bankName} onChange={(e) => setBankName(e.target.value)} className="h-12 rounded-xl bg-accent/5 border-none shadow-sm font-bold" />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Payment Date</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">EMI Day (1-31)</Label>
                     <Input value={paymentDate} onChange={(e) => setPaymentDate(e.target.value)} className="h-12 rounded-xl bg-accent/5 border-none shadow-sm font-bold" />
                   </div>
                 </div>
