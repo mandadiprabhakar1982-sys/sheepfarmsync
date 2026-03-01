@@ -63,12 +63,13 @@ export default function BalanceSheetPage() {
   const [editingItem, setEditingItem] = useState<any>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
-  // AUTOMATION: Bank Loan Auto-Calculation based on Month
+  // AUTOMATION: Bank Loan Auto-Calculation based on Month & Interest (Reducing Balance)
   useEffect(() => {
     if (activeTab === 'loans' && startDate && totalLoan && totalTenure && monthlyEmi) {
       const total = parseFloat(totalLoan);
       const tenure = parseFloat(totalTenure);
       const emi = parseFloat(monthlyEmi);
+      const annualRate = parseFloat(interest) || 0;
       
       if (!isNaN(total) && !isNaN(tenure) && !isNaN(emi)) {
         const start = new Date(startDate);
@@ -76,13 +77,27 @@ export default function BalanceSheetPage() {
         const monthsPassed = Math.max(0, differenceInMonths(startOfMonth(now), startOfMonth(start)));
         
         const calculatedPending = Math.max(0, tenure - monthsPassed);
-        const calculatedBalance = Math.max(0, total - (monthsPassed * emi));
+        
+        // Accurate amortization balance formula
+        const monthlyRate = annualRate / 12 / 100;
+        let currentBalance = total;
+        
+        if (monthlyRate > 0) {
+          const compound = Math.pow(1 + monthlyRate, monthsPassed);
+          // Balance = P(1+r)^n - [EMI * ((1+r)^n - 1) / r]
+          currentBalance = (total * compound) - (emi * (compound - 1) / monthlyRate);
+        } else {
+          // Simple subtraction if interest is 0
+          currentBalance = total - (monthsPassed * emi);
+        }
+        
+        const calculatedBalance = Math.max(0, Math.round(currentBalance));
         
         setPendingTenure(calculatedPending.toString());
         setBalanceLoan(calculatedBalance.toString());
       }
     }
-  }, [startDate, totalLoan, totalTenure, monthlyEmi, activeTab]);
+  }, [startDate, totalLoan, totalTenure, monthlyEmi, interest, activeTab]);
 
   // SORTING LOGIC
   const sortedLoans = useMemo(() => {
@@ -302,7 +317,7 @@ export default function BalanceSheetPage() {
                       <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="h-12 rounded-xl bg-white border-none shadow-sm font-bold pr-10" />
                       <Wand2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary opacity-40" />
                     </div>
-                    <p className="text-[8px] text-muted-foreground font-medium italic">* Select to auto-calculate balance and pending tenure</p>
+                    <p className="text-[8px] text-muted-foreground font-medium italic">* Select to auto-calculate balance using amortization</p>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
