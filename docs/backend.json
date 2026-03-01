@@ -95,8 +95,11 @@
       "type": "object",
       "properties": {
         "id": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
         "personName": { "type": "string" },
-        "amount": { "type": "number" }
+        "amount": { "type": "number" },
+        "monthlyInterest": { "type": "number" },
+        "yearlyInterest": { "type": "number" }
       },
       "required": ["id", "personName", "amount"]
     }

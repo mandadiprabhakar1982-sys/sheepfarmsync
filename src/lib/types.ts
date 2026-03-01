@@ -162,8 +162,11 @@ export interface CreditCard {
 export interface PrivateDebt {
   id: string;
   _path?: string;
+  date?: string;
   personName: string;
   amount: number;
+  monthlyInterest?: number;
+  yearlyInterest?: number;
   updatedAt?: any;
 }
 

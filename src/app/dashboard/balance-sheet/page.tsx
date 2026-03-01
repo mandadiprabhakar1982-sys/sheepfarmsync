@@ -40,8 +40,12 @@ export default function BalanceSheetPage() {
   const [cardOutstanding, setCardOutstanding] = useState('');
   const [cardMinPayment, setCardMinPayment] = useState('');
 
+  // Private Debt Form States
   const [personName, setPersonName] = useState('');
   const [amount, setAmount] = useState('');
+  const [debtDate, setDebtDate] = useState('');
+  const [monthlyInterest, setMonthlyInterest] = useState('');
+  const [yearlyInterest, setYearlyInterest] = useState('');
 
   const resetForms = () => {
     setBankName('');
@@ -53,6 +57,9 @@ export default function BalanceSheetPage() {
     setInterest('');
     setPersonName('');
     setAmount('');
+    setDebtDate('');
+    setMonthlyInterest('');
+    setYearlyInterest('');
     setCardDueDate('');
     setCardTotalLimit('');
     setCardOutstanding('');
@@ -84,7 +91,13 @@ export default function BalanceSheetPage() {
       toast({ title: "Card Recorded", description: "Credit card entry added successfully." });
     } else if (activeTab === 'private') {
       if (!personName || !amount) return;
-      addPrivateDebt({ personName, amount: parseFloat(amount) });
+      addPrivateDebt({ 
+        personName, 
+        amount: parseFloat(amount),
+        date: debtDate,
+        monthlyInterest: parseFloat(monthlyInterest || '0'),
+        yearlyInterest: parseFloat(yearlyInterest || '0')
+      });
       toast({ title: "Debt Recorded", description: "Private debt entry added successfully." });
     }
     resetForms();
@@ -197,12 +210,26 @@ export default function BalanceSheetPage() {
               {activeTab === 'private' && (
                 <>
                   <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Date</Label>
+                    <Input type="date" value={debtDate} onChange={(e) => setDebtDate(e.target.value)} className="h-12 rounded-xl bg-white border-none shadow-sm font-bold" />
+                  </div>
+                  <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Person Name</Label>
                     <Input value={personName} onChange={(e) => setPersonName(e.target.value)} placeholder="e.g. Kalyan" className="h-12 rounded-xl bg-white border-none shadow-sm font-bold" />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Amount (₹)</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Total Amount (₹)</Label>
                     <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0" className="h-12 rounded-xl bg-white border-none shadow-sm font-black" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Monthly Interest (₹)</Label>
+                      <Input type="number" value={monthlyInterest} onChange={(e) => setMonthlyInterest(e.target.value)} placeholder="0" className="h-12 rounded-xl bg-white border-none shadow-sm font-bold" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Yearly Interest (₹)</Label>
+                      <Input type="number" value={yearlyInterest} onChange={(e) => setYearlyInterest(e.target.value)} placeholder="0" className="h-12 rounded-xl bg-white border-none shadow-sm font-bold" />
+                    </div>
                   </div>
                 </>
               )}
@@ -331,20 +358,28 @@ export default function BalanceSheetPage() {
                     <p className="text-lg font-black">₹{totalPrivateDebt.toLocaleString()}</p>
                   </div>
                 </CardHeader>
-                <CardContent className="pt-6">
+                <CardContent className="pt-6 overflow-x-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="text-[10px] font-black uppercase">Person</TableHead>
-                        <TableHead className="text-[10px] font-black uppercase text-right">Amount</TableHead>
+                        <TableHead className="text-[9px] font-black uppercase">SNO</TableHead>
+                        <TableHead className="text-[9px] font-black uppercase">Date</TableHead>
+                        <TableHead className="text-[9px] font-black uppercase">Person</TableHead>
+                        <TableHead className="text-[9px] font-black uppercase text-right">Total Amount</TableHead>
+                        <TableHead className="text-[9px] font-black uppercase text-right">Monthly Interest</TableHead>
+                        <TableHead className="text-[9px] font-black uppercase text-right">Yearly Interest</TableHead>
                         <TableHead className="w-[50px]"></TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {privateDebts?.map((debt) => (
+                      {privateDebts?.map((debt, idx) => (
                         <TableRow key={debt.id} className="group">
+                          <TableCell className="text-[10px] font-bold text-muted-foreground">{idx + 1}</TableCell>
+                          <TableCell className="text-xs font-medium">{debt.date || 'N/A'}</TableCell>
                           <TableCell className="text-xs font-bold">{debt.personName}</TableCell>
                           <TableCell className="text-xs font-black text-right text-destructive">₹{debt.amount.toLocaleString()}</TableCell>
+                          <TableCell className="text-xs font-medium text-right text-muted-foreground">₹{(debt.monthlyInterest || 0).toLocaleString()}</TableCell>
+                          <TableCell className="text-xs font-medium text-right text-muted-foreground">₹{(debt.yearlyInterest || 0).toLocaleString()}</TableCell>
                           <TableCell>
                             <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => deletePrivateDebt(debt.id, debt._path)}>
                               <Trash2 className="h-3 w-3 text-destructive" />
@@ -352,7 +387,7 @@ export default function BalanceSheetPage() {
                           </TableCell>
                         </TableRow>
                       ))}
-                      {!privateDebts?.length && <TableRow><TableCell colSpan={3} className="text-center py-10 opacity-20 italic">No private debts recorded</TableCell></TableRow>}
+                      {!privateDebts?.length && <TableRow><TableCell colSpan={7} className="text-center py-10 opacity-20 italic">No private debts recorded</TableCell></TableRow>}
                     </TableBody>
                   </Table>
                 </CardContent>
