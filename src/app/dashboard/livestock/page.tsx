@@ -12,13 +12,10 @@ import {
   ArrowUp, 
   ArrowDown, 
   Loader2, 
-  User, 
   ImageIcon, 
   ZoomIn, 
   X, 
   Save, 
-  Mail, 
-  ShieldAlert, 
   Search,
   Activity,
   History,
@@ -33,7 +30,7 @@ import { format } from 'date-fns';
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -44,6 +41,7 @@ import { cn } from '@/lib/utils';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -116,6 +114,7 @@ export default function LivestockPage() {
       );
     }
     
+    // Context handles natural sorting but we re-verify here for filtered state
     return filtered.sort((a, b) => 
       a.tagId.localeCompare(b.tagId, undefined, { numeric: true, sensitivity: 'base' })
     );
@@ -426,7 +425,6 @@ export default function LivestockPage() {
                               <div className="flex flex-col min-w-0 max-w-[120px]">
                                 <span className="text-[10px] font-black truncate flex items-center gap-1 leading-none uppercase">
                                   {sheep.creatorName || 'Shepherd'}
-                                  {!isOwner && canManageAll && <ShieldAlert className="h-2.5 w-2.5 text-primary" />}
                                 </span>
                                 <span className="text-[8px] font-bold text-muted-foreground truncate mt-1">{sheep.creatorEmail || 'Private User'}</span>
                               </div>
