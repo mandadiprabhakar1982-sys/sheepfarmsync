@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -23,13 +22,15 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { LogOut, User, Settings, ChevronDown, Loader2 } from 'lucide-react';
+import { LogOut, User, Settings, ChevronDown, Loader2, ShieldCheck, Mail, Fingerprint, Save } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { useAuth, useUser, useFirestore } from '@/firebase';
+import { useAuth, useUser, useFirestore, useDoc } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { initiateUpdateProfile } from '@/firebase/non-blocking-login';
 import { doc, serverTimestamp } from 'firebase/firestore';
 import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { Badge } from '@/components/ui/badge';
+import type { UserProfile } from '@/lib/types';
 
 export function UserNav() {
   const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
@@ -37,28 +38,30 @@ export function UserNav() {
   const { user } = useUser();
   const firestore = useFirestore();
   
+  const userDocRef = user && firestore ? doc(firestore, 'users', user.uid) : null;
+  const { data: profile } = useDoc<UserProfile>(userDocRef);
+  
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [displayName, setDisplayName] = useState(user?.displayName || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleLogout = () => {
-    signOut(auth);
+    signOut(auth!);
   };
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!auth || !user || !firestore) return;
+    
     setIsSubmitting(true);
     try {
       await initiateUpdateProfile(auth, displayName);
       
-      // Also update Firestore user doc
-      if (user) {
-        const userDocRef = doc(firestore, `users/${user.uid}`);
-        setDocumentNonBlocking(userDocRef, {
-          displayName,
-          updatedAt: serverTimestamp(),
-        }, { merge: true });
-      }
+      const userRef = doc(firestore, `users/${user.uid}`);
+      setDocumentNonBlocking(userRef, {
+        displayName,
+        updatedAt: serverTimestamp(),
+      }, { merge: true });
       
       setIsProfileOpen(false);
     } catch (error) {
@@ -72,64 +75,133 @@ export function UserNav() {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="relative flex items-center gap-2 h-10 px-2">
-            <Avatar className="h-8 w-8">
-              <AvatarImage src={userAvatar?.imageUrl} alt="User avatar" data-ai-hint={userAvatar?.imageHint} />
-              <AvatarFallback>{(user?.displayName?.[0] || user?.email?.[0] || 'U').toUpperCase()}</AvatarFallback>
-            </Avatar>
-            <span className="hidden md:inline truncate max-w-[120px]">{user?.displayName || user?.email || 'Farm Admin'}</span>
-            <ChevronDown className="h-4 w-4 hidden md:inline opacity-50" />
+          <Button variant="ghost" className="relative flex items-center gap-3 h-12 px-3 rounded-2xl hover:bg-neutral-50 transition-all active:scale-95 group">
+            <div className="relative">
+              <Avatar className="h-9 w-9 border-2 border-white shadow-md">
+                <AvatarImage src={userAvatar?.imageUrl} alt="User avatar" data-ai-hint={userAvatar?.imageHint} />
+                <AvatarFallback className="bg-primary/5 text-primary font-black">
+                  {(user?.displayName?.[0] || user?.email?.[0] || 'U').toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 bg-emerald-500 border-2 border-white rounded-full" />
+            </div>
+            <div className="hidden md:flex flex-col items-start text-left">
+              <span className="text-[11px] font-black tracking-tight text-neutral-900 leading-none truncate max-w-[100px]">
+                {user?.displayName || 'Shepherd'}
+              </span>
+              <span className="text-[8px] font-bold text-muted-foreground uppercase tracking-widest mt-1 opacity-60">
+                {profile?.role || 'User'}
+              </span>
+            </div>
+            <ChevronDown className="h-3 w-3 hidden md:inline opacity-20 group-hover:opacity-100 transition-opacity" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56" align="end" forceMount>
-          <DropdownMenuLabel className="font-normal">
+        <DropdownMenuContent className="w-64 rounded-2xl shadow-2xl border-none p-2" align="end" forceMount>
+          <DropdownMenuLabel className="p-4 bg-neutral-50 rounded-xl mb-2">
             <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">{user?.displayName || 'Farm Admin'}</p>
-              <p className="text-xs leading-none text-muted-foreground truncate">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-black uppercase tracking-tight leading-none text-neutral-900">
+                  {user?.displayName || 'Identity Profile'}
+                </p>
+                <Badge variant="secondary" className="h-4 px-1.5 text-[7px] font-black uppercase tracking-widest bg-primary/10 text-primary border-none">
+                  {profile?.role || 'Sync User'}
+                </Badge>
+              </div>
+              <p className="text-[10px] leading-none text-muted-foreground truncate opacity-60 font-bold mt-2">
                 {user?.email}
               </p>
             </div>
           </DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuGroup>
-            <DropdownMenuItem onClick={() => setIsProfileOpen(true)}>
-              <User className="mr-2 h-4 w-4" />
-              <span>Profile Settings</span>
+          <DropdownMenuSeparator className="bg-neutral-100" />
+          <DropdownMenuGroup className="space-y-1">
+            <DropdownMenuItem onClick={() => setIsProfileOpen(true)} className="rounded-lg h-10 cursor-pointer focus:bg-neutral-50">
+              <Settings className="mr-3 h-4 w-4 text-neutral-400" />
+              <span className="text-xs font-bold text-neutral-700">Identity Settings</span>
             </DropdownMenuItem>
           </DropdownMenuGroup>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleLogout}>
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>Log out</span>
+          <DropdownMenuSeparator className="bg-neutral-100" />
+          <DropdownMenuItem onClick={handleLogout} className="rounded-lg h-10 cursor-pointer text-rose-600 focus:bg-rose-50 focus:text-rose-600">
+              <LogOut className="mr-3 h-4 w-4" />
+              <span className="text-xs font-bold uppercase tracking-widest">Terminate Session</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
       <Dialog open={isProfileOpen} onOpenChange={setIsProfileOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
           <form onSubmit={handleUpdateProfile}>
-            <DialogHeader>
-              <DialogTitle>Update Profile</DialogTitle>
-              <DialogDescription>
-                Set your name so other farmers recognize you in the community.
+            <DialogHeader className="bg-neutral-900 p-8 text-left relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-6 opacity-10">
+                <Fingerprint className="h-24 w-24 text-white rotate-12" />
+              </div>
+              <DialogTitle className="text-2xl font-black tracking-tight text-white flex items-center gap-3 relative z-10">
+                <Settings className="h-6 w-6 text-emerald-400" />
+                Identity Audit
+              </DialogTitle>
+              <DialogDescription className="text-white/40 text-xs font-bold uppercase tracking-widest relative z-10">
+                Synchronize your shepherd profile parameters
               </DialogDescription>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="name">Your Name</Label>
-                <Input
-                  id="name"
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
-                  placeholder="e.g. Farmer Ram"
-                  disabled={isSubmitting}
-                />
+            
+            <div className="p-8 space-y-8 bg-white">
+              <div className="space-y-6">
+                <div className="space-y-3">
+                  <Label htmlFor="name" className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Public Identity Name</Label>
+                  <div className="relative">
+                    <User className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-300" />
+                    <Input
+                      id="name"
+                      value={displayName}
+                      onChange={(e) => setDisplayName(e.target.value)}
+                      placeholder="e.g. Shepherd Ram"
+                      className="h-14 rounded-2xl bg-neutral-50 border-none shadow-sm font-black text-base px-14 focus-visible:ring-primary/20"
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="p-5 rounded-2xl bg-neutral-50 border border-neutral-100 flex items-center gap-4">
+                    <div className="h-10 w-10 rounded-xl bg-white flex items-center justify-center shadow-sm">
+                      <Mail className="h-5 w-5 text-neutral-400" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[8px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-60">Verified Email</p>
+                      <p className="text-[11px] font-bold text-neutral-900 truncate">{user?.email}</p>
+                    </div>
+                  </div>
+
+                  <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center gap-4">
+                    <div className="h-10 w-10 rounded-xl bg-white flex items-center justify-center shadow-sm">
+                      <ShieldCheck className="h-5 w-5 text-emerald-600" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[8px] font-black uppercase tracking-[0.2em] text-emerald-900 opacity-60">Access Permissions</p>
+                      <p className="text-[11px] font-black text-emerald-900 uppercase tracking-widest">
+                        {profile?.role || 'Guest'} Status
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-            <DialogFooter>
-              <Button type="submit" disabled={isSubmitting || !displayName.trim()}>
-                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Save Changes
+
+            <DialogFooter className="p-8 bg-neutral-50 border-t border-neutral-100 flex-col sm:flex-row gap-4">
+              <Button type="button" variant="ghost" onClick={() => setIsProfileOpen(false)} className="h-12 px-6 font-bold text-muted-foreground rounded-xl">
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting || !displayName.trim()} className="h-14 px-10 rounded-xl font-black uppercase tracking-[0.2em] shadow-2xl shadow-primary/20 bg-neutral-900 hover:bg-neutral-800 flex-1 sm:flex-none">
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-3 h-5 w-5 animate-spin text-emerald-400" />
+                    Syncing Identity...
+                  </>
+                ) : (
+                  <>
+                    <Save className="mr-3 h-5 w-5 text-emerald-400" />
+                    Save Changes
+                  </>
+                )}
               </Button>
             </DialogFooter>
           </form>
