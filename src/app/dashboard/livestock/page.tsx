@@ -23,10 +23,10 @@ import {
   MoreVertical,
   Camera,
   Wheat,
-  BarChart3,
   TrendingUp,
-  Upload,
-  UploadCloud
+  UploadCloud,
+  CheckCircle2,
+  Image as LucideImage
 } from 'lucide-react';
 import Image from 'next/image';
 import { Bar, ComposedChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Line, Area } from 'recharts';
@@ -71,7 +71,7 @@ const chartConfig = {
   },
   averageFeed: {
     label: 'Daily Feed (kg)',
-    color: '#f59e0b', // Amber/Gold for nutrition
+    color: '#f59e0b',
   },
   growth: {
     label: 'Growth Velocity',
@@ -139,15 +139,13 @@ export default function LivestockPage() {
   const chartData = useMemo(() => {
     if (!trackedSheep || trackedSheep.length === 0) return [];
 
-    // Calculate baseline: current average metrics for the entire tracked flock
     const totalWeight = trackedSheep.reduce((acc, s) => acc + s.currentWeight, 0);
     const avgWeight = totalWeight / trackedSheep.length;
     
-    const dailyGain = 0.20; // 200g per day
+    const dailyGain = 0.20; 
     const daysInMonth = 30;
     const monthlyGain = dailyGain * daysInMonth;
 
-    // Generate current + next 3 months projection
     return [
       {
         batch: 'Current',
@@ -225,7 +223,7 @@ export default function LivestockPage() {
     });
     trackingForm.reset();
     setCapturedImage(null);
-    toast({ title: 'Success!', description: 'Sheep record added.' });
+    toast({ title: 'Success!', description: 'Sheep record synchronized with global flock.' });
   };
 
   const onEditSubmit: SubmitHandler<TrackingFormData> = (data) => {
@@ -240,7 +238,7 @@ export default function LivestockPage() {
     }, editingSheep._path);
     setIsEditDialogOpen(false);
     setEditingSheep(null);
-    toast({ title: 'Updated!', description: 'Record updated successfully.' });
+    toast({ title: 'Updated!', description: 'Audit record synchronized.' });
   };
 
   const formatTimestamp = (ts: any) => {
@@ -298,13 +296,13 @@ export default function LivestockPage() {
                 <PlusCircle className="h-5 w-5 text-emerald-400" />
                 Register Entry
               </CardTitle>
-              <CardDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Add a new sheep to community records</CardDescription>
+              <CardDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Synchronize new livestock with community records</CardDescription>
             </CardHeader>
             <CardContent className="p-8">
               <Form {...trackingForm}>
                 <form onSubmit={trackingForm.handleSubmit(onTrackingSubmit)} className="space-y-8">
                   <div className="space-y-4">
-                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Identification</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Identification Metrics</Label>
                     <FormField control={trackingForm.control} name="tagId" render={({ field }) => (
                       <FormItem>
                         <FormControl>
@@ -318,7 +316,7 @@ export default function LivestockPage() {
                         <FormItem>
                           <Label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-2">Weight (kg)</Label>
                           <FormControl>
-                            <Input type="number" step="0.1" placeholder="Weight (kg)" className="h-12 rounded-xl bg-neutral-50 border-none shadow-sm font-bold px-4" {...field} />
+                            <Input type="number" step="0.1" placeholder="Current" className="h-12 rounded-xl bg-neutral-50 border-none shadow-sm font-bold px-4" {...field} />
                           </FormControl>
                         </FormItem>
                       )} />
@@ -326,7 +324,7 @@ export default function LivestockPage() {
                         <FormItem>
                           <Label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-2">Age (months)</Label>
                           <FormControl>
-                            <Input type="number" placeholder="Age (mo)" className="h-12 rounded-xl bg-neutral-50 border-none shadow-sm font-bold px-4" {...field} />
+                            <Input type="number" placeholder="Months" className="h-12 rounded-xl bg-neutral-50 border-none shadow-sm font-bold px-4" {...field} />
                           </FormControl>
                         </FormItem>
                       )} />
@@ -334,40 +332,46 @@ export default function LivestockPage() {
                   </div>
                   
                   <div className="space-y-4">
-                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Visual Reference</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Visual Reference Audit</Label>
                     <div className="relative aspect-square w-full overflow-hidden rounded-[2rem] border-4 border-dashed border-neutral-100 bg-neutral-50 flex flex-col items-center justify-center group">
                         {!capturedImage ? (
                             <>
                               <video ref={videoRef} className="absolute inset-0 h-full w-full object-cover" autoPlay muted playsInline />
-                              <div className="relative z-10 flex flex-col items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <Button type="button" onClick={handleCapture} className="rounded-full h-16 w-16 bg-white/20 backdrop-blur-md text-white hover:bg-white/40 border-none shadow-2xl">
+                              <div className="relative z-10 flex flex-col items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Button type="button" onClick={handleCapture} className="rounded-full h-16 w-16 bg-white/20 backdrop-blur-md text-white hover:bg-white/40 border-none shadow-2xl scale-110">
                                   <Camera className="h-8 w-8" />
                                 </Button>
-                                <span className="text-[8px] font-black uppercase text-white tracking-widest">Tap to capture</span>
+                                <span className="text-[9px] font-black uppercase text-white tracking-[0.2em] drop-shadow-md">Tap to Snapshot</span>
+                              </div>
+                              <div className="absolute bottom-6 left-6 right-6 flex flex-col items-center gap-2">
+                                 <LucideImage className="h-8 w-8 text-neutral-200" />
+                                 <p className="text-[8px] font-bold text-neutral-300 uppercase tracking-widest">Awaiting Visual Input</p>
                               </div>
                             </>
                         ) : (
-                            <div className="relative h-full w-full">
-                              <Image src={capturedImage} alt="Captured photo" layout="fill" objectFit="cover" unoptimized />
-                              <Button variant="secondary" size="icon" className="absolute top-4 right-4 h-10 w-10 rounded-full bg-white/80 hover:bg-white shadow-xl" onClick={() => setCapturedImage(null)}>
-                                <X className="h-5 w-5" />
-                              </Button>
+                            <div className="relative h-full w-full animate-in zoom-in-95 duration-300">
+                              <Image src={capturedImage} alt="Captured audit photo" layout="fill" objectFit="cover" unoptimized />
+                              <div className="absolute inset-0 bg-black/20 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
+                                 <Button variant="secondary" size="icon" className="h-12 w-12 rounded-full bg-white/90 hover:bg-white shadow-2xl" onClick={() => setCapturedImage(null)}>
+                                    <X className="h-6 w-6 text-rose-600" />
+                                 </Button>
+                              </div>
                             </div>
                         )}
                     </div>
                     
                     <div className="grid grid-cols-2 gap-3">
-                        <Button type="button" onClick={handleCapture} disabled={hasCameraPermission === false || !!capturedImage} className="h-12 rounded-xl font-bold bg-neutral-50 text-neutral-600 hover:bg-neutral-100 border-none" variant="outline">
+                        <Button type="button" onClick={handleCapture} disabled={hasCameraPermission === false || !!capturedImage} className="h-12 rounded-xl font-bold bg-neutral-50 text-neutral-600 hover:bg-neutral-100 border-none transition-all active:scale-95" variant="outline">
                             <CameraIcon className="mr-2 h-4 w-4" /> Snapshot
                         </Button>
-                        <Button type="button" onClick={() => fileInputRef.current?.click()} disabled={!!capturedImage} className="h-12 rounded-xl font-bold bg-neutral-50 text-neutral-600 hover:bg-neutral-100 border-none" variant="outline">
-                            <Upload className="mr-2 h-4 w-4" /> Upload
+                        <Button type="button" onClick={() => fileInputRef.current?.click()} disabled={!!capturedImage} className="h-12 rounded-xl font-bold bg-neutral-50 text-neutral-600 hover:bg-neutral-100 border-none transition-all active:scale-95" variant="outline">
+                            <UploadCloud className="mr-2 h-4 w-4 text-emerald-600" /> Upload
                         </Button>
                         <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileUpload} />
                     </div>
                   </div>
 
-                  <Button type="submit" className="w-full h-16 rounded-[1.25rem] font-black text-sm uppercase tracking-[0.2em] shadow-2xl shadow-primary/20 bg-neutral-900 hover:bg-neutral-800">
+                  <Button type="submit" className="w-full h-16 rounded-[1.25rem] font-black text-sm uppercase tracking-[0.2em] shadow-2xl shadow-primary/20 bg-neutral-900 hover:bg-neutral-800 transition-all hover:-translate-y-1">
                     <PlusCircle className="mr-3 h-6 w-6 text-emerald-400" /> Commit Record
                   </Button>
                 </form>
@@ -381,8 +385,8 @@ export default function LivestockPage() {
             <CardHeader className="bg-primary p-8 text-white">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
-                  <CardTitle className="text-2xl font-black tracking-tight leading-none mb-2">Community Flock</CardTitle>
-                  <CardDescription className="text-white/60 text-[10px] font-black uppercase tracking-widest">Global synchronized ledger of all livestock</CardDescription>
+                  <CardTitle className="text-2xl font-black tracking-tight leading-none mb-2">Community Flock Ledger</CardTitle>
+                  <CardDescription className="text-white/60 text-[10px] font-black uppercase tracking-widest">Global synchronized database of individually tracked assets</CardDescription>
                 </div>
                 <div className="relative w-full md:w-72">
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
@@ -404,12 +408,12 @@ export default function LivestockPage() {
               <Table>
                 <TableHeader className="bg-neutral-50">
                   <TableRow>
-                    <TableHead className="w-[100px] pl-8 py-5 text-[9px] font-black uppercase">Reference</TableHead>
+                    <TableHead className="w-[100px] pl-8 py-5 text-[9px] font-black uppercase">Ref Photo</TableHead>
                     <TableHead className="text-[9px] font-black uppercase">Identity</TableHead>
-                    <TableHead className="text-[9px] font-black uppercase">Metrics</TableHead>
+                    <TableHead className="text-[9px] font-black uppercase">Physicals</TableHead>
                     <TableHead className="text-[9px] font-black uppercase">Nutrition</TableHead>
-                    <TableHead className="text-[9px] font-black uppercase">Growth Pulse</TableHead>
-                    <TableHead className="text-[9px] font-black uppercase">Ownership</TableHead>
+                    <TableHead className="text-[9px] font-black uppercase">Growth</TableHead>
+                    <TableHead className="text-[9px] font-black uppercase">Verification</TableHead>
                     <TableHead className="w-[80px] pr-8"></TableHead>
                   </TableRow>
                 </TableHeader>
@@ -449,7 +453,7 @@ export default function LivestockPage() {
                           <TableCell>
                             <div className="flex flex-col">
                               <span className="text-base font-black tracking-tight">{sheep.tagId}</span>
-                              <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">Added {formatTimestamp(sheep.createdAt)}</span>
+                              <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">Logged {formatTimestamp(sheep.createdAt)}</span>
                             </div>
                           </TableCell>
                           <TableCell>
@@ -460,7 +464,7 @@ export default function LivestockPage() {
                               </div>
                               <div className="flex items-center gap-1.5 text-[10px] font-bold text-muted-foreground mt-1">
                                 <History className="h-2.5 w-2.5 opacity-40" />
-                                {sheep.age} <span className="text-[8px] opacity-40 uppercase">Months</span>
+                                {sheep.age} <span className="text-[8px] opacity-40 uppercase">Mo</span>
                               </div>
                             </div>
                           </TableCell>
@@ -468,9 +472,9 @@ export default function LivestockPage() {
                             <div className="flex flex-col">
                               <div className="flex items-center gap-1.5 text-xs font-black text-emerald-600">
                                 <Wheat className="h-3 w-3 opacity-60" />
-                                {dailyFeed.toFixed(2)} <span className="text-[8px] opacity-60">KG/DAY</span>
+                                {dailyFeed.toFixed(2)} <span className="text-[8px] opacity-60">KG/D</span>
                               </div>
-                              <span className="text-[7px] font-bold text-muted-foreground uppercase tracking-widest mt-1">4% Body weight</span>
+                              <span className="text-[7px] font-bold text-muted-foreground uppercase tracking-widest mt-1">4% Body Wt</span>
                             </div>
                           </TableCell>
                           <TableCell>
@@ -480,10 +484,10 @@ export default function LivestockPage() {
                                 weightChange >= 0 ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"
                               )}>
                                 {weightChange >= 0 ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
-                                {Math.abs(weightChange).toFixed(1)}kg gain
+                                {Math.abs(weightChange).toFixed(1)}kg
                               </div>
                             ) : (
-                              <Badge variant="secondary" className="bg-neutral-100 text-neutral-400 text-[8px] font-black uppercase tracking-widest border-none">Initial Entry</Badge>
+                              <Badge variant="secondary" className="bg-neutral-100 text-neutral-400 text-[8px] font-black uppercase tracking-widest border-none">Initial</Badge>
                             )}
                           </TableCell>
                           <TableCell>
@@ -521,7 +525,7 @@ export default function LivestockPage() {
                   ) : (
                     <TableRow>
                       <TableCell colSpan={7} className="text-center py-24 text-muted-foreground italic opacity-40 uppercase tracking-widest text-[10px] font-black">
-                        {searchTagId ? `No sheep found matching "${searchTagId}"` : 'NO COMMUNITY RECORDS DISCOVERED'}
+                        {searchTagId ? `No assets found matching "${searchTagId}"` : 'NO COMMUNITY RECORDS DISCOVERED'}
                       </TableCell>
                     </TableRow>
                   )}
@@ -538,7 +542,7 @@ export default function LivestockPage() {
                     <TrendingUp className="h-5 w-5 text-primary" />
                     Growth Projections
                   </CardTitle>
-                  <CardDescription className="text-[10px] font-bold uppercase tracking-widest opacity-60">Next 90-day predictive analytics based on 200g daily gain</CardDescription>
+                  <CardDescription className="text-[10px] font-bold uppercase tracking-widest opacity-60">Next 90-day predictive analytics based on 200g daily gain velocity</CardDescription>
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2">
@@ -630,7 +634,7 @@ export default function LivestockPage() {
               <Pencil className="h-6 w-6 text-emerald-400" />
               Update Record
             </DialogTitle>
-            <DialogDescription className="text-white/40 text-xs font-bold uppercase tracking-widest">Adjust sheep identification and metrics</DialogDescription>
+            <DialogDescription className="text-white/40 text-xs font-bold uppercase tracking-widest">Adjust physical metrics and identification parameters</DialogDescription>
           </DialogHeader>
           <Form {...editForm}>
             <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-6 p-8">
