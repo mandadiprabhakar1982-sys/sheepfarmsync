@@ -37,6 +37,7 @@ const FeedCostSchema = z.object({
   cost: z.number().describe('Cost of this specific feed type.'),
   date: z.string().describe('Date of feed purchase (YYYY-MM-DD format).'),
   quantity: z.number().describe('Quantity of feed purchased.'),
+  bags: z.number().optional().describe('Number of bags purchased (if applicable).'),
 });
 
 const LaborCostSchema = z.object({
@@ -122,7 +123,7 @@ Farm Cost Data:
 {{#if feedCosts}}
 ## Feed:
 {{#each feedCosts}}
-- Type: {{{this.feedType}}}, Cost: {{{this.cost}}}
+- Type: {{{this.feedType}}}, Cost: {{{this.cost}}}, Bags: {{{this.bags}}}
 {{/each}}
 {{/if}}
 
