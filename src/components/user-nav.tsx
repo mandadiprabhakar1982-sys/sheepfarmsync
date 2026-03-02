@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -38,7 +38,12 @@ export function UserNav() {
   const { user } = useUser();
   const firestore = useFirestore();
   
-  const userDocRef = user && firestore ? doc(firestore, 'users', user.uid) : null;
+  // Properly memoize the doc reference to avoid infinite re-renders in useDoc
+  const userDocRef = useMemo(() => {
+    if (!user || !firestore) return null;
+    return doc(firestore, 'users', user.uid);
+  }, [user, firestore]);
+
   const { data: profile } = useDoc<UserProfile>(userDocRef);
   
   const [isProfileOpen, setIsProfileOpen] = useState(false);
