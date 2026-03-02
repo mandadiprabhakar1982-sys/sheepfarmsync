@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useRef, useEffect, useMemo } from 'react';
@@ -25,7 +24,9 @@ import {
   Camera,
   Wheat,
   BarChart3,
-  TrendingUp
+  TrendingUp,
+  Upload,
+  UploadCloud
 } from 'lucide-react';
 import Image from 'next/image';
 import { Bar, ComposedChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Line, Area } from 'recharts';
@@ -91,6 +92,7 @@ export default function LivestockPage() {
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
 
   const trackingForm = useForm<TrackingFormData>({
@@ -200,6 +202,17 @@ export default function LivestockPage() {
         context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
         setCapturedImage(canvas.toDataURL('image/png'));
       }
+    }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCapturedImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -342,11 +355,16 @@ export default function LivestockPage() {
                             </div>
                         )}
                     </div>
-                    {!capturedImage && (
-                        <Button type="button" onClick={handleCapture} disabled={hasCameraPermission === false} className="w-full h-12 rounded-xl font-bold bg-neutral-50 text-neutral-600 hover:bg-neutral-100 border-none" variant="outline">
-                            <CameraIcon className="mr-2 h-4 w-4" /> Snapshot Capture
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                        <Button type="button" onClick={handleCapture} disabled={hasCameraPermission === false || !!capturedImage} className="h-12 rounded-xl font-bold bg-neutral-50 text-neutral-600 hover:bg-neutral-100 border-none" variant="outline">
+                            <CameraIcon className="mr-2 h-4 w-4" /> Snapshot
                         </Button>
-                    )}
+                        <Button type="button" onClick={() => fileInputRef.current?.click()} disabled={!!capturedImage} className="h-12 rounded-xl font-bold bg-neutral-50 text-neutral-600 hover:bg-neutral-100 border-none" variant="outline">
+                            <Upload className="mr-2 h-4 w-4" /> Upload
+                        </Button>
+                        <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileUpload} />
+                    </div>
                   </div>
 
                   <Button type="submit" className="w-full h-16 rounded-[1.25rem] font-black text-sm uppercase tracking-[0.2em] shadow-2xl shadow-primary/20 bg-neutral-900 hover:bg-neutral-800">
