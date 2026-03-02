@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 import AuthGuard from '@/components/AuthGuard';
 import { FarmProvider } from '@/context/FarmContext';
+import { LanguageProvider } from '@/context/LanguageContext';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export const metadata: Metadata = {
@@ -48,9 +49,11 @@ export default function RootLayout({
       <body className="font-body antialiased selection:bg-primary selection:text-primary-foreground overflow-x-hidden min-h-screen">
         <FirebaseClientProvider>
           <AuthGuard>
-            <FarmProvider>
-              {children}
-            </FarmProvider>
+            <LanguageProvider>
+              <FarmProvider>
+                {children}
+              </FarmProvider>
+            </LanguageProvider>
           </AuthGuard>
         </FirebaseClientProvider>
         <Toaster />

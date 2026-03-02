@@ -8,27 +8,17 @@ import {
   ShoppingBag, 
   HeartPulse, 
   Wheat, 
-  Users, 
-  BadgeIndianRupee, 
-  BarChart, 
-  Globe
+  Globe,
+  Languages
 } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { UserNav } from '@/components/user-nav';
-import { Toaster } from '@/components/ui/toaster';
 import { cn } from '@/lib/utils';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/app-sidebar';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-
-const navItems = [
-  { href: '/dashboard', label: 'Home', icon: LayoutDashboard },
-  { href: '/dashboard/livestock', label: 'Flock', icon: ClipboardList },
-  { href: '/dashboard/purchase', label: 'Buy', icon: ShoppingBag },
-  { href: '/dashboard/medicine', label: 'Health', icon: HeartPulse },
-  { href: '/dashboard/feed', label: 'Feed', icon: Wheat },
-];
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function DashboardLayout({
   children,
@@ -36,6 +26,19 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const { t, language, setLanguage } = useLanguage();
+
+  const navItems = [
+    { href: '/dashboard', label: t('home'), icon: LayoutDashboard },
+    { href: '/dashboard/livestock', label: t('flock'), icon: ClipboardList },
+    { href: '/dashboard/purchase', label: t('buy'), icon: ShoppingBag },
+    { href: '/dashboard/medicine', label: t('health'), icon: HeartPulse },
+    { href: '/dashboard/feed', label: t('feed'), icon: Wheat },
+  ];
+
+  const toggleLanguage = () => {
+    setLanguage(language === 'en' ? 'te' : 'en');
+  };
 
   return (
     <SidebarProvider>
@@ -48,11 +51,20 @@ export default function DashboardLayout({
               <Separator orientation="vertical" className="h-6 hidden md:block" />
               <Logo className="md:hidden scale-90 origin-left" />
               <h2 className="hidden md:block text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 ml-2">
-                 Farm Management System
+                 {t('system_name')}
               </h2>
             </div>
             
             <div className="flex items-center gap-2 md:gap-4">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={toggleLanguage}
+                className="text-muted-foreground hover:bg-primary/5 hover:text-primary transition-colors"
+                title="Change Language"
+              >
+                <Languages className="h-5 w-5" />
+              </Button>
               <Button variant="ghost" size="icon" className="text-muted-foreground hidden sm:flex">
                 <Globe className="h-5 w-5" />
               </Button>

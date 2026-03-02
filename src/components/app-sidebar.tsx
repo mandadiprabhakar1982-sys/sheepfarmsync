@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -39,56 +38,58 @@ import {
 import { Logo } from '@/components/logo';
 import { cn } from '@/lib/utils';
 import { useFarm } from '@/context/FarmContext';
-
-const groups = [
-  {
-    label: "Main",
-    links: [
-      { href: '/dashboard', label: 'Home', icon: Home },
-      { href: '/dashboard/overview', label: 'Stats Overview', icon: LayoutDashboard },
-      { href: '/dashboard/analysis', label: 'AI Intelligence', icon: BarChart },
-    ]
-  },
-  {
-    label: "Financial Audit",
-    adminOnly: true,
-    links: [
-      { href: '/dashboard/monthly-ledger', label: 'Monthly Ledger', icon: Wallet },
-      { href: '/dashboard/balance-sheet', label: 'Liability Tracker', icon: BookOpen },
-      { href: '/dashboard/expenses', label: 'Misc Expenses', icon: Receipt },
-    ]
-  },
-  {
-    label: "Inventory",
-    links: [
-      { href: '/dashboard/livestock', label: 'Flock Records', icon: ListChecks },
-      { href: '/dashboard/purchase', label: 'Purchases', icon: Package },
-      { href: '/dashboard/sales', label: 'Revenue/Sales', icon: BadgeIndianRupee },
-      { href: '/dashboard/mortality', label: 'Loss Log', icon: Skull },
-    ]
-  },
-  {
-    label: "Staff & Ops",
-    links: [
-      { href: '/dashboard/labor', label: 'Staff/Labor', icon: Users },
-      { href: '/dashboard/medicine', label: 'Health & Medical', icon: Syringe },
-      { href: '/dashboard/feed', label: 'Feed & Nutrition', icon: Wheat },
-    ]
-  },
-  {
-    label: "Ecosystem",
-    links: [
-      { href: '/dashboard/feed-calculator', label: 'Calculators', icon: Calculator },
-      { href: '/dashboard/marketplace', label: 'Marketplace', icon: Globe },
-      { href: '/dashboard/help', label: 'App Install', icon: Smartphone },
-    ]
-  }
-];
+import { useLanguage } from '@/context/LanguageContext';
 
 export function AppSidebar() {
   const pathname = usePathname();
   const { userRole } = useFarm();
+  const { t } = useLanguage();
   const isAdmin = userRole === 'admin';
+
+  const groups = [
+    {
+      label: "Main",
+      links: [
+        { href: '/dashboard', label: t('home'), icon: Home },
+        { href: '/dashboard/overview', label: t('overview'), icon: LayoutDashboard },
+        { href: '/dashboard/analysis', label: t('intelligence'), icon: BarChart },
+      ]
+    },
+    {
+      label: "Financial Audit",
+      adminOnly: true,
+      links: [
+        { href: '/dashboard/monthly-ledger', label: t('ledger'), icon: Wallet },
+        { href: '/dashboard/balance-sheet', label: t('liabilities'), icon: BookOpen },
+        { href: '/dashboard/expenses', label: t('expenses'), icon: Receipt },
+      ]
+    },
+    {
+      label: "Inventory",
+      links: [
+        { href: '/dashboard/livestock', label: t('flock'), icon: ListChecks },
+        { href: '/dashboard/purchase', label: t('buy'), icon: Package },
+        { href: '/dashboard/sales', label: t('sales'), icon: BadgeIndianRupee },
+        { href: '/dashboard/mortality', label: t('mortality'), icon: Skull },
+      ]
+    },
+    {
+      label: "Staff & Ops",
+      links: [
+        { href: '/dashboard/labor', label: t('labor'), icon: Users },
+        { href: '/dashboard/medicine', label: t('health'), icon: Syringe },
+        { href: '/dashboard/feed', label: t('feed'), icon: Wheat },
+      ]
+    },
+    {
+      label: "Ecosystem",
+      links: [
+        { href: '/dashboard/feed-calculator', label: t('calculator'), icon: Calculator },
+        { href: '/dashboard/marketplace', label: t('marketplace'), icon: Globe },
+        { href: '/dashboard/help', label: t('install'), icon: Smartphone },
+      ]
+    }
+  ];
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">

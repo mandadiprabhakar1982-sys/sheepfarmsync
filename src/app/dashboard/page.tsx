@@ -1,4 +1,3 @@
-
 'use client';
 import Link from 'next/link';
 import {
@@ -9,7 +8,6 @@ import {
   Wheat,
   Users,
   BadgeIndianRupee,
-  Calculator,
   Receipt,
   Loader2,
   BookOpen,
@@ -18,86 +16,88 @@ import {
 import { SyncProIcon } from '@/components/logo';
 import { Card, CardContent } from '@/components/ui/card';
 import { useFarm } from '@/context/FarmContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { cn } from '@/lib/utils';
-
-const menuItems = [
-  {
-    title: 'OVERVIEW',
-    description: 'ANALYTICS',
-    icon: LayoutDashboard,
-    href: '/dashboard/overview',
-    color: 'bg-blue-500',
-  },
-  {
-    title: 'LEDGER',
-    description: 'MONTHLY BAL',
-    icon: Wallet,
-    href: '/dashboard/monthly-ledger',
-    color: 'bg-indigo-600',
-    adminOnly: true,
-  },
-  {
-    title: 'LIABILITIES',
-    description: 'LOAN TRACKER',
-    icon: BookOpen,
-    href: '/dashboard/balance-sheet',
-    color: 'bg-slate-700',
-    adminOnly: true,
-  },
-  {
-    title: 'FLOCK',
-    description: 'RECORDS',
-    icon: ClipboardList,
-    href: '/dashboard/livestock',
-    color: 'bg-emerald-500',
-  },
-  {
-    title: 'BUY',
-    description: 'PURCHASE',
-    icon: ShoppingBag,
-    href: '/dashboard/purchase',
-    color: 'bg-amber-500',
-  },
-  {
-    title: 'HEALTH',
-    description: 'MEDICINE',
-    icon: HeartPulse,
-    href: '/dashboard/medicine',
-    color: 'bg-rose-500',
-  },
-  {
-    title: 'FEED',
-    description: 'NUTRITION',
-    icon: Wheat,
-    href: '/dashboard/feed',
-    color: 'bg-lime-500',
-  },
-  {
-    title: 'LABOR',
-    description: 'STAFF',
-    icon: Users,
-    href: '/dashboard/labor',
-    color: 'bg-orange-500',
-  },
-  {
-    title: 'SALES',
-    description: 'REVENUE',
-    icon: BadgeIndianRupee,
-    href: '/dashboard/sales',
-    color: 'bg-green-600',
-  },
-  {
-    title: 'EXPENSES',
-    description: 'MISC COSTS',
-    icon: Receipt,
-    href: '/dashboard/expenses',
-    color: 'bg-slate-500',
-  },
-];
 
 export default function DashboardPage() {
   const { isLoading, userRole } = useFarm();
+  const { t } = useLanguage();
   const isAdmin = userRole === 'admin';
+
+  const menuItems = [
+    {
+      title: t('overview').toUpperCase(),
+      description: t('analytics').toUpperCase(),
+      icon: LayoutDashboard,
+      href: '/dashboard/overview',
+      color: 'bg-blue-500',
+    },
+    {
+      title: t('ledger').toUpperCase(),
+      description: t('monthly_balance').toUpperCase(),
+      icon: Wallet,
+      href: '/dashboard/monthly-ledger',
+      color: 'bg-indigo-600',
+      adminOnly: true,
+    },
+    {
+      title: t('liabilities').toUpperCase(),
+      description: t('liabilities').toUpperCase(),
+      icon: BookOpen,
+      href: '/dashboard/balance-sheet',
+      color: 'bg-slate-700',
+      adminOnly: true,
+    },
+    {
+      title: t('flock').toUpperCase(),
+      description: t('flock').toUpperCase(),
+      icon: ClipboardList,
+      href: '/dashboard/livestock',
+      color: 'bg-emerald-500',
+    },
+    {
+      title: t('buy').toUpperCase(),
+      description: t('buy').toUpperCase(),
+      icon: ShoppingBag,
+      href: '/dashboard/purchase',
+      color: 'bg-amber-500',
+    },
+    {
+      title: t('health').toUpperCase(),
+      description: t('health').toUpperCase(),
+      icon: HeartPulse,
+      href: '/dashboard/medicine',
+      color: 'bg-rose-500',
+    },
+    {
+      title: t('feed').toUpperCase(),
+      description: t('feed').toUpperCase(),
+      icon: Wheat,
+      href: '/dashboard/feed',
+      color: 'bg-lime-500',
+    },
+    {
+      title: t('labor').toUpperCase(),
+      description: t('labor').toUpperCase(),
+      icon: Users,
+      href: '/dashboard/labor',
+      color: 'bg-orange-500',
+    },
+    {
+      title: t('sales').toUpperCase(),
+      description: t('revenue').toUpperCase(),
+      icon: BadgeIndianRupee,
+      href: '/dashboard/sales',
+      color: 'bg-green-600',
+    },
+    {
+      title: t('expenses').toUpperCase(),
+      description: t('expenses').toUpperCase(),
+      icon: Receipt,
+      href: '/dashboard/expenses',
+      color: 'bg-slate-500',
+    },
+  ];
 
   if (isLoading) {
     return (
@@ -117,10 +117,10 @@ export default function DashboardPage() {
             </div>
           </div>
           <h1 className="text-3xl md:text-5xl font-black tracking-widest mb-2 uppercase">
-            SYNC PRO
+            {t('dashboard_hero')}
           </h1>
           <p className="text-[10px] md:text-xs font-bold tracking-[0.3em] uppercase opacity-80">
-            PRECISION MANAGEMENT SUITE
+            {t('dashboard_desc')}
           </p>
         </div>
       </section>
