@@ -360,7 +360,7 @@ export default function PurchasePage() {
           <DialogHeader>
             <DialogTitle>Edit Purchase Record</DialogTitle>
             <DialogDescription>
-              Update the details of your purchase acquisition.
+              Update the details of your purchase record. Click save when you're done.
             </DialogDescription>
           </DialogHeader>
           <Form {...editForm}>

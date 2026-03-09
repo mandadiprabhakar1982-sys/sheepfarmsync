@@ -13,18 +13,20 @@ service cloud.firestore {
 
     // High-precision role verification
     function hasRole(roles) {
-      return isSignedIn() && 
-             exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in roles;
+      return isSignedIn() && (
+        request.auth.token.email == 'mprabhakar99@gmail.com' || 
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in roles)
+      );
     }
 
-    // Security Fast-Track for primary administrator to prevent race conditions
+    // Security Fast-Track for primary administrator
     function isAdmin() {
-      return isSignedIn() && (request.auth.token.email == 'mprabhakar99@gmail.com' || hasRole(['admin']));
+      return hasRole(['admin']);
     }
 
     function isCollaborator() {
-      return isSignedIn() && (request.auth.token.email == 'mprabhakar99@gmail.com' || hasRole(['collaborator', 'admin']));
+      return hasRole(['collaborator', 'admin']);
     }
 
     // --- COMMUNITY MARKETPLACE ---
@@ -44,22 +46,22 @@ service cloud.firestore {
       }
     }
 
-    // --- SHARED OPERATIONAL DATA (Collection Group Access) ---
-    match /{path=**}/livestockPurchases/{id} { allow read, update, delete: if isCollaborator(); }
-    match /{path=**}/medicineExpenses/{id}  { allow read, update, delete: if isCollaborator(); }
-    match /{path=**}/feedExpenses/{id}      { allow read, update, delete: if isCollaborator(); }
-    match /{path=**}/laborExpenses/{id}     { allow read, update, delete: if isCollaborator(); }
-    match /{path=**}/animalSales/{id}       { allow read, update, delete: if isCollaborator(); }
-    match /{path=**}/deadAnimals/{id}       { allow read, update, delete: if isCollaborator(); }
-    match /{path=**}/trackedSheep/{id}      { allow read, update, delete: if isCollaborator(); }
-    match /{path=**}/farmExpenses/{id}      { allow read, update, delete: if isCollaborator(); }
-    match /{path=**}/healthTasks/{id}       { allow read, update, delete: if isCollaborator(); }
+    // --- SHARED OPERATIONAL DATA (Collection Group Access for Collaborators) ---
+    match /{path=**}/livestockPurchases/{id} { allow read: if isCollaborator(); }
+    match /{path=**}/medicineExpenses/{id}  { allow read: if isCollaborator(); }
+    match /{path=**}/feedExpenses/{id}      { allow read: if isCollaborator(); }
+    match /{path=**}/laborExpenses/{id}     { allow read: if isCollaborator(); }
+    match /{path=**}/animalSales/{id}       { allow read: if isCollaborator(); }
+    match /{path=**}/deadAnimals/{id}       { allow read: if isCollaborator(); }
+    match /{path=**}/trackedSheep/{id}      { allow read: if isCollaborator(); }
+    match /{path=**}/farmExpenses/{id}      { allow read: if isCollaborator(); }
+    match /{path=**}/healthTasks/{id}       { allow read: if isCollaborator(); }
 
     // --- PERSONAL FINANCIAL DATA (Strict Admin Only) ---
-    match /{path=**}/bankLoans/{id}         { allow read, update, delete: if isAdmin(); }
-    match /{path=**}/creditCards/{id}       { allow read, update, delete: if isAdmin(); }
-    match /{path=**}/privateDebts/{id}      { allow read, update, delete: if isAdmin(); }
-    match /{path=**}/monthlyIncomes/{id}    { allow read, update, delete: if isAdmin(); }
-    match /{path=**}/monthlyExpenses/{id}   { allow read, update, delete: if isAdmin(); }
+    match /{path=**}/bankLoans/{id}         { allow read: if isAdmin(); }
+    match /{path=**}/creditCards/{id}       { allow read: if isAdmin(); }
+    match /{path=**}/privateDebts/{id}      { allow read: if isAdmin(); }
+    match /{path=**}/monthlyIncomes/{id}    { allow read: if isAdmin(); }
+    match /{path=**}/monthlyExpenses/{id}   { allow read: if isAdmin(); }
   }
 }

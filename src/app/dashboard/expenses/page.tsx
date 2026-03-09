@@ -266,7 +266,7 @@ export default function ExpensesPage() {
           <DialogHeader>
             <DialogTitle>Edit Expense Record</DialogTitle>
             <DialogDescription>
-              Update the details of your expense. Click save when you're done.
+              Update the details of your expense record. Click save when you're done.
             </DialogDescription>
           </DialogHeader>
           <Form {...editForm}>

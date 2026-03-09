@@ -321,7 +321,12 @@ export default function SalesPage() {
       </div>
        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-md">
-          <DialogHeader><DialogTitle>Edit Sales Record</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle>Edit Sales Record</DialogTitle>
+            <DialogDescription>
+              Update the details of your sales record. Click save when you're done.
+            </DialogDescription>
+          </DialogHeader>
           <Form {...editForm}>
             <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-4 py-4">
               <FormField control={editForm.control} name="saleDate" render={({ field }) => (

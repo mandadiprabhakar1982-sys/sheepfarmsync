@@ -301,7 +301,7 @@ export default function MortalityPage() {
           <DialogHeader>
             <DialogTitle>Edit Mortality Record</DialogTitle>
             <DialogDescription>
-              Update the details of the mortality record. Click save when you're done.
+              Update the details of your mortality record. Click save when you're done.
             </DialogDescription>
           </DialogHeader>
           <Form {...editForm}>
