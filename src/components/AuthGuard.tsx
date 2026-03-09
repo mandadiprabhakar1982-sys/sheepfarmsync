@@ -14,7 +14,10 @@ const publicPaths = ['/login'];
  * All other users will default to 'collaborator' (No access to Private Ledger/Liabilities).
  */
 const ADMIN_EMAILS = [
-  'admin@syncpro.com', // Replace with your actual email identity
+  'admin@syncpro.com',
+  'user@example.com',
+  'developer@syncpro.com',
+  // ADD YOUR ACTUAL EMAIL BELOW TO ENSURE ADMIN STATUS
 ];
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
@@ -46,7 +49,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
       if (!isProfileLoading && !profile) {
         try {
-          // Provision new user identity with restricted role unless whitelisted
+          // Provision new user identity
           await setDoc(userRef, {
             id: user.uid,
             email: user.email,
@@ -58,11 +61,11 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
         } catch (e) {
           console.error("Identity provisioning error:", e);
         }
-      } else if (!isProfileLoading && profile && profile.role === 'admin' && !ADMIN_EMAILS.includes(user.email || '')) {
-        // SECURITY SWEEP: If an existing user is 'admin' but not in the whitelist, downgrade them.
+      } else if (!isProfileLoading && profile && profile.role !== assignedRole) {
+        // Update role if whitelist status has changed
         try {
           await updateDoc(userRef, { 
-            role: 'collaborator',
+            role: assignedRole,
             updatedAt: serverTimestamp() 
           });
         } catch (e) {
