@@ -673,6 +673,7 @@ export default function LivestockPage() {
         <DialogContent className="max-w-5xl p-0 overflow-hidden bg-transparent border-none shadow-none flex items-center justify-center">
           <DialogHeader className="sr-only">
             <DialogTitle>Audit Photo Reference</DialogTitle>
+            <DialogDescription>Full scale visual audit of tracked asset</DialogDescription>
           </DialogHeader>
           <div className="relative w-full aspect-square md:aspect-video rounded-[3rem] overflow-hidden shadow-2xl">
             {previewPhoto && (

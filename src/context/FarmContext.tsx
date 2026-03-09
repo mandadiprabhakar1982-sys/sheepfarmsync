@@ -126,6 +126,8 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const { data: userProfile, isLoading: isProfileDocLoading } = useDoc<UserProfile>(userProfileRef);
   
   const isLoadingProfile = isProfileDocLoading || (user && !userProfile);
+  
+  // SECURITY PROTECTION: Suppress all data fetching until identity is confirmed
   const isVerified = useMemo(() => !isLoadingProfile && (userProfile?.role === 'collaborator' || userProfile?.role === 'admin'), [userProfile, isLoadingProfile]);
   const isAdmin = useMemo(() => !isLoadingProfile && userProfile?.role === 'admin', [userProfile, isLoadingProfile]);
 
