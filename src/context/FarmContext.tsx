@@ -125,7 +125,9 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const { data: userProfile, isLoading: isLoadingProfile } = useDoc<UserProfile>(userProfileRef);
   
   const isVerified = useMemo(() => userProfile?.role === 'collaborator' || userProfile?.role === 'admin', [userProfile]);
+  const isAdmin = useMemo(() => userProfile?.role === 'admin', [userProfile]);
 
+  // Refined Queries: Operational data for all verified, Financial data for Admins only
   const pRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'livestockPurchases')) : null, [firestore, isVerified]);
   const sRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'animalSales')) : null, [firestore, isVerified]);
   const fRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'feedExpenses')) : null, [firestore, isVerified]);
@@ -135,11 +137,14 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const tRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'trackedSheep')) : null, [firestore, isVerified]);
   const eRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'farmExpenses')) : null, [firestore, isVerified]);
   const hRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'healthTasks')) : null, [firestore, isVerified]);
-  const blRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'bankLoans')) : null, [firestore, isVerified]);
-  const ccRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'creditCards')) : null, [firestore, isVerified]);
-  const pdRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'privateDebts')) : null, [firestore, isVerified]);
-  const miRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'monthlyIncomes')) : null, [firestore, isVerified]);
-  const meRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'monthlyExpenses')) : null, [firestore, isVerified]);
+  
+  // Financial Queries - Strictly restricted to Admin to prevent permission-denied errors for collaborators
+  const blRef = useMemo(() => (firestore && isAdmin) ? query(collectionGroup(firestore, 'bankLoans')) : null, [firestore, isAdmin]);
+  const ccRef = useMemo(() => (firestore && isAdmin) ? query(collectionGroup(firestore, 'creditCards')) : null, [firestore, isAdmin]);
+  const pdRef = useMemo(() => (firestore && isAdmin) ? query(collectionGroup(firestore, 'privateDebts')) : null, [firestore, isAdmin]);
+  const miRef = useMemo(() => (firestore && isAdmin) ? query(collectionGroup(firestore, 'monthlyIncomes')) : null, [firestore, isAdmin]);
+  const meRef = useMemo(() => (firestore && isAdmin) ? query(collectionGroup(firestore, 'monthlyExpenses')) : null, [firestore, isAdmin]);
+  
   const mkRef = useMemo(() => firestore ? query(collection(firestore, 'communitySales')) : null, [firestore]);
 
   const { data: qPurchases, isLoading: lPurchases } = useCollection<LivestockPurchase>(pRef);
@@ -170,10 +175,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const medicineExpenses = useMemo(() => sort(qMedicine, 'date'), [qMedicine, sort]);
   const laborCosts = useMemo(() => sort(qLabor, 'date'), [qLabor, sort]);
   const deadAnimals = useMemo(() => sort(qDead, 'dateOfDeath'), [qDead, sort]);
-  
-  // Natural sorting for Tag IDs
   const trackedSheep = useMemo(() => qTracked ? [...qTracked].sort((a, b) => (a.tagId || '').localeCompare(b.tagId || '', undefined, { numeric: true, sensitivity: 'base' })) : null, [qTracked]);
-  
   const farmExpenses = useMemo(() => sort(qExpenses, 'expenseDate'), [qExpenses, sort]);
   const healthTasks = useMemo(() => sort(qHealth, 'nextDueDate'), [qHealth, sort]);
   const bankLoans = useMemo(() => qLoans, [qLoans]);
@@ -277,7 +279,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   }), [
     purchases, sales, feedCosts, medicineExpenses, laborCosts, trackedSheep, deadAnimals, farmExpenses, healthTasks, bankLoans, creditCards, privateDebts, monthlyIncomes, monthlyExpenses, qMarket, stats,
     isLoadingProfile, user, isVerified, lPurchases, lSales, lFeed, lMedicine, lLabor, lDead, lTracked, lExpenses, lHealth, lLoans, lCards, lDebts, lIncomes, lMExpenses, lMarket,
-    userProfile, upsert, remove, postToMarketplace, updateMarketplaceSale, firestore
+    userProfile, upsert, remove, postToMarketplace, updateMarketplaceSale, firestore, isAdmin
   ]);
 
   if (!mounted) return null;

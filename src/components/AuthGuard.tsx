@@ -14,7 +14,7 @@ const publicPaths = ['/login'];
  * All other users will default to 'collaborator' (No access to Private Ledger/Liabilities).
  */
 const ADMIN_EMAILS = [
-  'admin@syncpro.com', // Replace with your actual email
+  'admin@syncpro.com', // Replace with your actual email identity
 ];
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
@@ -46,7 +46,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
       if (!isProfileLoading && !profile) {
         try {
-          // Provision new user with restricted role unless whitelisted
+          // Provision new user identity with restricted role unless whitelisted
           await setDoc(userRef, {
             id: user.uid,
             email: user.email,
@@ -56,7 +56,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
             updatedAt: serverTimestamp(),
           }, { merge: true });
         } catch (e) {
-          console.error("Profile sync error:", e);
+          console.error("Identity provisioning error:", e);
         }
       } else if (!isProfileLoading && profile && profile.role === 'admin' && !ADMIN_EMAILS.includes(user.email || '')) {
         // SECURITY SWEEP: If an existing user is 'admin' but not in the whitelist, downgrade them.
@@ -66,7 +66,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
             updatedAt: serverTimestamp() 
           });
         } catch (e) {
-          console.error("Role protection error:", e);
+          console.error("Access protection sweep failed:", e);
         }
       }
     };
@@ -98,7 +98,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
             <div className="w-12 h-12 border-4 border-primary/20 rounded-full"></div>
             <div className="absolute top-0 w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
           </div>
-          <p className="text-[10px] font-black tracking-[0.3em] text-primary uppercase animate-pulse">Verifying Credentials</p>
+          <p className="text-[10px] font-black tracking-[0.3em] text-primary uppercase animate-pulse">Verifying Identity</p>
         </div>
       </div>
     );
