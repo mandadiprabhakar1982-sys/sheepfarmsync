@@ -2,7 +2,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Mail, CheckCircle2, AlertCircle } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -195,43 +195,59 @@ export default function LoginPage() {
 
       <Dialog open={isResetOpen} onOpenChange={setIsResetOpen}>
         <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
-          <DialogHeader className="bg-neutral-900 p-8 text-left">
-            <DialogTitle className="text-2xl font-black tracking-tight text-white flex items-center gap-3">
+          <DialogHeader className="bg-neutral-900 p-8 text-left relative">
+            <div className="absolute top-0 right-0 p-6 opacity-10">
+              <Mail className="h-20 w-20 text-white rotate-12" />
+            </div>
+            <DialogTitle className="text-2xl font-black tracking-tight text-white flex items-center gap-3 relative z-10">
               <SyncProIcon className="h-6 w-6 text-emerald-400" />
-              Reset Password
+              Account Recovery
             </DialogTitle>
-            <DialogDescription className="text-white/40 text-xs font-bold uppercase tracking-widest">
-              Recovery protocol for lost credentials
+            <DialogDescription className="text-white/40 text-xs font-bold uppercase tracking-widest relative z-10">
+              Standard credential dispatch protocol
             </DialogDescription>
           </DialogHeader>
           <div className="p-8 space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="reset-email" className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Registered Email Address</Label>
-              <Input
-                id="reset-email"
-                type="email"
-                placeholder="Enter your email"
-                value={resetEmail}
-                onChange={(e) => setResetEmail(e.target.value)}
-                className="h-14 rounded-2xl bg-neutral-50 border-none shadow-sm font-bold px-6"
-              />
+              <Label htmlFor="reset-email" className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Registered Email Identity</Label>
+              <div className="relative">
+                <Mail className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-300" />
+                <Input
+                  id="reset-email"
+                  type="email"
+                  placeholder="name@syncpro.com"
+                  value={resetEmail}
+                  onChange={(e) => setResetEmail(e.target.value)}
+                  className="h-14 rounded-2xl bg-neutral-50 border-none shadow-sm font-black text-base px-14 focus-visible:ring-primary/20"
+                />
+              </div>
             </div>
-            <p className="text-[10px] font-medium text-muted-foreground leading-relaxed italic">
-              Instructions to securely reset your password will be dispatched to this address.
-            </p>
+            
+            <div className="p-5 rounded-2xl bg-blue-50/50 border border-blue-100 flex gap-4">
+              <AlertCircle className="h-5 w-5 text-blue-600 shrink-0" />
+              <div className="space-y-1">
+                <p className="text-[10px] font-bold text-blue-900 leading-relaxed uppercase tracking-wide">Email Verification Required</p>
+                <p className="text-[10px] text-blue-800/70 leading-relaxed italic">
+                  Recovery links expire in 1 hour. If you do not see the email within 2 minutes, please check your **Spam/Junk** folder.
+                </p>
+              </div>
+            </div>
           </div>
-          <DialogFooter className="p-8 bg-neutral-50 gap-4">
+          <DialogFooter className="p-8 bg-neutral-50 gap-4 flex-col sm:flex-row">
             <Button variant="ghost" onClick={() => setIsResetOpen(false)} className="h-12 px-6 font-bold text-muted-foreground rounded-xl">
               Cancel
             </Button>
-            <Button onClick={handlePasswordReset} disabled={isSubmittingReset} className="h-14 px-10 rounded-xl font-black uppercase tracking-[0.2em] shadow-2xl shadow-primary/20 bg-neutral-900 hover:bg-neutral-800 text-white flex-1">
+            <Button onClick={handlePasswordReset} disabled={isSubmittingReset} className="h-14 px-10 rounded-xl font-black uppercase tracking-[0.2em] shadow-2xl shadow-primary/20 bg-neutral-900 hover:bg-neutral-800 text-white flex-1 transition-all active:scale-95">
               {isSubmittingReset ? (
                 <>
                   <Loader2 className="mr-3 h-5 w-5 animate-spin text-emerald-400" />
-                  Sending Link...
+                  Dispatching...
                 </>
               ) : (
-                'Send Reset Link'
+                <>
+                  <CheckCircle2 className="mr-3 h-5 w-5 text-emerald-400" />
+                  Send Recovery Link
+                </>
               )}
             </Button>
           </DialogFooter>

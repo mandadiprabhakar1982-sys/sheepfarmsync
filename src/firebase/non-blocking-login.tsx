@@ -19,28 +19,31 @@ const handleAuthError = (error: any) => {
     if (error instanceof FirebaseError) {
         switch (error.code) {
             case 'auth/popup-blocked':
-                errorMessage = 'The sign-in popup was blocked by your browser. Please allow popups for this site in your browser settings or try a different browser.';
+                errorMessage = 'The sign-in popup was blocked by your browser. Please allow popups for this site.';
                 break;
             case 'auth/popup-closed-by-user':
                 errorMessage = 'The sign-in popup was closed before completion.';
                 break;
             case 'auth/unauthorized-domain':
-                errorMessage = 'This domain is not authorized for Firebase Authentication. Please add this current domain to the "Authorized domains" list in the Firebase Console (Auth -> Settings).';
+                errorMessage = 'Domain not authorized. Please update Firebase Console settings.';
                 break;
             case 'auth/wrong-password':
                 errorMessage = 'Incorrect password. Please try again.';
                 break;
             case 'auth/user-not-found':
-                errorMessage = 'No user found with this email.';
+                errorMessage = 'No account discovered with this email identity.';
                 break;
             case 'auth/email-already-in-use':
-                errorMessage = 'This email is already in use.';
+                errorMessage = 'This email is already registered in the system.';
                 break;
             case 'auth/weak-password':
-                errorMessage = 'Password should be at least 6 characters.';
+                errorMessage = 'Security threshold failed: Password must be at least 6 characters.';
                 break;
             case 'auth/invalid-email':
-                errorMessage = 'The email address is not valid.';
+                errorMessage = 'The provided email address format is invalid.';
+                break;
+            case 'auth/too-many-requests':
+                errorMessage = 'Security lockout active: Too many failed attempts. Try again later.';
                 break;
             default:
                 errorMessage = error.message;
@@ -48,7 +51,7 @@ const handleAuthError = (error: any) => {
     }
     toast({
         variant: 'destructive',
-        title: 'Authentication Failed',
+        title: 'Authentication Protocol Failed',
         description: errorMessage,
     });
 };
@@ -96,8 +99,8 @@ export function initiateUpdateProfile(authInstance: Auth, displayName: string): 
   return updateProfile(authInstance.currentUser, { displayName })
     .then(() => {
         toast({
-            title: 'Profile Updated',
-            description: 'Your name has been updated successfully.',
+            title: 'Identity Synchronized',
+            description: 'Public profile parameters updated successfully.',
         });
     })
     .catch(error => {
@@ -111,8 +114,8 @@ export function initiatePasswordReset(authInstance: Auth, email: string): Promis
   return sendPasswordResetEmail(authInstance, email)
     .then(() => {
         toast({
-            title: 'Reset Email Sent',
-            description: 'Please check your inbox for instructions to reset your password.',
+            title: 'Recovery Link Dispatched',
+            description: 'Please audit your inbox (and spam folder) for password reset instructions.',
         });
     })
     .catch(error => {
