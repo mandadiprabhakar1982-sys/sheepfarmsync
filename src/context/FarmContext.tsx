@@ -7,7 +7,7 @@ import type {
   BankLoan, CreditCard, PrivateDebt, MonthlyIncome, MonthlyExpense 
 } from '@/lib/types';
 import { useUser, useFirestore, useCollection, useDoc } from '@/firebase';
-import { collection, doc, serverTimestamp, query } from 'firebase/firestore';
+import { collection, doc, serverTimestamp, query, collectionGroup } from 'firebase/firestore';
 import { setDocumentNonBlocking, deleteDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 interface FarmContextType {
@@ -130,17 +130,20 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const isVerified = useMemo(() => !isLoadingProfile && (userProfile?.role === 'collaborator' || userProfile?.role === 'admin'), [userProfile, isLoadingProfile]);
   const isAdmin = useMemo(() => !isLoadingProfile && userProfile?.role === 'admin', [userProfile, isLoadingProfile]);
 
-  // Use direct user subcollections to avoid permission-denied issues with collectionGroup queries
-  const pRef = useMemo(() => (firestore && user && isVerified) ? collection(firestore, 'users', user.uid, 'livestockPurchases') : null, [firestore, user, isVerified]);
-  const sRef = useMemo(() => (firestore && user && isVerified) ? collection(firestore, 'users', user.uid, 'animalSales') : null, [firestore, user, isVerified]);
-  const fRef = useMemo(() => (firestore && user && isVerified) ? collection(firestore, 'users', user.uid, 'feedExpenses') : null, [firestore, user, isVerified]);
-  const mRef = useMemo(() => (firestore && user && isVerified) ? collection(firestore, 'users', user.uid, 'medicineExpenses') : null, [firestore, user, isVerified]);
-  const lRef = useMemo(() => (firestore && user && isVerified) ? collection(firestore, 'users', user.uid, 'laborExpenses') : null, [firestore, user, isVerified]);
-  const dRef = useMemo(() => (firestore && user && isVerified) ? collection(firestore, 'users', user.uid, 'deadAnimals') : null, [firestore, user, isVerified]);
-  const tRef = useMemo(() => (firestore && user && isVerified) ? collection(firestore, 'users', user.uid, 'trackedSheep') : null, [firestore, user, isVerified]);
-  const eRef = useMemo(() => (firestore && user && isVerified) ? collection(firestore, 'users', user.uid, 'farmExpenses') : null, [firestore, user, isVerified]);
-  const hRef = useMemo(() => (firestore && user && isVerified) ? collection(firestore, 'users', user.uid, 'healthTasks') : null, [firestore, user, isVerified]);
+  // RESTORED: Shared Operational Data via collectionGroup
+  // This allows Admins and Collaborators to see global farm data
+  const pRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'livestockPurchases')) : null, [firestore, isVerified]);
+  const sRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'animalSales')) : null, [firestore, isVerified]);
+  const fRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'feedExpenses')) : null, [firestore, isVerified]);
+  const mRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'medicineExpenses')) : null, [firestore, isVerified]);
+  const lRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'laborExpenses')) : null, [firestore, isVerified]);
+  const dRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'deadAnimals')) : null, [firestore, isVerified]);
+  const tRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'trackedSheep')) : null, [firestore, isVerified]);
+  const eRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'farmExpenses')) : null, [firestore, isVerified]);
+  const hRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'healthTasks')) : null, [firestore, isVerified]);
   
+  // RETAINED: Private Financial Data via direct user path
+  // This remains strictly restricted to the Admin and only for their own records
   const blRef = useMemo(() => (firestore && user && isAdmin) ? collection(firestore, 'users', user.uid, 'bankLoans') : null, [firestore, user, isAdmin]);
   const ccRef = useMemo(() => (firestore && user && isAdmin) ? collection(firestore, 'users', user.uid, 'creditCards') : null, [firestore, user, isAdmin]);
   const pdRef = useMemo(() => (firestore && user && isAdmin) ? collection(firestore, 'users', user.uid, 'privateDebts') : null, [firestore, user, isAdmin]);
