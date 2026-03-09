@@ -449,7 +449,7 @@ export default function MonthlyLedgerPage() {
                       axisLine={false} 
                       tick={{ fontSize: 10, fontWeight: 900 }} 
                     />
-                    <Tooltip content={<ChartTooltipContent indicator="dot" />} />
+                    <ChartTooltip content={<ChartTooltipContent indicator="dot" />} />
                     <Bar dataKey="surplus" radius={[8, 8, 8, 8]} barSize={45}>
                       {historyData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.surplus >= 0 ? "hsl(var(--primary))" : "#f43f5e"} />
