@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { LogOut, User, Settings, ChevronDown, Loader2, ShieldCheck, Mail, Fingerprint, Save } from 'lucide-react';
+import { LogOut, User, Settings, ChevronDown, Loader2, ShieldCheck, Mail, Fingerprint, Save, Globe, Database } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useAuth, useUser, useFirestore, useDoc } from '@/firebase';
 import { signOut } from 'firebase/auth';
@@ -31,12 +31,15 @@ import { doc, serverTimestamp } from 'firebase/firestore';
 import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { Badge } from '@/components/ui/badge';
 import type { UserProfile } from '@/lib/types';
+import { useLanguage } from '@/context/LanguageContext';
+import { firebaseConfig } from '@/firebase/config';
 
 export function UserNav() {
   const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
   const auth = useAuth();
   const { user } = useUser();
   const firestore = useFirestore();
+  const { t } = useLanguage();
   
   // Properly memoize the doc reference to avoid infinite re-renders in useDoc
   const userDocRef = useMemo(() => {
@@ -121,19 +124,19 @@ export function UserNav() {
           <DropdownMenuGroup className="space-y-1">
             <DropdownMenuItem onClick={() => setIsProfileOpen(true)} className="rounded-lg h-10 cursor-pointer focus:bg-neutral-50">
               <Settings className="mr-3 h-4 w-4 text-neutral-400" />
-              <span className="text-xs font-bold text-neutral-700">Identity Settings</span>
+              <span className="text-xs font-bold text-neutral-700">{t('settings')}</span>
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator className="bg-neutral-100" />
           <DropdownMenuItem onClick={handleLogout} className="rounded-lg h-10 cursor-pointer text-rose-600 focus:bg-rose-50 focus:text-rose-600">
               <LogOut className="mr-3 h-4 w-4" />
-              <span className="text-xs font-bold uppercase tracking-widest">Terminate Session</span>
+              <span className="text-xs font-bold uppercase tracking-widest">{t('logout')}</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
       <Dialog open={isProfileOpen} onOpenChange={setIsProfileOpen}>
-        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
+        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
           <form onSubmit={handleUpdateProfile}>
             <DialogHeader className="bg-neutral-900 p-8 text-left relative overflow-hidden">
               <div className="absolute top-0 right-0 p-6 opacity-10">
@@ -141,14 +144,14 @@ export function UserNav() {
               </div>
               <DialogTitle className="text-2xl font-black tracking-tight text-white flex items-center gap-3 relative z-10">
                 <Settings className="h-6 w-6 text-emerald-400" />
-                Identity Audit
+                {t('identity')}
               </DialogTitle>
               <DialogDescription className="text-white/40 text-xs font-bold uppercase tracking-widest relative z-10">
                 Synchronize your shepherd profile parameters
               </DialogDescription>
             </DialogHeader>
             
-            <div className="p-8 space-y-8 bg-white">
+            <div className="p-8 space-y-8 bg-white max-h-[60vh] overflow-y-auto no-scrollbar">
               <div className="space-y-6">
                 <div className="space-y-3">
                   <Label htmlFor="name" className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Public Identity Name</Label>
@@ -165,7 +168,7 @@ export function UserNav() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="p-5 rounded-2xl bg-neutral-50 border border-neutral-100 flex items-center gap-4">
                     <div className="h-10 w-10 rounded-xl bg-white flex items-center justify-center shadow-sm">
                       <Mail className="h-5 w-5 text-neutral-400" />
@@ -181,12 +184,31 @@ export function UserNav() {
                       <ShieldCheck className="h-5 w-5 text-emerald-600" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-[8px] font-black uppercase tracking-[0.2em] text-emerald-900 opacity-60">Access Permissions</p>
+                      <p className="text-[8px] font-black uppercase tracking-[0.2em] text-emerald-900 opacity-60">{t('security')}</p>
                       <p className="text-[11px] font-black text-emerald-900 uppercase tracking-widest">
                         {profile?.role || 'Guest'} Status
                       </p>
                     </div>
                   </div>
+                </div>
+
+                <div className="pt-6 border-t border-neutral-100">
+                  <div className="flex items-center gap-3 mb-4">
+                    <Database className="h-4 w-4 text-primary" />
+                    <span className="text-[10px] font-black uppercase tracking-widest text-neutral-900">{t('database_project')}</span>
+                  </div>
+                  <div className="p-5 rounded-2xl bg-neutral-900 text-white flex items-center justify-between shadow-xl">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[8px] font-black uppercase tracking-[0.2em] text-white/40 leading-none">Verified Core Link</span>
+                      <span className="text-[11px] font-mono font-bold text-emerald-400 uppercase tracking-tight">
+                        {firebaseConfig.projectId}
+                      </span>
+                    </div>
+                    <Badge className="bg-white/10 text-white border-none text-[8px] font-black">ACTIVE</Badge>
+                  </div>
+                  <p className="text-[9px] text-muted-foreground mt-3 font-medium italic">
+                    All data is synchronized with the primary database via high-precision stealth protocols.
+                  </p>
                 </div>
               </div>
             </div>

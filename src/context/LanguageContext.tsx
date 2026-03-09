@@ -44,6 +44,10 @@ const translations = {
     logout: "Terminate Session",
     settings: "Settings",
     system_name: "Farm Management System",
+    security: "Security & Privacy",
+    privacy: "Privacy Guard",
+    database_project: "Core Database Project",
+    stealth_mode: "Stealth Deployment",
     
     // Headers
     farm_overview: "Farm Overview",
@@ -99,6 +103,10 @@ const translations = {
     logout: "సెషన్ ముగించు",
     settings: "సెట్టింగులు",
     system_name: "ఫాం మేనేజ్‌మెంట్ సిస్టమ్",
+    security: "భద్రత మరియు గోప్యత",
+    privacy: "గోప్యత రక్షణ",
+    database_project: "కోర్ డేటాబేస్ ప్రాజెక్ట్",
+    stealth_mode: "స్టెల్త్ డిప్లాయ్‌మెంట్",
 
     // Headers
     farm_overview: "ఫాం అవలోకనం",
