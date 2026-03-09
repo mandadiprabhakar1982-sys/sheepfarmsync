@@ -123,8 +123,9 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const firestore = useFirestore();
 
   const userProfileRef = useMemo(() => (firestore && user) ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
-  const { data: userProfile, isLoading: isLoadingProfile } = useDoc<UserProfile>(userProfileRef);
+  const { data: userProfile, isLoading: isProfileDocLoading } = useDoc<UserProfile>(userProfileRef);
   
+  const isLoadingProfile = isProfileDocLoading || (user && !userProfile);
   const isVerified = useMemo(() => !isLoadingProfile && (userProfile?.role === 'collaborator' || userProfile?.role === 'admin'), [userProfile, isLoadingProfile]);
   const isAdmin = useMemo(() => !isLoadingProfile && userProfile?.role === 'admin', [userProfile, isLoadingProfile]);
 
@@ -144,7 +145,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const miRef = useMemo(() => (firestore && isAdmin) ? query(collectionGroup(firestore, 'monthlyIncomes')) : null, [firestore, isAdmin]);
   const meRef = useMemo(() => (firestore && isAdmin) ? query(collectionGroup(firestore, 'monthlyExpenses')) : null, [firestore, isAdmin]);
   
-  const mkRef = useMemo(() => firestore ? query(collection(firestore, 'communitySales')) : null, [firestore]);
+  const mkRef = useMemo(() => (firestore && user) ? query(collection(firestore, 'communitySales')) : null, [firestore, user]);
 
   const { data: qPurchases, isLoading: lPurchases } = useCollection<LivestockPurchase>(pRef);
   const { data: qSales, isLoading: lSales } = useCollection<AnimalSale>(sRef);

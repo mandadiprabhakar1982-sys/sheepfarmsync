@@ -29,7 +29,7 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname();
   const { t, language, setLanguage } = useLanguage();
-  const { isLoadingProfile, userRole } = useFarm();
+  const { isLoadingProfile } = useFarm();
 
   const navItems = [
     { href: '/dashboard', label: t('home'), icon: LayoutDashboard },
@@ -46,7 +46,7 @@ export default function DashboardLayout({
   // Prevent UI jumping by waiting for the profile/role to be fully established
   if (isLoadingProfile) {
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-background">
+      <div className="flex h-screen w-full items-center justify-center bg-background fixed inset-0 z-[9999]">
         <div className="flex flex-col items-center gap-6">
           <div className="relative">
             <div className="w-12 h-12 border-4 border-primary/20 rounded-full"></div>
