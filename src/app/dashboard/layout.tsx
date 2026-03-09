@@ -9,7 +9,8 @@ import {
   HeartPulse, 
   Wheat, 
   Globe,
-  Languages
+  Languages,
+  Loader2
 } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { UserNav } from '@/components/user-nav';
@@ -19,6 +20,7 @@ import { AppSidebar } from '@/components/app-sidebar';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useLanguage } from '@/context/LanguageContext';
+import { useFarm } from '@/context/FarmContext';
 
 export default function DashboardLayout({
   children,
@@ -27,6 +29,7 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname();
   const { t, language, setLanguage } = useLanguage();
+  const { isLoadingProfile, userRole } = useFarm();
 
   const navItems = [
     { href: '/dashboard', label: t('home'), icon: LayoutDashboard },
@@ -39,6 +42,21 @@ export default function DashboardLayout({
   const toggleLanguage = () => {
     setLanguage(language === 'en' ? 'te' : 'en');
   };
+
+  // Prevent UI jumping by waiting for the profile/role to be fully established
+  if (isLoadingProfile) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-6">
+          <div className="relative">
+            <div className="w-12 h-12 border-4 border-primary/20 rounded-full"></div>
+            <div className="absolute top-0 w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          </div>
+          <p className="text-[10px] font-black tracking-[0.3em] text-primary uppercase animate-pulse">{t('syncing')}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <SidebarProvider>
