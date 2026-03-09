@@ -21,7 +21,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import { cn } from '@/lib/utils';
 
 export default function DashboardPage() {
-  const { isLoading, userRole } = useFarm();
+  const { isLoading, userRole, isLoadingProfile } = useFarm();
   const { t } = useLanguage();
   const isAdmin = userRole === 'admin';
 
@@ -102,16 +102,13 @@ export default function DashboardPage() {
     },
   ];
 
-  if (isLoading) {
-    return (
-      <div className="flex h-[calc(100vh-80px)] w-full items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+  // If identity is still being verified, show nothing to prevent jumping
+  if (isLoadingProfile) {
+    return null;
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50 pb-20">
+    <div className="min-h-screen bg-neutral-50 pb-20 animate-in fade-in duration-500">
       <section className="dashboard-hero text-white pt-10 pb-16 text-center">
         <div className="container mx-auto px-6">
           <div className="flex justify-center mb-4">

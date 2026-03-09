@@ -52,7 +52,10 @@ export default function DashboardLayout({
             <div className="w-12 h-12 border-4 border-primary/20 rounded-full"></div>
             <div className="absolute top-0 w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
           </div>
-          <p className="text-[10px] font-black tracking-[0.3em] text-primary uppercase animate-pulse">{t('syncing')}</p>
+          <div className="flex flex-col items-center gap-2">
+            <p className="text-[10px] font-black tracking-[0.3em] text-primary uppercase animate-pulse">{t('syncing')}</p>
+            <p className="text-[8px] font-bold text-muted-foreground/40 uppercase tracking-widest">Applying Stealth Protocol...</p>
+          </div>
         </div>
       </div>
     );
