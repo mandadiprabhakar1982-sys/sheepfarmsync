@@ -47,7 +47,7 @@ export function AppSidebar() {
   const { t } = useLanguage();
   const isAdmin = userRole === 'admin';
 
-  const groups = [
+  const groups = React.useMemo(() => [
     {
       label: t('home'),
       links: [
@@ -90,7 +90,7 @@ export function AppSidebar() {
         { href: '/dashboard/help', label: t('install'), icon: Smartphone },
       ]
     }
-  ];
+  ], [t]);
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
@@ -99,7 +99,6 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent className="px-3 py-6 bg-sidebar">
         {groups.map((group) => {
-          // Hide sensitive financial groups from non-admins
           if (group.adminOnly && !isAdmin) return null;
 
           return (

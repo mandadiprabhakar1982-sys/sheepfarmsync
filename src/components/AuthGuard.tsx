@@ -9,9 +9,8 @@ import type { UserProfile } from '@/lib/types';
 const publicPaths = ['/login'];
 
 /**
- * STRATEGIC ACCESS CONTROL:
- * Only the emails listed here will be granted the 'admin' role.
- * All other users will default to 'collaborator' status.
+ * EXCLUSIVE ACCESS CONTROL:
+ * Only mprabhakar99@gmail.com is granted the 'admin' role.
  */
 const ADMIN_EMAILS = [
   'mprabhakar99@gmail.com',
@@ -19,6 +18,7 @@ const ADMIN_EMAILS = [
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
+  const [isProvisioning, setIsProvisioning] = useState(false);
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
   const pathname = usePathname();
@@ -40,14 +40,12 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
     const syncProfile = async () => {
       const userRef = doc(firestore, 'users', user.uid);
-      
-      // Determine role based on strict whitelist (case-insensitive)
       const userEmail = (user.email || '').toLowerCase();
       const assignedRole = ADMIN_EMAILS.some(email => email.toLowerCase() === userEmail) ? 'admin' : 'collaborator';
 
       if (!isProfileLoading && !profile) {
+        setIsProvisioning(true);
         try {
-          // Provision new user identity with assigned role
           await setDoc(userRef, {
             id: user.uid,
             email: user.email,
@@ -58,9 +56,10 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
           }, { merge: true });
         } catch (e) {
           console.error("Identity provisioning error:", e);
+        } finally {
+          setIsProvisioning(false);
         }
       } else if (!isProfileLoading && profile && profile.role !== assignedRole) {
-        // Force update role if whitelist status has changed (e.g. elevation to Admin)
         try {
           await updateDoc(userRef, { 
             role: assignedRole,
@@ -89,9 +88,10 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
   if (!mounted) return null;
 
-  const isAuthChecking = isUserLoading || (user && !profile && isProfileLoading);
+  // Wait for Firebase Auth, then wait for the profile doc to be fetched or created
+  const isAuthChecking = isUserLoading || (user && (isProfileLoading || (!profile && !isProvisioning && isProfileLoading === false) || isProvisioning));
   
-  if (isAuthChecking) {
+  if (isAuthChecking && !publicPaths.includes(pathname)) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-6">
