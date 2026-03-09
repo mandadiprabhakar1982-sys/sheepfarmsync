@@ -127,7 +127,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   
   const isLoadingProfile = isProfileDocLoading || (user && !userProfile);
   
-  // SECURITY PROTECTION: Suppress all data fetching until identity is confirmed
+  // SECURITY PROTECTION: Only fire queries when identity is firmly established
   const isVerified = useMemo(() => !isLoadingProfile && (userProfile?.role === 'collaborator' || userProfile?.role === 'admin'), [userProfile, isLoadingProfile]);
   const isAdmin = useMemo(() => !isLoadingProfile && userProfile?.role === 'admin', [userProfile, isLoadingProfile]);
 

@@ -43,9 +43,6 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
       const userEmail = (user.email || '').toLowerCase();
       const isWhitelisted = ADMIN_EMAILS.some(email => email.toLowerCase() === userEmail);
       
-      // Default assignment for new accounts only
-      const defaultRole = isWhitelisted ? 'admin' : 'collaborator';
-
       if (!isProfileLoading && !profile) {
         setIsProvisioning(true);
         try {
@@ -53,7 +50,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
             id: user.uid,
             email: user.email,
             displayName: user.displayName || 'Shepherd',
-            role: defaultRole, 
+            role: isWhitelisted ? 'admin' : 'collaborator', 
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp(),
           }, { merge: true });
@@ -64,9 +61,18 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
         }
       } else if (!isProfileLoading && profile) {
         // SECURITY PROTOCOL:
-        // Only whitelisted users can possess the 'admin' role.
-        // We DO NOT force whitelisted users to be admin if they chose collaborator.
-        // We ONLY force non-whitelisted users to NOT be admin.
+        // Automatically elevate whitelisted users if they are not yet admin
+        if (isWhitelisted && profile.role !== 'admin') {
+          try {
+            await updateDoc(userRef, { 
+              role: 'admin',
+              updatedAt: serverTimestamp() 
+            });
+          } catch (e) {
+            console.error("Administrative elevation failed:", e);
+          }
+        }
+        // Force non-whitelisted users to NOT be admin
         if (!isWhitelisted && profile.role === 'admin') {
           try {
             await updateDoc(userRef, { 
@@ -102,15 +108,15 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   
   if (isAuthChecking && !publicPaths.includes(pathname)) {
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-background">
+      <div className="flex h-screen w-full items-center justify-center bg-background fixed inset-0 z-[9999]">
         <div className="flex flex-col items-center gap-6">
           <div className="relative">
             <div className="w-12 h-12 border-4 border-primary/20 rounded-full"></div>
             <div className="absolute top-0 w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
           </div>
           <div className="flex flex-col items-center gap-2">
-            <p className="text-[10px] font-black tracking-[0.3em] text-primary uppercase animate-pulse">Verifying Identity</p>
-            <p className="text-[8px] font-bold text-muted-foreground/40 uppercase tracking-widest">Applying Security Protocol...</p>
+            <p className="text-[10px] font-black tracking-[0.3em] text-primary uppercase animate-pulse">Establishing Secure Identity</p>
+            <p className="text-[8px] font-bold text-muted-foreground/40 uppercase tracking-widest">Applying Stealth Protocol...</p>
           </div>
         </div>
       </div>

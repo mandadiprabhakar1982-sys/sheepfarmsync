@@ -11,18 +11,20 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    // Role-based verification with safety checks for existence
+    // High-precision role verification
     function hasRole(roles) {
-      let userDoc = get(/databases/$(database)/documents/users/$(request.auth.uid));
-      return isSignedIn() && userDoc != null && userDoc.data.role in roles;
+      return isSignedIn() && 
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in roles;
+    }
+
+    // Security Fast-Track for primary administrator to prevent race conditions
+    function isAdmin() {
+      return isSignedIn() && (request.auth.token.email == 'mprabhakar99@gmail.com' || hasRole(['admin']));
     }
 
     function isCollaborator() {
-      return hasRole(['collaborator', 'admin']);
-    }
-
-    function isAdmin() {
-      return hasRole(['admin']);
+      return isSignedIn() && (request.auth.token.email == 'mprabhakar99@gmail.com' || hasRole(['collaborator', 'admin']));
     }
 
     // --- COMMUNITY MARKETPLACE ---
@@ -43,7 +45,6 @@ service cloud.firestore {
     }
 
     // --- SHARED OPERATIONAL DATA (Collection Group Access) ---
-    // These paths enable the dashboard summaries across different shepherds
     match /{path=**}/livestockPurchases/{id} { allow read, update, delete: if isCollaborator(); }
     match /{path=**}/medicineExpenses/{id}  { allow read, update, delete: if isCollaborator(); }
     match /{path=**}/feedExpenses/{id}      { allow read, update, delete: if isCollaborator(); }
