@@ -14,10 +14,10 @@ const publicPaths = ['/login'];
  * All other users will default to 'collaborator' (No access to Private Ledger/Liabilities).
  */
 const ADMIN_EMAILS = [
+  'mprabhakar99@gmail.com',
   'admin@syncpro.com',
   'user@example.com',
   'developer@syncpro.com',
-  // ADD YOUR ACTUAL EMAIL BELOW TO ENSURE ADMIN STATUS
 ];
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
@@ -84,7 +84,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     if (!user && !isPublic) {
       router.push('/login');
     }
-    if (user && isPublic) {
+    if (user && publicPaths.includes(pathname)) {
       router.push('/dashboard');
     }
   }, [mounted, isUserLoading, user, pathname, router]);
