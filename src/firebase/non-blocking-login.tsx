@@ -8,6 +8,7 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   updateProfile,
+  sendPasswordResetEmail,
 } from 'firebase/auth';
 import { FirebaseError } from 'firebase/app';
 import { toast } from '@/hooks/use-toast';
@@ -97,6 +98,21 @@ export function initiateUpdateProfile(authInstance: Auth, displayName: string): 
         toast({
             title: 'Profile Updated',
             description: 'Your name has been updated successfully.',
+        });
+    })
+    .catch(error => {
+        handleAuthError(error);
+        return Promise.reject(error);
+    });
+}
+
+/** Initiate password reset email (non-blocking). */
+export function initiatePasswordReset(authInstance: Auth, email: string): Promise<void> {
+  return sendPasswordResetEmail(authInstance, email)
+    .then(() => {
+        toast({
+            title: 'Reset Email Sent',
+            description: 'Please check your inbox for instructions to reset your password.',
         });
     })
     .catch(error => {

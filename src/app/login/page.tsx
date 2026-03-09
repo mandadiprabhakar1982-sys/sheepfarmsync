@@ -1,3 +1,4 @@
+
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -10,8 +11,16 @@ import { Label } from '@/components/ui/label';
 import { Logo, SyncProIcon } from '@/components/logo';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/firebase';
-import { initiateEmailSignIn, initiateEmailSignUp, initiateGoogleSignIn } from '@/firebase/non-blocking-login';
+import { initiateEmailSignIn, initiateEmailSignUp, initiateGoogleSignIn, initiatePasswordReset } from '@/firebase/non-blocking-login';
 import { useToast } from '@/hooks/use-toast';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg role="img" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" {...props}>
@@ -30,13 +39,17 @@ export default function LoginPage() {
     const [signupEmail, setSignupEmail] = useState('');
     const [signupPassword, setSignupPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    
+    const [isResetOpen, setIsResetOpen] = useState(false);
+    const [resetEmail, setResetEmail] = useState('');
+    const [isSubmittingReset, setIsSubmittingReset] = useState(false);
 
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
-        initiateEmailSignIn(auth, loginEmail, loginPassword)
+        initiateEmailSignIn(auth!, loginEmail, loginPassword)
             .catch(() => {
                 setIsSubmitting(false);
             });
@@ -53,7 +66,7 @@ export default function LoginPage() {
             return;
         }
         setIsSubmitting(true);
-        initiateEmailSignUp(auth, signupEmail, signupPassword)
+        initiateEmailSignUp(auth!, signupEmail, signupPassword)
             .catch(() => {
                 setIsSubmitting(false);
             });
@@ -61,10 +74,28 @@ export default function LoginPage() {
 
     const handleGoogleSignIn = () => {
         setIsSubmitting(true);
-        initiateGoogleSignIn(auth)
+        initiateGoogleSignIn(auth!)
             .catch(() => {
                 setIsSubmitting(false);
             });
+    };
+
+    const handlePasswordReset = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!resetEmail.trim()) {
+            toast({ variant: 'destructive', title: 'Error', description: 'Please enter your email.' });
+            return;
+        }
+        setIsSubmittingReset(true);
+        try {
+            await initiatePasswordReset(auth!, resetEmail);
+            setIsResetOpen(false);
+            setResetEmail('');
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setIsSubmittingReset(false);
+        }
     };
 
   return (
@@ -116,7 +147,17 @@ export default function LoginPage() {
                                 <Input id="login-email" type="email" placeholder="name@syncpro.com" className="h-11" required value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} disabled={isSubmitting} />
                             </div>
                             <div className="grid gap-2">
-                                <Label htmlFor="login-password">Password</Label>
+                                <div className="flex items-center justify-between">
+                                    <Label htmlFor="login-password">Password</Label>
+                                    <Button 
+                                        variant="link" 
+                                        type="button" 
+                                        className="h-auto p-0 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors"
+                                        onClick={() => setIsResetOpen(true)}
+                                    >
+                                        Trouble signing in?
+                                    </Button>
+                                </div>
                                 <Input id="login-password" type="password" className="h-11" required value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} disabled={isSubmitting} />
                             </div>
                             <Button type="submit" className="w-full h-12 rounded-xl font-bold mt-2" disabled={isSubmitting}>
@@ -151,6 +192,51 @@ export default function LoginPage() {
             </Tabs>
         </CardContent>
       </Card>
+
+      <Dialog open={isResetOpen} onOpenChange={setIsResetOpen}>
+        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
+          <DialogHeader className="bg-neutral-900 p-8 text-left">
+            <DialogTitle className="text-2xl font-black tracking-tight text-white flex items-center gap-3">
+              <SyncProIcon className="h-6 w-6 text-emerald-400" />
+              Reset Password
+            </DialogTitle>
+            <DialogDescription className="text-white/40 text-xs font-bold uppercase tracking-widest">
+              Recovery protocol for lost credentials
+            </DialogDescription>
+          </DialogHeader>
+          <div className="p-8 space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="reset-email" className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Registered Email Address</Label>
+              <Input
+                id="reset-email"
+                type="email"
+                placeholder="Enter your email"
+                value={resetEmail}
+                onChange={(e) => setResetEmail(e.target.value)}
+                className="h-14 rounded-2xl bg-neutral-50 border-none shadow-sm font-bold px-6"
+              />
+            </div>
+            <p className="text-[10px] font-medium text-muted-foreground leading-relaxed italic">
+              Instructions to securely reset your password will be dispatched to this address.
+            </p>
+          </div>
+          <DialogFooter className="p-8 bg-neutral-50 gap-4">
+            <Button variant="ghost" onClick={() => setIsResetOpen(false)} className="h-12 px-6 font-bold text-muted-foreground rounded-xl">
+              Cancel
+            </Button>
+            <Button onClick={handlePasswordReset} disabled={isSubmittingReset} className="h-14 px-10 rounded-xl font-black uppercase tracking-[0.2em] shadow-2xl shadow-primary/20 bg-neutral-900 hover:bg-neutral-800 text-white flex-1">
+              {isSubmittingReset ? (
+                <>
+                  <Loader2 className="mr-3 h-5 w-5 animate-spin text-emerald-400" />
+                  Sending Link...
+                </>
+              ) : (
+                'Send Reset Link'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
