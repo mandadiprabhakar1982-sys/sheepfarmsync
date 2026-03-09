@@ -21,6 +21,7 @@ import {
   ChevronRight,
   BookOpen,
   Wallet,
+  ShieldAlert,
 } from 'lucide-react';
 
 import {
@@ -48,7 +49,7 @@ export function AppSidebar() {
 
   const groups = [
     {
-      label: "Main",
+      label: t('home'),
       links: [
         { href: '/dashboard', label: t('home'), icon: Home },
         { href: '/dashboard/overview', label: t('overview'), icon: LayoutDashboard },
@@ -56,25 +57,25 @@ export function AppSidebar() {
       ]
     },
     {
-      label: "Financial Audit",
+      label: t('private_suite'),
       adminOnly: true,
       links: [
         { href: '/dashboard/monthly-ledger', label: t('ledger'), icon: Wallet },
         { href: '/dashboard/balance-sheet', label: t('liabilities'), icon: BookOpen },
-        { href: '/dashboard/expenses', label: t('expenses'), icon: Receipt },
       ]
     },
     {
-      label: "Inventory",
+      label: t('public_suite'),
       links: [
         { href: '/dashboard/livestock', label: t('flock'), icon: ListChecks },
         { href: '/dashboard/purchase', label: t('buy'), icon: Package },
         { href: '/dashboard/sales', label: t('sales'), icon: BadgeIndianRupee },
         { href: '/dashboard/mortality', label: t('mortality'), icon: Skull },
+        { href: '/dashboard/expenses', label: t('expenses'), icon: Receipt },
       ]
     },
     {
-      label: "Staff & Ops",
+      label: t('ops_suite'),
       links: [
         { href: '/dashboard/labor', label: t('labor'), icon: Users },
         { href: '/dashboard/medicine', label: t('health'), icon: Syringe },
@@ -82,7 +83,7 @@ export function AppSidebar() {
       ]
     },
     {
-      label: "Ecosystem",
+      label: t('ecosystem'),
       links: [
         { href: '/dashboard/feed-calculator', label: t('calculator'), icon: Calculator },
         { href: '/dashboard/marketplace', label: t('marketplace'), icon: Globe },
@@ -103,7 +104,8 @@ export function AppSidebar() {
 
           return (
             <SidebarGroup key={group.label} className="mb-6">
-              <SidebarGroupLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-sidebar-foreground/40 mb-3 px-3">
+              <SidebarGroupLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-sidebar-foreground/40 mb-3 px-3 flex items-center gap-2">
+                {group.adminOnly && <ShieldAlert className="h-2.5 w-2.5 text-emerald-600" />}
                 {group.label}
               </SidebarGroupLabel>
               <SidebarGroupContent>

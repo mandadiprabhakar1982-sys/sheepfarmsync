@@ -37,6 +37,12 @@ const translations = {
     mortality: "Loss Log",
     intelligence: "AI Intelligence",
     
+    // Suite Labels
+    private_suite: "Private Project Assets",
+    public_suite: "Public Project Assets",
+    ops_suite: "Operations & Staff",
+    ecosystem: "Ecosystem",
+    
     // UI
     precision: "Precision Management",
     syncing: "Syncing Farm Data",
@@ -95,6 +101,12 @@ const translations = {
     liabilities: "అప్పులు",
     mortality: "మరణాల జాబితా",
     intelligence: "AI నివేదికలు",
+
+    // Suite Labels
+    private_suite: "ప్రైవేట్ ప్రాజెక్ట్ ఆస్తులు",
+    public_suite: "పబ్లిక్ ప్రాజెక్ట్ ఆస్తులు",
+    ops_suite: "ఆపరేషన్స్ & స్టాఫ్",
+    ecosystem: "ఎకోసిస్టమ్",
 
     // UI
     precision: "ఖచ్చితమైన నిర్వహణ",

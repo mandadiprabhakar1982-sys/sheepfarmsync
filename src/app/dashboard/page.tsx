@@ -12,6 +12,7 @@ import {
   Loader2,
   BookOpen,
   Wallet,
+  ShieldCheck,
 } from 'lucide-react';
 import { SyncProIcon } from '@/components/logo';
 import { Card, CardContent } from '@/components/ui/card';
@@ -34,65 +35,67 @@ export default function DashboardPage() {
     },
     {
       title: t('ledger').toUpperCase(),
-      description: t('monthly_balance').toUpperCase(),
+      description: t('private_suite').toUpperCase(),
       icon: Wallet,
       href: '/dashboard/monthly-ledger',
       color: 'bg-indigo-600',
       adminOnly: true,
+      isPrivate: true,
     },
     {
       title: t('liabilities').toUpperCase(),
-      description: t('liabilities').toUpperCase(),
+      description: t('private_suite').toUpperCase(),
       icon: BookOpen,
       href: '/dashboard/balance-sheet',
       color: 'bg-slate-700',
       adminOnly: true,
+      isPrivate: true,
     },
     {
       title: t('flock').toUpperCase(),
-      description: t('flock').toUpperCase(),
+      description: t('public_suite').toUpperCase(),
       icon: ClipboardList,
       href: '/dashboard/livestock',
       color: 'bg-emerald-500',
     },
     {
       title: t('buy').toUpperCase(),
-      description: t('buy').toUpperCase(),
+      description: t('public_suite').toUpperCase(),
       icon: ShoppingBag,
       href: '/dashboard/purchase',
       color: 'bg-amber-500',
     },
     {
       title: t('health').toUpperCase(),
-      description: t('health').toUpperCase(),
+      description: t('ops_suite').toUpperCase(),
       icon: HeartPulse,
       href: '/dashboard/medicine',
       color: 'bg-rose-500',
     },
     {
       title: t('feed').toUpperCase(),
-      description: t('feed').toUpperCase(),
+      description: t('ops_suite').toUpperCase(),
       icon: Wheat,
       href: '/dashboard/feed',
       color: 'bg-lime-500',
     },
     {
       title: t('labor').toUpperCase(),
-      description: t('labor').toUpperCase(),
+      description: t('ops_suite').toUpperCase(),
       icon: Users,
       href: '/dashboard/labor',
       color: 'bg-orange-500',
     },
     {
       title: t('sales').toUpperCase(),
-      description: t('revenue').toUpperCase(),
+      description: t('public_suite').toUpperCase(),
       icon: BadgeIndianRupee,
       href: '/dashboard/sales',
       color: 'bg-green-600',
     },
     {
       title: t('expenses').toUpperCase(),
-      description: t('expenses').toUpperCase(),
+      description: t('public_suite').toUpperCase(),
       icon: Receipt,
       href: '/dashboard/expenses',
       color: 'bg-slate-500',
@@ -134,7 +137,15 @@ export default function DashboardPage() {
             const Icon = item.icon;
             return (
               <Link href={item.href} key={item.title} className="group">
-                <Card className="border-none shadow-xl rounded-[1.5rem] md:rounded-[2rem] transition-all duration-300 hover:-translate-y-1 active:scale-95 bg-white overflow-hidden">
+                <Card className={cn(
+                  "border-none shadow-xl rounded-[1.5rem] md:rounded-[2rem] transition-all duration-300 hover:-translate-y-1 active:scale-95 bg-white overflow-hidden relative",
+                  item.isPrivate && "ring-2 ring-emerald-500/10"
+                )}>
+                  {item.isPrivate && (
+                    <div className="absolute top-4 right-4 opacity-20">
+                      <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                    </div>
+                  )}
                   <CardContent className="flex flex-col items-center justify-center p-6 md:p-8 text-center gap-3 md:gap-4">
                     <div className={cn("rounded-2xl md:rounded-3xl p-4 md:p-5 text-white shadow-md transition-transform group-hover:scale-110", item.color)}>
                       <Icon className="h-6 w-6 md:h-8 md:w-8" />
