@@ -42,7 +42,9 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
       const userRef = doc(firestore, 'users', user.uid);
       const userEmail = (user.email || '').toLowerCase();
       const isWhitelisted = ADMIN_EMAILS.some(email => email.toLowerCase() === userEmail);
-      const assignedRole = isWhitelisted ? 'admin' : 'collaborator';
+      
+      // Default assignment for new accounts only
+      const defaultRole = isWhitelisted ? 'admin' : 'collaborator';
 
       if (!isProfileLoading && !profile) {
         setIsProvisioning(true);
@@ -51,7 +53,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
             id: user.uid,
             email: user.email,
             displayName: user.displayName || 'Shepherd',
-            role: assignedRole, 
+            role: defaultRole, 
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp(),
           }, { merge: true });
@@ -62,8 +64,9 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
         }
       } else if (!isProfileLoading && profile) {
         // SECURITY PROTOCOL:
-        // Only whitelisted users can remain 'admin'. 
-        // If a non-whitelisted user somehow has 'admin' in their profile, revert it.
+        // Only whitelisted users can possess the 'admin' role.
+        // We DO NOT force whitelisted users to be admin if they chose collaborator.
+        // We ONLY force non-whitelisted users to NOT be admin.
         if (!isWhitelisted && profile.role === 'admin') {
           try {
             await updateDoc(userRef, { 

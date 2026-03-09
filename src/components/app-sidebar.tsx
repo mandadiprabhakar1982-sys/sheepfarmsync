@@ -90,7 +90,7 @@ export function AppSidebar() {
         { href: '/dashboard/help', label: t('install'), icon: Smartphone },
       ]
     }
-  ], [t]);
+  ], [t, isAdmin]); // Stable structure based on isAdmin
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">

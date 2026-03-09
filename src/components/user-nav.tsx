@@ -35,7 +35,7 @@ import { useAuth, useUser, useFirestore, useDoc } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { initiateUpdateProfile } from '@/firebase/non-blocking-login';
 import { doc, serverTimestamp } from 'firebase/firestore';
-import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { updateDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { Badge } from '@/components/ui/badge';
 import type { UserProfile } from '@/lib/types';
 import { useLanguage } from '@/context/LanguageContext';
@@ -48,7 +48,6 @@ export function UserNav() {
   const firestore = useFirestore();
   const { t } = useLanguage();
   
-  // Properly memoize the doc reference to avoid infinite re-renders in useDoc
   const userDocRef = useMemo(() => {
     if (!user || !firestore) return null;
     return doc(firestore, 'users', user.uid);
@@ -61,12 +60,13 @@ export function UserNav() {
   const [role, setRole] = useState<string>('collaborator');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Sync local state when profile loads or dialog opens
   useEffect(() => {
-    if (profile) {
+    if (profile && isProfileOpen) {
       setDisplayName(profile.displayName || user?.displayName || '');
       setRole(profile.role);
     }
-  }, [profile, user]);
+  }, [profile, user, isProfileOpen]);
 
   const handleLogout = () => {
     signOut(auth!);
@@ -81,11 +81,12 @@ export function UserNav() {
       await initiateUpdateProfile(auth, displayName);
       
       const userRef = doc(firestore, `users/${user.uid}`);
-      setDocumentNonBlocking(userRef, {
+      // Use updateDocumentNonBlocking to preserve other fields
+      updateDocumentNonBlocking(userRef, {
         displayName,
         role,
         updatedAt: serverTimestamp(),
-      }, { merge: true });
+      });
       
       setIsProfileOpen(false);
     } catch (error) {
