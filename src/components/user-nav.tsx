@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -20,9 +20,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { LogOut, User, Settings, ChevronDown, Loader2, ShieldCheck, Mail, Fingerprint, Save, Globe, Database } from 'lucide-react';
+import { LogOut, User, Settings, ChevronDown, Loader2, ShieldCheck, Mail, Fingerprint, Save, Globe, Database, UserCheck } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useAuth, useUser, useFirestore, useDoc } from '@/firebase';
 import { signOut } from 'firebase/auth';
@@ -50,8 +57,16 @@ export function UserNav() {
   const { data: profile } = useDoc<UserProfile>(userDocRef);
   
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [displayName, setDisplayName] = useState(user?.displayName || '');
+  const [displayName, setDisplayName] = useState('');
+  const [role, setRole] = useState<string>('collaborator');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (profile) {
+      setDisplayName(profile.displayName || user?.displayName || '');
+      setRole(profile.role);
+    }
+  }, [profile, user]);
 
   const handleLogout = () => {
     signOut(auth!);
@@ -68,6 +83,7 @@ export function UserNav() {
       const userRef = doc(firestore, `users/${user.uid}`);
       setDocumentNonBlocking(userRef, {
         displayName,
+        role,
         updatedAt: serverTimestamp(),
       }, { merge: true });
       
@@ -153,18 +169,43 @@ export function UserNav() {
             
             <div className="p-8 space-y-8 bg-white max-h-[60vh] overflow-y-auto no-scrollbar">
               <div className="space-y-6">
-                <div className="space-y-3">
-                  <Label htmlFor="name" className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Public Identity Name</Label>
-                  <div className="relative">
-                    <User className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-300" />
-                    <Input
-                      id="name"
-                      value={displayName}
-                      onChange={(e) => setDisplayName(e.target.value)}
-                      placeholder="e.g. Shepherd Ram"
-                      className="h-14 rounded-2xl bg-neutral-50 border-none shadow-sm font-black text-base px-14 focus-visible:ring-primary/20"
-                      disabled={isSubmitting}
-                    />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-3">
+                    <Label htmlFor="name" className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Public Identity Name</Label>
+                    <div className="relative">
+                      <User className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-300" />
+                      <Input
+                        id="name"
+                        value={displayName}
+                        onChange={(e) => setDisplayName(e.target.value)}
+                        placeholder="e.g. Shepherd Ram"
+                        className="h-14 rounded-2xl bg-neutral-50 border-none shadow-sm font-black text-base px-14 focus-visible:ring-primary/20"
+                        disabled={isSubmitting}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label htmlFor="role" className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Audit Access Level</Label>
+                    <Select value={role} onValueChange={setRole} disabled={isSubmitting}>
+                      <SelectTrigger className="h-14 rounded-2xl bg-neutral-50 border-none shadow-sm font-black text-base px-6">
+                        <SelectValue placeholder="Select role" />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-xl border-none shadow-2xl">
+                        <SelectItem value="admin" className="rounded-lg font-bold">
+                          <div className="flex items-center gap-2">
+                            <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                            Admin Access
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="collaborator" className="rounded-lg font-bold">
+                          <div className="flex items-center gap-2">
+                            <UserCheck className="h-4 w-4 text-blue-600" />
+                            Collaborator
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
 

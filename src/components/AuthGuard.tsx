@@ -10,7 +10,7 @@ const publicPaths = ['/login'];
 
 /**
  * EXCLUSIVE ACCESS CONTROL:
- * Only mprabhakar99@gmail.com is granted the 'admin' role.
+ * Only mprabhakar99@gmail.com is granted the authority to assume the 'admin' role.
  */
 const ADMIN_EMAILS = [
   'mprabhakar99@gmail.com',
@@ -41,7 +41,8 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     const syncProfile = async () => {
       const userRef = doc(firestore, 'users', user.uid);
       const userEmail = (user.email || '').toLowerCase();
-      const assignedRole = ADMIN_EMAILS.some(email => email.toLowerCase() === userEmail) ? 'admin' : 'collaborator';
+      const isWhitelisted = ADMIN_EMAILS.some(email => email.toLowerCase() === userEmail);
+      const assignedRole = isWhitelisted ? 'admin' : 'collaborator';
 
       if (!isProfileLoading && !profile) {
         setIsProvisioning(true);
@@ -59,14 +60,19 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
         } finally {
           setIsProvisioning(false);
         }
-      } else if (!isProfileLoading && profile && profile.role !== assignedRole) {
-        try {
-          await updateDoc(userRef, { 
-            role: assignedRole,
-            updatedAt: serverTimestamp() 
-          });
-        } catch (e) {
-          console.error("Access protection sweep failed:", e);
+      } else if (!isProfileLoading && profile) {
+        // SECURITY PROTOCOL:
+        // Only whitelisted users can remain 'admin'. 
+        // If a non-whitelisted user somehow has 'admin' in their profile, revert it.
+        if (!isWhitelisted && profile.role === 'admin') {
+          try {
+            await updateDoc(userRef, { 
+              role: 'collaborator',
+              updatedAt: serverTimestamp() 
+            });
+          } catch (e) {
+            console.error("Access protection sweep failed:", e);
+          }
         }
       }
     };
