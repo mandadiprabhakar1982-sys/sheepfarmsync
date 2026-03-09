@@ -11,7 +11,7 @@ const publicPaths = ['/login'];
 /**
  * STRATEGIC ACCESS CONTROL:
  * Add your email to this list to maintain Admin access.
- * All other users will default to 'collaborator' (No access to Private Ledger/Liabilities).
+ * All other users will default to 'collaborator'.
  */
 const ADMIN_EMAILS = [
   'mprabhakar99@gmail.com',
@@ -44,8 +44,9 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     const syncProfile = async () => {
       const userRef = doc(firestore, 'users', user.uid);
       
-      // Determine role based on whitelist
-      const assignedRole = ADMIN_EMAILS.includes(user.email || '') ? 'admin' : 'collaborator';
+      // Determine role based on whitelist (case-insensitive)
+      const userEmail = (user.email || '').toLowerCase();
+      const assignedRole = ADMIN_EMAILS.some(email => email.toLowerCase() === userEmail) ? 'admin' : 'collaborator';
 
       if (!isProfileLoading && !profile) {
         try {

@@ -124,8 +124,9 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const userProfileRef = useMemo(() => (firestore && user) ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
   const { data: userProfile, isLoading: isLoadingProfile } = useDoc<UserProfile>(userProfileRef);
   
-  const isVerified = useMemo(() => userProfile?.role === 'collaborator' || userProfile?.role === 'admin', [userProfile]);
-  const isAdmin = useMemo(() => userProfile?.role === 'admin', [userProfile]);
+  // Guard flags to prevent unauthorized collection group requests
+  const isVerified = useMemo(() => !isLoadingProfile && (userProfile?.role === 'collaborator' || userProfile?.role === 'admin'), [userProfile, isLoadingProfile]);
+  const isAdmin = useMemo(() => !isLoadingProfile && userProfile?.role === 'admin', [userProfile, isLoadingProfile]);
 
   // Refined Queries: Operational data for all verified, Financial data for Admins only
   const pRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'livestockPurchases')) : null, [firestore, isVerified]);
@@ -138,7 +139,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const eRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'farmExpenses')) : null, [firestore, isVerified]);
   const hRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'healthTasks')) : null, [firestore, isVerified]);
   
-  // Financial Queries - Strictly restricted to Admin to prevent permission-denied errors for collaborators
+  // Financial Queries - Strictly restricted to Admin to prevent permission-denied errors
   const blRef = useMemo(() => (firestore && isAdmin) ? query(collectionGroup(firestore, 'bankLoans')) : null, [firestore, isAdmin]);
   const ccRef = useMemo(() => (firestore && isAdmin) ? query(collectionGroup(firestore, 'creditCards')) : null, [firestore, isAdmin]);
   const pdRef = useMemo(() => (firestore && isAdmin) ? query(collectionGroup(firestore, 'privateDebts')) : null, [firestore, isAdmin]);
