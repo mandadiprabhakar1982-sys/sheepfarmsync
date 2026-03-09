@@ -10,14 +10,11 @@ const publicPaths = ['/login'];
 
 /**
  * STRATEGIC ACCESS CONTROL:
- * Add your email to this list to maintain Admin access.
- * All other users will default to 'collaborator'.
+ * Only the emails listed here will be granted the 'admin' role.
+ * All other users will default to 'collaborator' status.
  */
 const ADMIN_EMAILS = [
   'mprabhakar99@gmail.com',
-  'admin@syncpro.com',
-  'user@example.com',
-  'developer@syncpro.com',
 ];
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
@@ -44,13 +41,13 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     const syncProfile = async () => {
       const userRef = doc(firestore, 'users', user.uid);
       
-      // Determine role based on whitelist (case-insensitive)
+      // Determine role based on strict whitelist (case-insensitive)
       const userEmail = (user.email || '').toLowerCase();
       const assignedRole = ADMIN_EMAILS.some(email => email.toLowerCase() === userEmail) ? 'admin' : 'collaborator';
 
       if (!isProfileLoading && !profile) {
         try {
-          // Provision new user identity
+          // Provision new user identity with assigned role
           await setDoc(userRef, {
             id: user.uid,
             email: user.email,
@@ -63,7 +60,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
           console.error("Identity provisioning error:", e);
         }
       } else if (!isProfileLoading && profile && profile.role !== assignedRole) {
-        // Update role if whitelist status has changed
+        // Force update role if whitelist status has changed (e.g. elevation to Admin)
         try {
           await updateDoc(userRef, { 
             role: assignedRole,
@@ -102,7 +99,10 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
             <div className="w-12 h-12 border-4 border-primary/20 rounded-full"></div>
             <div className="absolute top-0 w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
           </div>
-          <p className="text-[10px] font-black tracking-[0.3em] text-primary uppercase animate-pulse">Verifying Identity</p>
+          <div className="flex flex-col items-center gap-2">
+            <p className="text-[10px] font-black tracking-[0.3em] text-primary uppercase animate-pulse">Verifying Identity</p>
+            <p className="text-[8px] font-bold text-muted-foreground/40 uppercase tracking-widest">Applying Security Protocol...</p>
+          </div>
         </div>
       </div>
     );
