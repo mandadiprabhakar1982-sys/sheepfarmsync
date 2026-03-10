@@ -79,12 +79,12 @@ export default function MedicinePage() {
 
   const healthTaskForm = useForm<HealthTaskFormData>({
     resolver: zodResolver(healthTaskFormSchema),
-    defaultValues: { notes: '', frequency: 'Once', cost: 0 },
+    defaultValues: { lastAdministered: new Date(), notes: '', frequency: 'Once', cost: 0 },
   });
   
   const legacyExpenseForm = useForm<LegacyExpenseFormData>({
     resolver: zodResolver(legacyExpenseSchema),
-    defaultValues: { shopName: '', description: '', costOfMedicines: 0, totalAmountSpent: 0, outstandingDues: 0 },
+    defaultValues: { date: new Date(), shopName: '', description: '', costOfMedicines: 0, totalAmountSpent: 0, outstandingDues: 0 },
   });
 
   const editHealthTaskForm = useForm<HealthTaskFormData>({
@@ -137,7 +137,7 @@ export default function MedicinePage() {
       lastAdministered: format(data.lastAdministered, 'yyyy-MM-dd'),
       nextDueDate: format(nextDueDate, 'yyyy-MM-dd'),
     });
-    healthTaskForm.reset();
+    healthTaskForm.reset({ lastAdministered: new Date(), notes: '', frequency: 'Once', cost: 0 });
     toast({ title: 'Success!', description: 'Task and expense recorded.' });
   };
 
@@ -146,7 +146,7 @@ export default function MedicinePage() {
       ...data,
       date: format(data.date, 'yyyy-MM-dd'),
     });
-    legacyExpenseForm.reset();
+    legacyExpenseForm.reset({ date: new Date(), shopName: '', description: '', costOfMedicines: 0, totalAmountSpent: 0, outstandingDues: 0 });
     setIsLegacyDialogOpen(false);
     toast({ title: 'Success!', description: 'Legacy medicine expense recorded.' });
   };
@@ -251,7 +251,23 @@ export default function MedicinePage() {
 
                   <div className="grid grid-cols-2 gap-4">
                     <FormField control={healthTaskForm.control} name="lastAdministered" render={({ field }) => (
-                      <FormItem className="flex flex-col"><FormLabel className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">Date Done</FormLabel><Popover><PopoverTrigger asChild><Button variant="outline" className="w-full justify-start text-left font-bold h-11 px-4 rounded-xl border-none bg-white shadow-sm">{field.value ? format(field.value, "MMM dd, yy") : "Pick date"}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></PopoverTrigger><PopoverContent className="w-auto p-0 rounded-2xl shadow-2xl border-none" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover></FormItem>
+                      <FormItem className="flex flex-col">
+                        <FormLabel className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">Date Done</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button variant="outline" className="w-full justify-start text-left font-bold h-11 px-4 rounded-xl border-none bg-white shadow-sm">
+                                {field.value ? format(field.value, "MMM dd, yy") : "Pick date"}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0 rounded-2xl shadow-2xl border-none" align="start">
+                            <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus disabled={(date) => date > new Date() || date < new Date('1900-01-01')} />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
                     )} />
                     <FormField control={healthTaskForm.control} name="cost" render={({ field }) => (
                       <FormItem><FormLabel className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">Total Cost (₹)</FormLabel><FormControl><Input type="number" placeholder="0" className="h-11 rounded-xl bg-white border-none shadow-sm font-black" {...field} /></FormControl></FormItem>
@@ -400,7 +416,24 @@ export default function MedicinePage() {
               )} />
               
               <div className="grid grid-cols-2 gap-4">
-                <FormField control={editHealthTaskForm.control} name="lastAdministered" render={({ field }) => (<FormItem className="flex flex-col"><FormLabel className="text-[10px] font-black uppercase opacity-40">Date Done</FormLabel><Popover><PopoverTrigger asChild><Button variant="outline" className="h-11 rounded-xl bg-neutral-50 border-none font-bold justify-start text-left px-4">{field.value ? format(field.value, "MMM dd, yy") : "Pick date"}</Button></PopoverTrigger><PopoverContent className="w-auto p-0 rounded-xl shadow-2xl border-none"><Calendar mode="single" selected={field.value} onSelect={field.onChange} /></PopoverContent></Popover></FormItem>)} />
+                <FormField control={editHealthTaskForm.control} name="lastAdministered" render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel className="text-[10px] font-black uppercase opacity-40">Date Done</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button variant="outline" className="h-11 rounded-xl bg-neutral-50 border-none font-bold justify-start text-left px-4">
+                            {field.value ? format(field.value, "MMM dd, yy") : "Pick date"}
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 rounded-xl shadow-2xl border-none" align="start">
+                        <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus disabled={(date) => date > new Date() || date < new Date('1900-01-01')} />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )} />
                 <FormField control={editHealthTaskForm.control} name="cost" render={({ field }) => (<FormItem><FormLabel className="text-[10px] font-black uppercase opacity-40">Total Cost (₹)</FormLabel><FormControl><Input type="number" className="h-11 rounded-xl bg-neutral-50 border-none font-black" {...field} /></FormControl></FormItem>)} />
               </div>
               
@@ -428,7 +461,23 @@ export default function MedicinePage() {
             <form onSubmit={legacyExpenseForm.handleSubmit(onLegacySubmit)} className="space-y-6 p-8">
               <div className="grid grid-cols-2 gap-4">
                 <FormField control={legacyExpenseForm.control} name="date" render={({ field }) => (
-                  <FormItem className="flex flex-col"><FormLabel className="text-[10px] font-black uppercase opacity-40">Purchase Date</FormLabel><Popover><PopoverTrigger asChild><Button variant="outline" className="h-11 rounded-xl bg-neutral-50 border-none font-bold justify-start text-left px-4">{field.value ? format(field.value, "MMM dd, yy") : "Pick date"}</Button></PopoverTrigger><PopoverContent className="w-auto p-0 rounded-xl shadow-2xl border-none"><Calendar mode="single" selected={field.value} onSelect={field.onChange} /></PopoverContent></Popover></FormItem>
+                  <FormItem className="flex flex-col">
+                    <FormLabel className="text-[10px] font-black uppercase opacity-40">Purchase Date</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button variant="outline" className="h-11 rounded-xl bg-neutral-50 border-none font-bold justify-start text-left px-4">
+                            {field.value ? format(field.value, "MMM dd, yy") : "Pick date"}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 rounded-xl shadow-2xl border-none" align="start">
+                        <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus disabled={(date) => date > new Date() || date < new Date('1900-01-01')} />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
                 )} />
                 <FormField control={legacyExpenseForm.control} name="shopName" render={({ field }) => (
                   <FormItem><FormLabel className="text-[10px] font-black uppercase opacity-40">Pharmacy/Shop</FormLabel><FormControl><Input className="h-11 rounded-xl bg-neutral-50 border-none font-bold" placeholder="Store name" {...field} /></FormControl></FormItem>
