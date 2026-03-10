@@ -39,7 +39,8 @@ import {
   Calendar as CalendarIcon,
   ShieldCheck,
   User,
-  History as HistoryIcon
+  History as HistoryIcon,
+  TrendingUpDown
 } from 'lucide-react';
 import Image from 'next/image';
 import { format } from 'date-fns';
@@ -535,8 +536,22 @@ export default function LivestockPage() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
                   <div className="p-6 rounded-[2rem] bg-neutral-50 border border-neutral-100 flex flex-col items-center justify-center text-center gap-2">
                     <Scale className="h-5 w-5 text-primary opacity-40" />
-                    <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Weight</p>
-                    <p className="text-2xl font-black text-neutral-900">{viewingSheep.currentWeight}kg</p>
+                    <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest leading-none">Vitals Payload</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-2xl font-black text-neutral-900">{viewingSheep.currentWeight}kg</p>
+                      {viewingSheep.previousWeight && (
+                        <div className="flex items-center text-[10px] font-black">
+                          {viewingSheep.currentWeight >= viewingSheep.previousWeight ? (
+                            <ArrowUp className="h-3 w-3 text-emerald-500" />
+                          ) : (
+                            <ArrowDown className="h-3 w-3 text-rose-500" />
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    {viewingSheep.previousWeight && (
+                      <p className="text-[8px] font-bold text-muted-foreground uppercase tracking-widest opacity-60">Prev: {viewingSheep.previousWeight}kg</p>
+                    )}
                   </div>
                   <div className="p-6 rounded-[2rem] bg-neutral-50 border border-neutral-100 flex flex-col items-center justify-center text-center gap-2">
                     <CalendarIcon className="h-5 w-5 text-primary opacity-40" />
