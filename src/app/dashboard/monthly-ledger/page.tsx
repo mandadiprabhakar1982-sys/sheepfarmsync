@@ -23,8 +23,6 @@ import {
   Save, 
   BarChart3, 
   CalendarDays, 
-  TrendingUp, 
-  TrendingDown,
   History,
   ShieldCheck,
   Filter,
@@ -32,7 +30,8 @@ import {
   Activity,
   Users,
   HandCoins,
-  ArrowRightLeft
+  ArrowRightLeft,
+  Layers
 } from 'lucide-react';
 import { useFarm } from '@/context/FarmContext';
 import { useToast } from '@/hooks/use-toast';
@@ -105,20 +104,24 @@ export default function MonthlyLedgerPage() {
   const currentTotalExpense = filteredExpenses.reduce((s, i) => s + i.amount, 0);
   const currentNetSurplus = currentTotalIncome - currentTotalExpense;
 
-  // PERSON-WISE CALCULATION (ENTITY SUMMARY)
+  // PERSON-WISE CALCULATION (ENTITY SUMMARY - MERGING MULTIPLE PAYMENTS)
   const entitySummary = useMemo(() => {
-    const map: Record<string, { name: string, inflow: number, outflow: number }> = {};
+    const map: Record<string, { name: string, inflow: number, outflow: number, count: number }> = {};
     
     filteredIncomes.forEach(i => {
-      const key = (i.source || 'Generic').trim().toUpperCase();
-      if (!map[key]) map[key] = { name: i.source, inflow: 0, outflow: 0 };
+      const rawName = (i.source || 'Generic').trim();
+      const key = rawName.toUpperCase();
+      if (!map[key]) map[key] = { name: rawName, inflow: 0, outflow: 0, count: 0 };
       map[key].inflow += i.amount;
+      map[key].count += 1;
     });
     
     filteredExpenses.forEach(e => {
-      const key = (e.source || 'Generic').trim().toUpperCase();
-      if (!map[key]) map[key] = { name: e.source, inflow: 0, outflow: 0 };
+      const rawName = (e.source || 'Generic').trim();
+      const key = rawName.toUpperCase();
+      if (!map[key]) map[key] = { name: rawName, inflow: 0, outflow: 0, count: 0 };
       map[key].outflow += e.amount;
+      map[key].count += 1;
     });
     
     return Object.values(map).sort((a, b) => (b.inflow + b.outflow) - (a.inflow + a.outflow));
@@ -252,7 +255,7 @@ export default function MonthlyLedgerPage() {
             <TableRow>
               <TableHead className="text-[9px] font-black uppercase pl-8 py-5">Accounting Date</TableHead>
               <TableHead className="text-[9px] font-black uppercase">Origin / Description</TableHead>
-              <TableHead className="text-[9px] font-black uppercase text-right pr-8">Accounting Value</TableHead>
+              <TableHead className="text-[9px] font-black uppercase text-right pr-8">Value</TableHead>
               <TableHead className="w-[100px]"></TableHead>
             </TableRow>
           </TableHeader>
@@ -264,7 +267,17 @@ export default function MonthlyLedgerPage() {
                 onClick={() => handleEditClick(item)}
               >
                 <TableCell className="text-[10px] font-black text-muted-foreground/60 pl-8 uppercase tracking-widest">{item.date}</TableCell>
-                <TableCell className="text-sm font-black tracking-tight">{item.source}</TableCell>
+                <TableCell>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-black tracking-tight">{item.source}</span>
+                    <Badge className={cn(
+                      "mt-1 w-fit text-[7px] font-black uppercase h-4 px-1.5 border-none",
+                      item.category ? "bg-rose-50 text-rose-600" : "bg-emerald-50 text-emerald-600"
+                    )}>
+                      {item.category ? item.category : 'Operational Inflow'}
+                    </Badge>
+                  </div>
+                </TableCell>
                 <TableCell className="text-sm font-black text-right pr-8 tracking-tighter">₹{item.amount.toLocaleString()}</TableCell>
                 <TableCell className="pr-8" onClick={(e) => e.stopPropagation()}>
                   <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -341,8 +354,8 @@ export default function MonthlyLedgerPage() {
         <SummaryCard title="Inflow" value={currentTotalIncome} icon={ArrowUpCircle} color="bg-emerald-600" trend="AUDIT" />
         <SummaryCard title="Outflow" value={currentTotalExpense} icon={ArrowDownCircle} color="bg-rose-600" trend="AUDIT" />
         <SummaryCard title="Net Monthly" value={currentNetSurplus} icon={Wallet} color="bg-indigo-600" />
-        <SummaryCard title="Total Receivables" value={totalReceivables} icon={HandCoins} color="bg-blue-600" trend="PENDING" />
-        <SummaryCard title="Total Payables" value={totalPayables} icon={ArrowRightLeft} color="bg-slate-700" trend="DUES" />
+        <SummaryCard title="Total Receivables" value={totalReceivables} icon={HandCoins} color="bg-blue-600" trend="MARKET" />
+        <SummaryCard title="Total Payables" value={totalPayables} icon={ArrowRightLeft} color="bg-slate-700" trend="PURCHASE" />
       </div>
 
       <Tabs defaultValue="ledger" className="w-full">
@@ -445,16 +458,17 @@ export default function MonthlyLedgerPage() {
                     <Users className="h-6 w-6 text-emerald-400" />
                     Person-Wise Audit
                   </CardTitle>
-                  <CardDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Aggregated financial payload by entity</CardDescription>
+                  <CardDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Merged financial payload by entity</CardDescription>
                 </div>
-                <Badge className="bg-emerald-500/20 text-emerald-400 border-none font-black text-[9px] uppercase tracking-widest h-6 px-3 rounded-lg">CALCULATED</Badge>
+                <Badge className="bg-emerald-500/20 text-emerald-400 border-none font-black text-[9px] uppercase tracking-widest h-6 px-3 rounded-lg">AGGREGATED</Badge>
               </div>
             </CardHeader>
             <CardContent className="p-0 overflow-x-auto">
               <Table>
                 <TableHeader className="bg-neutral-50">
                   <TableRow>
-                    <TableHead className="text-[9px] font-black uppercase pl-10 py-6">Entity / Person</TableHead>
+                    <TableHead className="text-[9px] font-black uppercase pl-10 py-6">Entity / Profile</TableHead>
+                    <TableHead className="text-[9px] font-black uppercase text-center">Audit Count</TableHead>
                     <TableHead className="text-[9px] font-black uppercase">Total Inflow</TableHead>
                     <TableHead className="text-[9px] font-black uppercase">Total Outflow</TableHead>
                     <TableHead className="text-[9px] font-black uppercase text-right pr-10">Net Payload</TableHead>
@@ -462,20 +476,29 @@ export default function MonthlyLedgerPage() {
                 </TableHeader>
                 <TableBody>
                   {entitySummary.map((entity, idx) => (
-                    <TableRow key={idx} className="group hover:bg-neutral-50 border-neutral-100 h-20 transition-all">
+                    <TableRow key={idx} className="group hover:bg-neutral-50 border-neutral-100 h-24 transition-all">
                       <TableCell className="pl-10">
                         <div className="flex items-center gap-4">
-                          <div className="h-10 w-10 rounded-xl bg-neutral-900 flex items-center justify-center text-[10px] font-black text-emerald-400 shadow-lg">
+                          <div className="h-12 w-12 rounded-2xl bg-neutral-900 flex items-center justify-center text-xs font-black text-emerald-400 shadow-xl border-2 border-white/10 group-hover:scale-110 transition-transform">
                             {entity.name.substring(0, 2).toUpperCase()}
                           </div>
-                          <span className="text-sm font-black uppercase tracking-tight">{entity.name}</span>
+                          <div className="flex flex-col">
+                            <span className="text-sm font-black uppercase tracking-tight text-neutral-900 leading-none">{entity.name}</span>
+                            <span className="text-[8px] font-bold text-muted-foreground uppercase tracking-widest mt-1 opacity-60">Verified Identity</span>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-neutral-100 text-neutral-600 text-[10px] font-black uppercase tracking-widest">
+                          <Layers className="h-3 w-3 opacity-40" />
+                          {entity.count} {entity.count === 1 ? 'Record' : 'Entries'}
                         </div>
                       </TableCell>
                       <TableCell className="text-sm font-black text-emerald-600">₹{entity.inflow.toLocaleString()}</TableCell>
                       <TableCell className="text-sm font-black text-rose-500">₹{entity.outflow.toLocaleString()}</TableCell>
                       <TableCell className="text-right pr-10">
                         <span className={cn(
-                          "text-lg font-black tracking-tighter",
+                          "text-xl font-black tracking-tighter",
                           entity.inflow >= entity.outflow ? "text-primary" : "text-rose-600"
                         )}>
                           {entity.inflow >= entity.outflow ? '+' : '-'}₹{Math.abs(entity.inflow - entity.outflow).toLocaleString()}
@@ -484,7 +507,7 @@ export default function MonthlyLedgerPage() {
                     </TableRow>
                   ))}
                   {!entitySummary.length && (
-                    <TableRow><TableCell colSpan={4} className="text-center py-24 text-muted-foreground italic opacity-40 uppercase tracking-widest text-[10px] font-black">NO ENTITY DATA DETECTED</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={5} className="text-center py-24 text-muted-foreground italic opacity-40 uppercase tracking-widest text-[10px] font-black">NO ENTITY DATA DETECTED</TableCell></TableRow>
                   )}
                 </TableBody>
               </Table>
