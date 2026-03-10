@@ -244,7 +244,6 @@ export default function LivestockPage() {
         </div>
       </div>
 
-      {/* TOP LEVEL STATS - Unified Visibility */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
         <div className="p-6 rounded-[2rem] bg-neutral-900 text-white shadow-xl flex items-center gap-5">
           <div className="h-12 w-12 rounded-2xl bg-emerald-500/20 flex items-center justify-center text-emerald-400">
@@ -280,7 +279,6 @@ export default function LivestockPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
-        {/* REGISTRATION FORM - Persistent Left Sidebar */}
         <div className="lg:col-span-4">
           <Card className="sticky top-24 border-none bg-white rounded-[2.5rem] shadow-2xl overflow-hidden">
             <CardHeader className="bg-neutral-900 p-8 text-white">
@@ -414,7 +412,6 @@ export default function LivestockPage() {
           </Card>
         </div>
         
-        {/* ASSET LIST - Active Data Feed */}
         <div className="lg:col-span-8 space-y-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="bg-neutral-100/50 p-1.5 rounded-2xl h-14 w-full max-w-md">
@@ -477,7 +474,29 @@ export default function LivestockPage() {
                         </Badge>
                       </div>
                     </div>
-                    <ChevronRight className="h-5 w-5 text-neutral-300 group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                    
+                    <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-9 w-9 rounded-xl text-neutral-400 hover:text-primary hover:bg-primary/5 transition-colors"
+                        onClick={() => {
+                          setEditingSheep(sheep);
+                          setIsEditDialogOpen(true);
+                        }}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-9 w-9 rounded-xl text-neutral-400 hover:text-destructive hover:bg-destructive/5 transition-colors"
+                        onClick={() => deleteTrackedSheep(sheep.id, sheep._path)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                      <ChevronRight className="h-5 w-5 text-neutral-300 group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                    </div>
                   </CardContent>
                 </Card>
               ))
@@ -490,7 +509,6 @@ export default function LivestockPage() {
         </div>
       </div>
 
-      {/* TOTAL INFORMATION DIALOG */}
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
         <DialogContent className="sm:max-w-2xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
           {viewingSheep && (
@@ -655,7 +673,6 @@ export default function LivestockPage() {
         </DialogContent>
       </Dialog>
 
-      {/* EDIT DIALOG */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
