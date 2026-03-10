@@ -17,7 +17,7 @@ import {
   ShieldCheck,
   TrendingUp
 } from 'lucide-react';
-import { format, addMonths, differenceInDays, addDays, endOfDay } from 'date-fns';
+import { format, addMonths, differenceInDays, addDays, endOfDay, startOfDay } from 'date-fns';
 import { useState, useEffect, useMemo } from 'react';
 
 import { PageHeader } from '@/components/page-header';
@@ -34,7 +34,6 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useFarm } from '@/context/FarmContext';
 import type { HealthTask, MedicineExpense } from '@/lib/types';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 
@@ -90,7 +89,6 @@ export default function MedicinePage() {
   const [isLegacyDialogOpen, setIsLegacyDialogOpen] = useState(false);
   const [editingHealthTask, setEditingHealthTask] = useState<HealthTask | null>(null);
 
-  // Controlled states for date pickers to ensure they pick correctly and close
   const [isTaskDateOpen, setIsTaskDateOpen] = useState(false);
   const [isLegacyDateOpen, setIsLegacyDateOpen] = useState(false);
   const [isEditTaskDateOpen, setIsEditTaskDateOpen] = useState(false);
@@ -182,10 +180,8 @@ export default function MedicinePage() {
   };
 
   const getTaskStatus = (dueDate: string) => {
-    const today = new Date();
-    today.setHours(0,0,0,0);
-    const date = new Date(dueDate);
-    date.setHours(0,0,0,0);
+    const today = startOfDay(new Date());
+    const date = startOfDay(new Date(dueDate));
     const diff = differenceInDays(date, today);
     if (diff < 0) return { label: 'Overdue', variant: 'destructive' as const };
     if (diff === 0) return { label: 'Due Today', variant: 'default' as const };
@@ -483,7 +479,6 @@ export default function MedicinePage() {
         </TabsContent>
       </Tabs>
 
-      {/* Health Task Edit Dialog */}
       <Dialog open={isTaskEditDialogOpen} onOpenChange={setIsTaskEditDialogOpen}>
         <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white relative overflow-hidden">
@@ -497,7 +492,19 @@ export default function MedicinePage() {
           <Form {...editHealthTaskForm}>
             <form onSubmit={editHealthTaskForm.handleSubmit(onEditTaskSubmit)} className="space-y-6 p-8">
               <FormField control={editHealthTaskForm.control} name="taskName" render={({ field }) => (
-                <FormItem><FormLabel className="text-[10px] font-black uppercase opacity-40 ml-2">Action Category</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger className="h-12 rounded-xl bg-neutral-50 border-none font-black"><SelectValue /></SelectTrigger></FormControl><SelectContent className="rounded-xl border-none shadow-2xl">{healthTaskNames.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</Select></FormItem>
+                <FormItem>
+                  <FormLabel className="text-[10px] font-black uppercase opacity-40 ml-2">Action Category</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="h-12 rounded-xl bg-neutral-50 border-none font-black">
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent className="rounded-xl border-none shadow-2xl">
+                      {healthTaskNames.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </FormItem>
               )} />
               
               <div className="grid grid-cols-2 gap-4">
@@ -528,7 +535,12 @@ export default function MedicinePage() {
                     <FormMessage />
                   </FormItem>
                 )} />
-                <FormField control={editHealthTaskForm.control} name="cost" render={({ field }) => (<FormItem><FormLabel className="text-[10px] font-black uppercase opacity-40 ml-2">Total Cost (₹)</FormLabel><FormControl><Input type="number" className="h-12 rounded-xl bg-neutral-50 border-none font-black" {...field} /></FormControl></FormItem>)} />
+                <FormField control={editHealthTaskForm.control} name="cost" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[10px] font-black uppercase opacity-40 ml-2">Total Cost (₹)</FormLabel>
+                    <FormControl><Input type="number" className="h-12 rounded-xl bg-neutral-50 border-none font-black" {...field} /></FormControl>
+                  </FormItem>
+                )} />
               </div>
               
               <DialogFooter className="pt-4 gap-4">
@@ -540,7 +552,6 @@ export default function MedicinePage() {
         </DialogContent>
       </Dialog>
 
-      {/* Pharmacy Audit Dialog */}
       <Dialog open={isLegacyDialogOpen} onOpenChange={setIsLegacyDialogOpen}>
         <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white relative">
