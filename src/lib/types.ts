@@ -82,6 +82,8 @@ export type TrackedSheep = {
   currentWeight: number;
   previousWeight?: number;
   age: number; // in months
+  gender?: 'male' | 'female';
+  breed?: string;
   photoDataUrl?: string;
   createdBy?: string;
   creatorEmail?: string;

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useRef, useEffect, useMemo } from 'react';
@@ -26,7 +27,11 @@ import {
   TrendingUp,
   UploadCloud,
   CheckCircle2,
-  Image as LucideImage
+  Image as LucideImage,
+  ChevronRight,
+  Filter,
+  Venus,
+  Mars
 } from 'lucide-react';
 import Image from 'next/image';
 import { Bar, ComposedChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Line, Area } from 'recharts';
@@ -38,7 +43,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import { ChartContainer, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
 import { useFarm } from '@/context/FarmContext';
@@ -55,11 +59,15 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import type { TrackedSheep } from '@/lib/types';
 import { useUser } from '@/firebase';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const trackingFormSchema = z.object({
   tagId: z.string().min(1, 'Tag ID is required'),
   weight: z.coerce.number().positive('Weight must be a positive number'),
   age: z.coerce.number().int().positive('Age in months must be a positive integer'),
+  gender: z.enum(['male', 'female']).default('female'),
+  breed: z.string().optional(),
 });
 
 type TrackingFormData = z.infer<typeof trackingFormSchema>;
@@ -89,6 +97,7 @@ export default function LivestockPage() {
   const [editingSheep, setEditingSheep] = useState<TrackedSheep | null>(null);
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
   const [searchTagId, setSearchTagId] = useState('');
+  const [activeTab, setActiveTab] = useState('all');
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -97,7 +106,7 @@ export default function LivestockPage() {
 
   const trackingForm = useForm<TrackingFormData>({
     resolver: zodResolver(trackingFormSchema),
-    defaultValues: { tagId: '', weight: 0, age: 0 },
+    defaultValues: { tagId: '', weight: 0, age: 0, gender: 'female', breed: '' },
   });
 
   const editForm = useForm<TrackingFormData>({
@@ -110,6 +119,8 @@ export default function LivestockPage() {
         tagId: editingSheep.tagId,
         weight: editingSheep.currentWeight,
         age: editingSheep.age,
+        gender: editingSheep.gender || 'female',
+        breed: editingSheep.breed || '',
       });
     }
   }, [editingSheep, editForm]);
@@ -219,6 +230,8 @@ export default function LivestockPage() {
       tagId: data.tagId,
       age: data.age,
       currentWeight: data.weight,
+      gender: data.gender,
+      breed: data.breed,
       photoDataUrl: capturedImage || undefined 
     });
     trackingForm.reset();
@@ -233,6 +246,8 @@ export default function LivestockPage() {
       tagId: data.tagId,
       age: data.age,
       currentWeight: data.weight,
+      gender: data.gender,
+      breed: data.breed,
       previousWeight: weightChanged ? editingSheep.currentWeight : (editingSheep.previousWeight || undefined),
       photoDataUrl: editingSheep.photoDataUrl,
     }, editingSheep._path);
@@ -255,36 +270,17 @@ export default function LivestockPage() {
 
   return (
     <div className="container mx-auto py-8 px-4 md:px-10">
-      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 mb-12">
-        <PageHeader
-          title="Flock Intelligence"
-          description="High-precision community log of individually tracked livestock."
-          className="mb-0"
-        />
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="flex items-center gap-4 px-6 py-3 bg-neutral-900 rounded-2xl text-white shadow-xl">
-            <Activity className="h-5 w-5 text-emerald-400" />
-            <div>
-              <p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Global Tracked</p>
-              <p className="text-xl font-black tracking-tight">{(trackedSheep || []).length} Head</p>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-4 px-6 py-3 bg-emerald-600 rounded-2xl text-white shadow-xl">
-            <Wheat className="h-5 w-5 text-emerald-200" />
-            <div>
-              <p className="text-[8px] font-black uppercase tracking-widest opacity-60 leading-none">Flock Daily Feed</p>
-              <p className="text-xl font-black tracking-tight">{nutritionStats.total.toFixed(1)} KG</p>
-            </div>
-          </div>
-
-          <div className="hidden sm:flex items-center gap-4 px-6 py-3 bg-white border border-neutral-100 rounded-2xl text-neutral-900 shadow-xl">
-            <Scale className="h-5 w-5 text-primary opacity-40" />
-            <div>
-              <p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Avg Feed/Head</p>
-              <p className="text-xl font-black tracking-tight">{nutritionStats.avg.toFixed(2)} KG</p>
-            </div>
-          </div>
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 mb-8">
+        <div className="flex items-center gap-4">
+          <PageHeader
+            title="My Flock"
+            className="mb-0"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" className="h-10 w-10 text-neutral-500"><Filter className="h-5 w-5" /></Button>
+          <Button variant="ghost" size="icon" className="h-10 w-10 text-neutral-500"><Search className="h-5 w-5" /></Button>
+          <Button variant="ghost" size="icon" className="h-10 w-10 text-neutral-500"><MoreVertical className="h-5 w-5" /></Button>
         </div>
       </div>
 
@@ -300,7 +296,7 @@ export default function LivestockPage() {
             </CardHeader>
             <CardContent className="p-8">
               <Form {...trackingForm}>
-                <form onSubmit={trackingForm.handleSubmit(onTrackingSubmit)} className="space-y-8">
+                <form onSubmit={trackingForm.handleSubmit(onTrackingSubmit)} className="space-y-6">
                   <div className="space-y-4">
                     <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Identification Metrics</Label>
                     <FormField control={trackingForm.control} name="tagId" render={({ field }) => (
@@ -311,6 +307,34 @@ export default function LivestockPage() {
                         <FormMessage />
                       </FormItem>
                     )} />
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField control={trackingForm.control} name="gender" render={({ field }) => (
+                        <FormItem>
+                          <Label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-2">Gender</Label>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger className="h-12 rounded-xl bg-neutral-50 border-none font-bold">
+                                <SelectValue />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="female">Female</SelectItem>
+                              <SelectItem value="male">Male</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormItem>
+                      )} />
+                      <FormField control={trackingForm.control} name="breed" render={({ field }) => (
+                        <FormItem>
+                          <Label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-2">Breed</Label>
+                          <FormControl>
+                            <Input placeholder="e.g. Beltex" className="h-12 rounded-xl bg-neutral-50 border-none shadow-sm font-bold px-4" {...field} />
+                          </FormControl>
+                        </FormItem>
+                      )} />
+                    </div>
+
                     <div className="grid grid-cols-2 gap-4">
                       <FormField control={trackingForm.control} name="weight" render={({ field }) => (
                         <FormItem>
@@ -331,46 +355,6 @@ export default function LivestockPage() {
                     </div>
                   </div>
                   
-                  <div className="space-y-4">
-                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Visual Reference Audit</Label>
-                    <div className="relative aspect-square w-full overflow-hidden rounded-[2rem] border-4 border-dashed border-neutral-100 bg-neutral-50 flex flex-col items-center justify-center group">
-                        {!capturedImage ? (
-                            <>
-                              <video ref={videoRef} className="absolute inset-0 h-full w-full object-cover" autoPlay muted playsInline />
-                              <div className="relative z-10 flex flex-col items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <Button type="button" onClick={handleCapture} className="rounded-full h-16 w-16 bg-white/20 backdrop-blur-md text-white hover:bg-white/40 border-none shadow-2xl scale-110">
-                                  <Camera className="h-8 w-8" />
-                                </Button>
-                                <span className="text-[9px] font-black uppercase text-white tracking-[0.2em] drop-shadow-md">Tap to Snapshot</span>
-                              </div>
-                              <div className="absolute bottom-6 left-6 right-6 flex flex-col items-center gap-2">
-                                 <LucideImage className="h-8 w-8 text-neutral-200" />
-                                 <p className="text-[8px] font-bold text-neutral-300 uppercase tracking-widest">Awaiting Visual Input</p>
-                              </div>
-                            </>
-                        ) : (
-                            <div className="relative h-full w-full animate-in zoom-in-95 duration-300">
-                              <Image src={capturedImage} alt="Captured audit photo" layout="fill" objectFit="cover" unoptimized />
-                              <div className="absolute inset-0 bg-black/20 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
-                                 <Button variant="secondary" size="icon" className="h-12 w-12 rounded-full bg-white/90 hover:bg-white shadow-2xl" onClick={() => setCapturedImage(null)}>
-                                    <X className="h-6 w-6 text-rose-600" />
-                                 </Button>
-                              </div>
-                            </div>
-                        )}
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-3">
-                        <Button type="button" onClick={handleCapture} disabled={hasCameraPermission === false || !!capturedImage} className="h-12 rounded-xl font-bold bg-neutral-50 text-neutral-600 hover:bg-neutral-100 border-none transition-all active:scale-95" variant="outline">
-                            <CameraIcon className="mr-2 h-4 w-4" /> Snapshot
-                        </Button>
-                        <Button type="button" onClick={() => fileInputRef.current?.click()} disabled={!!capturedImage} className="h-12 rounded-xl font-bold bg-neutral-50 text-neutral-600 hover:bg-neutral-100 border-none transition-all active:scale-95" variant="outline">
-                            <UploadCloud className="mr-2 h-4 w-4 text-emerald-600" /> Upload
-                        </Button>
-                        <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileUpload} />
-                    </div>
-                  </div>
-
                   <Button type="submit" className="w-full h-16 rounded-[1.25rem] font-black text-sm uppercase tracking-[0.2em] shadow-2xl shadow-primary/20 bg-neutral-900 hover:bg-neutral-800 transition-all hover:-translate-y-1">
                     <PlusCircle className="mr-3 h-6 w-6 text-emerald-400" /> Commit Record
                   </Button>
@@ -380,250 +364,93 @@ export default function LivestockPage() {
           </Card>
         </div>
         
-        <div className="lg:col-span-8 space-y-10">
-          <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
-            <CardHeader className="bg-primary p-8 text-white">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div>
-                  <CardTitle className="text-2xl font-black tracking-tight leading-none mb-2">Community Flock Ledger</CardTitle>
-                  <CardDescription className="text-white/60 text-[10px] font-black uppercase tracking-widest">Global synchronized database of individually tracked assets</CardDescription>
-                </div>
-                <div className="relative w-full md:w-72">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
-                  <Input
-                    placeholder="Search Tag ID..."
-                    className="pl-11 h-12 rounded-2xl bg-white/10 border-none text-white placeholder:text-white/30 focus-visible:ring-white/20 font-bold"
-                    value={searchTagId}
-                    onChange={(e) => setSearchTagId(e.target.value)}
-                  />
-                  {isLoading && (
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                      <Loader2 className="h-4 w-4 animate-spin text-emerald-400" />
+        <div className="lg:col-span-8 space-y-6">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="bg-neutral-100/50 p-1.5 rounded-2xl h-14 w-full max-w-md">
+              <TabsTrigger value="all" className="rounded-xl font-bold text-[13px] h-full flex-1 data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary text-neutral-500">
+                All Animals ({filteredAndSortedSheep.length})
+              </TabsTrigger>
+              <TabsTrigger value="groups" className="rounded-xl font-bold text-[13px] h-full flex-1 data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary text-neutral-500">
+                Groups
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+
+          <div className="space-y-4">
+            {activeTab === 'all' && filteredAndSortedSheep.length > 0 ? (
+              filteredAndSortedSheep.map((sheep) => (
+                <Card 
+                  key={sheep.id} 
+                  className="border-none shadow-sm hover:shadow-md transition-all active:scale-[0.98] rounded-[1.5rem] bg-white cursor-pointer group overflow-hidden"
+                  onClick={() => {
+                    if (canManageAll || user?.uid === sheep.createdBy) {
+                      setEditingSheep(sheep);
+                      setIsEditDialogOpen(true);
+                    }
+                  }}
+                >
+                  <CardContent className="p-5 flex items-center gap-5">
+                    <div className={cn(
+                      "h-14 w-14 rounded-full flex items-center justify-center transition-transform group-hover:scale-110 duration-300",
+                      sheep.gender === 'female' ? "bg-pink-50 text-pink-500" : "bg-blue-50 text-blue-500"
+                    )}>
+                      {sheep.gender === 'female' ? <Venus className="h-7 w-7" /> : <Mars className="h-7 w-7" />}
                     </div>
-                  )}
-                </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-base font-black tracking-tight text-neutral-900 leading-none">
+                        Sheep {sheep.tagId}
+                      </h3>
+                      {sheep.breed && (
+                        <p className="text-[13px] font-medium text-neutral-400 mt-1.5 uppercase tracking-wide">
+                          {sheep.breed}
+                        </p>
+                      )}
+                    </div>
+                    <ChevronRight className="h-5 w-5 text-neutral-300 group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <div className="py-24 text-center">
+                <p className="text-neutral-400 font-bold uppercase tracking-widest text-xs">No records found</p>
               </div>
-            </CardHeader>
-            <CardContent className="p-0 overflow-x-auto">
-              <Table>
-                <TableHeader className="bg-neutral-50">
-                  <TableRow>
-                    <TableHead className="w-[100px] pl-8 py-5 text-[9px] font-black uppercase">Ref Photo</TableHead>
-                    <TableHead className="text-[9px] font-black uppercase">Identity</TableHead>
-                    <TableHead className="text-[9px] font-black uppercase">Physicals</TableHead>
-                    <TableHead className="text-[9px] font-black uppercase">Nutrition</TableHead>
-                    <TableHead className="text-[9px] font-black uppercase">Growth</TableHead>
-                    <TableHead className="text-[9px] font-black uppercase">Verification</TableHead>
-                    <TableHead className="w-[80px] pr-8"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredAndSortedSheep.length > 0 ? (
-                    filteredAndSortedSheep.map((sheep) => {
-                      const weightChange = sheep.previousWeight != null ? sheep.currentWeight - sheep.previousWeight : null;
-                      const isOwner = user?.uid === sheep.createdBy;
-                      const canManage = isOwner || canManageAll;
-                      const dailyFeed = sheep.currentWeight * 0.04;
+            )}
+          </div>
 
-                      return (
-                        <TableRow key={sheep.id} className="group hover:bg-neutral-50 transition-all cursor-zoom-in active:scale-[0.995]" onClick={() => sheep.photoDataUrl && setPreviewPhoto(sheep.photoDataUrl)}>
-                          <TableCell className="pl-8">
-                            <div className="relative h-14 w-14 rounded-2xl overflow-hidden bg-neutral-100 border-2 border-white shadow-md group/photo">
-                              {sheep.photoDataUrl ? (
-                                <>
-                                  <Image 
-                                    src={sheep.photoDataUrl} 
-                                    alt={`Sheep ${sheep.tagId}`} 
-                                    layout="fill" 
-                                    objectFit="cover" 
-                                    unoptimized
-                                    className="transition-transform duration-500 group-hover/photo:scale-125"
-                                  />
-                                  <div className="absolute inset-0 bg-neutral-900/40 opacity-0 group-hover/photo:opacity-100 transition-opacity flex items-center justify-center">
-                                    <ZoomIn className="h-4 w-4 text-white" />
-                                  </div>
-                                </>
-                              ) : (
-                                <div className="h-full w-full flex items-center justify-center opacity-20">
-                                  <ImageIcon className="h-6 w-6" />
-                                </div>
-                              )}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex flex-col">
-                              <span className="text-base font-black tracking-tight">{sheep.tagId}</span>
-                              <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">Logged {formatTimestamp(sheep.createdAt)}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex flex-col">
-                              <div className="flex items-center gap-1.5 text-sm font-black">
-                                <Scale className="h-3 w-3 text-primary opacity-40" />
-                                {sheep.currentWeight.toFixed(1)} <span className="text-[10px] opacity-40">KG</span>
-                              </div>
-                              <div className="flex items-center gap-1.5 text-[10px] font-bold text-muted-foreground mt-1">
-                                <History className="h-2.5 w-2.5 opacity-40" />
-                                {sheep.age} <span className="text-[8px] opacity-40 uppercase">Mo</span>
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex flex-col">
-                              <div className="flex items-center gap-1.5 text-xs font-black text-emerald-600">
-                                <Wheat className="h-3 w-3 opacity-60" />
-                                {dailyFeed.toFixed(2)} <span className="text-[8px] opacity-60">KG/D</span>
-                              </div>
-                              <span className="text-[7px] font-bold text-muted-foreground uppercase tracking-widest mt-1">4% Body Wt</span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            {weightChange !== null ? (
-                              <div className={cn(
-                                "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm",
-                                weightChange >= 0 ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"
-                              )}>
-                                {weightChange >= 0 ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
-                                {Math.abs(weightChange).toFixed(1)}kg
-                              </div>
-                            ) : (
-                              <Badge variant="secondary" className="bg-neutral-100 text-neutral-400 text-[8px] font-black uppercase tracking-widest border-none">Initial</Badge>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-3">
-                              <Avatar className="h-8 w-8 border-2 border-white shadow-sm">
-                                <AvatarFallback className="text-[10px] font-black bg-neutral-100">{(sheep.creatorName?.[0] || 'S').toUpperCase()}</AvatarFallback>
-                              </Avatar>
-                              <div className="flex flex-col min-w-0 max-w-[120px]">
-                                <span className="text-[10px] font-black truncate flex items-center gap-1 leading-none uppercase">
-                                  {sheep.creatorName || 'Shepherd'}
-                                </span>
-                                <span className="text-[8px] font-bold text-muted-foreground truncate mt-1">{sheep.creatorEmail || 'Private User'}</span>
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell className="pr-8 text-right" onClick={(e) => e.stopPropagation()}>
-                            <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                              {canManage ? (
-                                <>
-                                  <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl bg-neutral-100 hover:bg-neutral-200" onClick={() => { setEditingSheep(sheep); setIsEditDialogOpen(true); }}>
-                                    <Pencil className="h-4 w-4" />
-                                  </Button>
-                                  <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100" onClick={() => deleteTrackedSheep(sheep.id, sheep._path)}>
-                                    <Trash2 className="h-4 w-4" />
-                                  </Button>
-                                </>
-                              ) : (
-                                <MoreVertical className="h-4 w-4 text-muted-foreground/30" />
-                              )}
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={7} className="text-center py-24 text-muted-foreground italic opacity-40 uppercase tracking-widest text-[10px] font-black">
-                        {searchTagId ? `No assets found matching "${searchTagId}"` : 'NO COMMUNITY RECORDS DISCOVERED'}
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-
-          <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
-            <CardHeader className="bg-neutral-50 p-8 border-b border-neutral-100">
-              <div className="flex justify-between items-center">
-                <div className="space-y-1">
-                  <CardTitle className="text-xl font-black tracking-tight flex items-center gap-3">
-                    <TrendingUp className="h-5 w-5 text-primary" />
-                    Growth Projections
-                  </CardTitle>
-                  <CardDescription className="text-[10px] font-bold uppercase tracking-widest opacity-60">Next 90-day predictive analytics based on 200g daily gain velocity</CardDescription>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <div className="h-3 w-3 rounded-full bg-primary" />
-                    <span className="text-[9px] font-black uppercase tracking-widest opacity-40">Weight</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="h-3 w-3 rounded-full bg-amber-500" />
-                    <span className="text-[9px] font-black uppercase tracking-widest opacity-40">Feed</span>
-                  </div>
-                </div>
+          {/* Statistics Integration */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
+            <div className="p-6 rounded-[2rem] bg-neutral-900 text-white shadow-xl flex items-center gap-5">
+              <div className="h-12 w-12 rounded-2xl bg-emerald-500/20 flex items-center justify-center text-emerald-400">
+                <Activity className="h-6 w-6" />
               </div>
-            </CardHeader>
-            <CardContent className="p-8">
-              {chartData.length > 0 ? (
-                <ChartContainer config={chartConfig} className="h-[400px] w-full">
-                  <ComposedChart data={chartData} margin={{ top: 20, right: 20, left: -20, bottom: 0 }}>
-                    <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#f0f0f0" />
-                    <XAxis 
-                      dataKey="batch" 
-                      tickLine={false} 
-                      tickMargin={15} 
-                      axisLine={false} 
-                      tick={{ fontSize: 10, fontWeight: 900, textTransform: 'uppercase' }} 
-                    />
-                    <YAxis 
-                      yAxisId="left" 
-                      stroke="var(--color-averageWeight)" 
-                      tickFormatter={(v) => `${v}kg`} 
-                      tickLine={false} 
-                      axisLine={false} 
-                      tick={{ fontSize: 10, fontWeight: 900 }} 
-                    />
-                    <YAxis 
-                      yAxisId="right" 
-                      orientation="right" 
-                      stroke="#f59e0b" 
-                      tickFormatter={(v) => `${v}kg`} 
-                      tickLine={false} 
-                      axisLine={false} 
-                      tick={{ fontSize: 10, fontWeight: 900 }} 
-                    />
-                    <Tooltip content={<ChartTooltipContent indicator="dot" />} />
-                    <Legend iconType="circle" />
-                    <Bar 
-                      dataKey="averageWeight" 
-                      yAxisId="left" 
-                      fill="var(--color-averageWeight)" 
-                      radius={[8, 8, 0, 0]} 
-                      name="Projected Avg. Weight" 
-                      barSize={40} 
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="averageFeed"
-                      yAxisId="right"
-                      fill="#f59e0b"
-                      stroke="#f59e0b"
-                      fillOpacity={0.1}
-                      strokeWidth={2}
-                      name="Daily Feed Intake"
-                    />
-                    <Line 
-                      type="step" 
-                      dataKey="growth" 
-                      yAxisId="left" 
-                      stroke="var(--color-growth)" 
-                      strokeWidth={3} 
-                      dot={{ r: 4, fill: "var(--color-growth)", strokeWidth: 2, stroke: "#fff" }} 
-                      name="Gain Velocity" 
-                    />
-                  </ComposedChart>
-                </ChartContainer>
-              ) : (
-                <div className="flex h-[300px] flex-col items-center justify-center p-10 text-center border-4 border-dashed rounded-[2rem] border-neutral-50 gap-4 opacity-40">
-                  <Activity className="h-12 w-12 text-primary" />
-                  <p className="text-xs font-black uppercase tracking-widest max-w-[250px]">Insufficient community data to render predictive intelligence reports.</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-1">Global Head</p>
+                <p className="text-2xl font-black">{filteredAndSortedSheep.length}</p>
+              </div>
+            </div>
+            
+            <div className="p-6 rounded-[2rem] bg-white border border-neutral-100 shadow-xl flex items-center gap-5">
+              <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+                <Scale className="h-6 w-6" />
+              </div>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-1">Avg Weight</p>
+                <p className="text-2xl font-black">
+                  {(filteredAndSortedSheep.reduce((acc, s) => acc + s.currentWeight, 0) / (filteredAndSortedSheep.length || 1)).toFixed(1)}kg
+                </p>
+              </div>
+            </div>
+
+            <div className="p-6 rounded-[2rem] bg-white border border-neutral-100 shadow-xl flex items-center gap-5">
+              <div className="h-12 w-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500">
+                <Wheat className="h-6 w-6" />
+              </div>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-1">Daily Feed</p>
+                <p className="text-2xl font-black">{nutritionStats.total.toFixed(1)}kg</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -644,6 +471,28 @@ export default function LivestockPage() {
                   <FormControl><Input className="h-12 rounded-xl bg-neutral-50 border-none font-black" {...field} /></FormControl>
                 </FormItem>
               )} />
+              
+              <div className="grid grid-cols-2 gap-4">
+                <FormField control={editForm.control} name="gender" render={({ field }) => (
+                  <FormItem>
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Gender</Label>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl><SelectTrigger className="h-12 rounded-xl bg-neutral-50 border-none font-bold"><SelectValue /></SelectTrigger></FormControl>
+                      <SelectContent>
+                        <SelectItem value="female">Female</SelectItem>
+                        <SelectItem value="male">Male</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )} />
+                <FormField control={editForm.control} name="breed" render={({ field }) => (
+                  <FormItem>
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Breed</Label>
+                    <FormControl><Input className="h-12 rounded-xl bg-neutral-50 border-none font-bold" {...field} /></FormControl>
+                  </FormItem>
+                )} />
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <FormField control={editForm.control} name="weight" render={({ field }) => (
                   <FormItem>
@@ -660,41 +509,17 @@ export default function LivestockPage() {
               </div>
               <DialogFooter className="pt-4 gap-4">
                 <Button variant="outline" type="button" onClick={() => setIsEditDialogOpen(false)} className="h-12 px-8 rounded-xl font-bold border-neutral-200">Cancel</Button>
-                <Button type="submit" className="h-12 px-10 rounded-xl font-black uppercase tracking-widest shadow-2xl shadow-primary/20 bg-neutral-900 text-white hover:bg-neutral-800">
-                  <Save className="mr-2 h-4 w-4 text-emerald-400" /> Commit Changes
-                </Button>
+                <div className="flex gap-2 flex-1">
+                  <Button type="button" variant="destructive" className="h-12 px-4 rounded-xl font-black" onClick={() => { if(editingSheep) deleteTrackedSheep(editingSheep.id, editingSheep._path); setIsEditDialogOpen(false); }}>
+                    <Trash2 className="h-5 w-5" />
+                  </Button>
+                  <Button type="submit" className="h-12 flex-1 rounded-xl font-black uppercase tracking-widest shadow-2xl shadow-primary/20 bg-neutral-900 text-white hover:bg-neutral-800">
+                    <Save className="mr-2 h-4 w-4 text-emerald-400" /> Save
+                  </Button>
+                </div>
               </DialogFooter>
             </form>
           </Form>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={!!previewPhoto} onOpenChange={() => setPreviewPhoto(null)}>
-        <DialogContent className="max-w-5xl p-0 overflow-hidden bg-transparent border-none shadow-none flex items-center justify-center">
-          <DialogHeader className="sr-only">
-            <DialogTitle>Audit Photo Reference</DialogTitle>
-            <DialogDescription>Full scale visual audit of tracked asset</DialogDescription>
-          </DialogHeader>
-          <div className="relative w-full aspect-square md:aspect-video rounded-[3rem] overflow-hidden shadow-2xl">
-            {previewPhoto && (
-              <Image 
-                src={previewPhoto} 
-                alt="Audit Photo" 
-                layout="fill" 
-                objectFit="contain" 
-                className="bg-black/95"
-                unoptimized 
-              />
-            )}
-            <Button 
-              variant="secondary" 
-              size="icon" 
-              className="absolute top-8 right-8 h-14 w-14 rounded-full bg-white/10 hover:bg-white/30 text-white border-none backdrop-blur-xl transition-all active:scale-90"
-              onClick={() => setPreviewPhoto(null)}
-            >
-              <X className="h-8 w-8" />
-            </Button>
-          </div>
         </DialogContent>
       </Dialog>
     </div>
