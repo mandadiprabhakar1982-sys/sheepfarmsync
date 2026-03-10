@@ -31,7 +31,9 @@ import {
   ChevronRight,
   Filter,
   Venus,
-  Mars
+  Mars,
+  RefreshCcw,
+  AlertTriangle
 } from 'lucide-react';
 import Image from 'next/image';
 import { Bar, ComposedChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Line, Area } from 'recharts';
@@ -55,12 +57,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import type { TrackedSheep } from '@/lib/types';
 import { useUser } from '@/firebase';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const trackingFormSchema = z.object({
   tagId: z.string().min(1, 'Tag ID is required'),
@@ -72,21 +75,6 @@ const trackingFormSchema = z.object({
 
 type TrackingFormData = z.infer<typeof trackingFormSchema>;
 
-const chartConfig = {
-  averageWeight: {
-    label: 'Avg. Weight (kg)',
-    color: 'hsl(var(--primary))',
-  },
-  averageFeed: {
-    label: 'Daily Feed (kg)',
-    color: '#f59e0b',
-  },
-  growth: {
-    label: 'Growth Velocity',
-    color: 'hsl(var(--chart-2))',
-  },
-} satisfies ChartConfig;
-
 export default function LivestockPage() {
   const { toast } = useToast();
   const { user } = useUser();
@@ -95,7 +83,6 @@ export default function LivestockPage() {
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingSheep, setEditingSheep] = useState<TrackedSheep | null>(null);
-  const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
   const [searchTagId, setSearchTagId] = useState('');
   const [activeTab, setActiveTab] = useState('all');
 
@@ -147,44 +134,6 @@ export default function LivestockPage() {
     return { total, avg };
   }, [trackedSheep]);
 
-  const chartData = useMemo(() => {
-    if (!trackedSheep || trackedSheep.length === 0) return [];
-
-    const totalWeight = trackedSheep.reduce((acc, s) => acc + s.currentWeight, 0);
-    const avgWeight = totalWeight / trackedSheep.length;
-    
-    const dailyGain = 0.20; 
-    const daysInMonth = 30;
-    const monthlyGain = dailyGain * daysInMonth;
-
-    return [
-      {
-        batch: 'Current',
-        averageWeight: parseFloat(avgWeight.toFixed(2)),
-        averageFeed: parseFloat((avgWeight * 0.04).toFixed(2)),
-        growth: 0,
-      },
-      {
-        batch: '+1 Month',
-        averageWeight: parseFloat((avgWeight + monthlyGain).toFixed(2)),
-        averageFeed: parseFloat(((avgWeight + monthlyGain) * 0.04).toFixed(2)),
-        growth: monthlyGain,
-      },
-      {
-        batch: '+2 Months',
-        averageWeight: parseFloat((avgWeight + (monthlyGain * 2)).toFixed(2)),
-        averageFeed: parseFloat(((avgWeight + (monthlyGain * 2)) * 0.04).toFixed(2)),
-        growth: monthlyGain,
-      },
-      {
-        batch: '+3 Months',
-        averageWeight: parseFloat((avgWeight + (monthlyGain * 3)).toFixed(2)),
-        averageFeed: parseFloat(((avgWeight + (monthlyGain * 3)) * 0.04).toFixed(2)),
-        growth: monthlyGain,
-      },
-    ];
-  }, [trackedSheep]);
-
   useEffect(() => {
     const getCameraPermission = async () => {
       if (typeof window !== 'undefined' && navigator.mediaDevices) {
@@ -193,6 +142,7 @@ export default function LivestockPage() {
           setHasCameraPermission(true);
           if (videoRef.current) videoRef.current.srcObject = stream;
         } catch (error) {
+          console.error('Error accessing camera:', error);
           setHasCameraPermission(false);
         }
       }
@@ -256,16 +206,6 @@ export default function LivestockPage() {
     toast({ title: 'Updated!', description: 'Audit record synchronized.' });
   };
 
-  const formatTimestamp = (ts: any) => {
-    if (!ts) return 'N/A';
-    try {
-      const date = ts.toDate ? ts.toDate() : new Date(ts.seconds * 1000);
-      return format(date, 'MMM dd, yyyy');
-    } catch (e) {
-      return 'Invalid Date';
-    }
-  };
-
   const canManageAll = userRole === 'admin' || userRole === 'collaborator';
 
   return (
@@ -279,7 +219,15 @@ export default function LivestockPage() {
         </div>
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" className="h-10 w-10 text-neutral-500"><Filter className="h-5 w-5" /></Button>
-          <Button variant="ghost" size="icon" className="h-10 w-10 text-neutral-500"><Search className="h-5 w-5" /></Button>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
+            <Input 
+              placeholder="Search Tag ID..." 
+              value={searchTagId}
+              onChange={(e) => setSearchTagId(e.target.value)}
+              className="pl-10 h-10 w-48 rounded-xl bg-white border-none shadow-sm font-medium" 
+            />
+          </div>
           <Button variant="ghost" size="icon" className="h-10 w-10 text-neutral-500"><MoreVertical className="h-5 w-5" /></Button>
         </div>
       </div>
@@ -298,6 +246,60 @@ export default function LivestockPage() {
               <Form {...trackingForm}>
                 <form onSubmit={trackingForm.handleSubmit(onTrackingSubmit)} className="space-y-6">
                   <div className="space-y-4">
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Visual Documentation</Label>
+                    
+                    <div className="relative aspect-video rounded-2xl bg-neutral-100 overflow-hidden group border-2 border-dashed border-neutral-200">
+                      {capturedImage ? (
+                        <div className="relative w-full h-full">
+                          <Image src={capturedImage} alt="Captured" fill className="object-cover" />
+                          <Button 
+                            type="button"
+                            variant="destructive" 
+                            size="icon" 
+                            className="absolute top-2 right-2 h-8 w-8 rounded-full shadow-lg"
+                            onClick={() => setCapturedImage(null)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center gap-2">
+                          <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
+                          {hasCameraPermission === false && (
+                            <div className="absolute inset-0 bg-neutral-900/80 flex flex-col items-center justify-center p-6 text-center">
+                              <AlertTriangle className="h-8 w-8 text-amber-400 mb-2" />
+                              <p className="text-[10px] font-black text-white uppercase tracking-widest">Camera Access Denied</p>
+                              <p className="text-[8px] text-white/60 mt-1">Please enable permissions or use manual upload.</p>
+                            </div>
+                          )}
+                          <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 px-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button 
+                              type="button"
+                              onClick={handleCapture}
+                              className="bg-neutral-900/80 backdrop-blur-md text-white border-none h-10 px-4 rounded-xl flex-1 font-bold text-[10px] uppercase tracking-widest"
+                            >
+                              <Camera className="mr-2 h-4 w-4" /> Capture
+                            </Button>
+                            <Button 
+                              type="button"
+                              onClick={() => fileInputRef.current?.click()}
+                              className="bg-emerald-600/80 backdrop-blur-md text-white border-none h-10 px-4 rounded-xl flex-1 font-bold text-[10px] uppercase tracking-widest"
+                            >
+                              <UploadCloud className="mr-2 h-4 w-4" /> Upload
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                      <canvas ref={canvasRef} className="hidden" />
+                      <input 
+                        type="file" 
+                        ref={fileInputRef} 
+                        className="hidden" 
+                        accept="image/*" 
+                        onChange={handleFileUpload} 
+                      />
+                    </div>
+
                     <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Identification Metrics</Label>
                     <FormField control={trackingForm.control} name="tagId" render={({ field }) => (
                       <FormItem>
@@ -376,7 +378,7 @@ export default function LivestockPage() {
             </TabsList>
           </Tabs>
 
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {activeTab === 'all' && filteredAndSortedSheep.length > 0 ? (
               filteredAndSortedSheep.map((sheep) => (
                 <Card 
@@ -390,34 +392,55 @@ export default function LivestockPage() {
                   }}
                 >
                   <CardContent className="p-5 flex items-center gap-5">
-                    <div className={cn(
-                      "h-14 w-14 rounded-full flex items-center justify-center transition-transform group-hover:scale-110 duration-300",
-                      sheep.gender === 'female' ? "bg-pink-50 text-pink-500" : "bg-blue-50 text-blue-500"
-                    )}>
-                      {sheep.gender === 'female' ? <Venus className="h-7 w-7" /> : <Mars className="h-7 w-7" />}
+                    <div className="relative h-16 w-16 shrink-0">
+                      <Avatar className="h-16 w-16 rounded-2xl border-2 border-neutral-50 shadow-sm overflow-hidden">
+                        {sheep.photoDataUrl ? (
+                          <AvatarImage src={sheep.photoDataUrl} className="object-cover" />
+                        ) : (
+                          <AvatarFallback className={cn(
+                            "rounded-2xl transition-colors font-black text-lg",
+                            sheep.gender === 'female' ? "bg-pink-50 text-pink-500" : "bg-blue-50 text-blue-500"
+                          )}>
+                            {sheep.tagId.substring(0, 2).toUpperCase()}
+                          </AvatarFallback>
+                        )}
+                      </Avatar>
+                      <div className={cn(
+                        "absolute -bottom-1 -right-1 h-6 w-6 rounded-full border-2 border-white flex items-center justify-center shadow-lg",
+                        sheep.gender === 'female' ? "bg-pink-500 text-white" : "bg-blue-500 text-white"
+                      )}>
+                        {sheep.gender === 'female' ? <Venus className="h-3 w-3" /> : <Mars className="h-3 w-3" />}
+                      </div>
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="text-base font-black tracking-tight text-neutral-900 leading-none">
                         Sheep {sheep.tagId}
                       </h3>
                       {sheep.breed && (
-                        <p className="text-[13px] font-medium text-neutral-400 mt-1.5 uppercase tracking-wide">
+                        <p className="text-[11px] font-bold text-neutral-400 mt-1.5 uppercase tracking-wide truncate">
                           {sheep.breed}
                         </p>
                       )}
+                      <div className="flex items-center gap-3 mt-2">
+                        <Badge variant="secondary" className="bg-neutral-100 text-neutral-600 border-none text-[9px] font-black h-5 px-2">
+                          {sheep.currentWeight} KG
+                        </Badge>
+                        <Badge variant="secondary" className="bg-neutral-100 text-neutral-600 border-none text-[9px] font-black h-5 px-2">
+                          {sheep.age} MOS
+                        </Badge>
+                      </div>
                     </div>
                     <ChevronRight className="h-5 w-5 text-neutral-300 group-hover:text-primary group-hover:translate-x-1 transition-all" />
                   </CardContent>
                 </Card>
               ))
             ) : (
-              <div className="py-24 text-center">
+              <div className="col-span-full py-24 text-center">
                 <p className="text-neutral-400 font-bold uppercase tracking-widest text-xs">No records found</p>
               </div>
             )}
           </div>
 
-          {/* Statistics Integration */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
             <div className="p-6 rounded-[2rem] bg-neutral-900 text-white shadow-xl flex items-center gap-5">
               <div className="h-12 w-12 rounded-2xl bg-emerald-500/20 flex items-center justify-center text-emerald-400">
