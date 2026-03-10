@@ -33,10 +33,15 @@ import {
   Venus,
   Mars,
   RefreshCcw,
-  AlertTriangle
+  AlertTriangle,
+  FileText,
+  Syringe,
+  Calendar as CalendarIcon,
+  ShieldCheck,
+  User,
+  History as HistoryIcon
 } from 'lucide-react';
 import Image from 'next/image';
-import { Bar, ComposedChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Line, Area } from 'recharts';
 import { format } from 'date-fns';
 
 import { PageHeader } from '@/components/page-header';
@@ -46,7 +51,6 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from '@/component
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { ChartContainer, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
 import { useFarm } from '@/context/FarmContext';
 import { cn } from '@/lib/utils';
 import {
@@ -59,11 +63,12 @@ import {
 } from '@/components/ui/dialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import type { TrackedSheep } from '@/lib/types';
+import type { TrackedSheep, HealthTask } from '@/lib/types';
 import { useUser } from '@/firebase';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Separator } from '@/components/ui/separator';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const trackingFormSchema = z.object({
   tagId: z.string().min(1, 'Tag ID is required'),
@@ -78,10 +83,12 @@ type TrackingFormData = z.infer<typeof trackingFormSchema>;
 export default function LivestockPage() {
   const { toast } = useToast();
   const { user } = useUser();
-  const { trackedSheep, addTrackedSheep, deleteTrackedSheep, updateTrackedSheep, isLoading, userRole } = useFarm();
+  const { trackedSheep, addTrackedSheep, deleteTrackedSheep, updateTrackedSheep, healthTasks, isLoading, userRole } = useFarm();
   
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [viewingSheep, setViewingSheep] = useState<TrackedSheep | null>(null);
   const [editingSheep, setEditingSheep] = useState<TrackedSheep | null>(null);
   const [searchTagId, setSearchTagId] = useState('');
   const [activeTab, setActiveTab] = useState('all');
@@ -206,6 +213,11 @@ export default function LivestockPage() {
     toast({ title: 'Updated!', description: 'Audit record synchronized.' });
   };
 
+  const sheepMedicalHistory = useMemo(() => {
+    if (!viewingSheep || !healthTasks) return [];
+    return healthTasks.filter(task => task.sheepId === viewingSheep.tagId);
+  }, [viewingSheep, healthTasks]);
+
   const canManageAll = userRole === 'admin' || userRole === 'collaborator';
 
   return (
@@ -213,7 +225,8 @@ export default function LivestockPage() {
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 mb-8">
         <div className="flex items-center gap-4">
           <PageHeader
-            title="My Flock"
+            title="Flock Intelligence"
+            description="Global asset tracking and physiological monitoring."
             className="mb-0"
           />
         </div>
@@ -385,10 +398,8 @@ export default function LivestockPage() {
                   key={sheep.id} 
                   className="border-none shadow-sm hover:shadow-md transition-all active:scale-[0.98] rounded-[1.5rem] bg-white cursor-pointer group overflow-hidden"
                   onClick={() => {
-                    if (canManageAll || user?.uid === sheep.createdBy) {
-                      setEditingSheep(sheep);
-                      setIsEditDialogOpen(true);
-                    }
+                    setViewingSheep(sheep);
+                    setIsDetailsOpen(true);
                   }}
                 >
                   <CardContent className="p-5 flex items-center gap-5">
@@ -477,6 +488,158 @@ export default function LivestockPage() {
         </div>
       </div>
 
+      {/* TOTAL INFORMATION DIALOG */}
+      <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+        <DialogContent className="sm:max-w-2xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
+          {viewingSheep && (
+            <div className="flex flex-col h-[85vh] md:h-auto overflow-hidden">
+              <div className="relative h-64 shrink-0 bg-neutral-900">
+                {viewingSheep.photoDataUrl ? (
+                  <Image src={viewingSheep.photoDataUrl} alt={viewingSheep.tagId} fill className="object-cover opacity-80" />
+                ) : (
+                  <div className={cn(
+                    "w-full h-full flex items-center justify-center",
+                    viewingSheep.gender === 'female' ? "bg-pink-500/20" : "bg-blue-500/20"
+                  )}>
+                    <LucideImage className="h-20 w-20 text-white/20" />
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-neutral-900 to-transparent" />
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="absolute top-6 right-6 h-10 w-10 rounded-full bg-black/20 backdrop-blur-md text-white hover:bg-black/40"
+                  onClick={() => setIsDetailsOpen(false)}
+                >
+                  <X className="h-5 w-5" />
+                </Button>
+                
+                <div className="absolute bottom-8 left-8 right-8 flex justify-between items-end">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-3">
+                      <h2 className="text-4xl font-black text-white tracking-tighter uppercase">Asset {viewingSheep.tagId}</h2>
+                      <div className={cn(
+                        "h-8 w-8 rounded-full flex items-center justify-center shadow-lg",
+                        viewingSheep.gender === 'female' ? "bg-pink-500 text-white" : "bg-blue-500 text-white"
+                      )}>
+                        {viewingSheep.gender === 'female' ? <Venus className="h-4 w-4" /> : <Mars className="h-4 w-4" />}
+                      </div>
+                    </div>
+                    <p className="text-white/60 font-black text-[10px] uppercase tracking-[0.3em]">{viewingSheep.breed || 'Standard Breed'}</p>
+                  </div>
+                  <Badge className="bg-emerald-500 text-white border-none font-black h-8 px-4 rounded-xl text-xs tracking-widest shadow-xl">VERIFIED</Badge>
+                </div>
+              </div>
+
+              <ScrollArea className="flex-1 p-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                  <div className="p-6 rounded-[2rem] bg-neutral-50 border border-neutral-100 flex flex-col items-center justify-center text-center gap-2">
+                    <Scale className="h-5 w-5 text-primary opacity-40" />
+                    <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Weight</p>
+                    <p className="text-2xl font-black text-neutral-900">{viewingSheep.currentWeight}kg</p>
+                  </div>
+                  <div className="p-6 rounded-[2rem] bg-neutral-50 border border-neutral-100 flex flex-col items-center justify-center text-center gap-2">
+                    <CalendarIcon className="h-5 w-5 text-primary opacity-40" />
+                    <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Age</p>
+                    <p className="text-2xl font-black text-neutral-900">{viewingSheep.age} mos</p>
+                  </div>
+                  <div className="p-6 rounded-[2rem] bg-neutral-50 border border-neutral-100 flex flex-col items-center justify-center text-center gap-2">
+                    <Wheat className="h-5 w-5 text-primary opacity-40" />
+                    <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Daily Feed</p>
+                    <p className="text-2xl font-black text-neutral-900">{(viewingSheep.currentWeight * 0.04).toFixed(2)}kg</p>
+                  </div>
+                </div>
+
+                <div className="space-y-8">
+                  <section>
+                    <h3 className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground mb-6 flex items-center gap-3">
+                      <Syringe className="h-4 w-4" /> Clinical History
+                    </h3>
+                    <div className="space-y-4">
+                      {sheepMedicalHistory.length > 0 ? (
+                        sheepMedicalHistory.map((task) => (
+                          <div key={task.id} className="p-5 rounded-2xl bg-neutral-50 border border-neutral-100 flex items-center justify-between group hover:bg-white hover:shadow-lg transition-all duration-300">
+                            <div className="flex items-center gap-4">
+                              <div className="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center">
+                                <Activity className="h-5 w-5 text-primary" />
+                              </div>
+                              <div>
+                                <p className="text-sm font-black text-neutral-900 leading-none">{task.healthType}</p>
+                                <p className="text-[10px] font-bold text-muted-foreground mt-1.5 uppercase tracking-widest">{task.medicineName} • {task.date}</p>
+                              </div>
+                            </div>
+                            <Badge variant="outline" className="text-[8px] font-black uppercase tracking-widest h-6 px-3 border-neutral-200">
+                              Next: {task.nextDueDate}
+                            </Badge>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="p-10 rounded-[2rem] border-2 border-dashed border-neutral-100 text-center opacity-40">
+                          <p className="text-[10px] font-black uppercase tracking-widest">No medical records discovered</p>
+                        </div>
+                      )}
+                    </div>
+                  </section>
+
+                  <section>
+                    <h3 className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground mb-6 flex items-center gap-3">
+                      <ShieldCheck className="h-4 w-4" /> Identity Audit
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="p-5 rounded-2xl bg-neutral-50/50 flex items-center gap-4">
+                        <div className="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center">
+                          <User className="h-5 w-5 text-neutral-400" />
+                        </div>
+                        <div>
+                          <p className="text-[8px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Registered By</p>
+                          <p className="text-xs font-bold text-neutral-900">{viewingSheep.creatorName || 'Staff Shepherd'}</p>
+                        </div>
+                      </div>
+                      <div className="p-5 rounded-2xl bg-neutral-50/50 flex items-center gap-4">
+                        <div className="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center">
+                          <HistoryIcon className="h-5 w-5 text-neutral-400" />
+                        </div>
+                        <div>
+                          <p className="text-[8px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Audit Timestamp</p>
+                          <p className="text-xs font-bold text-neutral-900">
+                            {viewingSheep.createdAt ? format(viewingSheep.createdAt.toDate(), "MMM dd, yyyy HH:mm") : 'Initial Sync'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+              </ScrollArea>
+
+              <DialogFooter className="p-8 bg-neutral-50 gap-4 border-t border-neutral-100 flex-row">
+                <Button 
+                  variant="outline" 
+                  className="flex-1 h-14 rounded-2xl font-black uppercase tracking-widest border-neutral-200"
+                  onClick={() => {
+                    setEditingSheep(viewingSheep);
+                    setIsDetailsOpen(false);
+                    setIsEditDialogOpen(true);
+                  }}
+                >
+                  <Pencil className="mr-2 h-4 w-4" /> Edit Audit
+                </Button>
+                <Button 
+                  variant="destructive" 
+                  className="h-14 w-14 rounded-2xl font-black shadow-xl shadow-destructive/20"
+                  onClick={() => {
+                    deleteTrackedSheep(viewingSheep.id, viewingSheep._path);
+                    setIsDetailsOpen(false);
+                  }}
+                >
+                  <Trash2 className="h-5 w-5" />
+                </Button>
+              </DialogFooter>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* EDIT DIALOG */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
@@ -532,14 +695,9 @@ export default function LivestockPage() {
               </div>
               <DialogFooter className="pt-4 gap-4">
                 <Button variant="outline" type="button" onClick={() => setIsEditDialogOpen(false)} className="h-12 px-8 rounded-xl font-bold border-neutral-200">Cancel</Button>
-                <div className="flex gap-2 flex-1">
-                  <Button type="button" variant="destructive" className="h-12 px-4 rounded-xl font-black" onClick={() => { if(editingSheep) deleteTrackedSheep(editingSheep.id, editingSheep._path); setIsEditDialogOpen(false); }}>
-                    <Trash2 className="h-5 w-5" />
-                  </Button>
-                  <Button type="submit" className="h-12 flex-1 rounded-xl font-black uppercase tracking-widest shadow-2xl shadow-primary/20 bg-neutral-900 text-white hover:bg-neutral-800">
-                    <Save className="mr-2 h-4 w-4 text-emerald-400" /> Save
-                  </Button>
-                </div>
+                <Button type="submit" className="h-12 flex-1 rounded-xl font-black uppercase tracking-widest shadow-2xl shadow-primary/20 bg-neutral-900 text-white hover:bg-neutral-800">
+                  <Save className="mr-2 h-4 w-4 text-emerald-400" /> Save Changes
+                </Button>
               </DialogFooter>
             </form>
           </Form>
