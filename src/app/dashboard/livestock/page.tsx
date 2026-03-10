@@ -40,7 +40,8 @@ import {
   ShieldCheck,
   User,
   History as HistoryIcon,
-  TrendingUpDown
+  TrendingUpDown,
+  LayoutGrid
 } from 'lucide-react';
 import Image from 'next/image';
 import { format } from 'date-fns';
@@ -66,7 +67,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import type { TrackedSheep, HealthTask } from '@/lib/types';
 import { useUser } from '@/firebase';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -156,7 +157,7 @@ export default function LivestockPage() {
       }
     };
     getCameraPermission();
-  }, []);
+  }, [activeTab]); // Restart camera if tab switches to register
   
   const handleCapture = () => {
     if (videoRef.current && canvasRef.current) {
@@ -194,6 +195,7 @@ export default function LivestockPage() {
     });
     trackingForm.reset();
     setCapturedImage(null);
+    setActiveTab('all');
     toast({ title: 'Success!', description: 'Sheep record synchronized with global flock.' });
   };
 
@@ -219,10 +221,8 @@ export default function LivestockPage() {
     return healthTasks.filter(task => task.sheepId === viewingSheep.tagId);
   }, [viewingSheep, healthTasks]);
 
-  const canManageAll = userRole === 'admin' || userRole === 'collaborator';
-
   return (
-    <div className="container mx-auto py-8 px-4 md:px-10">
+    <div className="container mx-auto py-8 px-4 md:px-10 max-w-6xl">
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 mb-8">
         <PageHeader
           title="Flock Intelligence"
@@ -278,23 +278,123 @@ export default function LivestockPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
-        <div className="lg:col-span-4">
-          <Card className="sticky top-24 border-none bg-white rounded-[2.5rem] shadow-2xl overflow-hidden">
-            <CardHeader className="bg-neutral-900 p-8 text-white">
-              <CardTitle className="text-xl font-black tracking-tight flex items-center gap-3">
-                <PlusCircle className="h-5 w-5 text-emerald-400" />
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full space-y-8">
+        <TabsList className="bg-neutral-100/50 p-1.5 rounded-2xl h-14 w-full max-w-2xl mx-auto grid grid-cols-3">
+          <TabsTrigger value="all" className="rounded-xl font-black text-[11px] uppercase tracking-widest h-full data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary text-neutral-500">
+            All Animals ({filteredAndSortedSheep.length})
+          </TabsTrigger>
+          <TabsTrigger value="register" className="rounded-xl font-black text-[11px] uppercase tracking-widest h-full data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-emerald-600 text-neutral-500">
+            <PlusCircle className="h-3 w-3 mr-2" /> Register Entry
+          </TabsTrigger>
+          <TabsTrigger value="groups" className="rounded-xl font-black text-[11px] uppercase tracking-widest h-full data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary text-neutral-500">
+            Groups
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="all" className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredAndSortedSheep.length > 0 ? (
+              filteredAndSortedSheep.map((sheep) => (
+                <Card 
+                  key={sheep.id} 
+                  className="border-none shadow-sm hover:shadow-xl transition-all active:scale-[0.98] rounded-[2rem] bg-white cursor-pointer group overflow-hidden"
+                  onClick={() => {
+                    setViewingSheep(sheep);
+                    setIsDetailsOpen(true);
+                  }}
+                >
+                  <CardContent className="p-6 flex items-center gap-5">
+                    <div className="relative h-20 w-20 shrink-0">
+                      <Avatar className="h-20 w-20 rounded-[1.5rem] border-2 border-neutral-50 shadow-sm overflow-hidden">
+                        {sheep.photoDataUrl ? (
+                          <AvatarImage src={sheep.photoDataUrl} className="object-cover" />
+                        ) : (
+                          <AvatarFallback className={cn(
+                            "rounded-[1.5rem] transition-colors font-black text-xl",
+                            sheep.gender === 'female' ? "bg-pink-50 text-pink-500" : "bg-blue-50 text-blue-500"
+                          )}>
+                            {sheep.tagId.substring(0, 2).toUpperCase()}
+                          </AvatarFallback>
+                        )}
+                      </Avatar>
+                      <div className={cn(
+                        "absolute -bottom-1 -right-1 h-7 w-7 rounded-full border-2 border-white flex items-center justify-center shadow-lg",
+                        sheep.gender === 'female' ? "bg-pink-500 text-white" : "bg-blue-500 text-white"
+                      )}>
+                        {sheep.gender === 'female' ? <Venus className="h-3.5 w-3.5" /> : <Mars className="h-3.5 w-3.5" />}
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-lg font-black tracking-tight text-neutral-900 leading-none">
+                        Sheep {sheep.tagId}
+                      </h3>
+                      {sheep.breed && (
+                        <p className="text-[10px] font-black text-neutral-400 mt-2 uppercase tracking-widest truncate">
+                          {sheep.breed}
+                        </p>
+                      )}
+                      <div className="flex items-center gap-2 mt-3">
+                        <Badge variant="secondary" className="bg-neutral-100 text-neutral-600 border-none text-[9px] font-black h-5 px-2 tracking-widest">
+                          {sheep.currentWeight} KG
+                        </Badge>
+                        <Badge variant="secondary" className="bg-neutral-100 text-neutral-600 border-none text-[9px] font-black h-5 px-2 tracking-widest">
+                          {sheep.age} MOS
+                        </Badge>
+                      </div>
+                    </div>
+                    
+                    <div className="flex flex-col items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-9 w-9 rounded-xl text-neutral-300 hover:text-primary hover:bg-primary/5 transition-colors"
+                        onClick={() => {
+                          setEditingSheep(sheep);
+                          setIsEditDialogOpen(true);
+                        }}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-9 w-9 rounded-xl text-neutral-300 hover:text-destructive hover:bg-destructive/5 transition-colors"
+                        onClick={() => deleteTrackedSheep(sheep.id, sheep._path)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <div className="col-span-full py-32 text-center">
+                <p className="text-neutral-400 font-bold uppercase tracking-[0.3em] text-xs">No records discovered in the global ledger</p>
+              </div>
+            )}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="register" className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+          <Card className="max-w-2xl mx-auto border-none bg-white rounded-[2.5rem] shadow-2xl overflow-hidden">
+            <CardHeader className="bg-neutral-900 p-10 text-white text-center relative">
+              <div className="absolute top-0 right-0 p-8 opacity-5"><LayoutGrid className="h-32 w-32 rotate-12" /></div>
+              <CardTitle className="text-2xl font-black tracking-tight flex items-center justify-center gap-3 relative z-10">
+                <PlusCircle className="h-6 w-6 text-emerald-400" />
                 Register Entry
               </CardTitle>
-              <CardDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Synchronize new livestock with community records</CardDescription>
+              <CardDescription className="text-white/40 text-[10px] font-bold uppercase tracking-[0.2em] relative z-10">Synchronize new livestock with community records</CardDescription>
             </CardHeader>
-            <CardContent className="p-8">
+            <CardContent className="p-10">
               <Form {...trackingForm}>
-                <form onSubmit={trackingForm.handleSubmit(onTrackingSubmit)} className="space-y-6">
-                  <div className="space-y-4">
-                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Visual Documentation</Label>
+                <form onSubmit={trackingForm.handleSubmit(onTrackingSubmit)} className="space-y-10">
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="h-1 w-10 bg-emerald-500 rounded-full" />
+                      <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Visual Documentation</span>
+                    </div>
                     
-                    <div className="relative aspect-video rounded-2xl bg-neutral-100 overflow-hidden group border-2 border-dashed border-neutral-200">
+                    <div className="relative aspect-video rounded-3xl bg-neutral-50 overflow-hidden group border-2 border-dashed border-neutral-200">
                       {capturedImage ? (
                         <div className="relative w-full h-full">
                           <Image src={capturedImage} alt="Captured" fill className="object-cover" />
@@ -302,36 +402,36 @@ export default function LivestockPage() {
                             type="button"
                             variant="destructive" 
                             size="icon" 
-                            className="absolute top-2 right-2 h-8 w-8 rounded-full shadow-lg"
+                            className="absolute top-4 right-4 h-10 w-10 rounded-full shadow-2xl"
                             onClick={() => setCapturedImage(null)}
                           >
-                            <X className="h-4 w-4" />
+                            <X className="h-5 w-5" />
                           </Button>
                         </div>
                       ) : (
                         <div className="w-full h-full flex flex-col items-center justify-center gap-2">
                           <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
                           {hasCameraPermission === false && (
-                            <div className="absolute inset-0 bg-neutral-900/80 flex flex-col items-center justify-center p-6 text-center">
-                              <AlertTriangle className="h-8 w-8 text-amber-400 mb-2" />
-                              <p className="text-[10px] font-black text-white uppercase tracking-widest">Camera Access Denied</p>
-                              <p className="text-[8px] text-white/60 mt-1">Please enable permissions or use manual upload.</p>
+                            <div className="absolute inset-0 bg-neutral-900/90 flex flex-col items-center justify-center p-8 text-center">
+                              <AlertTriangle className="h-10 w-10 text-amber-400 mb-4" />
+                              <p className="text-xs font-black text-white uppercase tracking-[0.2em]">Camera Access Restricted</p>
+                              <p className="text-[10px] text-white/40 mt-2 leading-relaxed">Please enable hardware permissions or use the manual gallery upload protocol.</p>
                             </div>
                           )}
-                          <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 px-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-4 px-8">
                             <Button 
                               type="button"
                               onClick={handleCapture}
-                              className="bg-neutral-900/80 backdrop-blur-md text-white border-none h-10 px-4 rounded-xl flex-1 font-bold text-[10px] uppercase tracking-widest"
+                              className="bg-neutral-900/90 backdrop-blur-xl text-white border-none h-12 px-6 rounded-2xl flex-1 font-black text-[10px] uppercase tracking-widest shadow-2xl"
                             >
-                              <Camera className="mr-2 h-4 w-4" /> Capture
+                              <Camera className="mr-3 h-4 w-4 text-emerald-400" /> Capture
                             </Button>
                             <Button 
                               type="button"
                               onClick={() => fileInputRef.current?.click()}
-                              className="bg-emerald-600/80 backdrop-blur-md text-white border-none h-10 px-4 rounded-xl flex-1 font-bold text-[10px] uppercase tracking-widest"
+                              className="bg-emerald-600/90 backdrop-blur-xl text-white border-none h-12 px-6 rounded-2xl flex-1 font-black text-[10px] uppercase tracking-widest shadow-2xl"
                             >
-                              <UploadCloud className="mr-2 h-4 w-4" /> Upload
+                              <UploadCloud className="mr-3 h-4 w-4" /> Upload
                             </Button>
                           </div>
                         </div>
@@ -346,49 +446,54 @@ export default function LivestockPage() {
                       />
                     </div>
 
-                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Identification Metrics</Label>
-                    <FormField control={trackingForm.control} name="tagId" render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input placeholder="Tag ID (e.g., A-101)" className="h-14 rounded-2xl bg-neutral-50 border-none shadow-sm font-black text-base px-6 focus-visible:ring-primary/20" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )} />
+                    <div className="flex items-center gap-3 mt-10 mb-2">
+                      <div className="h-1 w-10 bg-blue-500 rounded-full" />
+                      <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Identification Metrics</span>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <FormField control={trackingForm.control} name="tagId" render={({ field }) => (
+                        <FormItem>
+                          <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Unique Tag ID</Label>
+                          <FormControl>
+                            <Input placeholder="e.g. A-101" className="h-14 rounded-2xl bg-neutral-50 border-none shadow-sm font-black text-base px-6 focus-visible:ring-primary/20" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                      
+                      <FormField control={trackingForm.control} name="breed" render={({ field }) => (
+                        <FormItem>
+                          <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Clinical Breed</Label>
+                          <FormControl>
+                            <Input placeholder="e.g. Beltex" className="h-14 rounded-2xl bg-neutral-50 border-none shadow-sm font-bold text-base px-6" {...field} />
+                          </FormControl>
+                        </FormItem>
+                      )} />
+                    </div>
                     
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       <FormField control={trackingForm.control} name="gender" render={({ field }) => (
                         <FormItem>
                           <Label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-2">Gender</Label>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl>
-                              <SelectTrigger className="h-12 rounded-xl bg-neutral-50 border-none font-bold">
+                              <SelectTrigger className="h-14 rounded-2xl bg-neutral-50 border-none font-bold px-6">
                                 <SelectValue />
                               </SelectTrigger>
                             </FormControl>
-                            <SelectContent>
-                              <SelectItem value="female">Female</SelectItem>
-                              <SelectItem value="male">Male</SelectItem>
+                            <SelectContent className="rounded-xl border-none shadow-2xl">
+                              <SelectItem value="female" className="font-bold">Female</SelectItem>
+                              <SelectItem value="male" className="font-bold">Male</SelectItem>
                             </SelectContent>
                           </Select>
                         </FormItem>
                       )} />
-                      <FormField control={trackingForm.control} name="breed" render={({ field }) => (
-                        <FormItem>
-                          <Label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-2">Breed</Label>
-                          <FormControl>
-                            <Input placeholder="e.g. Beltex" className="h-12 rounded-xl bg-neutral-50 border-none shadow-sm font-bold px-4" {...field} />
-                          </FormControl>
-                        </FormItem>
-                      )} />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
                       <FormField control={trackingForm.control} name="weight" render={({ field }) => (
                         <FormItem>
-                          <Label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-2">Current Weight (kg)</Label>
+                          <Label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-2">Initial Weight (kg)</Label>
                           <FormControl>
-                            <Input type="number" step="0.1" placeholder="Current" className="h-12 rounded-xl bg-neutral-50 border-none shadow-sm font-bold px-4" {...field} />
+                            <Input type="number" step="0.1" className="h-14 rounded-2xl bg-neutral-50 border-none shadow-sm font-black text-lg px-6" {...field} />
                           </FormControl>
                         </FormItem>
                       )} />
@@ -396,118 +501,28 @@ export default function LivestockPage() {
                         <FormItem>
                           <Label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-2">Age (months)</Label>
                           <FormControl>
-                            <Input type="number" placeholder="Months" className="h-12 rounded-xl bg-neutral-50 border-none shadow-sm font-bold px-4" {...field} />
+                            <Input type="number" className="h-14 rounded-2xl bg-neutral-50 border-none shadow-sm font-bold text-base px-6" {...field} />
                           </FormControl>
                         </FormItem>
                       )} />
                     </div>
                   </div>
                   
-                  <Button type="submit" className="w-full h-16 rounded-[1.25rem] font-black text-sm uppercase tracking-[0.2em] shadow-2xl shadow-primary/20 bg-neutral-900 hover:bg-neutral-800 transition-all hover:-translate-y-1">
-                    <PlusCircle className="mr-3 h-6 w-6 text-emerald-400" /> Commit Record
+                  <Button type="submit" className="w-full h-20 rounded-[1.5rem] font-black text-sm uppercase tracking-[0.3em] shadow-2xl shadow-primary/20 bg-neutral-900 hover:bg-neutral-800 transition-all active:scale-95">
+                    <PlusCircle className="mr-4 h-6 w-6 text-emerald-400" /> Commit Record to Ledger
                   </Button>
                 </form>
               </Form>
             </CardContent>
           </Card>
-        </div>
-        
-        <div className="lg:col-span-8 space-y-6">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="bg-neutral-100/50 p-1.5 rounded-2xl h-14 w-full max-w-md">
-              <TabsTrigger value="all" className="rounded-xl font-bold text-[13px] h-full flex-1 data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary text-neutral-500">
-                All Animals ({filteredAndSortedSheep.length})
-              </TabsTrigger>
-              <TabsTrigger value="groups" className="rounded-xl font-bold text-[13px] h-full flex-1 data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary text-neutral-500">
-                Groups
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+        </TabsContent>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {activeTab === 'all' && filteredAndSortedSheep.length > 0 ? (
-              filteredAndSortedSheep.map((sheep) => (
-                <Card 
-                  key={sheep.id} 
-                  className="border-none shadow-sm hover:shadow-md transition-all active:scale-[0.98] rounded-[1.5rem] bg-white cursor-pointer group overflow-hidden"
-                  onClick={() => {
-                    setViewingSheep(sheep);
-                    setIsDetailsOpen(true);
-                  }}
-                >
-                  <CardContent className="p-5 flex items-center gap-5">
-                    <div className="relative h-16 w-16 shrink-0">
-                      <Avatar className="h-16 w-16 rounded-2xl border-2 border-neutral-50 shadow-sm overflow-hidden">
-                        {sheep.photoDataUrl ? (
-                          <AvatarImage src={sheep.photoDataUrl} className="object-cover" />
-                        ) : (
-                          <AvatarFallback className={cn(
-                            "rounded-2xl transition-colors font-black text-lg",
-                            sheep.gender === 'female' ? "bg-pink-50 text-pink-500" : "bg-blue-50 text-blue-500"
-                          )}>
-                            {sheep.tagId.substring(0, 2).toUpperCase()}
-                          </AvatarFallback>
-                        )}
-                      </Avatar>
-                      <div className={cn(
-                        "absolute -bottom-1 -right-1 h-6 w-6 rounded-full border-2 border-white flex items-center justify-center shadow-lg",
-                        sheep.gender === 'female' ? "bg-pink-500 text-white" : "bg-blue-500 text-white"
-                      )}>
-                        {sheep.gender === 'female' ? <Venus className="h-3 w-3" /> : <Mars className="h-3 w-3" />}
-                      </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-base font-black tracking-tight text-neutral-900 leading-none">
-                        Sheep {sheep.tagId}
-                      </h3>
-                      {sheep.breed && (
-                        <p className="text-[11px] font-bold text-neutral-400 mt-1.5 uppercase tracking-wide truncate">
-                          {sheep.breed}
-                        </p>
-                      )}
-                      <div className="flex items-center gap-3 mt-2">
-                        <Badge variant="secondary" className="bg-neutral-100 text-neutral-600 border-none text-[9px] font-black h-5 px-2">
-                          {sheep.currentWeight} KG
-                        </Badge>
-                        <Badge variant="secondary" className="bg-neutral-100 text-neutral-600 border-none text-[9px] font-black h-5 px-2">
-                          {sheep.age} MOS
-                        </Badge>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-9 w-9 rounded-xl text-neutral-400 hover:text-primary hover:bg-primary/5 transition-colors"
-                        onClick={() => {
-                          setEditingSheep(sheep);
-                          setIsEditDialogOpen(true);
-                        }}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-9 w-9 rounded-xl text-neutral-400 hover:text-destructive hover:bg-destructive/5 transition-colors"
-                        onClick={() => deleteTrackedSheep(sheep.id, sheep._path)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                      <ChevronRight className="h-5 w-5 text-neutral-300 group-hover:text-primary group-hover:translate-x-1 transition-all" />
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
-              <div className="col-span-full py-24 text-center">
-                <p className="text-neutral-400 font-bold uppercase tracking-widest text-xs">No records found</p>
-              </div>
-            )}
+        <TabsContent value="groups" className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+          <div className="py-32 text-center bg-white/50 rounded-[3rem] border-4 border-dashed border-neutral-100">
+            <p className="text-neutral-400 font-bold uppercase tracking-[0.3em] text-xs">Group Analytics Suite coming in v2.8</p>
           </div>
-        </div>
-      </div>
+        </TabsContent>
+      </Tabs>
 
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
         <DialogContent className="sm:max-w-2xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
