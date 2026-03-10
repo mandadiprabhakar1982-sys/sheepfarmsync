@@ -15,7 +15,11 @@ import {
   Activity,
   History,
   ShieldCheck,
-  TrendingUp
+  TrendingUp,
+  Store,
+  FileText,
+  Save,
+  X
 } from 'lucide-react';
 import { format, addMonths, differenceInDays, addDays, endOfDay, startOfDay } from 'date-fns';
 import { useState, useEffect, useMemo } from 'react';
@@ -412,7 +416,7 @@ export default function MedicinePage() {
                     </div>
                   </div>
 
-                  <Button onClick={() => setIsLegacyDialogOpen(true)} className="w-full h-16 rounded-[1.25rem] font-black text-sm uppercase tracking-[0.2em] shadow-2xl shadow-emerald-500/20 bg-emerald-600 hover:bg-emerald-500 text-white border-none">
+                  <Button onClick={() => setIsLegacyDialogOpen(true)} className="w-full h-16 rounded-[1.25rem] font-black text-sm uppercase tracking-[0.2em] shadow-2xl shadow-emerald-500/20 bg-emerald-600 hover:bg-emerald-500 text-white border-none transition-all active:scale-95">
                     <ShoppingCart className="mr-3 h-6 w-6" />
                     Record Audit
                   </Button>
@@ -553,70 +557,123 @@ export default function MedicinePage() {
       </Dialog>
 
       <Dialog open={isLegacyDialogOpen} onOpenChange={setIsLegacyDialogOpen}>
-        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
-          <DialogHeader className="bg-neutral-900 p-8 text-left text-white relative">
-            <div className="absolute top-0 right-0 p-6 opacity-10"><ShoppingCart className="h-24 w-24 text-white rotate-12" /></div>
-            <DialogTitle className="text-2xl font-black tracking-tight flex items-center gap-3 relative z-10">
-              <ReceiptIndianRupee className="h-6 w-6 text-emerald-400" />
-              Pharmacy Audit
+        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl animate-in zoom-in-95 duration-300">
+          <DialogHeader className="bg-neutral-900 p-10 text-left text-white relative">
+            <div className="absolute top-0 right-0 p-8 opacity-10"><ShoppingCart className="h-32 w-32 text-white rotate-12" /></div>
+            <DialogTitle className="text-3xl font-black tracking-tight flex items-center gap-4 relative z-10">
+              <ReceiptIndianRupee className="h-8 w-8 text-emerald-400" />
+              Audit Transaction
             </DialogTitle>
-            <DialogDescription className="text-white/40 text-xs font-bold uppercase tracking-widest relative z-10">Document historical medicine procurement and dues</DialogDescription>
+            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-[0.2em] relative z-10">Document historical medicine procurement and dues</DialogDescription>
           </DialogHeader>
+          
           <Form {...legacyExpenseForm}>
-            <form onSubmit={legacyExpenseForm.handleSubmit(onLegacySubmit)} className="space-y-6 p-8">
-              <div className="grid grid-cols-2 gap-4">
-                <FormField control={legacyExpenseForm.control} name="date" render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Purchase Date</FormLabel>
-                    <Popover open={isLegacyDateOpen} onOpenChange={setIsLegacyDateOpen}>
-                      <PopoverTrigger asChild>
+            <form onSubmit={legacyExpenseForm.handleSubmit(onLegacySubmit)} className="space-y-10 p-10 bg-white">
+              <div className="space-y-6">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="h-1 w-10 bg-emerald-500 rounded-full" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Identity & Temporal Tracking</span>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField control={legacyExpenseForm.control} name="date" render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Purchase Date</FormLabel>
+                      <Popover open={isLegacyDateOpen} onOpenChange={setIsLegacyDateOpen}>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button variant="outline" className="h-14 rounded-2xl bg-neutral-50 border-none shadow-sm font-black text-base px-6 text-left flex justify-between items-center group">
+                              {field.value ? format(field.value, "PPP") : <span>Select Date</span>}
+                              <CalendarIcon className="h-5 w-5 text-neutral-300 group-hover:text-primary transition-colors" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0 rounded-2xl shadow-2xl border-none" align="start">
+                          <Calendar 
+                            mode="single" 
+                            selected={field.value} 
+                            onSelect={(date) => {
+                              field.onChange(date);
+                              setIsLegacyDateOpen(false);
+                            }} 
+                            initialFocus 
+                            disabled={(date) => date > endOfDay(new Date())} 
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  
+                  <FormField control={legacyExpenseForm.control} name="shopName" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Pharmacy / Provider</FormLabel>
+                      <div className="relative">
+                        <Store className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-300" />
                         <FormControl>
-                          <Button variant="outline" className="h-12 rounded-xl bg-neutral-50 border-none font-bold justify-start text-left px-4">
-                            {field.value ? format(field.value, "MMM dd, yy") : "Pick Date"}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-20" />
-                          </Button>
+                          <Input className="h-14 rounded-2xl bg-neutral-50 border-none shadow-sm font-bold text-base px-14 focus-visible:ring-primary/20" placeholder="Store Identity" {...field} />
                         </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0 rounded-xl shadow-2xl border-none" align="start">
-                        <Calendar 
-                          mode="single" 
-                          selected={field.value} 
-                          onSelect={(date) => {
-                            field.onChange(date);
-                            setIsLegacyDateOpen(false);
-                          }} 
-                          initialFocus 
-                          disabled={(date) => date > endOfDay(new Date())} 
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
+                      </div>
+                    </FormItem>
+                  )} />
+                </div>
+
+                <FormField control={legacyExpenseForm.control} name="description" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Audit Detail / Medicine Notes</FormLabel>
+                    <div className="relative">
+                      <FileText className="absolute left-5 top-5 h-4 w-4 text-neutral-300" />
+                      <FormControl>
+                        <Input className="h-14 rounded-2xl bg-neutral-50 border-none shadow-sm font-bold text-base px-14 focus-visible:ring-primary/20" placeholder="e.g. 5L Liver Tonic, 100pk Dewormer" {...field} />
+                      </FormControl>
+                    </div>
                   </FormItem>
                 )} />
-                <FormField control={legacyExpenseForm.control} name="shopName" render={({ field }) => (
-                  <FormItem><FormLabel className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Pharmacy/Shop</FormLabel><FormControl><Input className="h-12 rounded-xl bg-neutral-50 border-none font-bold" placeholder="Store Identity" {...field} /></FormControl></FormItem>
-                )} />
               </div>
 
-              <FormField control={legacyExpenseForm.control} name="description" render={({ field }) => (
-                <FormItem><FormLabel className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Medicine Details</FormLabel><FormControl><Input className="h-12 rounded-xl bg-neutral-50 border-none font-bold" placeholder="e.g. 5L Liver Tonic Batch A" {...field} /></FormControl></FormItem>
-              )} />
+              <div className="space-y-6">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="h-1 w-10 bg-blue-500 rounded-full" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Financial Payload Audit</span>
+                </div>
 
-              <div className="grid grid-cols-3 gap-4">
-                <FormField control={legacyExpenseForm.control} name="costOfMedicines" render={({ field }) => (
-                  <FormItem><FormLabel className="text-[9px] font-black uppercase opacity-40 ml-1">Base Cost</FormLabel><FormControl><Input type="number" className="h-12 rounded-xl bg-neutral-50 border-none font-black" {...field} /></FormControl></FormItem>
-                )} />
-                <FormField control={legacyExpenseForm.control} name="totalAmountSpent" render={({ field }) => (
-                  <FormItem><FormLabel className="text-[9px] font-black uppercase opacity-40 ml-1">Total Paid</FormLabel><FormControl><Input type="number" className="h-12 rounded-xl bg-emerald-50 border-none font-black text-emerald-700" {...field} /></FormControl></FormItem>
-                )} />
-                <FormField control={legacyExpenseForm.control} name="outstandingDues" render={({ field }) => (
-                  <FormItem><FormLabel className="text-[9px] font-black uppercase opacity-40 ml-1">Pending Dues</FormLabel><FormControl><Input type="number" className="h-12 rounded-xl bg-rose-50 border-none font-black text-rose-700" {...field} /></FormControl></FormItem>
-                )} />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <FormField control={legacyExpenseForm.control} name="costOfMedicines" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-[9px] font-black uppercase opacity-40 ml-2">Base Cost (₹)</FormLabel>
+                      <FormControl>
+                        <Input type="number" className="h-14 rounded-2xl bg-neutral-50 border-none shadow-sm font-black text-lg px-6" {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )} />
+                  
+                  <FormField control={legacyExpenseForm.control} name="totalAmountSpent" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-[9px] font-black uppercase opacity-40 ml-2">Amount Paid (₹)</FormLabel>
+                      <FormControl>
+                        <Input type="number" className="h-14 rounded-2xl bg-emerald-50 border-none shadow-sm font-black text-xl text-emerald-700 px-6" {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )} />
+                  
+                  <FormField control={legacyExpenseForm.control} name="outstandingDues" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-[9px] font-black uppercase opacity-40 ml-2">Pending Dues (₹)</FormLabel>
+                      <FormControl>
+                        <Input type="number" className="h-14 rounded-2xl bg-rose-50 border-none shadow-sm font-black text-xl text-rose-700 px-6" {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )} />
+                </div>
               </div>
 
-              <DialogFooter className="pt-4 gap-4">
-                <Button variant="outline" type="button" onClick={() => setIsLegacyDialogOpen(false)} className="h-12 px-8 rounded-xl font-bold border-neutral-200">Cancel</Button>
-                <Button type="submit" className="h-12 px-10 rounded-xl font-black uppercase tracking-[0.2em] shadow-2xl shadow-primary/20 bg-neutral-900 text-white hover:bg-neutral-800 flex-1">Commit Ledger</Button>
+              <DialogFooter className="pt-6 gap-4 border-t border-neutral-100">
+                <Button variant="ghost" type="button" onClick={() => setIsLegacyDialogOpen(false)} className="h-14 px-8 rounded-2xl font-bold text-neutral-400 hover:text-neutral-600 hover:bg-neutral-50">
+                  <X className="mr-2 h-4 w-4" /> Cancel Audit
+                </Button>
+                <Button type="submit" className="h-14 px-12 rounded-2xl font-black uppercase tracking-[0.2em] shadow-2xl shadow-emerald-500/20 bg-neutral-900 text-white hover:bg-neutral-800 flex-1 transition-all active:scale-95">
+                  <Save className="mr-3 h-5 w-5 text-emerald-400" /> Commit Transaction
+                </Button>
               </DialogFooter>
             </form>
           </Form>
