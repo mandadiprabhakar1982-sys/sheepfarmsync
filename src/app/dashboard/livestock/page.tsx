@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useRef, useEffect, useMemo } from 'react';
@@ -136,16 +135,9 @@ export default function LivestockPage() {
     );
   }, [trackedSheep, searchTagId]);
 
-  const nutritionStats = useMemo(() => {
-    if (!trackedSheep || trackedSheep.length === 0) return { total: 0, avg: 0 };
-    const total = trackedSheep.reduce((acc, s) => acc + (s.currentWeight * 0.04), 0);
-    const avg = total / trackedSheep.length;
-    return { total, avg };
-  }, [trackedSheep]);
-
   useEffect(() => {
     const getCameraPermission = async () => {
-      if (typeof window !== 'undefined' && navigator.mediaDevices) {
+      if (typeof window !== 'undefined' && navigator.mediaDevices && activeTab === 'register') {
         try {
           const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
           setHasCameraPermission(true);
@@ -157,7 +149,7 @@ export default function LivestockPage() {
       }
     };
     getCameraPermission();
-  }, [activeTab]); // Restart camera if tab switches to register
+  }, [activeTab]);
   
   const handleCapture = () => {
     if (videoRef.current && canvasRef.current) {
@@ -241,40 +233,6 @@ export default function LivestockPage() {
           </div>
           <Button variant="ghost" size="icon" className="h-10 w-10 text-neutral-500"><Filter className="h-5 w-5" /></Button>
           <Button variant="ghost" size="icon" className="h-10 w-10 text-neutral-500"><MoreVertical className="h-5 w-5" /></Button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-        <div className="p-6 rounded-[2rem] bg-neutral-900 text-white shadow-xl flex items-center gap-5">
-          <div className="h-12 w-12 rounded-2xl bg-emerald-500/20 flex items-center justify-center text-emerald-400">
-            <Activity className="h-6 w-6" />
-          </div>
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-1">Global Head</p>
-            <p className="text-2xl font-black">{filteredAndSortedSheep.length}</p>
-          </div>
-        </div>
-        
-        <div className="p-6 rounded-[2rem] bg-white border border-neutral-100 shadow-xl flex items-center gap-5">
-          <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
-            <Scale className="h-6 w-6" />
-          </div>
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-1">Avg Weight</p>
-            <p className="text-2xl font-black">
-              {(filteredAndSortedSheep.reduce((acc, s) => acc + s.currentWeight, 0) / (filteredAndSortedSheep.length || 1)).toFixed(1)}kg
-            </p>
-          </div>
-        </div>
-
-        <div className="p-6 rounded-[2rem] bg-white border border-neutral-100 shadow-xl flex items-center gap-5">
-          <div className="h-12 w-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500">
-            <Wheat className="h-6 w-6" />
-          </div>
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-1">Daily Feed</p>
-            <p className="text-2xl font-black">{nutritionStats.total.toFixed(1)}kg</p>
-          </div>
         </div>
       </div>
 

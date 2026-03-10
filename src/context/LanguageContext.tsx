@@ -80,6 +80,8 @@ const translations = {
     inventory_status: "Inventory & Flock Status",
     financial_summary: "Financial Summary",
     operational_breakdown: "Operational Breakdown",
+    avg_weight: "AVG WEIGHT",
+    daily_feed_qty: "DAILY FEED (KG)",
   },
   te: {
     // Nav
@@ -145,6 +147,8 @@ const translations = {
     inventory_status: "స్టాక్ మరియు మంద స్థితి",
     financial_summary: "ఆర్థిక సారాంశం",
     operational_breakdown: "నిర్వహణ ఖర్చులు",
+    avg_weight: "సగటు బరువు",
+    daily_feed_qty: "రోజువారీ మేత (kg)",
   }
 };
 

@@ -10,6 +10,8 @@ import {
   Syringe,
   Receipt,
   ListChecks,
+  Scale,
+  Activity,
 } from 'lucide-react';
 import { SheepIcon } from '@/components/logo';
 import { StatCard } from '@/components/stat-card';
@@ -30,7 +32,9 @@ export default function OverviewPage() {
     totalFeedCost,
     totalLaborCost,
     totalMedicineCost,
-    totalFarmExpenses
+    totalFarmExpenses,
+    avgWeight,
+    totalDailyFeed
   } = useFarm();
   const { t } = useLanguage();
   
@@ -64,7 +68,7 @@ export default function OverviewPage() {
             <span className="bg-primary h-2 w-2 rounded-full"></span>
             {t('inventory_status')}
           </h2>
-          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
             <StatCard
                 title={t('live_sheep')}
                 value={totalSheep.toString()}
@@ -78,6 +82,20 @@ export default function OverviewPage() {
                 icon={ListChecks}
                 variant="success"
                 description="Sheep with growth logs"
+            />
+            <StatCard
+                title={t('avg_weight')}
+                value={`${avgWeight.toFixed(1)} kg`}
+                icon={Scale}
+                variant="info"
+                description="Global mean weight"
+            />
+            <StatCard
+                title={t('daily_feed_qty')}
+                value={`${totalDailyFeed.toFixed(1)} kg`}
+                icon={Wheat}
+                variant="warning"
+                description="Nutritional requirement"
             />
              <StatCard
                 title={t('mortalities')}

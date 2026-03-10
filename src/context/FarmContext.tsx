@@ -102,6 +102,9 @@ interface FarmContextType {
   totalReceivables: number;
   totalPayables: number;
   
+  avgWeight: number;
+  totalDailyFeed: number;
+
   totalLoanBalance: number;
   totalCreditCardDebt: number;
   totalPrivateDebt: number;
@@ -130,8 +133,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const isVerified = useMemo(() => !isLoadingProfile && (userProfile?.role === 'collaborator' || userProfile?.role === 'admin'), [userProfile, isLoadingProfile]);
   const isAdmin = useMemo(() => !isLoadingProfile && userProfile?.role === 'admin', [userProfile, isLoadingProfile]);
 
-  // RESTORED: Shared Operational Data via collectionGroup
-  // This allows Admins and Collaborators to see global farm data
+  // Shared Operational Data
   const pRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'livestockPurchases')) : null, [firestore, isVerified]);
   const sRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'animalSales')) : null, [firestore, isVerified]);
   const fRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'feedExpenses')) : null, [firestore, isVerified]);
@@ -142,8 +144,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const eRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'farmExpenses')) : null, [firestore, isVerified]);
   const hRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'healthTasks')) : null, [firestore, isVerified]);
   
-  // RETAINED: Private Financial Data via direct user path
-  // This remains strictly restricted to the Admin and only for their own records
+  // Private Financial Data
   const blRef = useMemo(() => (firestore && user && isAdmin) ? collection(firestore, 'users', user.uid, 'bankLoans') : null, [firestore, user, isAdmin]);
   const ccRef = useMemo(() => (firestore && user && isAdmin) ? collection(firestore, 'users', user.uid, 'creditCards') : null, [firestore, user, isAdmin]);
   const pdRef = useMemo(() => (firestore && user && isAdmin) ? collection(firestore, 'users', user.uid, 'privateDebts') : null, [firestore, user, isAdmin]);
@@ -241,9 +242,14 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     const mIncome = (qIncomes || []).reduce((s, i) => s + Number(i.amount || 0), 0);
     const mExpense = (qMExpenses || []).reduce((s, e) => s + Number(e.amount || 0), 0);
 
+    const trackedCount = (qTracked || []).length;
+    const totalTrackedWeight = (qTracked || []).reduce((acc, s) => acc + Number(s.currentWeight || 0), 0);
+    const avgWt = trackedCount > 0 ? totalTrackedWeight / trackedCount : 0;
+    const dailyFeedTotal = (qTracked || []).reduce((acc, s) => acc + (Number(s.currentWeight || 0) * 0.04), 0);
+
     return { 
       totalSheep: Math.max(0, pCount - sCount - deadCount),
-      totalTracked: (qTracked || []).length,
+      totalTracked: trackedCount,
       totalExpenses: pTotal + fCost + mCost + lCost + eCost,
       totalSales: rev,
       totalDead: deadCount,
@@ -253,6 +259,8 @@ export function FarmProvider({ children }: { children: ReactNode }) {
       totalFarmExpenses: eCost,
       totalReceivables: rev > 0 ? rec : 0, 
       totalPayables: pay,
+      avgWeight: avgWt,
+      totalDailyFeed: dailyFeedTotal,
       totalLoanBalance: blBal,
       totalCreditCardDebt: ccBal,
       totalPrivateDebt: pdBal,
