@@ -29,7 +29,10 @@ import {
   ShieldCheck,
   Filter,
   ArrowUpRight,
-  Activity
+  Activity,
+  Users,
+  HandCoins,
+  ArrowRightLeft
 } from 'lucide-react';
 import { useFarm } from '@/context/FarmContext';
 import { useToast } from '@/hooks/use-toast';
@@ -65,6 +68,7 @@ export default function MonthlyLedgerPage() {
   const { 
     monthlyIncomes, addMonthlyIncome, updateMonthlyIncome, deleteMonthlyIncome,
     monthlyExpenses, addMonthlyExpense, updateMonthlyExpense, deleteMonthlyExpense,
+    totalReceivables, totalPayables
   } = useFarm();
 
   // Temporal Filtering State
@@ -100,6 +104,25 @@ export default function MonthlyLedgerPage() {
   const currentTotalIncome = filteredIncomes.reduce((s, i) => s + i.amount, 0);
   const currentTotalExpense = filteredExpenses.reduce((s, i) => s + i.amount, 0);
   const currentNetSurplus = currentTotalIncome - currentTotalExpense;
+
+  // PERSON-WISE CALCULATION (ENTITY SUMMARY)
+  const entitySummary = useMemo(() => {
+    const map: Record<string, { name: string, inflow: number, outflow: number }> = {};
+    
+    filteredIncomes.forEach(i => {
+      const key = (i.source || 'Generic').trim().toUpperCase();
+      if (!map[key]) map[key] = { name: i.source, inflow: 0, outflow: 0 };
+      map[key].inflow += i.amount;
+    });
+    
+    filteredExpenses.forEach(e => {
+      const key = (e.source || 'Generic').trim().toUpperCase();
+      if (!map[key]) map[key] = { name: e.source, inflow: 0, outflow: 0 };
+      map[key].outflow += e.amount;
+    });
+    
+    return Object.values(map).sort((a, b) => (b.inflow + b.outflow) - (a.inflow + a.outflow));
+  }, [filteredIncomes, filteredExpenses]);
 
   // LOGICAL ANALYTICS: 12 Month History
   const historyData = useMemo(() => {
@@ -314,19 +337,22 @@ export default function MonthlyLedgerPage() {
         </div>
       </div>
 
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-12">
+        <SummaryCard title="Inflow" value={currentTotalIncome} icon={ArrowUpCircle} color="bg-emerald-600" trend="AUDIT" />
+        <SummaryCard title="Outflow" value={currentTotalExpense} icon={ArrowDownCircle} color="bg-rose-600" trend="AUDIT" />
+        <SummaryCard title="Net Monthly" value={currentNetSurplus} icon={Wallet} color="bg-indigo-600" />
+        <SummaryCard title="Total Receivables" value={totalReceivables} icon={HandCoins} color="bg-blue-600" trend="PENDING" />
+        <SummaryCard title="Total Payables" value={totalPayables} icon={ArrowRightLeft} color="bg-slate-700" trend="DUES" />
+      </div>
+
       <Tabs defaultValue="ledger" className="w-full">
-        <TabsList className="mb-12 p-1.5 bg-neutral-100 rounded-2xl grid grid-cols-2 h-14 w-full max-w-md mx-auto">
+        <TabsList className="mb-12 p-1.5 bg-neutral-100 rounded-2xl grid grid-cols-3 h-14 w-full max-w-xl mx-auto">
           <TabsTrigger value="ledger" className="rounded-xl font-black text-[10px] uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-lg">Active Ledger</TabsTrigger>
+          <TabsTrigger value="entities" className="rounded-xl font-black text-[10px] uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-lg">Entity Audit</TabsTrigger>
           <TabsTrigger value="analytics" className="rounded-xl font-black text-[10px] uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-lg">Performance Intelligence</TabsTrigger>
         </TabsList>
 
         <TabsContent value="ledger" className="space-y-12 animate-in fade-in slide-in-from-bottom-2 duration-500">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <SummaryCard title="Total Inflow" value={currentTotalIncome} icon={ArrowUpCircle} color="bg-emerald-600" trend="AUDIT" />
-            <SummaryCard title="Total Outflow" value={currentTotalExpense} icon={ArrowDownCircle} color="bg-rose-600" trend="AUDIT" />
-            <SummaryCard title="Accounting Surplus" value={currentNetSurplus} icon={Wallet} color="bg-indigo-600" />
-          </div>
-
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
             <div className="lg:col-span-4">
               <Card className="border-none bg-neutral-50/50 sticky top-24 rounded-[2.5rem] shadow-2xl overflow-hidden">
@@ -408,6 +434,62 @@ export default function MonthlyLedgerPage() {
               </div>
             </div>
           </div>
+        </TabsContent>
+
+        <TabsContent value="entities" className="space-y-12 animate-in fade-in slide-in-from-bottom-2 duration-500">
+          <Card className="border-none shadow-2xl rounded-[3rem] overflow-hidden bg-white">
+            <CardHeader className="bg-neutral-900 text-white p-10">
+              <div className="flex justify-between items-end">
+                <div className="space-y-1">
+                  <CardTitle className="text-2xl font-black tracking-tight leading-none flex items-center gap-3">
+                    <Users className="h-6 w-6 text-emerald-400" />
+                    Person-Wise Audit
+                  </CardTitle>
+                  <CardDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Aggregated financial payload by entity</CardDescription>
+                </div>
+                <Badge className="bg-emerald-500/20 text-emerald-400 border-none font-black text-[9px] uppercase tracking-widest h-6 px-3 rounded-lg">CALCULATED</Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0 overflow-x-auto">
+              <Table>
+                <TableHeader className="bg-neutral-50">
+                  <TableRow>
+                    <TableHead className="text-[9px] font-black uppercase pl-10 py-6">Entity / Person</TableHead>
+                    <TableHead className="text-[9px] font-black uppercase">Total Inflow</TableHead>
+                    <TableHead className="text-[9px] font-black uppercase">Total Outflow</TableHead>
+                    <TableHead className="text-[9px] font-black uppercase text-right pr-10">Net Payload</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {entitySummary.map((entity, idx) => (
+                    <TableRow key={idx} className="group hover:bg-neutral-50 border-neutral-100 h-20 transition-all">
+                      <TableCell className="pl-10">
+                        <div className="flex items-center gap-4">
+                          <div className="h-10 w-10 rounded-xl bg-neutral-900 flex items-center justify-center text-[10px] font-black text-emerald-400 shadow-lg">
+                            {entity.name.substring(0, 2).toUpperCase()}
+                          </div>
+                          <span className="text-sm font-black uppercase tracking-tight">{entity.name}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-sm font-black text-emerald-600">₹{entity.inflow.toLocaleString()}</TableCell>
+                      <TableCell className="text-sm font-black text-rose-500">₹{entity.outflow.toLocaleString()}</TableCell>
+                      <TableCell className="text-right pr-10">
+                        <span className={cn(
+                          "text-lg font-black tracking-tighter",
+                          entity.inflow >= entity.outflow ? "text-primary" : "text-rose-600"
+                        )}>
+                          {entity.inflow >= entity.outflow ? '+' : '-'}₹{Math.abs(entity.inflow - entity.outflow).toLocaleString()}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {!entitySummary.length && (
+                    <TableRow><TableCell colSpan={4} className="text-center py-24 text-muted-foreground italic opacity-40 uppercase tracking-widest text-[10px] font-black">NO ENTITY DATA DETECTED</TableCell></TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="analytics" className="space-y-12 animate-in fade-in slide-in-from-bottom-2 duration-500">
