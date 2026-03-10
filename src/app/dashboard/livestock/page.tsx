@@ -209,7 +209,7 @@ export default function LivestockPage() {
   // RENDER DETAIL VIEW
   if (viewingSheep) {
     return (
-      <div className="container mx-auto py-8 px-4 md:px-10 max-w-4xl animate-in fade-in slide-in-from-right-4 duration-500">
+      <div className="container mx-auto py-8 px-4 md:px-10 max-w-5xl animate-in fade-in slide-in-from-right-4 duration-500">
         <Button 
           variant="ghost" 
           className="mb-6 h-12 rounded-2xl font-black uppercase tracking-widest text-neutral-500 hover:text-primary transition-colors flex items-center gap-2"
@@ -219,132 +219,153 @@ export default function LivestockPage() {
           Back to Ledger
         </Button>
 
-        <div className="flex flex-col bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-neutral-100">
-          <div className="relative h-80 shrink-0 bg-neutral-900">
-            {viewingSheep.photoDataUrl ? (
-              <Image src={viewingSheep.photoDataUrl} alt={viewingSheep.tagId} fill className="object-cover opacity-80" />
-            ) : (
-              <div className={cn(
-                "w-full h-full flex items-center justify-center",
-                viewingSheep.gender === 'female' ? "bg-pink-500/20" : "bg-blue-500/20"
-              )}>
-                <LucideImage className="h-24 w-24 text-white/20" />
-              </div>
-            )}
-            <div className="absolute inset-0 bg-gradient-to-t from-neutral-900 via-neutral-900/20 to-transparent" />
-            
-            <div className="absolute bottom-10 left-10 right-10 flex justify-between items-end">
-              <div className="space-y-2">
-                <div className="flex items-center gap-4">
-                  <h2 className="text-5xl font-black text-white tracking-tighter uppercase">Asset {viewingSheep.tagId}</h2>
+        <div className="flex flex-col bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-neutral-100 p-8 md:p-12 space-y-12">
+          {/* SIDE-BY-SIDE HEADER SECTION */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-10">
+            {/* PHOTO SIDE */}
+            <div className="md:col-span-5">
+              <div className="relative aspect-square rounded-[2rem] bg-neutral-900 overflow-hidden shadow-2xl group">
+                {viewingSheep.photoDataUrl ? (
+                  <Image src={viewingSheep.photoDataUrl} alt={viewingSheep.tagId} fill className="object-cover" />
+                ) : (
                   <div className={cn(
-                    "h-10 w-10 rounded-full flex items-center justify-center shadow-2xl",
+                    "w-full h-full flex items-center justify-center",
+                    viewingSheep.gender === 'female' ? "bg-pink-500/10" : "bg-blue-500/10"
+                  )}>
+                    <LucideImage className="h-24 w-24 text-neutral-200" />
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
+            </div>
+
+            {/* IDENTITY & VITALS SIDE */}
+            <div className="md:col-span-7 flex flex-col justify-center space-y-8">
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <h2 className="text-5xl font-black text-neutral-900 tracking-tighter uppercase">Asset {viewingSheep.tagId}</h2>
+                  <div className={cn(
+                    "h-12 w-12 rounded-2xl flex items-center justify-center shadow-xl border-2 border-white",
                     viewingSheep.gender === 'female' ? "bg-pink-500 text-white" : "bg-blue-500 text-white"
                   )}>
-                    {viewingSheep.gender === 'female' ? <Venus className="h-5 w-5" /> : <Mars className="h-5 w-5" />}
+                    {viewingSheep.gender === 'female' ? <Venus className="h-6 w-6" /> : <Mars className="h-6 w-6" />}
                   </div>
                 </div>
-                <p className="text-white/60 font-black text-[12px] uppercase tracking-[0.4em]">{viewingSheep.breed || 'Standard Breed'}</p>
-              </div>
-              <Badge className="bg-emerald-500 text-white border-none font-black h-10 px-6 rounded-2xl text-xs tracking-widest shadow-2xl">VERIFIED AUDIT</Badge>
-            </div>
-          </div>
-
-          <div className="p-10 space-y-12">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="p-8 rounded-[2.5rem] bg-neutral-50 border border-neutral-100 flex flex-col items-center justify-center text-center gap-3">
-                <Scale className="h-6 w-6 text-primary opacity-40" />
-                <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest leading-none">Vitals Payload</p>
                 <div className="flex items-center gap-3">
-                  <p className="text-3xl font-black text-neutral-900">{viewingSheep.currentWeight}kg</p>
-                  {viewingSheep.previousWeight && (
-                    <div className="flex items-center text-[10px] font-black">
-                      {viewingSheep.currentWeight >= viewingSheep.previousWeight ? (
-                        <ArrowUp className="h-4 w-4 text-emerald-500" />
-                      ) : (
-                        <ArrowDown className="h-4 w-4 text-rose-500" />
+                  <Badge className="bg-emerald-500 text-white border-none font-black h-8 px-4 rounded-xl text-[10px] tracking-widest shadow-lg">VERIFIED AUDIT</Badge>
+                  <p className="text-neutral-400 font-black text-[11px] uppercase tracking-[0.3em]">{viewingSheep.breed || 'Standard Breed'}</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-6">
+                <div className="p-6 rounded-3xl bg-neutral-50 border border-neutral-100 flex items-center gap-5">
+                  <div className="h-12 w-12 rounded-2xl bg-white shadow-sm flex items-center justify-center">
+                    <Scale className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Vitals Payload</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-xl font-black text-neutral-900">{viewingSheep.currentWeight}kg</p>
+                      {viewingSheep.previousWeight && (
+                        <div className="flex items-center">
+                          {viewingSheep.currentWeight >= viewingSheep.previousWeight ? (
+                            <ArrowUp className="h-3 w-3 text-emerald-500" />
+                          ) : (
+                            <ArrowDown className="h-3 w-3 text-rose-500" />
+                          )}
+                        </div>
                       )}
                     </div>
-                  )}
-                </div>
-                {viewingSheep.previousWeight && (
-                  <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest opacity-60">Prev Record: {viewingSheep.previousWeight}kg</p>
-                )}
-              </div>
-              <div className="p-8 rounded-[2.5rem] bg-neutral-50 border border-neutral-100 flex flex-col items-center justify-center text-center gap-3">
-                <CalendarIcon className="h-6 w-6 text-primary opacity-40" />
-                <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Temporal Age</p>
-                <p className="text-3xl font-black text-neutral-900">{viewingSheep.age} mos</p>
-              </div>
-              <div className="p-8 rounded-[2.5rem] bg-neutral-50 border border-neutral-100 flex flex-col items-center justify-center text-center gap-3">
-                <Wheat className="h-6 w-6 text-primary opacity-40" />
-                <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Daily Nutrition</p>
-                <p className="text-3xl font-black text-neutral-900">{(viewingSheep.currentWeight * 0.04).toFixed(2)}kg</p>
-              </div>
-            </div>
-
-            <div className="space-y-10">
-              <section>
-                <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-muted-foreground mb-8 flex items-center gap-4">
-                  <Syringe className="h-5 w-5" /> Clinical History Ledger
-                </h3>
-                <div className="space-y-5">
-                  {sheepMedicalHistory.length > 0 ? (
-                    sheepMedicalHistory.map((task) => (
-                      <div key={task.id} className="p-6 rounded-[1.5rem] bg-neutral-50 border border-neutral-100 flex items-center justify-between group hover:bg-white hover:shadow-xl transition-all duration-300">
-                        <div className="flex items-center gap-5">
-                          <div className="h-12 w-12 rounded-2xl bg-white shadow-md flex items-center justify-center">
-                            <Activity className="h-6 w-6 text-primary" />
-                          </div>
-                          <div>
-                            <p className="text-base font-black text-neutral-900 leading-none">{task.healthType}</p>
-                            <p className="text-[11px] font-bold text-muted-foreground mt-2 uppercase tracking-widest">{task.medicineName} • {task.date}</p>
-                          </div>
-                        </div>
-                        <Badge variant="outline" className="text-[9px] font-black uppercase tracking-widest h-8 px-4 rounded-xl border-neutral-200 bg-white">
-                          Due: {task.nextDueDate}
-                        </Badge>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="p-16 rounded-[3rem] border-2 border-dashed border-neutral-100 text-center opacity-40">
-                      <p className="text-[11px] font-black uppercase tracking-widest">No clinical records discovered in the cloud</p>
-                    </div>
-                  )}
-                </div>
-              </section>
-
-              <section>
-                <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-muted-foreground mb-8 flex items-center gap-4">
-                  <ShieldCheck className="h-5 w-5" /> Identity & Ownership Audit
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="p-6 rounded-3xl bg-neutral-50/50 flex items-center gap-5">
-                    <div className="h-12 w-12 rounded-2xl bg-white shadow-sm flex items-center justify-center">
-                      <User className="h-6 w-6 text-neutral-400" />
-                    </div>
-                    <div>
-                      <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Provisioned By</p>
-                      <p className="text-sm font-bold text-neutral-900">{viewingSheep.creatorName || 'Staff Shepherd'}</p>
-                    </div>
-                  </div>
-                  <div className="p-6 rounded-3xl bg-neutral-50/50 flex items-center gap-5">
-                    <div className="h-12 w-12 rounded-2xl bg-white shadow-sm flex items-center justify-center">
-                      <HistoryIcon className="h-6 w-6 text-neutral-400" />
-                    </div>
-                    <div>
-                      <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Synchronized</p>
-                      <p className="text-sm font-bold text-neutral-900">
-                        {viewingSheep.createdAt ? format(viewingSheep.createdAt.toDate(), "MMM dd, yyyy HH:mm") : 'Initial Sync'}
-                      </p>
-                    </div>
                   </div>
                 </div>
-              </section>
+
+                <div className="p-6 rounded-3xl bg-neutral-50 border border-neutral-100 flex items-center gap-5">
+                  <div className="h-12 w-12 rounded-2xl bg-white shadow-sm flex items-center justify-center">
+                    <CalendarIcon className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Temporal Age</p>
+                    <p className="text-xl font-black text-neutral-900">{viewingSheep.age} mos</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-6 rounded-3xl bg-primary/5 border border-primary/10 flex items-center justify-between">
+                <div className="flex items-center gap-5">
+                  <div className="h-12 w-12 rounded-2xl bg-white shadow-sm flex items-center justify-center">
+                    <Wheat className="h-6 w-6 text-emerald-600" />
+                  </div>
+                  <div>
+                    <p className="text-[9px] font-black uppercase tracking-widest text-primary/60">Daily Nutrition Ratio</p>
+                    <p className="text-xl font-black text-neutral-900">{(viewingSheep.currentWeight * 0.04).toFixed(2)}kg</p>
+                  </div>
+                </div>
+                <Badge variant="outline" className="text-[8px] font-black border-primary/20 text-primary uppercase h-6 px-2 rounded-lg">Balanced 4%</Badge>
+              </div>
             </div>
           </div>
 
-          <div className="p-10 bg-neutral-50 gap-6 border-t border-neutral-100 flex items-center">
+          <div className="space-y-12">
+            <section>
+              <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-muted-foreground mb-8 flex items-center gap-4">
+                <Syringe className="h-5 w-5" /> Clinical History Ledger
+              </h3>
+              <div className="space-y-5">
+                {sheepMedicalHistory.length > 0 ? (
+                  sheepMedicalHistory.map((task) => (
+                    <div key={task.id} className="p-6 rounded-[1.5rem] bg-neutral-50 border border-neutral-100 flex items-center justify-between group hover:bg-white hover:shadow-xl transition-all duration-300">
+                      <div className="flex items-center gap-5">
+                        <div className="h-12 w-12 rounded-2xl bg-white shadow-md flex items-center justify-center">
+                          <Activity className="h-6 w-6 text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-base font-black text-neutral-900 leading-none">{task.healthType}</p>
+                          <p className="text-[11px] font-bold text-muted-foreground mt-2 uppercase tracking-widest">{task.medicineName} • {task.date}</p>
+                        </div>
+                      </div>
+                      <Badge variant="outline" className="text-[9px] font-black uppercase tracking-widest h-8 px-4 rounded-xl border-neutral-200 bg-white">
+                        Due: {task.nextDueDate}
+                      </Badge>
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-16 rounded-[3rem] border-2 border-dashed border-neutral-100 text-center opacity-40">
+                    <p className="text-[11px] font-black uppercase tracking-widest">No clinical records discovered in the cloud</p>
+                  </div>
+                )}
+              </div>
+            </section>
+
+            <section>
+              <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-muted-foreground mb-8 flex items-center gap-4">
+                <ShieldCheck className="h-5 w-5" /> Identity & Ownership Audit
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="p-6 rounded-3xl bg-neutral-50/50 flex items-center gap-5">
+                  <div className="h-12 w-12 rounded-2xl bg-white shadow-sm flex items-center justify-center">
+                    <User className="h-6 w-6 text-neutral-400" />
+                  </div>
+                  <div>
+                    <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Provisioned By</p>
+                    <p className="text-sm font-bold text-neutral-900">{viewingSheep.creatorName || 'Staff Shepherd'}</p>
+                  </div>
+                </div>
+                <div className="p-6 rounded-3xl bg-neutral-50/50 flex items-center gap-5">
+                  <div className="h-12 w-12 rounded-2xl bg-white shadow-sm flex items-center justify-center">
+                    <HistoryIcon className="h-6 w-6 text-neutral-400" />
+                  </div>
+                  <div>
+                    <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Synchronized</p>
+                    <p className="text-sm font-bold text-neutral-900">
+                      {viewingSheep.createdAt ? format(viewingSheep.createdAt.toDate(), "MMM dd, yyyy HH:mm") : 'Initial Sync'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <div className="pt-10 gap-6 border-t border-neutral-100 flex items-center">
             <Button 
               variant="outline" 
               className="flex-1 h-16 rounded-[1.25rem] font-black text-xs uppercase tracking-[0.2em] border-neutral-200 shadow-sm bg-white hover:bg-neutral-900 hover:text-white transition-all"
