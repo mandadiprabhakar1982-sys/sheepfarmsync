@@ -194,7 +194,6 @@ export default function LivestockPage() {
     }, editingSheep._path);
     setIsEditDialogOpen(false);
     setEditingSheep(null);
-    // If we were viewing this sheep, update the local view state
     if (viewingSheep?.id === editingSheep.id) {
       setViewingSheep(prev => prev ? ({ ...prev, ...data, currentWeight: data.weight, previousWeight: weightChanged ? prev.currentWeight : prev.previousWeight }) : null);
     }
@@ -206,7 +205,6 @@ export default function LivestockPage() {
     return healthTasks.filter(task => task.sheepId === viewingSheep.tagId);
   }, [viewingSheep, healthTasks]);
 
-  // RENDER DETAIL VIEW
   if (viewingSheep) {
     return (
       <div className="container mx-auto py-8 px-4 md:px-10 max-w-5xl animate-in fade-in slide-in-from-right-4 duration-500">
@@ -220,9 +218,7 @@ export default function LivestockPage() {
         </Button>
 
         <div className="flex flex-col bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-neutral-100 p-8 md:p-12 space-y-12">
-          {/* SIDE-BY-SIDE HEADER SECTION */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-10">
-            {/* PHOTO SIDE */}
             <div className="md:col-span-5">
               <div className="relative aspect-square rounded-[2rem] bg-neutral-900 overflow-hidden shadow-2xl group">
                 {viewingSheep.photoDataUrl ? (
@@ -239,7 +235,6 @@ export default function LivestockPage() {
               </div>
             </div>
 
-            {/* IDENTITY & VITALS SIDE */}
             <div className="md:col-span-7 flex flex-col justify-center space-y-8">
               <div className="space-y-4">
                 <div className="flex items-center gap-4">
@@ -440,16 +435,12 @@ export default function LivestockPage() {
                   <CardContent className="p-6 flex items-center gap-5">
                     <div className="relative h-20 w-20 shrink-0">
                       <Avatar className="h-20 w-20 rounded-[1.5rem] border-2 border-neutral-50 shadow-sm overflow-hidden">
-                        {sheep.photoDataUrl ? (
-                          <AvatarImage src={sheep.photoDataUrl} className="object-cover" />
-                        ) : (
-                          <AvatarFallback className={cn(
-                            "rounded-[1.5rem] transition-colors font-black text-xl",
-                            sheep.gender === 'female' ? "bg-pink-50 text-pink-500" : "bg-blue-50 text-blue-500"
-                          )}>
-                            {sheep.tagId.substring(0, 2).toUpperCase()}
-                          </AvatarFallback>
-                        )}
+                        <AvatarFallback className={cn(
+                          "rounded-[1.5rem] transition-colors font-black text-xl",
+                          sheep.gender === 'female' ? "bg-pink-50 text-pink-500" : "bg-blue-50 text-blue-500"
+                        )}>
+                          {sheep.tagId.substring(0, 2).toUpperCase()}
+                        </AvatarFallback>
                       </Avatar>
                       <div className={cn(
                         "absolute -bottom-1 -right-1 h-7 w-7 rounded-full border-2 border-white flex items-center justify-center shadow-lg",
