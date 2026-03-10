@@ -224,15 +224,12 @@ export default function LivestockPage() {
   return (
     <div className="container mx-auto py-8 px-4 md:px-10">
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 mb-8">
-        <div className="flex items-center gap-4">
-          <PageHeader
-            title="Flock Intelligence"
-            description="Global asset tracking and physiological monitoring."
-            className="mb-0"
-          />
-        </div>
+        <PageHeader
+          title="Flock Intelligence"
+          description="Global asset tracking and physiological monitoring."
+          className="mb-0"
+        />
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="h-10 w-10 text-neutral-500"><Filter className="h-5 w-5" /></Button>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
             <Input 
@@ -242,11 +239,48 @@ export default function LivestockPage() {
               className="pl-10 h-10 w-48 rounded-xl bg-white border-none shadow-sm font-medium" 
             />
           </div>
+          <Button variant="ghost" size="icon" className="h-10 w-10 text-neutral-500"><Filter className="h-5 w-5" /></Button>
           <Button variant="ghost" size="icon" className="h-10 w-10 text-neutral-500"><MoreVertical className="h-5 w-5" /></Button>
         </div>
       </div>
 
+      {/* TOP LEVEL STATS - Unified Visibility */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        <div className="p-6 rounded-[2rem] bg-neutral-900 text-white shadow-xl flex items-center gap-5">
+          <div className="h-12 w-12 rounded-2xl bg-emerald-500/20 flex items-center justify-center text-emerald-400">
+            <Activity className="h-6 w-6" />
+          </div>
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-1">Global Head</p>
+            <p className="text-2xl font-black">{filteredAndSortedSheep.length}</p>
+          </div>
+        </div>
+        
+        <div className="p-6 rounded-[2rem] bg-white border border-neutral-100 shadow-xl flex items-center gap-5">
+          <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+            <Scale className="h-6 w-6" />
+          </div>
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-1">Avg Weight</p>
+            <p className="text-2xl font-black">
+              {(filteredAndSortedSheep.reduce((acc, s) => acc + s.currentWeight, 0) / (filteredAndSortedSheep.length || 1)).toFixed(1)}kg
+            </p>
+          </div>
+        </div>
+
+        <div className="p-6 rounded-[2rem] bg-white border border-neutral-100 shadow-xl flex items-center gap-5">
+          <div className="h-12 w-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500">
+            <Wheat className="h-6 w-6" />
+          </div>
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-1">Daily Feed</p>
+            <p className="text-2xl font-black">{nutritionStats.total.toFixed(1)}kg</p>
+          </div>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
+        {/* REGISTRATION FORM - Persistent Left Sidebar */}
         <div className="lg:col-span-4">
           <Card className="sticky top-24 border-none bg-white rounded-[2.5rem] shadow-2xl overflow-hidden">
             <CardHeader className="bg-neutral-900 p-8 text-white">
@@ -354,7 +388,7 @@ export default function LivestockPage() {
                     <div className="grid grid-cols-2 gap-4">
                       <FormField control={trackingForm.control} name="weight" render={({ field }) => (
                         <FormItem>
-                          <Label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-2">Weight (kg)</Label>
+                          <Label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-2">Current Weight (kg)</Label>
                           <FormControl>
                             <Input type="number" step="0.1" placeholder="Current" className="h-12 rounded-xl bg-neutral-50 border-none shadow-sm font-bold px-4" {...field} />
                           </FormControl>
@@ -380,6 +414,7 @@ export default function LivestockPage() {
           </Card>
         </div>
         
+        {/* ASSET LIST - Active Data Feed */}
         <div className="lg:col-span-8 space-y-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="bg-neutral-100/50 p-1.5 rounded-2xl h-14 w-full max-w-md">
@@ -451,40 +486,6 @@ export default function LivestockPage() {
                 <p className="text-neutral-400 font-bold uppercase tracking-widest text-xs">No records found</p>
               </div>
             )}
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
-            <div className="p-6 rounded-[2rem] bg-neutral-900 text-white shadow-xl flex items-center gap-5">
-              <div className="h-12 w-12 rounded-2xl bg-emerald-500/20 flex items-center justify-center text-emerald-400">
-                <Activity className="h-6 w-6" />
-              </div>
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-1">Global Head</p>
-                <p className="text-2xl font-black">{filteredAndSortedSheep.length}</p>
-              </div>
-            </div>
-            
-            <div className="p-6 rounded-[2rem] bg-white border border-neutral-100 shadow-xl flex items-center gap-5">
-              <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
-                <Scale className="h-6 w-6" />
-              </div>
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-1">Avg Weight</p>
-                <p className="text-2xl font-black">
-                  {(filteredAndSortedSheep.reduce((acc, s) => acc + s.currentWeight, 0) / (filteredAndSortedSheep.length || 1)).toFixed(1)}kg
-                </p>
-              </div>
-            </div>
-
-            <div className="p-6 rounded-[2rem] bg-white border border-neutral-100 shadow-xl flex items-center gap-5">
-              <div className="h-12 w-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500">
-                <Wheat className="h-6 w-6" />
-              </div>
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-1">Daily Feed</p>
-                <p className="text-2xl font-black">{nutritionStats.total.toFixed(1)}kg</p>
-              </div>
-            </div>
           </div>
         </div>
       </div>
