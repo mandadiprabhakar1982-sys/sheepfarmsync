@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -22,6 +23,7 @@ import {
   BookOpen,
   Wallet,
   ShieldAlert,
+  ShoppingBag
 } from 'lucide-react';
 
 import {
@@ -67,8 +69,7 @@ export function AppSidebar() {
     {
       label: t('public_suite'),
       links: [
-        { href: '/dashboard/livestock', label: t('flock'), icon: ListChecks },
-        { href: '/dashboard/purchase', label: t('buy'), icon: Package },
+        { href: '/dashboard/livestock', label: "Livestock Hub", icon: ListChecks },
         { href: '/dashboard/sales', label: t('sales'), icon: BadgeIndianRupee },
         { href: '/dashboard/mortality', label: t('mortality'), icon: Skull },
         { href: '/dashboard/expenses', label: t('expenses'), icon: Receipt },
@@ -90,7 +91,7 @@ export function AppSidebar() {
         { href: '/dashboard/help', label: t('install'), icon: Smartphone },
       ]
     }
-  ], [t, isAdmin]); // Stable structure based on isAdmin
+  ], [t, isAdmin]); 
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">

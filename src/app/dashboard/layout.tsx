@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -8,7 +9,8 @@ import {
   Wheat, 
   Languages,
   Plus,
-  Home
+  Home,
+  LayoutGrid
 } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { UserNav } from '@/components/user-nav';
@@ -31,7 +33,7 @@ export default function DashboardLayout({
 
   const mobileNavItems = [
     { href: '/dashboard', label: t('home'), icon: Home },
-    { href: '/dashboard/livestock', label: t('flock'), icon: ClipboardList },
+    { href: '/dashboard/livestock', label: "Hub", icon: LayoutGrid },
     { href: '/dashboard/purchase', label: 'Quick', icon: Plus, isCenter: true },
     { href: '/dashboard/medicine', label: t('health'), icon: HeartPulse },
     { href: '/dashboard/feed', label: t('feed'), icon: Wheat },
@@ -102,7 +104,7 @@ export default function DashboardLayout({
                 
                 if (link.isCenter) {
                   return (
-                    <Link key={link.href} href={link.href} className="nav-center-node">
+                    <Link key={link.href} href="/dashboard/livestock" className="nav-center-node">
                       <Icon className="h-7 w-7" />
                     </Link>
                   );
