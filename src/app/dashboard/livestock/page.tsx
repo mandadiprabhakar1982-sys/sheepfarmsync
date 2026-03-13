@@ -103,74 +103,9 @@ export default function LivestockPage() {
         className="mb-8"
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* LEFT COLUMN: META INFO (DESKTOP ONLY) */}
-        <div className="hidden xl:block lg:col-span-3 space-y-6">
-          <Card className="border-none shadow-xl rounded-3xl bg-white/50 backdrop-blur-sm p-6">
-            <h3 className="text-[12px] font-black uppercase tracking-[0.2em] text-primary/40 mb-6">CSS Font Sizes</h3>
-            <div className="space-y-4 font-mono text-[12px]">
-              <div className="flex items-center gap-3">
-                <div className="h-2 w-2 rounded-full bg-emerald-500" />
-                <span className="text-primary/60">.app-header</span>
-                <span className="ml-auto font-bold">24px</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="h-2 w-2 rounded-full bg-amber-500" />
-                <span className="text-primary/60">.card-title</span>
-                <span className="ml-auto font-bold">18px</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="h-2 w-2 rounded-full bg-blue-500" />
-                <span className="text-primary/60">.button</span>
-                <span className="ml-auto font-bold">16px</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="h-2 w-2 rounded-full bg-rose-500" />
-                <span className="text-primary/60">.form-label</span>
-                <span className="ml-auto font-bold">14px</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="h-2 w-2 rounded-full bg-slate-400" />
-                <span className="text-primary/60">.info-text</span>
-                <span className="ml-auto font-bold">12px</span>
-              </div>
-            </div>
-          </Card>
-
-          <Card className="border-none shadow-xl rounded-3xl bg-white p-0 overflow-hidden">
-             <div className="bg-primary/5 p-4 border-b border-primary/5">
-                <h3 className="text-[12px] font-black uppercase tracking-widest text-primary/60">Font Size Breakdown</h3>
-             </div>
-             <Table>
-                <TableHeader>
-                   <TableRow className="hover:bg-transparent">
-                      <TableHead className="text-[10px] font-black uppercase py-3">Element</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase py-3 text-right">Size</TableHead>
-                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                   {[
-                     { e: 'App Title', s: '24px', c: 'bg-lime-400' },
-                     { e: 'Card Title', s: '18px', c: 'bg-emerald-500' },
-                     { e: 'Button', s: '16px', c: 'bg-blue-500' },
-                     { e: 'Form Label', s: '14px', c: 'bg-rose-500' },
-                     { e: 'Info Text', s: '12px', c: 'bg-slate-300' },
-                   ].map((row) => (
-                     <TableRow key={row.e} className="hover:bg-neutral-50/50 h-10">
-                        <TableCell className="py-0 flex items-center gap-2">
-                           <div className={cn("h-2 w-2 rounded-full", row.c)} />
-                           <span className="text-[12px] font-bold text-neutral-600">{row.e}</span>
-                        </TableCell>
-                        <TableCell className="py-0 text-right font-black text-[12px] text-neutral-400">{row.s}</TableCell>
-                     </TableRow>
-                   ))}
-                </TableBody>
-             </Table>
-          </Card>
-        </div>
-
+      <div className="grid grid-cols-1 gap-8">
         {/* MAIN DASHBOARD CONTENT */}
-        <div className="lg:col-span-12 xl:col-span-9 space-y-8">
+        <div className="space-y-8">
           <Card className="border-none shadow-2xl rounded-[2.5rem] bg-white overflow-hidden">
             <CardHeader className="bg-white border-b border-neutral-100 p-8 flex flex-row items-center justify-between">
               <CardTitle className="text-[18px] font-black tracking-tight text-neutral-900 uppercase">Sheep Farm Dashboard</CardTitle>
@@ -182,34 +117,30 @@ export default function LivestockPage() {
             </CardHeader>
             <CardContent className="p-8 space-y-8">
               {/* TOP METRICS GRID */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <MetricCard 
                   title="Total Animals" 
                   value={totalSheep.toString()} 
-                  sub="18px / 22px Card" 
+                  sub="Live Flock" 
                   color="bg-emerald-600" 
                 />
                 <MetricCard 
                   title="Lambs" 
                   value={lambsCount.toString()} 
-                  sub="18px / 22px Call" 
+                  sub="Under 6 Months" 
                   color="bg-amber-500" 
                   icon={Syringe}
                 />
-              </div>
-
-              {/* SUB METRICS GRID */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <MetricCard 
                   title="Feed Cost Today" 
                   value={`₹${(totalFeedCost / 30).toLocaleString()}`} 
-                  sub="22px Card" 
+                  sub="Daily Amortized" 
                   color="bg-blue-500" 
                 />
                 <MetricCard 
                   title="Daily Feed (KG)" 
                   value={totalDailyFeed.toFixed(1)} 
-                  sub="9md" 
+                  sub="Requirement" 
                   color="bg-rose-500" 
                   icon={Wheat}
                 />
