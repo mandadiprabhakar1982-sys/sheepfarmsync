@@ -314,8 +314,21 @@ export default function LivestockPage() {
                             filteredAssets.map((sheep) => (
                               <TableRow key={sheep.id} className="hover:bg-neutral-50 transition-colors group">
                                 <TableCell className="font-black text-[14px] py-4 pl-6 uppercase text-primary/80">
-                                  {sheep.tagId}
-                                  <div className="text-[10px] font-bold text-muted-foreground mt-0.5">{sheep.breed || 'Standard'}</div>
+                                  <div className="flex items-center gap-3">
+                                    {sheep.photoDataUrl ? (
+                                      <div className="h-10 w-10 rounded-lg overflow-hidden border border-neutral-200 shrink-0 shadow-sm bg-white">
+                                        <img src={sheep.photoDataUrl} alt={sheep.tagId} className="h-full w-full object-cover" />
+                                      </div>
+                                    ) : (
+                                      <div className="h-10 w-10 rounded-lg bg-neutral-100 flex items-center justify-center shrink-0 border border-dashed border-neutral-300">
+                                        <Camera className="h-4 w-4 text-neutral-400" />
+                                      </div>
+                                    )}
+                                    <div className="flex flex-col">
+                                      <span className="leading-none">{sheep.tagId}</span>
+                                      <span className="text-[10px] font-bold text-muted-foreground mt-1">{sheep.breed || 'Standard'}</span>
+                                    </div>
+                                  </div>
                                 </TableCell>
                                 <TableCell>
                                   <div className="flex flex-col">
