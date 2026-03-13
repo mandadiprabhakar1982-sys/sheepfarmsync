@@ -76,6 +76,10 @@ export default function LivestockPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
+  const totalTrackedWeight = useMemo(() => {
+    return (trackedSheep || []).reduce((acc, s) => acc + Number(s.currentWeight || 0), 0);
+  }, [trackedSheep]);
+
   const form = useForm<QuickEntryData>({
     resolver: zodResolver(quickEntrySchema),
     defaultValues: { 
@@ -188,9 +192,9 @@ export default function LivestockPage() {
             <CardContent className="p-8 space-y-8">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <MetricCard 
-                  title="Add Animal" 
-                  value={totalSheep.toString()} 
-                  sub="Live Flock" 
+                  title="Track Animal" 
+                  value={`${totalTrackedWeight.toLocaleString()} KG`} 
+                  sub="Flock Weight" 
                   color="bg-emerald-600" 
                 />
                 <MetricCard 
@@ -213,12 +217,6 @@ export default function LivestockPage() {
                   color="bg-rose-500" 
                   icon={Wheat}
                 />
-              </div>
-
-              <div className="flex justify-start">
-                <Button className="h-12 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase text-[16px] tracking-widest shadow-lg shadow-emerald-600/20 border-none px-8">
-                  Add Animal
-                </Button>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pt-4">
