@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
@@ -162,7 +163,7 @@ export default function SalesPage() {
                         <Popover>
                           <PopoverTrigger asChild>
                             <FormControl>
-                              <Button variant={'outline'} className={cn('w-full pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}>
+                              <Button type="button" variant={'outline'} className={cn('w-full pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}>
                                 {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
                                 <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                               </Button>
@@ -332,7 +333,7 @@ export default function SalesPage() {
               <FormField control={editForm.control} name="saleDate" render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Date</FormLabel>
-                  <Popover><PopoverTrigger asChild><Button variant="outline" className="w-full text-left font-normal">{field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}</Button></PopoverTrigger><PopoverContent className="w-auto p-0"><Calendar mode="single" selected={field.value} onSelect={field.onChange} /></PopoverContent></Popover>
+                  <Popover><PopoverTrigger asChild><Button type="button" variant="outline" className="w-full text-left font-normal">{field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}</Button></PopoverTrigger><PopoverContent className="w-auto p-0"><Calendar mode="single" selected={field.value} onSelect={field.onChange} /></PopoverContent></Popover>
                 </FormItem>
               )} />
               <FormField control={editForm.control} name="buyerName" render={({ field }) => (<FormItem><FormLabel>Buyer</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />

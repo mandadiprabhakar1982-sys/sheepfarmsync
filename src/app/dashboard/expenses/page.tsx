@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useForm, type SubmitHandler } from 'react-hook-form';
@@ -148,6 +149,7 @@ export default function ExpensesPage() {
                           <PopoverTrigger asChild>
                             <FormControl>
                               <Button
+                                type="button"
                                 variant={'outline'}
                                 className={cn(
                                   'w-full pl-3 text-left font-normal',
@@ -281,6 +283,7 @@ export default function ExpensesPage() {
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
+                            type="button"
                             variant={'outline'}
                             className={cn(
                               'w-full pl-3 text-left font-normal',

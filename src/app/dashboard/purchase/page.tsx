@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
@@ -105,7 +106,7 @@ export default function PurchasePage() {
   const onPurchaseSubmit: SubmitHandler<PurchaseFormData> = (data) => {
     const newPurchase = {
       ...data,
-      purchaseDate: format(data.purchaseDate, 'yyyy-MM-dd'),
+      purchaseDate: format(data.date, 'yyyy-MM-dd'),
     };
     addPurchase(newPurchase);
     purchaseForm.reset();
@@ -176,6 +177,7 @@ export default function PurchasePage() {
                           <PopoverTrigger asChild>
                             <FormControl>
                               <Button
+                                type="button"
                                 variant={'outline'}
                                 className={cn(
                                   'w-full pl-3 text-left font-normal h-11',
@@ -375,6 +377,7 @@ export default function PurchasePage() {
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
+                            type="button"
                             variant={'outline'}
                             className={cn(
                               'w-full pl-3 text-left font-normal h-11',

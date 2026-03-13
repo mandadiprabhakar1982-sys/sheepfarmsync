@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useForm, type SubmitHandler } from 'react-hook-form';
@@ -186,6 +187,7 @@ export default function FeedPage() {
                           <PopoverTrigger asChild>
                             <FormControl>
                               <Button
+                                type="button"
                                 variant={'outline'}
                                 className={cn(
                                   'h-14 rounded-2xl bg-neutral-50 border-none font-bold px-6 text-left',
@@ -387,7 +389,7 @@ export default function FeedPage() {
                       <Popover>
                         <PopoverTrigger asChild>
                           <FormControl>
-                            <Button variant={'outline'} className="h-12 rounded-xl bg-neutral-50 border-none font-bold">
+                            <Button type="button" variant={'outline'} className="h-12 rounded-xl bg-neutral-50 border-none font-bold">
                               {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
                             </Button>
                           </FormControl>

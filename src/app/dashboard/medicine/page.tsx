@@ -224,7 +224,7 @@ export default function MedicinePage() {
                             <Popover open={isTaskDateOpen} onOpenChange={setIsTaskDateOpen}>
                               <PopoverTrigger asChild>
                                 <FormControl>
-                                  <Button variant="outline" className="h-12 rounded-xl bg-white border-none shadow-sm font-bold text-left px-4">
+                                  <Button type="button" variant="outline" className="h-12 rounded-xl bg-white border-none shadow-sm font-bold text-left px-4">
                                     {field.value ? format(field.value, "MMM dd, yy") : "Pick Date"}
                                     <CalendarIcon className="ml-auto h-4 w-4 opacity-20" />
                                   </Button>
@@ -310,7 +310,7 @@ export default function MedicinePage() {
                             <Popover open={isNextDateOpen} onOpenChange={setIsNextDateOpen}>
                               <PopoverTrigger asChild>
                                 <FormControl>
-                                  <Button variant="outline" className="h-12 rounded-xl bg-white border-none shadow-sm font-bold text-left px-4">
+                                  <Button type="button" variant="outline" className="h-12 rounded-xl bg-white border-none shadow-sm font-bold text-left px-4">
                                     {field.value ? format(field.value, "MMM dd, yy") : "Optional"}
                                     <CalendarIcon className="ml-auto h-4 w-4 opacity-20" />
                                   </Button>
@@ -542,7 +542,7 @@ export default function MedicinePage() {
                 <FormField control={editHealthTaskForm.control} name="date" render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel className="text-[10px] font-black uppercase opacity-40 ml-2">Date</FormLabel>
-                    <Popover><PopoverTrigger asChild><FormControl><Button variant="outline" className="h-12 rounded-xl bg-neutral-50 border-none font-bold">{field.value ? format(field.value, "MMM dd, yy") : "Pick Date"}</Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0 border-none shadow-2xl"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover>
+                    <Popover><PopoverTrigger asChild><FormControl><Button type="button" variant="outline" className="h-12 rounded-xl bg-neutral-50 border-none font-bold">{field.value ? format(field.value, "MMM dd, yy") : "Pick Date"}</Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0 border-none shadow-2xl"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover>
                   </FormItem>
                 )} />
                 <FormField control={editHealthTaskForm.control} name="administeredBy" render={({ field }) => (
@@ -585,7 +585,7 @@ export default function MedicinePage() {
                       <Popover open={isLegacyDateOpen} onOpenChange={setIsLegacyDateOpen}>
                         <PopoverTrigger asChild>
                           <FormControl>
-                            <Button variant="outline" className="h-14 rounded-2xl bg-neutral-50 border-none shadow-sm font-black text-base px-6 text-left flex justify-between items-center group">
+                            <Button type="button" variant="outline" className="h-14 rounded-2xl bg-neutral-50 border-none shadow-sm font-black text-base px-6 text-left flex justify-between items-center group">
                               {field.value ? format(field.value, "PPP") : <span>Select Date</span>}
                               <CalendarIcon className="h-5 w-5 text-neutral-300 group-hover:text-primary transition-colors" />
                             </Button>
