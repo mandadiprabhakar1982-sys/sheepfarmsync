@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useRef, useEffect } from 'react';
@@ -5,27 +6,18 @@ import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { 
-  PlusCircle, 
   Trash2, 
   Pencil, 
-  Scale, 
-  ShoppingBag,
   Wheat,
   Info,
-  CheckCircle2,
-  Syringe,
-  ChevronRight,
-  Plus,
   Camera,
   RotateCcw,
-  User,
-  Calendar,
-  Weight,
-  Loader2,
   Search,
   X,
-  Save
+  Save,
+  Calendar as CalendarIcon
 } from 'lucide-react';
+import { format } from 'date-fns';
 
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
@@ -45,10 +37,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
 import {
   Dialog,
   DialogContent,
@@ -61,6 +54,7 @@ import {
 
 const assetSchema = z.object({
   tagId: z.string().min(1, 'Tag ID is required'),
+  registrationDate: z.date({ required_error: 'Registration date is required' }),
   gender: z.enum(['male', 'female'], { required_error: 'Gender is required' }),
   age: z.coerce.number().min(0, 'Age is required'),
   currentWeight: z.coerce.number().min(1, 'Weight is required'),
@@ -101,6 +95,7 @@ export default function LivestockPage() {
     resolver: zodResolver(assetSchema),
     defaultValues: { 
       tagId: '',
+      registrationDate: new Date(),
       gender: 'female',
       age: 6,
       currentWeight: 25,
@@ -126,10 +121,12 @@ export default function LivestockPage() {
   const onQuickSubmit: SubmitHandler<AssetFormData> = (data) => {
     addTrackedSheep({ 
       ...data,
+      registrationDate: format(data.registrationDate, 'yyyy-MM-dd'),
       photoDataUrl: capturedPhoto || undefined
     });
     form.reset({
       tagId: '',
+      registrationDate: new Date(),
       gender: 'female',
       age: 6,
       currentWeight: 25,
@@ -142,7 +139,10 @@ export default function LivestockPage() {
 
   const onEditSubmit: SubmitHandler<AssetFormData> = (data) => {
     if (!editingAsset) return;
-    updateTrackedSheep(editingAsset.id, data, editingAsset._path);
+    updateTrackedSheep(editingAsset.id, {
+      ...data,
+      registrationDate: format(data.registrationDate, 'yyyy-MM-dd'),
+    }, editingAsset._path);
     setIsEditOpen(false);
     setEditingAsset(null);
     toast({ title: 'Record Updated', description: `Asset ${data.tagId} parameters synchronized.` });
@@ -152,6 +152,7 @@ export default function LivestockPage() {
     setEditingAsset(asset);
     editForm.reset({
       tagId: asset.tagId,
+      registrationDate: asset.registrationDate ? new Date(asset.registrationDate) : new Date(),
       gender: asset.gender,
       age: asset.age,
       currentWeight: asset.currentWeight,
@@ -429,6 +430,44 @@ export default function LivestockPage() {
 
                           <FormField
                             control={form.control}
+                            name="registrationDate"
+                            render={({ field }) => (
+                              <FormItem className="col-span-2">
+                                <Label className="text-[14px] font-black uppercase tracking-widest opacity-40 ml-2">Registration Date</Label>
+                                <Popover>
+                                  <PopoverTrigger asChild>
+                                    <FormControl>
+                                      <Button
+                                        variant={"outline"}
+                                        className={cn(
+                                          "h-14 w-full rounded-2xl bg-white border-neutral-200 shadow-sm font-bold text-[16px] px-6 text-left",
+                                          !field.value && "text-muted-foreground"
+                                        )}
+                                      >
+                                        {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                      </Button>
+                                    </FormControl>
+                                  </PopoverTrigger>
+                                  <PopoverContent className="w-auto p-0" align="start">
+                                    <Calendar
+                                      mode="single"
+                                      selected={field.value}
+                                      onSelect={field.onChange}
+                                      disabled={(date) =>
+                                        date > new Date() || date < new Date("1900-01-01")
+                                      }
+                                      initialFocus
+                                    />
+                                  </PopoverContent>
+                                </Popover>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
                             name="breed"
                             render={({ field }) => (
                               <FormItem className="col-span-2">
@@ -594,6 +633,42 @@ export default function LivestockPage() {
                     <FormItem className="col-span-2">
                       <Label className="text-xs font-black uppercase opacity-40 ml-2">Tag ID</Label>
                       <FormControl><Input className="h-12 rounded-xl bg-neutral-50 border-none font-bold px-4" {...field} /></FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={editForm.control}
+                  name="registrationDate"
+                  render={({ field }) => (
+                    <FormItem className="col-span-2">
+                      <Label className="text-xs font-black uppercase opacity-40 ml-2">Registration Date</Label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant={"outline"}
+                              className={cn(
+                                "h-12 w-full rounded-xl bg-neutral-50 border-none font-bold px-4 text-left",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            disabled={(date) =>
+                              date > new Date() || date < new Date("1900-01-01")
+                            }
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
                     </FormItem>
                   )}
                 />

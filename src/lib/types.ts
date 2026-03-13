@@ -85,6 +85,7 @@ export type TrackedSheep = {
   gender?: 'male' | 'female';
   breed?: string;
   photoDataUrl?: string;
+  registrationDate?: string;
   createdBy?: string;
   creatorEmail?: string;
   creatorName?: string;
