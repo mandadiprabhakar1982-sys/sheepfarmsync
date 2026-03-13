@@ -328,6 +328,9 @@ export default function LivestockPage() {
                                           </div>
                                         </DialogTrigger>
                                         <DialogContent className="max-w-3xl border-none bg-transparent p-0 shadow-none sm:rounded-[2rem] overflow-hidden">
+                                          <DialogHeader className="sr-only">
+                                            <DialogTitle>Sheep Photo: {sheep.tagId}</DialogTitle>
+                                          </DialogHeader>
                                           <img src={sheep.photoDataUrl} alt={sheep.tagId} className="w-full h-auto" />
                                         </DialogContent>
                                       </Dialog>
