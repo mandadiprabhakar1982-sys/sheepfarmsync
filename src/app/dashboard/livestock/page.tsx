@@ -27,7 +27,7 @@ import {
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormMessage, FormLabel } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormMessage, FormLabel } from '@/components/form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
@@ -63,8 +63,6 @@ export default function LivestockPage() {
   const { 
     trackedSheep, 
     addTrackedSheep, 
-    totalSheep,
-    lambsCount,
     totalDailyFeed,
     totalFeedCost,
     isLoading
@@ -204,19 +202,12 @@ export default function LivestockPage() {
               </div>
             </CardHeader>
             <CardContent className="p-8 space-y-8">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <MetricCard 
                   title="Track Animal" 
                   value={`${totalTrackedWeight.toLocaleString()} KG`} 
                   sub="Flock Weight" 
                   color="bg-emerald-600" 
-                />
-                <MetricCard 
-                  title="Lambs" 
-                  value={(lambsCount || 0).toString()} 
-                  sub="Under 6 Months" 
-                  color="bg-amber-500" 
-                  icon={Syringe}
                 />
                 <MetricCard 
                   title="Feed Cost Today" 
