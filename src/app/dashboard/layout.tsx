@@ -10,7 +10,8 @@ import {
   Wheat, 
   Globe,
   Languages,
-  Loader2
+  Plus,
+  Home
 } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { UserNav } from '@/components/user-nav';
@@ -31,10 +32,10 @@ export default function DashboardLayout({
   const { t, language, setLanguage } = useLanguage();
   const { isLoadingProfile } = useFarm();
 
-  const navItems = [
-    { href: '/dashboard', label: t('home'), icon: LayoutDashboard },
+  const mobileNavItems = [
+    { href: '/dashboard', label: t('home'), icon: Home },
     { href: '/dashboard/livestock', label: t('flock'), icon: ClipboardList },
-    { href: '/dashboard/purchase', label: t('buy'), icon: ShoppingBag },
+    { href: '/dashboard/purchase', label: 'Quick', icon: Plus, isCenter: true },
     { href: '/dashboard/medicine', label: t('health'), icon: HeartPulse },
     { href: '/dashboard/feed', label: t('feed'), icon: Wheat },
   ];
@@ -43,19 +44,12 @@ export default function DashboardLayout({
     setLanguage(language === 'en' ? 'te' : 'en');
   };
 
-  // Prevent UI jumping by waiting for the profile/role to be fully established
   if (isLoadingProfile) {
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-background fixed inset-0 z-[9999]">
+      <div className="flex h-screen w-full items-center justify-center bg-white fixed inset-0 z-[9999]">
         <div className="flex flex-col items-center gap-6">
-          <div className="relative">
-            <div className="w-12 h-12 border-4 border-primary/20 rounded-full"></div>
-            <div className="absolute top-0 w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-          </div>
-          <div className="flex flex-col items-center gap-2">
-            <p className="text-[10px] font-black tracking-[0.3em] text-primary uppercase animate-pulse">{t('syncing')}</p>
-            <p className="text-[8px] font-bold text-muted-foreground/40 uppercase tracking-widest">Applying Stealth Protocol...</p>
-          </div>
+          <div className="w-12 h-12 border-4 border-primary/10 rounded-full border-t-primary animate-spin" />
+          <p className="text-[10px] font-display text-primary animate-pulse">{t('syncing')}</p>
         </div>
       </div>
     );
@@ -63,17 +57,26 @@ export default function DashboardLayout({
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-background selection:bg-primary/20 overflow-hidden">
-        <AppSidebar />
-        <SidebarInset className="flex flex-col relative">
-          <header className="sticky top-0 z-50 flex h-20 items-center justify-between gap-4 border-b bg-white/80 backdrop-blur-md px-4 md:px-10 safe-area-top">
-            <div className="flex items-center gap-3">
-              <SidebarTrigger className="h-10 w-10" />
-              <Separator orientation="vertical" className="h-6 hidden md:block" />
-              <Logo className="md:hidden scale-90 origin-left" />
-              <h2 className="hidden md:block text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 ml-2">
-                 {t('system_name')}
-              </h2>
+      <div className="flex min-h-screen w-full bg-[#F8F9FA] overflow-hidden">
+        {/* Desktop Sidebar - Hidden on mobile */}
+        <div className="hidden md:flex">
+          <AppSidebar />
+        </div>
+
+        <SidebarInset className="flex flex-col relative bg-transparent">
+          {/* Top Header - Contextual Actions */}
+          <header className="sticky top-0 z-50 flex h-20 items-center justify-between gap-4 glass-effect px-6 md:px-10 safe-area-top">
+            <div className="flex items-center gap-4">
+              <div className="md:hidden">
+                <Logo showManager={false} className="scale-90 origin-left" />
+              </div>
+              <div className="hidden md:flex items-center gap-4">
+                <SidebarTrigger className="h-10 w-10 hover:bg-black/5 rounded-xl transition-colors" />
+                <Separator orientation="vertical" className="h-6" />
+                <h2 className="text-[10px] font-display text-primary/40 tracking-[0.3em]">
+                   {t('system_name')}
+                </h2>
+              </div>
             </div>
             
             <div className="flex items-center gap-2 md:gap-4">
@@ -81,44 +84,49 @@ export default function DashboardLayout({
                 variant="ghost" 
                 size="icon" 
                 onClick={toggleLanguage}
-                className="text-muted-foreground hover:bg-primary/5 hover:text-primary transition-colors"
-                title="Change Language"
+                className="rounded-xl hover:bg-primary/5 transition-colors"
               >
-                <Languages className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="icon" className="text-muted-foreground hidden sm:flex">
-                <Globe className="h-5 w-5" />
+                <Languages className="h-5 w-5 text-primary/60" />
               </Button>
               <UserNav />
             </div>
           </header>
           
-          <main className="flex-1 pb-24 overflow-y-auto no-scrollbar scroll-smooth">
+          <main className="flex-1 pb-32 md:pb-10 pt-6 overflow-y-auto no-scrollbar">
             {children}
           </main>
           
-          {/* Mobile Navigation - Native Feel */}
-          <footer className="fixed bottom-0 left-0 right-0 z-40 border-t bg-white/95 backdrop-blur-xl xl:hidden pb-[env(safe-area-inset-bottom)] no-select">
-            <nav className="flex h-16 items-center justify-around px-2">
-              {navItems.map((link) => {
+          {/* Elite Mobile Navigation Bar */}
+          <footer className="fixed bottom-0 left-0 right-0 z-50 md:hidden pb-[env(safe-area-inset-bottom)] px-4 mb-4">
+            <nav className="flex h-20 items-center justify-around glass-effect rounded-[2rem] shadow-2xl border-white/40 ring-1 ring-black/5 px-2">
+              {mobileNavItems.map((link) => {
                 const Icon = link.icon;
                 const isActive = pathname === link.href;
+                
+                if (link.isCenter) {
+                  return (
+                    <Link key={link.href} href={link.href} className="nav-center-node">
+                      <Icon className="h-7 w-7" />
+                    </Link>
+                  );
+                }
+
                 return (
                   <Link
                     key={link.href}
                     href={link.href}
                     className={cn(
-                      'flex flex-col items-center justify-center gap-1 min-w-[64px] h-full transition-all duration-200 active:scale-90',
-                      isActive ? 'text-primary' : 'text-muted-foreground'
+                      'flex flex-col items-center justify-center gap-1.5 min-w-[64px] h-full transition-all duration-300',
+                      isActive ? 'text-primary' : 'text-primary/30'
                     )}
                   >
                     <div className={cn(
-                      "p-1 rounded-lg transition-colors",
+                      "p-2 rounded-xl transition-colors",
                       isActive ? "bg-primary/5" : ""
                     )}>
                       <Icon className={cn("h-5 w-5", isActive ? "scale-110" : "opacity-70")} />
                     </div>
-                    <span className="text-[10px] font-bold text-center leading-none">{link.label}</span>
+                    <span className="text-[9px] font-black uppercase tracking-tighter leading-none">{link.label}</span>
                   </Link>
                 );
               })}
