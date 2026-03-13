@@ -9,8 +9,6 @@ import {
   Skull,
   Syringe,
   Receipt,
-  ListChecks,
-  Scale,
   ShieldCheck,
   ArrowUpRight
 } from 'lucide-react';
@@ -24,7 +22,6 @@ import { Card, CardContent } from '@/components/ui/card';
 export default function OverviewPage() {
   const { 
     totalSheep, 
-    totalTracked, 
     totalExpenses, 
     totalSales, 
     isLoading, 
@@ -35,8 +32,6 @@ export default function OverviewPage() {
     totalLaborCost,
     totalMedicineCost,
     totalFarmExpenses,
-    avgWeight,
-    totalDailyFeed
   } = useFarm();
   const { t } = useLanguage();
   
@@ -68,7 +63,7 @@ export default function OverviewPage() {
       </div>
       
       <div className="grid gap-12">
-        {/* Core Inventory Intelligence - Using Colorful Pattern from Design Reference */}
+        {/* Core Inventory Intelligence */}
         <section>
           <div className="flex items-center gap-3 mb-8">
             <div className="h-px flex-1 bg-primary/10" />
@@ -78,34 +73,13 @@ export default function OverviewPage() {
             <div className="h-px flex-1 bg-primary/10" />
           </div>
           
-          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2">
             <StatCard
                 title={t('live_sheep')}
                 value={totalSheep.toString()}
                 icon={SheepIcon}
                 variant="success"
                 description="Live Assets"
-            />
-            <StatCard
-                title={t('tracked')}
-                value={totalTracked.toString()}
-                icon={ListChecks}
-                variant="warning"
-                description="ID Verified"
-            />
-            <StatCard
-                title={t('avg_weight')}
-                value={`${avgWeight.toFixed(1)} kg`}
-                icon={Scale}
-                variant="info"
-                description="Mean Weight"
-            />
-            <StatCard
-                title={t('daily_feed_qty')}
-                value={`${totalDailyFeed.toFixed(1)} kg`}
-                icon={Wheat}
-                variant="default"
-                description="Nutritional Load"
             />
              <StatCard
                 title={t('mortalities')}
