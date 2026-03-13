@@ -204,19 +204,19 @@ export default function MedicinePage() {
         <div className="flex items-center gap-4 px-6 py-3 bg-neutral-900 rounded-2xl text-white shadow-xl">
           <ShieldCheck className="h-5 w-5 text-emerald-400" />
           <div>
-            <p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Clinical Protocol</p>
-            <p className="text-lg font-black tracking-tight text-white">Active Audit</p>
+            <p className="text-xs font-black uppercase tracking-widest opacity-40 leading-none">Clinical Protocol</p>
+            <p className="text-xl font-black tracking-tight text-white">Active Audit</p>
           </div>
         </div>
       </div>
 
       <Tabs defaultValue="health" className="w-full">
         <TabsList className="grid w-full grid-cols-2 mb-10 p-1.5 bg-neutral-100 rounded-2xl h-14 max-w-md mx-auto">
-          <TabsTrigger value="health" className="rounded-xl font-black text-[10px] uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-lg">
-            <Syringe className="h-3 w-3 mr-2" /> Health Track
+          <TabsTrigger value="health" className="rounded-xl font-black text-sm uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-lg">
+            <Syringe className="h-4 w-4 mr-2" /> Health Track
           </TabsTrigger>
-          <TabsTrigger value="cost" className="rounded-xl font-black text-[10px] uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-lg">
-            <ReceiptIndianRupee className="h-3 w-3 mr-2" /> Cost Track
+          <TabsTrigger value="cost" className="rounded-xl font-black text-sm uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-lg">
+            <ReceiptIndianRupee className="h-4 w-4 mr-2" /> Cost Track
           </TabsTrigger>
         </TabsList>
 
@@ -229,7 +229,7 @@ export default function MedicinePage() {
                     <HeartPulse className="h-5 w-5 text-emerald-400" />
                     Treatment Entry
                   </CardTitle>
-                  <CardDescription className="text-white/40 text-[9px] font-bold uppercase tracking-widest">Document high-precision physiological action</CardDescription>
+                  <CardDescription className="text-white/40 text-xs font-bold uppercase tracking-widest">Document high-precision physiological action</CardDescription>
                 </CardHeader>
                 <CardContent className="p-8">
                   <Form {...healthTaskForm}>
@@ -237,11 +237,11 @@ export default function MedicinePage() {
                       <div className="grid grid-cols-2 gap-4">
                         <FormField control={healthTaskForm.control} name="date" render={({ field }) => (
                           <FormItem className="flex flex-col">
-                            <FormLabel className="text-[9px] font-black uppercase opacity-40 ml-2">Date</FormLabel>
+                            <FormLabel className="text-xs font-black uppercase opacity-40 ml-2">Date</FormLabel>
                             <Popover open={isTaskDateOpen} onOpenChange={setIsTaskDateOpen}>
                               <PopoverTrigger asChild>
                                 <FormControl>
-                                  <Button type="button" variant="outline" className="h-11 rounded-xl bg-white border-none shadow-sm font-bold text-left px-4 text-xs">
+                                  <Button type="button" variant="outline" className="h-12 rounded-xl bg-white border-none shadow-sm font-bold text-left px-4 text-sm">
                                     {field.value ? format(field.value, "MMM dd, yy") : "Pick Date"}
                                     <CalendarIcon className="ml-auto h-4 w-4 opacity-20" />
                                   </Button>
@@ -255,9 +255,9 @@ export default function MedicinePage() {
                         )} />
                         <FormField control={healthTaskForm.control} name="sheepId" render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-[9px] font-black uppercase opacity-40 ml-2">Sheep ID</FormLabel>
+                            <FormLabel className="text-xs font-black uppercase opacity-40 ml-2">Sheep ID</FormLabel>
                             <Select onValueChange={field.onChange} value={field.value}>
-                              <FormControl><SelectTrigger className="h-11 rounded-xl bg-white border-none shadow-sm font-bold text-xs"><SelectValue placeholder="Select" /></SelectTrigger></FormControl>
+                              <FormControl><SelectTrigger className="h-12 rounded-xl bg-white border-none shadow-sm font-bold text-sm"><SelectValue placeholder="Select" /></SelectTrigger></FormControl>
                               <SelectContent className="rounded-xl">
                                 {trackedSheep?.map(s => <SelectItem key={s.id} value={s.tagId}>{s.tagId}</SelectItem>)}
                                 {!trackedSheep?.length && <SelectItem value="Generic" disabled>No tracked sheep</SelectItem>}
@@ -270,18 +270,18 @@ export default function MedicinePage() {
                       <div className="grid grid-cols-2 gap-4">
                         <FormField control={healthTaskForm.control} name="animalGroup" render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-[9px] font-black uppercase opacity-40 ml-2">Animal Group</FormLabel>
+                            <FormLabel className="text-xs font-black uppercase opacity-40 ml-2">Animal Group</FormLabel>
                             <Select onValueChange={field.onChange} value={field.value}>
-                              <FormControl><SelectTrigger className="h-11 rounded-xl bg-white border-none shadow-sm font-bold text-xs"><SelectValue /></SelectTrigger></FormControl>
+                              <FormControl><SelectTrigger className="h-12 rounded-xl bg-white border-none shadow-sm font-bold text-sm"><SelectValue /></SelectTrigger></FormControl>
                               <SelectContent>{animalGroups.map(g => <SelectItem key={g} value={g}>{g}</SelectItem>)}</SelectContent>
                             </Select>
                           </FormItem>
                         )} />
                         <FormField control={healthTaskForm.control} name="healthType" render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-[9px] font-black uppercase opacity-40 ml-2">Health Type</FormLabel>
+                            <FormLabel className="text-xs font-black uppercase opacity-40 ml-2">Health Type</FormLabel>
                             <Select onValueChange={field.onChange} value={field.value}>
-                              <FormControl><SelectTrigger className="h-11 rounded-xl bg-white border-none shadow-sm font-bold text-xs"><SelectValue /></SelectTrigger></FormControl>
+                              <FormControl><SelectTrigger className="h-12 rounded-xl bg-white border-none shadow-sm font-bold text-sm"><SelectValue /></SelectTrigger></FormControl>
                               <SelectContent>{healthTypes.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
                             </Select>
                           </FormItem>
@@ -290,9 +290,9 @@ export default function MedicinePage() {
 
                       <FormField control={healthTaskForm.control} name="symptom" render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-[9px] font-black uppercase opacity-40 ml-2">Disease / Symptom</FormLabel>
+                          <FormLabel className="text-xs font-black uppercase opacity-40 ml-2">Disease / Symptom</FormLabel>
                           <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl><SelectTrigger className="h-12 rounded-2xl bg-white border-none shadow-sm font-bold px-6 text-sm"><SelectValue /></SelectTrigger></FormControl>
+                            <FormControl><SelectTrigger className="h-14 rounded-2xl bg-white border-none shadow-sm font-bold px-6 text-sm"><SelectValue /></SelectTrigger></FormControl>
                             <SelectContent>{symptoms.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
                           </Select>
                         </FormItem>
@@ -301,21 +301,21 @@ export default function MedicinePage() {
                       <div className="space-y-4 p-5 rounded-[1.25rem] bg-white border border-neutral-100 shadow-sm">
                         <FormField control={healthTaskForm.control} name="medicineName" render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-[8px] font-black uppercase opacity-40">Medicine Used</FormLabel>
-                            <FormControl><Input className="h-11 rounded-xl bg-neutral-50 border-none font-bold text-xs" placeholder="e.g. Albendazole" {...field} /></FormControl>
+                            <FormLabel className="text-xs font-black uppercase opacity-40">Medicine Used</FormLabel>
+                            <FormControl><Input className="h-12 rounded-xl bg-neutral-50 border-none font-bold text-sm" placeholder="e.g. Albendazole" {...field} /></FormControl>
                           </FormItem>
                         )} />
                         <div className="grid grid-cols-2 gap-4">
                           <div className="flex gap-2">
                             <FormField control={healthTaskForm.control} name="dose" render={({ field }) => (
-                              <FormItem className="flex-1"><FormLabel className="text-[8px] font-black uppercase opacity-40">Dose</FormLabel><FormControl><Input type="number" step="0.1" className="h-11 rounded-xl bg-neutral-50 border-none font-black text-sm" {...field} /></FormControl></FormItem>
+                              <FormItem className="flex-1"><FormLabel className="text-xs font-black uppercase opacity-40">Dose</FormLabel><FormControl><Input type="number" step="0.1" className="h-12 rounded-xl bg-neutral-50 border-none font-black text-sm" {...field} /></FormControl></FormItem>
                             )} />
                             <FormField control={healthTaskForm.control} name="unit" render={({ field }) => (
-                              <FormItem className="w-20"><FormLabel className="text-[8px] font-black uppercase opacity-40">Unit</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger className="h-11 rounded-xl bg-neutral-50 border-none font-bold text-xs"><SelectValue /></SelectTrigger></FormControl><SelectContent>{units.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent></Select></FormItem>
+                              <FormItem className="w-20"><FormLabel className="text-xs font-black uppercase opacity-40">Unit</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger className="h-12 rounded-xl bg-neutral-50 border-none font-bold text-sm"><SelectValue /></SelectTrigger></FormControl><SelectContent>{units.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent></Select></FormItem>
                             )} />
                           </div>
                           <FormField control={healthTaskForm.control} name="route" render={({ field }) => (
-                            <FormItem><FormLabel className="text-[8px] font-black uppercase opacity-40">Route</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger className="h-11 rounded-xl bg-neutral-50 border-none font-bold text-xs"><SelectValue /></SelectTrigger></FormControl><SelectContent>{routes.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent></Select></FormItem>
+                            <FormItem><FormLabel className="text-xs font-black uppercase opacity-40">Route</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger className="h-12 rounded-xl bg-neutral-50 border-none font-bold text-sm"><SelectValue /></SelectTrigger></FormControl><SelectContent>{routes.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent></Select></FormItem>
                           )} />
                         </div>
                       </div>
@@ -323,11 +323,11 @@ export default function MedicinePage() {
                       <div className="grid grid-cols-2 gap-4">
                         <FormField control={healthTaskForm.control} name="nextDueDate" render={({ field }) => (
                           <FormItem className="flex flex-col">
-                            <FormLabel className="text-[9px] font-black uppercase opacity-40 ml-2">Next Due Date</FormLabel>
+                            <FormLabel className="text-xs font-black uppercase opacity-40 ml-2">Next Due Date</FormLabel>
                             <Popover open={isNextDateOpen} onOpenChange={setIsNextDateOpen}>
                               <PopoverTrigger asChild>
                                 <FormControl>
-                                  <Button type="button" variant="outline" className="h-11 rounded-xl bg-white border-none shadow-sm font-bold text-left px-4 text-xs">
+                                  <Button type="button" variant="outline" className="h-12 rounded-xl bg-white border-none shadow-sm font-bold text-left px-4 text-sm">
                                     {field.value ? format(field.value, "MMM dd, yy") : "Optional"}
                                     <CalendarIcon className="ml-auto h-4 w-4 opacity-20" />
                                   </Button>
@@ -341,14 +341,14 @@ export default function MedicinePage() {
                         )} />
                         <FormField control={healthTaskForm.control} name="administeredBy" render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-[9px] font-black uppercase opacity-40 ml-2">Vet / Given By</FormLabel>
-                            <FormControl><Input className="h-11 rounded-xl bg-white border-none shadow-sm font-bold text-xs" placeholder="Identity" {...field} /></FormControl>
+                            <FormLabel className="text-xs font-black uppercase opacity-40 ml-2">Vet / Given By</FormLabel>
+                            <FormControl><Input className="h-12 rounded-xl bg-white border-none shadow-sm font-bold text-sm" placeholder="Identity" {...field} /></FormControl>
                           </FormItem>
                         )} />
                       </div>
 
-                      <Button type="submit" className="w-full h-16 rounded-[1.25rem] font-black text-[11px] uppercase tracking-[0.25em] shadow-2xl shadow-primary/20 bg-neutral-900 hover:bg-neutral-800">
-                        <PlusCircle className="mr-3 h-5 w-5 text-emerald-400" />
+                      <Button type="submit" className="w-full h-16 rounded-[1.25rem] font-black text-sm uppercase tracking-[0.25em] shadow-2xl shadow-primary/20 bg-neutral-900 hover:bg-neutral-800 text-white">
+                        <PlusCircle className="mr-3 h-6 w-6 text-emerald-400" />
                         Commit Clinical Record
                       </Button>
                     </form>
@@ -363,7 +363,7 @@ export default function MedicinePage() {
                   <div className="flex justify-between items-end">
                     <div>
                       <CardTitle className="text-xl font-black tracking-tight leading-none mb-2">Clinical History</CardTitle>
-                      <CardDescription className="text-white/60 text-[9px] font-black uppercase tracking-widest">Temporal verification of physiological treatments</CardDescription>
+                      <CardDescription className="text-white/60 text-xs font-black uppercase tracking-widest">Temporal verification of physiological treatments</CardDescription>
                     </div>
                     <Stethoscope className="h-7 w-7 text-emerald-200 opacity-20" />
                   </div>
@@ -372,10 +372,10 @@ export default function MedicinePage() {
                   <Table>
                     <TableHeader className="bg-neutral-50">
                       <TableRow>
-                        <TableHead className="text-[8px] font-black uppercase pl-8 py-5">Treatment Metric</TableHead>
-                        <TableHead className="text-[8px] font-black uppercase">Sheep / Group</TableHead>
-                        <TableHead className="text-[8px] font-black uppercase">Clinical Details</TableHead>
-                        <TableHead className="text-[8px] font-black uppercase text-right">Audit Status</TableHead>
+                        <TableHead className="text-sm font-black uppercase pl-8 py-5">Treatment Metric</TableHead>
+                        <TableHead className="text-sm font-black uppercase">Sheep / Group</TableHead>
+                        <TableHead className="text-sm font-black uppercase">Clinical Details</TableHead>
+                        <TableHead className="text-sm font-black uppercase text-right">Audit Status</TableHead>
                         <TableHead className="w-[100px]"></TableHead>
                       </TableRow>
                     </TableHeader>
@@ -385,37 +385,37 @@ export default function MedicinePage() {
                         return (
                           <TableRow key={task.id} className="group hover:bg-neutral-50 transition-all cursor-zoom-in border-neutral-100 active:scale-[0.995]" onClick={() => {setEditingHealthTask(task); setIsTaskEditDialogOpen(true)}}>
                             <TableCell className="pl-8 py-6">
-                              <div className="font-black text-xs text-neutral-900 leading-tight uppercase tracking-tight">{task.healthType}</div>
-                              <div className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mt-1 opacity-60">
+                              <div className="font-black text-sm text-neutral-900 leading-tight uppercase tracking-tight">{task.healthType}</div>
+                              <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest mt-1 opacity-60">
                                 {task.date}
                               </div>
                             </TableCell>
                             <TableCell>
                               <div className="flex flex-col">
-                                <span className="text-xs font-black text-primary">{task.sheepId}</span>
-                                <span className="text-[8px] font-bold text-muted-foreground uppercase tracking-widest">{task.animalGroup}</span>
+                                <span className="text-sm font-black text-primary">{task.sheepId}</span>
+                                <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{task.animalGroup}</span>
                               </div>
                             </TableCell>
                             <TableCell>
                               <div className="flex flex-col">
-                                <span className="text-xs font-black">{task.medicineName}</span>
-                                <span className="text-[8px] font-bold text-muted-foreground opacity-60">{task.dose}{task.unit} • {task.route}</span>
+                                <span className="text-sm font-black">{task.medicineName}</span>
+                                <span className="text-xs font-bold text-muted-foreground opacity-60">{task.dose}{task.unit} • {task.route}</span>
                               </div>
                             </TableCell>
                             <TableCell className="text-right">
-                              <div className="text-[8px] font-black text-neutral-700 tracking-tight uppercase">Next: {task.nextDueDate}</div>
-                              {status && <Badge variant={status.variant} className="mt-1 text-[6px] font-black uppercase tracking-widest h-4 px-1 rounded-md border-none shadow-sm">{status.label}</Badge>}
+                              <div className="text-xs font-black text-neutral-700 tracking-tight uppercase">Next: {task.nextDueDate}</div>
+                              {status && <Badge variant={status.variant} className="mt-1 text-[10px] font-black uppercase tracking-widest h-5 px-2 rounded-md border-none shadow-sm">{status.label}</Badge>}
                             </TableCell>
                             <TableCell className="pr-8 text-right" onClick={(e) => e.stopPropagation()}>
                               <div className="flex justify-end gap-2">
-                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl bg-neutral-100 hover:bg-neutral-200" onClick={() => {setEditingHealthTask(task); setIsTaskEditDialogOpen(true)}}><Pencil className="h-3.5 w-3.5" /></Button>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100" onClick={() => deleteHealthTask(task.id, task._path)}><Trash2 className="h-3.5 w-3.5" /></Button>
+                                <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl bg-neutral-100 hover:bg-neutral-200" onClick={() => {setEditingHealthTask(task); setIsTaskEditDialogOpen(true)}}><Pencil className="h-4 w-4" /></Button>
+                                <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100" onClick={() => deleteHealthTask(task.id, task._path)}><Trash2 className="h-4 w-4" /></Button>
                               </div>
                             </TableCell>
                           </TableRow>
                         );
                       })}
-                      {!sortedHealthTasks.length && <TableRow><TableCell colSpan={5} className="text-center py-24 text-muted-foreground italic opacity-40 font-black uppercase tracking-widest text-[9px]">NO CLINICAL RECORDS DISCOVERED</TableCell></TableRow>}
+                      {!sortedHealthTasks.length && <TableRow><TableCell colSpan={5} className="text-center py-24 text-muted-foreground italic opacity-40 font-black uppercase tracking-widest text-sm">NO CLINICAL RECORDS DISCOVERED</TableCell></TableRow>}
                     </TableBody>
                   </Table>
                 </CardContent>
@@ -431,9 +431,9 @@ export default function MedicinePage() {
                 <CardHeader className="p-8 border-b border-white/5">
                   <div className="flex items-center gap-3 mb-2">
                     <ReceiptIndianRupee className="h-5 w-5 text-emerald-400" />
-                    <CardTitle className="text-lg font-black tracking-tight">Pharmacy Audit</CardTitle>
+                    <CardTitle className="text-xl font-black tracking-tight">Pharmacy Audit</CardTitle>
                   </div>
-                  <CardDescription className="text-white/40 text-[9px] font-bold uppercase tracking-widest">Document historical procurement</CardDescription>
+                  <CardDescription className="text-white/40 text-xs font-bold uppercase tracking-widest">Document historical procurement</CardDescription>
                 </CardHeader>
                 <CardContent className="p-8 space-y-8">
                   <div className="p-5 rounded-[1.5rem] bg-white/5 border border-white/10 flex items-center gap-5">
@@ -441,8 +441,8 @@ export default function MedicinePage() {
                       <TrendingUp className="h-6 w-6" />
                     </div>
                     <div>
-                      <p className="text-[9px] font-black uppercase tracking-[0.2em] text-white/40 mb-1">Total Procurement</p>
-                      <p className="text-2xl font-black tracking-tighter">₹{sortedMedicineExpenses.reduce((s, e) => s + e.totalAmountSpent, 0).toLocaleString()}</p>
+                      <p className="text-xs font-black uppercase tracking-[0.2em] text-white/40 mb-1">Total Procurement</p>
+                      <p className="text-[22px] font-black tracking-tighter">₹{sortedMedicineExpenses.reduce((s, e) => s + e.totalAmountSpent, 0).toLocaleString()}</p>
                     </div>
                   </div>
                   
@@ -451,13 +451,13 @@ export default function MedicinePage() {
                       <Activity className="h-6 w-6" />
                     </div>
                     <div>
-                      <p className="text-[9px] font-black uppercase tracking-[0.2em] text-rose-400 mb-1">Total Outstanding</p>
-                      <p className="text-2xl font-black tracking-tighter text-rose-400">₹{sortedMedicineExpenses.reduce((s, e) => s + (e.outstandingDues || 0), 0).toLocaleString()}</p>
+                      <p className="text-xs font-black uppercase tracking-[0.2em] text-rose-400 mb-1">Total Outstanding</p>
+                      <p className="text-[22px] font-black tracking-tighter text-rose-400">₹{sortedMedicineExpenses.reduce((s, e) => s + (e.outstandingDues || 0), 0).toLocaleString()}</p>
                     </div>
                   </div>
 
-                  <Button onClick={() => { setEditingLegacyExpense(null); setIsLegacyDialogOpen(true); }} className="w-full h-16 rounded-[1.25rem] font-black text-[11px] uppercase tracking-[0.25em] shadow-2xl shadow-emerald-500/20 bg-emerald-600 hover:bg-emerald-500 text-white border-none transition-all active:scale-95">
-                    <ShoppingCart className="mr-3 h-5 w-5" />
+                  <Button onClick={() => { setEditingLegacyExpense(null); setIsLegacyDialogOpen(true); }} className="w-full h-16 rounded-[1.25rem] font-black text-sm uppercase tracking-[0.25em] shadow-2xl shadow-emerald-500/20 bg-emerald-600 hover:bg-emerald-500 text-white border-none transition-all active:scale-95">
+                    <ShoppingCart className="mr-3 h-6 w-6" />
                     Record Audit
                   </Button>
                 </CardContent>
@@ -470,7 +470,7 @@ export default function MedicinePage() {
                   <div className="flex justify-between items-end">
                     <div>
                       <CardTitle className="text-xl font-black tracking-tight leading-none mb-2">Procurement Ledger</CardTitle>
-                      <CardDescription className="text-white/40 text-[9px] font-black uppercase tracking-widest">Audit-grade historical records of pharmacy acquisitions</CardDescription>
+                      <CardDescription className="text-white/40 text-xs font-black uppercase tracking-widest">Audit-grade historical records of pharmacy acquisitions</CardDescription>
                     </div>
                     <ReceiptIndianRupee className="h-7 w-7 text-emerald-400 opacity-20" />
                   </div>
@@ -479,28 +479,28 @@ export default function MedicinePage() {
                   <Table>
                     <TableHeader className="bg-neutral-50">
                       <TableRow>
-                        <TableHead className="text-[8px] font-black uppercase pl-8 py-5">Fiscal Date</TableHead>
-                        <TableHead className="text-[8px] font-black uppercase">Pharmacy / Origin</TableHead>
-                        <TableHead className="text-[8px] font-black uppercase text-right">Value Payload</TableHead>
-                        <TableHead className="text-[8px] font-black uppercase text-right pr-8">Dues</TableHead>
+                        <TableHead className="text-sm font-black uppercase pl-8 py-5">Fiscal Date</TableHead>
+                        <TableHead className="text-sm font-black uppercase">Pharmacy / Origin</TableHead>
+                        <TableHead className="text-sm font-black uppercase text-right">Value Payload</TableHead>
+                        <TableHead className="text-sm font-black uppercase text-right pr-8">Dues</TableHead>
                         <TableHead className="w-[100px]"></TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {sortedMedicineExpenses.map(exp => (
                         <TableRow key={exp.id} className="group hover:bg-neutral-50 border-neutral-100 transition-all active:scale-[0.995]" onClick={() => { setEditingLegacyExpense(exp); setIsLegacyDialogOpen(true); }}>
-                          <TableCell className="pl-8 text-[9px] font-black text-muted-foreground/60 uppercase tracking-widest">{exp.date}</TableCell>
+                          <TableCell className="pl-8 text-sm font-black text-muted-foreground/60 uppercase tracking-widest">{exp.date}</TableCell>
                           <TableCell className="py-6">
                             <div className="font-black text-sm text-neutral-900 tracking-tight leading-none">{exp.shopName || 'N/A'}</div>
-                            <div className="text-[9px] font-bold text-muted-foreground mt-1.5 truncate max-w-[180px] opacity-60 uppercase">{exp.description || 'Global Meds'}</div>
+                            <div className="text-xs font-bold text-muted-foreground mt-1.5 truncate max-w-[180px] opacity-60 uppercase">{exp.description || 'Global Meds'}</div>
                           </TableCell>
                           <TableCell className="text-right">
-                            <div className="text-xs font-black text-emerald-600 tracking-tighter">₹{exp.totalAmountSpent.toLocaleString()}</div>
-                            <div className="text-[8px] font-bold text-muted-foreground mt-1 opacity-40 uppercase">Base: ₹{exp.costOfMedicines?.toLocaleString() || '0'}</div>
+                            <div className="text-sm font-black text-emerald-600 tracking-tighter">₹{exp.totalAmountSpent.toLocaleString()}</div>
+                            <div className="text-xs font-bold text-muted-foreground mt-1 opacity-40 uppercase">Base: ₹{exp.costOfMedicines?.toLocaleString() || '0'}</div>
                           </TableCell>
                           <TableCell className="text-right pr-8">
                             <span className={cn(
-                              "text-xs font-black tracking-tight",
+                              "text-sm font-black tracking-tight",
                               (exp.outstandingDues || 0) > 0 ? "text-rose-600" : "text-neutral-300"
                             )}>
                               ₹{(exp.outstandingDues || 0).toLocaleString()}
@@ -508,17 +508,17 @@ export default function MedicinePage() {
                           </TableCell>
                           <TableCell className="pr-4" onClick={(e) => e.stopPropagation()}>
                             <div className="flex items-center justify-end gap-2">
-                              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl bg-neutral-100 hover:bg-neutral-200" onClick={() => { setEditingLegacyExpense(exp); setIsLegacyDialogOpen(true); }}>
-                                <Pencil className="h-3.5 w-3.5" />
+                              <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl bg-neutral-100 hover:bg-neutral-200" onClick={() => { setEditingLegacyExpense(exp); setIsLegacyDialogOpen(true); }}>
+                                <Pencil className="h-4 w-4" />
                               </Button>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl text-rose-600 hover:bg-rose-50" onClick={() => deleteMedicineExpense(exp.id, exp._path)}>
-                                <Trash2 className="h-3.5 w-3.5" />
+                              <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-rose-600 hover:bg-rose-50" onClick={() => deleteMedicineExpense(exp.id, exp._path)}>
+                                <Trash2 className="h-4 w-4" />
                               </Button>
                             </div>
                           </TableCell>
                         </TableRow>
                       ))}
-                      {!sortedMedicineExpenses.length && <TableRow><TableCell colSpan={5} className="text-center py-24 text-muted-foreground italic opacity-40 font-black uppercase tracking-widest text-[9px]">NO PROCUREMENTS LOGGED</TableCell></TableRow>}
+                      {!sortedMedicineExpenses.length && <TableRow><TableCell colSpan={5} className="text-center py-24 text-muted-foreground italic opacity-40 font-black uppercase tracking-widest text-sm">NO PROCUREMENTS LOGGED</TableCell></TableRow>}
                     </TableBody>
                   </Table>
                 </CardContent>
@@ -535,25 +535,25 @@ export default function MedicinePage() {
               <Pencil className="h-5 w-5 text-emerald-400" />
               Adjust Record
             </DialogTitle>
-            <DialogDescription className="text-white/40 text-[9px] font-bold uppercase tracking-widest">Update clinical treatment parameters</DialogDescription>
+            <DialogDescription className="text-white/40 text-xs font-bold uppercase tracking-widest">Update clinical treatment parameters</DialogDescription>
           </DialogHeader>
           <Form {...editHealthTaskForm}>
             <form onSubmit={editHealthTaskForm.handleSubmit(onEditTaskSubmit)} className="space-y-6 p-8">
               <div className="grid grid-cols-2 gap-4">
                 <FormField control={editHealthTaskForm.control} name="sheepId" render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[9px] font-black uppercase opacity-40 ml-2">Sheep ID</FormLabel>
+                    <FormLabel className="text-xs font-black uppercase opacity-40 ml-2">Sheep ID</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl><SelectTrigger className="h-11 rounded-xl bg-neutral-50 border-none font-bold text-xs"><SelectValue /></SelectTrigger></FormControl>
+                      <FormControl><SelectTrigger className="h-12 rounded-xl bg-neutral-50 border-none font-bold text-sm"><SelectValue /></SelectTrigger></FormControl>
                       <SelectContent>{trackedSheep?.map(s => <SelectItem key={s.id} value={s.tagId}>{s.tagId}</SelectItem>)}</SelectContent>
                     </Select>
                   </FormItem>
                 )} />
                 <FormField control={editHealthTaskForm.control} name="healthType" render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[9px] font-black uppercase opacity-40 ml-2">Health Type</FormLabel>
+                    <FormLabel className="text-xs font-black uppercase opacity-40 ml-2">Health Type</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl><SelectTrigger className="h-11 rounded-xl bg-neutral-50 border-none font-bold text-xs"><SelectValue /></SelectTrigger></FormControl>
+                      <FormControl><SelectTrigger className="h-12 rounded-xl bg-neutral-50 border-none font-bold text-sm"><SelectValue /></SelectTrigger></FormControl>
                       <SelectContent>{healthTypes.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
                     </Select>
                   </FormItem>
@@ -563,18 +563,18 @@ export default function MedicinePage() {
               <div className="grid grid-cols-2 gap-4">
                 <FormField control={editHealthTaskForm.control} name="date" render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel className="text-[9px] font-black uppercase opacity-40 ml-2">Date</FormLabel>
-                    <Popover><PopoverTrigger asChild><FormControl><Button type="button" variant="outline" className="h-11 rounded-xl bg-neutral-50 border-none font-bold text-xs">{field.value ? format(field.value, "MMM dd, yy") : "Pick Date"}</Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0 border-none shadow-2xl"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover>
+                    <FormLabel className="text-xs font-black uppercase opacity-40 ml-2">Date</FormLabel>
+                    <Popover><PopoverTrigger asChild><FormControl><Button type="button" variant="outline" className="h-12 rounded-xl bg-neutral-50 border-none font-bold text-sm">{field.value ? format(field.value, "MMM dd, yy") : "Pick Date"}</Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0 border-none shadow-2xl"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover>
                   </FormItem>
                 )} />
                 <FormField control={editHealthTaskForm.control} name="administeredBy" render={({ field }) => (
-                  <FormItem><FormLabel className="text-[9px] font-black uppercase opacity-40 ml-2">Vet / Given By</FormLabel><FormControl><Input className="h-11 rounded-xl bg-neutral-50 border-none font-bold text-xs" {...field} /></FormControl></FormItem>
+                  <FormItem><FormLabel className="text-xs font-black uppercase opacity-40 ml-2">Vet / Given By</FormLabel><FormControl><Input className="h-12 rounded-xl bg-neutral-50 border-none font-bold text-sm px-4" {...field} /></FormControl></FormItem>
                 )} />
               </div>
               
               <DialogFooter className="pt-4 gap-4">
-                <Button variant="outline" type="button" onClick={() => setIsTaskEditDialogOpen(false)} className="h-11 px-6 rounded-xl font-bold border-neutral-200 text-sm">Cancel</Button>
-                <Button type="submit" className="h-11 px-8 rounded-xl font-black uppercase tracking-widest shadow-2xl shadow-primary/20 bg-neutral-900 text-white hover:bg-neutral-800 flex-1 text-xs">Commit Adjustment</Button>
+                <Button variant="outline" type="button" onClick={() => setIsTaskEditDialogOpen(false)} className="h-12 px-6 rounded-xl font-bold border-neutral-200 text-sm">Cancel</Button>
+                <Button type="submit" className="h-12 px-8 rounded-xl font-black uppercase tracking-widest shadow-2xl shadow-primary/20 bg-neutral-900 text-white hover:bg-neutral-800 flex-1 text-sm">Commit Adjustment</Button>
               </DialogFooter>
             </form>
           </Form>
@@ -585,11 +585,11 @@ export default function MedicinePage() {
         <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
           <DialogHeader className="bg-neutral-900 p-10 text-left text-white relative">
             <div className="absolute top-0 right-0 p-8 opacity-10"><ShoppingCart className="h-32 w-32 text-white rotate-12" /></div>
-            <DialogTitle className="text-xl font-black tracking-tight flex items-center gap-4 relative z-10">
-              <ReceiptIndianRupee className="h-7 w-7 text-emerald-400" />
+            <DialogTitle className="text-2xl font-black tracking-tight flex items-center gap-4 relative z-10">
+              <ReceiptIndianRupee className="h-8 w-8 text-emerald-400" />
               {editingLegacyExpense ? 'Adjust Audit' : 'Audit Transaction'}
             </DialogTitle>
-            <DialogDescription className="text-white/40 text-[9px] font-bold uppercase tracking-[0.2em] relative z-10">Document historical medicine procurement and dues</DialogDescription>
+            <DialogDescription className="text-white/40 text-sm font-bold uppercase tracking-[0.2em] relative z-10">Document historical medicine procurement and dues</DialogDescription>
           </DialogHeader>
           
           <Form {...legacyExpenseForm}>
@@ -597,19 +597,19 @@ export default function MedicinePage() {
               <div className="space-y-6">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="h-1 w-10 bg-emerald-500 rounded-full" />
-                  <span className="text-[9px] font-black uppercase tracking-widest text-neutral-400">Identity & Temporal Tracking</span>
+                  <span className="text-xs font-black uppercase tracking-widest text-neutral-400">Identity & Temporal Tracking</span>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField control={legacyExpenseForm.control} name="date" render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-2">Purchase Date</FormLabel>
+                      <FormLabel className="text-xs font-black uppercase tracking-widest opacity-40 ml-2">Purchase Date</FormLabel>
                       <Popover open={isLegacyDateOpen} onOpenChange={setIsLegacyDateOpen}>
                         <PopoverTrigger asChild>
                           <FormControl>
-                            <Button type="button" variant="outline" className="h-12 rounded-2xl bg-neutral-50 border-none shadow-sm font-black text-sm px-6 text-left flex justify-between items-center group">
+                            <Button type="button" variant="outline" className="h-14 rounded-2xl bg-neutral-50 border-none shadow-sm font-black text-sm px-6 text-left flex justify-between items-center group">
                               {field.value ? format(field.value, "PPP") : <span>Select Date</span>}
-                              <CalendarIcon className="h-4 w-4 text-neutral-300 group-hover:text-primary transition-colors" />
+                              <CalendarIcon className="h-5 w-5 text-neutral-300 group-hover:text-primary transition-colors" />
                             </Button>
                           </FormControl>
                         </PopoverTrigger>
@@ -622,10 +622,10 @@ export default function MedicinePage() {
                   
                   <FormField control={legacyExpenseForm.control} name="shopName" render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-2">Pharmacy / Provider</FormLabel>
+                      <FormLabel className="text-xs font-black uppercase tracking-widest opacity-40 ml-2">Pharmacy / Provider</FormLabel>
                       <div className="relative">
-                        <Store className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-300" />
-                        <FormControl><Input className="h-12 rounded-2xl bg-neutral-50 border-none shadow-sm font-bold text-sm px-14" placeholder="Store Identity" {...field} /></FormControl>
+                        <Store className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-300" />
+                        <FormControl><Input className="h-14 rounded-2xl bg-neutral-50 border-none shadow-sm font-bold text-sm px-14" placeholder="Store Identity" {...field} /></FormControl>
                       </div>
                     </FormItem>
                   )} />
@@ -633,10 +633,10 @@ export default function MedicinePage() {
 
                 <FormField control={legacyExpenseForm.control} name="description" render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-2">Audit Detail / Medicine Notes</FormLabel>
+                    <FormLabel className="text-xs font-black uppercase tracking-widest opacity-40 ml-2">Audit Detail / Medicine Notes</FormLabel>
                     <div className="relative">
-                      <FileText className="absolute left-5 top-5 h-4 w-4 text-neutral-300" />
-                      <FormControl><Input className="h-12 rounded-2xl bg-neutral-50 border-none shadow-sm font-bold text-sm px-14" placeholder="e.g. 5L Liver Tonic" {...field} /></FormControl>
+                      <FileText className="absolute left-5 top-5 h-5 w-5 text-neutral-300" />
+                      <FormControl><Input className="h-14 rounded-2xl bg-neutral-50 border-none shadow-sm font-bold text-sm px-14" placeholder="e.g. 5L Liver Tonic" {...field} /></FormControl>
                     </div>
                   </FormItem>
                 )} />
@@ -645,26 +645,26 @@ export default function MedicinePage() {
               <div className="space-y-6">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="h-1 w-10 bg-blue-500 rounded-full" />
-                  <span className="text-[9px] font-black uppercase tracking-widest text-neutral-400">Financial Payload Audit</span>
+                  <span className="text-xs font-black uppercase tracking-widest text-neutral-400">Financial Payload Audit</span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <FormField control={legacyExpenseForm.control} name="costOfMedicines" render={({ field }) => (
-                    <FormItem><FormLabel className="text-[8px] font-black uppercase opacity-40 ml-2">Base Cost (₹)</FormLabel><FormControl><Input type="number" className="h-12 rounded-2xl bg-neutral-50 border-none shadow-sm font-black text-base px-6" {...field} /></FormControl></FormItem>
+                    <FormItem><FormLabel className="text-xs font-black uppercase opacity-40 ml-2">Base Cost (₹)</FormLabel><FormControl><Input type="number" className="h-14 rounded-2xl bg-neutral-50 border-none shadow-sm font-black text-base px-6" {...field} /></FormControl></FormItem>
                   )} />
                   <FormField control={legacyExpenseForm.control} name="totalAmountSpent" render={({ field }) => (
-                    <FormItem><FormLabel className="text-[8px] font-black uppercase opacity-40 ml-2">Amount Paid (₹)</FormLabel><FormControl><Input type="number" className="h-12 rounded-2xl bg-emerald-50 border-none shadow-sm font-black text-lg text-emerald-700 px-6" {...field} /></FormControl></FormItem>
+                    <FormItem><FormLabel className="text-xs font-black uppercase opacity-40 ml-2">Amount Paid (₹)</FormLabel><FormControl><Input type="number" className="h-14 rounded-2xl bg-emerald-50 border-none shadow-sm font-black text-lg text-emerald-700 px-6" {...field} /></FormControl></FormItem>
                   )} />
                   <FormField control={legacyExpenseForm.control} name="outstandingDues" render={({ field }) => (
-                    <FormItem><FormLabel className="text-[8px] font-black uppercase opacity-40 ml-2">Pending Dues (₹)</FormLabel><FormControl><Input type="number" className="h-12 rounded-2xl bg-rose-50 border-none shadow-sm font-black text-lg text-rose-700 px-6" {...field} /></FormControl></FormItem>
+                    <FormItem><FormLabel className="text-xs font-black uppercase opacity-40 ml-2">Pending Dues (₹)</FormLabel><FormControl><Input type="number" className="h-14 rounded-2xl bg-rose-50 border-none shadow-sm font-black text-lg text-rose-700 px-6" {...field} /></FormControl></FormItem>
                   )} />
                 </div>
               </div>
 
               <DialogFooter className="pt-6 gap-4 border-t border-neutral-100">
                 <Button variant="ghost" type="button" onClick={() => { setEditingLegacyExpense(null); setIsLegacyDialogOpen(false); }} className="h-12 px-6 rounded-2xl font-bold text-neutral-400 hover:text-neutral-600 text-sm">Cancel Audit</Button>
-                <Button type="submit" className="h-12 px-10 rounded-2xl font-black uppercase tracking-[0.2em] shadow-2xl shadow-emerald-500/20 bg-neutral-900 text-white hover:bg-neutral-800 flex-1 transition-all active:scale-95 text-xs">
-                  <Save className="mr-3 h-4 w-4 text-emerald-400" /> {editingLegacyExpense ? 'Save Adjustment' : 'Commit Transaction'}
+                <Button type="submit" className="h-14 px-10 rounded-2xl font-black uppercase tracking-[0.2em] shadow-2xl shadow-emerald-500/20 bg-neutral-900 text-white hover:bg-neutral-800 flex-1 transition-all active:scale-95 text-sm">
+                  <Save className="mr-3 h-5 w-5 text-emerald-400" /> {editingLegacyExpense ? 'Save Adjustment' : 'Commit Transaction'}
                 </Button>
               </DialogFooter>
             </form>

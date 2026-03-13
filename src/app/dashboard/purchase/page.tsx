@@ -156,11 +156,11 @@ export default function PurchasePage() {
         <div className="lg:col-span-4">
           <Card className="border-primary/20 bg-accent/5">
             <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
+              <CardTitle className="text-xl flex items-center gap-2">
                 <PlusCircle className="h-5 w-5 text-primary" />
                 New Acquisition
               </CardTitle>
-              <CardDescription>Enter details of the livestock purchase.</CardDescription>
+              <CardDescription className="text-sm">Enter details of the livestock purchase.</CardDescription>
             </CardHeader>
             <CardContent>
               <Form {...purchaseForm}>
@@ -170,7 +170,7 @@ export default function PurchasePage() {
                     name="purchaseDate"
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
-                        <FormLabel>Purchase Date</FormLabel>
+                        <FormLabel className="text-sm">Purchase Date</FormLabel>
                         <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
                           <PopoverTrigger asChild>
                             <FormControl>
@@ -178,7 +178,7 @@ export default function PurchasePage() {
                                 type="button"
                                 variant={'outline'}
                                 className={cn(
-                                  'w-full pl-3 text-left font-normal h-11',
+                                  'w-full pl-3 text-left font-normal h-12 text-sm',
                                   !field.value && 'text-muted-foreground'
                                 )}
                               >
@@ -210,15 +210,15 @@ export default function PurchasePage() {
                   <div className="grid grid-cols-1 gap-4">
                     <FormField control={purchaseForm.control} name="villageName" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Village Name</FormLabel>
-                        <FormControl><Input placeholder="e.g., Green Valley" className="h-11" {...field} /></FormControl>
+                        <FormLabel className="text-sm">Village Name</FormLabel>
+                        <FormControl><Input placeholder="e.g., Green Valley" className="h-12 text-sm" {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
                     <FormField control={purchaseForm.control} name="farmerName" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Farmer's Name</FormLabel>
-                        <FormControl><Input placeholder="e.g., John Doe" className="h-11" {...field} /></FormControl>
+                        <FormLabel className="text-sm">Farmer's Name</FormLabel>
+                        <FormControl><Input placeholder="e.g., John Doe" className="h-12 text-sm" {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
@@ -226,8 +226,8 @@ export default function PurchasePage() {
                   
                   <FormField control={purchaseForm.control} name="animalCount" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Number of Sheep</FormLabel>
-                      <FormControl><Input type="number" className="h-11" {...field} /></FormControl>
+                      <FormLabel className="text-sm">Number of Sheep</FormLabel>
+                      <FormControl><Input type="number" className="h-12 text-sm" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
@@ -235,15 +235,15 @@ export default function PurchasePage() {
                   <div className="grid grid-cols-2 gap-4">
                     <FormField control={purchaseForm.control} name="purchasePrice" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Price (₹)</FormLabel>
-                        <FormControl><Input type="number" className="h-11" step="0.01" {...field} /></FormControl>
+                        <FormLabel className="text-sm">Price (₹)</FormLabel>
+                        <FormControl><Input type="number" className="h-12 text-sm" step="0.01" {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
                     <FormField control={purchaseForm.control} name="amountPaid" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Paid (₹)</FormLabel>
-                        <FormControl><Input type="number" className="h-11" step="0.01" {...field} /></FormControl>
+                        <FormLabel className="text-sm">Paid (₹)</FormLabel>
+                        <FormControl><Input type="number" className="h-12 text-sm" step="0.01" {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
@@ -252,21 +252,21 @@ export default function PurchasePage() {
                   <div className="grid grid-cols-2 gap-4">
                     <FormField control={purchaseForm.control} name="transportCost" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Transport (₹)</FormLabel>
-                        <FormControl><Input type="number" className="h-11" step="0.01" {...field} value={field.value ?? ''} /></FormControl>
+                        <FormLabel className="text-sm">Transport (₹)</FormLabel>
+                        <FormControl><Input type="number" className="h-12 text-sm" step="0.01" {...field} value={field.value ?? ''} /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
                     <FormField control={purchaseForm.control} name="dueAmount" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Due (₹)</FormLabel>
-                        <FormControl><Input type="number" className="h-11 bg-muted/50 font-bold text-destructive" {...field} readOnly /></FormControl>
+                        <FormLabel className="text-sm">Due (₹)</FormLabel>
+                        <FormControl><Input type="number" className="h-12 text-sm bg-muted/50 font-bold text-destructive" {...field} readOnly /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
                   </div>
 
-                  <Button type="submit" className="w-full h-12 font-bold shadow-lg shadow-primary/20">
+                  <Button type="submit" className="w-full h-12 font-bold shadow-lg shadow-primary/20 text-base text-white">
                     <PlusCircle className="mr-2 h-5 w-5" />
                     Record Purchase
                   </Button>
@@ -283,41 +283,41 @@ export default function PurchasePage() {
                 <ShoppingBag className="h-6 w-6 text-primary" />
                 <CardTitle className="text-xl font-black tracking-tight">Purchase History</CardTitle>
               </div>
-              <CardDescription className="text-[10px] font-black uppercase tracking-widest opacity-60">Complete operational log of livestock entries</CardDescription>
+              <CardDescription className="text-sm font-black uppercase tracking-widest opacity-60">Complete operational log of livestock entries</CardDescription>
             </CardHeader>
             <CardContent className="pt-8">
               <div className="rounded-2xl border bg-white overflow-hidden shadow-sm">
                 <Table>
                   <TableHeader className="bg-neutral-50 border-b">
                     <TableRow className="hover:bg-transparent">
-                      <TableHead className="text-[9px] font-black uppercase tracking-widest py-5">Date</TableHead>
-                      <TableHead className="text-[9px] font-black uppercase tracking-widest py-5">Village</TableHead>
-                      <TableHead className="text-[9px] font-black uppercase tracking-widest py-5">Farmer</TableHead>
-                      <TableHead className="text-[9px] font-black uppercase tracking-widest py-5">Sheep</TableHead>
-                      <TableHead className="text-[9px] font-black uppercase tracking-widest py-5">Price</TableHead>
-                      <TableHead className="text-[9px] font-black uppercase tracking-widest py-5 text-right">Action</TableHead>
+                      <TableHead className="text-sm font-black uppercase tracking-widest py-5">Date</TableHead>
+                      <TableHead className="text-sm font-black uppercase tracking-widest py-5">Village</TableHead>
+                      <TableHead className="text-sm font-black uppercase tracking-widest py-5">Farmer</TableHead>
+                      <TableHead className="text-sm font-black uppercase tracking-widest py-5">Sheep</TableHead>
+                      <TableHead className="text-sm font-black uppercase tracking-widest py-5">Price</TableHead>
+                      <TableHead className="text-sm font-black uppercase tracking-widest py-5 text-right">Action</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {sortedPurchases && sortedPurchases.length > 0 ? (
                       sortedPurchases.map((purchase) => (
                         <TableRow key={purchase.id} className="group hover:bg-neutral-50/50 transition-colors">
-                          <TableCell className="font-medium text-[10px] text-muted-foreground uppercase">{purchase.purchaseDate}</TableCell>
-                          <TableCell className="font-bold text-xs">{purchase.villageName}</TableCell>
-                          <TableCell className="text-xs">{purchase.farmerName}</TableCell>
+                          <TableCell className="font-medium text-sm text-muted-foreground uppercase">{purchase.purchaseDate}</TableCell>
+                          <TableCell className="font-bold text-sm">{purchase.villageName}</TableCell>
+                          <TableCell className="text-sm">{purchase.farmerName}</TableCell>
                           <TableCell>
-                            <span className="inline-flex items-center justify-center bg-primary/10 text-primary rounded-lg px-2 py-1 text-[9px] font-black">
+                            <span className="inline-flex items-center justify-center bg-primary/10 text-primary rounded-lg px-2 py-1 text-xs font-black">
                               {purchase.animalCount}
                             </span>
                           </TableCell>
-                          <TableCell className="font-bold text-xs">₹{purchase.purchasePrice.toLocaleString()}</TableCell>
+                          <TableCell className="font-bold text-sm">₹{purchase.purchasePrice.toLocaleString()}</TableCell>
                           <TableCell className="text-right">
-                            <div className="flex items-center justify-end opacity-0 group-hover:opacity-100 transition-opacity">
-                              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => handleEditClick(purchase)}>
-                                <Pencil className="h-3.5 w-3.5" />
+                            <div className="flex items-center justify-end gap-2">
+                              <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg" onClick={() => handleEditClick(purchase)}>
+                                <Pencil className="h-4 w-4" />
                               </Button>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-destructive hover:bg-destructive/10" onClick={() => handleDeletePurchase(purchase.id, purchase._path)}>
-                                <Trash2 className="h-3.5 w-3.5" />
+                              <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg text-destructive hover:bg-destructive/10" onClick={() => handleDeletePurchase(purchase.id, purchase._path)}>
+                                <Trash2 className="h-4 w-4" />
                               </Button>
                             </div>
                           </TableCell>
@@ -327,8 +327,8 @@ export default function PurchasePage() {
                       <TableRow>
                         <TableCell colSpan={6} className="text-center py-20">
                           <div className="flex flex-col items-center gap-3 opacity-40">
-                             <ShoppingBag className="h-8 w-8 mb-2" />
-                             <p className="text-xs font-bold uppercase tracking-widest">No purchases recorded yet.</p>
+                             <ShoppingBag className="h-10 w-10 mb-2" />
+                             <p className="text-sm font-bold uppercase tracking-widest">No purchases recorded yet.</p>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -344,8 +344,8 @@ export default function PurchasePage() {
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-md rounded-[2rem]">
           <DialogHeader>
-            <DialogTitle className="text-lg font-black tracking-tight">Edit Purchase Record</DialogTitle>
-            <DialogDescription className="text-xs">
+            <DialogTitle className="text-xl font-black tracking-tight">Edit Purchase Record</DialogTitle>
+            <DialogDescription className="text-sm">
               Update the details of your purchase record.
             </DialogDescription>
           </DialogHeader>
@@ -356,41 +356,41 @@ export default function PurchasePage() {
                 name="purchaseDate"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Purchase Date</FormLabel>
-                    <Popover><PopoverTrigger asChild><Button type="button" variant="outline" className="h-11 text-left font-normal">{field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}</Button></PopoverTrigger><PopoverContent className="w-auto p-0"><Calendar mode="single" selected={field.value} onSelect={field.onChange} /></PopoverContent></Popover>
+                    <FormLabel className="text-sm">Purchase Date</FormLabel>
+                    <Popover><PopoverTrigger asChild><Button type="button" variant="outline" className="h-12 text-left font-normal text-sm">{field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}</Button></PopoverTrigger><PopoverContent className="w-auto p-0"><Calendar mode="single" selected={field.value} onSelect={(d) => { field.onChange(d); }} /></PopoverContent></Popover>
                   </FormItem>
                 )}
               />
               <FormField control={editForm.control} name="villageName" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Village Name</FormLabel>
-                  <FormControl><Input className="h-11" {...field} /></FormControl>
+                  <FormLabel className="text-sm">Village Name</FormLabel>
+                  <FormControl><Input className="h-12 text-sm" {...field} /></FormControl>
                 </FormItem>
               )} />
               <FormField control={editForm.control} name="farmerName" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Farmer's Name</FormLabel>
-                  <FormControl><Input className="h-11" {...field} /></FormControl>
+                  <FormLabel className="text-sm">Farmer's Name</FormLabel>
+                  <FormControl><Input className="h-12 text-sm" {...field} /></FormControl>
                 </FormItem>
               )} />
               
               <div className="grid grid-cols-2 gap-4">
                  <FormField control={editForm.control} name="purchasePrice" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Price (₹)</FormLabel>
-                    <FormControl><Input type="number" className="h-11" step="0.01" {...field} /></FormControl>
+                    <FormLabel className="text-sm">Price (₹)</FormLabel>
+                    <FormControl><Input type="number" className="h-12 text-sm" step="0.01" {...field} /></FormControl>
                   </FormItem>
                 )} />
                 <FormField control={editForm.control} name="amountPaid" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Paid (₹)</FormLabel>
-                    <FormControl><Input type="number" className="h-11" step="0.01" {...field} /></FormControl>
+                    <FormLabel className="text-sm">Paid (₹)</FormLabel>
+                    <FormControl><Input type="number" className="h-12 text-sm" step="0.01" {...field} /></FormControl>
                   </FormItem>
                 )} />
               </div>
 
               <DialogFooter>
-                <Button type="submit" className="w-full h-11 font-bold">Save Changes</Button>
+                <Button type="submit" className="w-full h-12 font-bold text-base text-white">Save Changes</Button>
               </DialogFooter>
             </form>
           </Form>

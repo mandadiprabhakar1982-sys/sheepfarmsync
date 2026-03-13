@@ -27,10 +27,10 @@ export function StatCard({ title, value, icon: Icon, description, variant = 'def
           <Icon className="h-6 w-6" />
         </div>
         <div className="flex flex-col min-w-0">
-          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.15em] mb-1">{title}</p>
-          <div className="text-3xl font-black tracking-tight text-foreground leading-none">{value}</div>
+          <p className="text-sm font-bold text-muted-foreground uppercase tracking-[0.15em] mb-1">{title}</p>
+          <div className="text-[22px] font-black tracking-tight text-foreground leading-none">{value}</div>
           {description && (
-            <p className="text-[10px] font-medium text-muted-foreground/60 leading-tight mt-2 italic">
+            <p className="text-xs font-medium text-muted-foreground/60 leading-tight mt-2 italic">
               {description}
             </p>
           )}

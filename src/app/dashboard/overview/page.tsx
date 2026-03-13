@@ -11,7 +11,6 @@ import {
   Receipt,
   ListChecks,
   Scale,
-  Activity,
 } from 'lucide-react';
 import { SheepIcon } from '@/components/logo';
 import { StatCard } from '@/components/stat-card';
@@ -64,7 +63,7 @@ export default function OverviewPage() {
       
       <div className="grid gap-10">
         <section>
-          <h2 className="text-base font-black mb-6 flex items-center gap-2 tracking-tight">
+          <h2 className="text-xl font-black mb-6 flex items-center gap-2 tracking-tight text-neutral-900">
             <span className="bg-primary h-2 w-2 rounded-full"></span>
             {t('inventory_status')}
           </h2>
@@ -108,7 +107,7 @@ export default function OverviewPage() {
         </section>
 
         <section>
-          <h2 className="text-base font-black mb-6 flex items-center gap-2 tracking-tight">
+          <h2 className="text-xl font-black mb-6 flex items-center gap-2 tracking-tight text-neutral-900">
             <span className="bg-primary h-2 w-2 rounded-full"></span>
             {t('financial_summary')}
           </h2>
@@ -143,7 +142,7 @@ export default function OverviewPage() {
         </section>
 
         <section>
-          <h2 className="text-base font-black mb-6 flex items-center gap-2 tracking-tight">
+          <h2 className="text-xl font-black mb-6 flex items-center gap-2 tracking-tight text-neutral-900">
             <span className="bg-primary h-2 w-2 rounded-full"></span>
             {t('operational_breakdown')}
           </h2>
