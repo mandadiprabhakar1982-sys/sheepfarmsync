@@ -548,8 +548,8 @@ export default function LivestockPage() {
 
                         <canvas ref={canvasRef} className="hidden" />
 
-                        <Button type="submit" className="w-full h-16 rounded-2xl bg-neutral-900 hover:bg-neutral-800 text-white font-black uppercase text-[16px] tracking-[0.2em] shadow-xl transition-all active:scale-[0.98]">
-                          Save Record
+                        <Button type="submit" className="w-full h-16 rounded-full bg-[#2e7d32] hover:bg-[#1b5e20] text-white font-bold text-[20px] shadow-lg transition-all active:translate-y-1 active:shadow-none border-b-4 border-[#1b5e20] uppercase tracking-wide">
+                          Add Animal
                         </Button>
                       </form>
                     </Form>
