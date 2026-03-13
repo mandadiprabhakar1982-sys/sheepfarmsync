@@ -224,7 +224,6 @@ export default function LivestockPage() {
                           <TableHead className="text-[12px] font-black uppercase tracking-widest py-4 pl-6">ID</TableHead>
                           <TableHead className="text-[12px] font-black uppercase tracking-widest py-4">Breed</TableHead>
                           <TableHead className="text-[12px] font-black uppercase tracking-widest py-4">Weight</TableHead>
-                          <TableHead className="text-[12px] font-black uppercase tracking-widest py-4">Health</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -234,14 +233,11 @@ export default function LivestockPage() {
                               <TableCell className="font-black text-[14px] py-4 pl-6 uppercase text-primary/80">{sheep.tagId}</TableCell>
                               <TableCell className="text-[14px] font-bold text-neutral-500">{sheep.breed || 'Standard'}</TableCell>
                               <TableCell className="text-[14px] font-black text-neutral-900">{sheep.currentWeight} kg</TableCell>
-                              <TableCell>
-                                <Badge className="bg-emerald-50 text-emerald-600 border-none font-black text-[10px] uppercase h-6 px-2">Good</Badge>
-                              </TableCell>
                             </TableRow>
                           ))
                         ) : (
                           <TableRow>
-                            <TableCell colSpan={4} className="text-center py-10 text-[14px] text-muted-foreground italic uppercase tracking-widest">Awaiting assets...</TableCell>
+                            <TableCell colSpan={3} className="text-center py-10 text-[14px] text-muted-foreground italic uppercase tracking-widest">Awaiting assets...</TableCell>
                           </TableRow>
                         )}
                       </TableBody>
