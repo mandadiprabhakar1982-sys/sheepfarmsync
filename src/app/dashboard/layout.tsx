@@ -3,12 +3,9 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
-  LayoutDashboard, 
   ClipboardList, 
-  ShoppingBag, 
   HeartPulse, 
   Wheat, 
-  Globe,
   Languages,
   Plus,
   Home
@@ -49,7 +46,7 @@ export default function DashboardLayout({
       <div className="flex h-screen w-full items-center justify-center bg-white fixed inset-0 z-[9999]">
         <div className="flex flex-col items-center gap-6">
           <div className="w-12 h-12 border-4 border-primary/10 rounded-full border-t-primary animate-spin" />
-          <p className="text-[10px] font-display text-primary animate-pulse">{t('syncing')}</p>
+          <p className="text-[12px] font-medium text-primary/40 uppercase tracking-[0.3em]">{t('syncing')}</p>
         </div>
       </div>
     );
@@ -58,14 +55,14 @@ export default function DashboardLayout({
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-[#F8F9FA] overflow-hidden">
-        {/* Desktop Sidebar - Hidden on mobile */}
+        {/* WEB MODEL: Persistent Sidebar - Hidden on mobile */}
         <div className="hidden md:flex">
           <AppSidebar />
         </div>
 
         <SidebarInset className="flex flex-col relative bg-transparent">
-          {/* Top Header - Contextual Actions */}
-          <header className="sticky top-0 z-50 flex h-20 items-center justify-between gap-4 glass-effect px-6 md:px-10 safe-area-top">
+          {/* ADAPTIVE HEADER */}
+          <header className="sticky top-0 z-50 flex h-20 items-center justify-between gap-4 glass-effect px-6 md:px-10 safe-area-top border-b border-black/5">
             <div className="flex items-center gap-4">
               <div className="md:hidden">
                 <Logo showManager={false} className="scale-90 origin-left" />
@@ -73,7 +70,7 @@ export default function DashboardLayout({
               <div className="hidden md:flex items-center gap-4">
                 <SidebarTrigger className="h-10 w-10 hover:bg-black/5 rounded-xl transition-colors" />
                 <Separator orientation="vertical" className="h-6" />
-                <h2 className="text-[10px] font-display text-primary/40 tracking-[0.3em]">
+                <h2 className="text-[12px] font-medium text-primary/40 tracking-[0.3em] uppercase">
                    {t('system_name')}
                 </h2>
               </div>
@@ -96,7 +93,7 @@ export default function DashboardLayout({
             {children}
           </main>
           
-          {/* Elite Mobile Navigation Bar */}
+          {/* MOBILE MODEL: Tactile Bottom Navigation - Hidden on desktop */}
           <footer className="fixed bottom-0 left-0 right-0 z-50 md:hidden pb-[env(safe-area-inset-bottom)] px-4 mb-4">
             <nav className="flex h-20 items-center justify-around glass-effect rounded-[2rem] shadow-2xl border-white/40 ring-1 ring-black/5 px-2">
               {mobileNavItems.map((link) => {
@@ -126,7 +123,7 @@ export default function DashboardLayout({
                     )}>
                       <Icon className={cn("h-5 w-5", isActive ? "scale-110" : "opacity-70")} />
                     </div>
-                    <span className="text-[9px] font-black uppercase tracking-tighter leading-none">{link.label}</span>
+                    <span className="text-[12px] font-bold uppercase tracking-tight leading-none">{link.label}</span>
                   </Link>
                 );
               })}

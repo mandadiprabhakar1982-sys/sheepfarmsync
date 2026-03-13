@@ -75,7 +75,6 @@ type TrackingFormData = z.infer<typeof trackingFormSchema>;
 export default function LivestockPage() {
   const { toast } = useToast();
   const { t } = useLanguage();
-  const { user } = useUser();
   const { 
     trackedSheep, 
     addTrackedSheep, 
@@ -216,12 +215,13 @@ export default function LivestockPage() {
     return healthTasks.filter(task => task.sheepId === viewingSheep.tagId);
   }, [viewingSheep, healthTasks]);
 
+  // INLINE ASSET AUDIT DASHBOARD (MOBILE MODEL TRANSITION)
   if (viewingSheep) {
     return (
       <div className="container mx-auto py-8 px-4 md:px-10 max-w-5xl animate-in fade-in slide-in-from-right-4 duration-500">
         <Button 
           variant="ghost" 
-          className="mb-6 h-12 rounded-2xl button-text-precise uppercase tracking-widest text-neutral-500 hover:text-primary transition-colors flex items-center gap-2"
+          className="mb-6 h-12 rounded-2xl text-[16px] font-bold uppercase tracking-widest text-neutral-500 hover:text-primary transition-colors flex items-center gap-2"
           onClick={() => setViewingSheep(null)}
         >
           <ChevronLeft className="h-5 w-5" />
@@ -229,9 +229,10 @@ export default function LivestockPage() {
         </Button>
 
         <div className="flex flex-col bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-neutral-100 p-8 md:p-12 space-y-12">
+          {/* SIDE-BY-SIDE ASSET HEADER */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-10">
             <div className="md:col-span-5">
-              <div className="relative aspect-square rounded-[2rem] bg-neutral-900 overflow-hidden shadow-2xl group">
+              <div className="relative aspect-square rounded-[2rem] bg-neutral-900 overflow-hidden shadow-2xl">
                 {viewingSheep.photoDataUrl ? (
                   <Image src={viewingSheep.photoDataUrl} alt={viewingSheep.tagId} fill className="object-cover" />
                 ) : (
@@ -256,9 +257,7 @@ export default function LivestockPage() {
                     {viewingSheep.gender === 'female' ? <Venus className="h-5 w-5" /> : <Mars className="h-5 w-5" />}
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <p className="text-[18px] font-bold text-neutral-400 uppercase tracking-[0.2em]">{viewingSheep.breed || 'Standard Breed'}</p>
-                </div>
+                <p className="text-[18px] font-bold text-neutral-400 uppercase tracking-[0.2em]">{viewingSheep.breed || 'Standard Breed'}</p>
               </div>
 
               <div className="grid grid-cols-2 gap-6">
@@ -267,7 +266,7 @@ export default function LivestockPage() {
                     <Scale className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <p className="text-[12px] font-medium uppercase tracking-widest text-muted-foreground opacity-60">Current / Prev Wt</p>
+                    <p className="text-[12px] font-bold uppercase tracking-widest text-muted-foreground opacity-60">Current / Prev Wt</p>
                     <div className="flex items-center gap-2">
                       <p className="text-[22px] font-black text-neutral-900">{viewingSheep.currentWeight}kg</p>
                       {viewingSheep.previousWeight && (
@@ -290,7 +289,7 @@ export default function LivestockPage() {
                     <CalendarIcon className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <p className="text-[12px] font-medium uppercase tracking-widest text-muted-foreground opacity-60">Temporal Age</p>
+                    <p className="text-[12px] font-bold uppercase tracking-widest text-muted-foreground opacity-60">Temporal Age</p>
                     <p className="text-[22px] font-black text-neutral-900">{viewingSheep.age} mos</p>
                   </div>
                 </div>
@@ -302,11 +301,11 @@ export default function LivestockPage() {
                     <Wheat className="h-5 w-5 text-emerald-600" />
                   </div>
                   <div>
-                    <p className="text-[12px] font-medium uppercase tracking-widest text-primary/60">Daily Nutrition Ratio</p>
+                    <p className="text-[12px] font-bold uppercase tracking-widest text-primary/60">Daily Nutrition Ratio</p>
                     <p className="text-[22px] font-black text-neutral-900">{(viewingSheep.currentWeight * 0.04).toFixed(2)}kg</p>
                   </div>
                 </div>
-                <Badge variant="outline" className="text-[12px] font-medium border-primary/20 text-primary uppercase h-6 px-2 rounded-lg">Balanced 4%</Badge>
+                <Badge variant="outline" className="text-[12px] font-bold border-primary/20 text-primary uppercase h-6 px-2 rounded-lg">Balanced 4%</Badge>
               </div>
             </div>
           </div>
@@ -326,17 +325,17 @@ export default function LivestockPage() {
                         </div>
                         <div>
                           <p className="text-[16px] font-bold text-neutral-900 leading-none">{task.healthType}</p>
-                          <p className="text-[12px] font-medium text-muted-foreground mt-1.5 uppercase tracking-widest">{task.medicineName} • {task.date}</p>
+                          <p className="text-[12px] font-bold text-muted-foreground mt-1.5 uppercase tracking-widest">{task.medicineName} • {task.date}</p>
                         </div>
                       </div>
-                      <Badge variant="outline" className="text-[12px] font-medium uppercase tracking-widest h-8 px-3 rounded-lg border-neutral-200 bg-white">
+                      <Badge variant="outline" className="text-[12px] font-bold uppercase tracking-widest h-8 px-3 rounded-lg border-neutral-200 bg-white">
                         Due: {task.nextDueDate}
                       </Badge>
                     </div>
                   ))
                 ) : (
                   <div className="p-12 rounded-[2rem] border-2 border-dashed border-neutral-100 text-center opacity-40">
-                    <p className="text-[14px] font-semibold uppercase tracking-widest">No clinical records discovered in the cloud</p>
+                    <p className="text-[14px] font-bold uppercase tracking-widest">No clinical records discovered in the cloud</p>
                   </div>
                 )}
               </div>
@@ -352,8 +351,8 @@ export default function LivestockPage() {
                     <User className="h-5 w-5 text-neutral-400" />
                   </div>
                   <div>
-                    <p className="text-[12px] font-medium uppercase tracking-widest text-muted-foreground opacity-60">Provisioned By</p>
-                    <p className="text-[14px] font-semibold text-neutral-900">{viewingSheep.creatorName || 'Staff Shepherd'}</p>
+                    <p className="text-[12px] font-bold uppercase tracking-widest text-muted-foreground opacity-60">Provisioned By</p>
+                    <p className="text-[14px] font-bold text-neutral-900">{viewingSheep.creatorName || 'Staff Shepherd'}</p>
                   </div>
                 </div>
                 <div className="p-5 rounded-3xl bg-neutral-50/50 flex items-center gap-4">
@@ -361,8 +360,8 @@ export default function LivestockPage() {
                     <HistoryIcon className="h-5 w-5 text-neutral-400" />
                   </div>
                   <div>
-                    <p className="text-[12px] font-medium uppercase tracking-widest text-muted-foreground opacity-60">Synchronized</p>
-                    <p className="text-[14px] font-semibold text-neutral-900">
+                    <p className="text-[12px] font-bold uppercase tracking-widest text-muted-foreground opacity-60">Synchronized</p>
+                    <p className="text-[14px] font-bold text-neutral-900">
                       {viewingSheep.createdAt ? format(viewingSheep.createdAt.toDate(), "MMM dd, yyyy") : 'Initial Sync'}
                     </p>
                   </div>
@@ -413,7 +412,7 @@ export default function LivestockPage() {
               placeholder="Search Tag ID..." 
               value={searchTagId}
               onChange={(e) => setSearchTagId(e.target.value)}
-              className="pl-10 h-10 w-48 rounded-xl bg-white border-none shadow-sm font-medium text-sm" 
+              className="pl-10 h-10 w-48 rounded-xl bg-white border-none shadow-sm font-medium text-[14px]" 
             />
           </div>
           <Button variant="ghost" size="icon" className="h-10 w-10 text-neutral-500"><Filter className="h-5 w-5" /></Button>
@@ -421,7 +420,6 @@ export default function LivestockPage() {
         </div>
       </div>
 
-      {/* Dynamic Flock Metrics Row */}
       <div className="grid gap-6 grid-cols-1 sm:grid-cols-3 mb-12">
         <StatCard
             title={t('tracked')}
@@ -490,15 +488,15 @@ export default function LivestockPage() {
                         {sheep.tagId}
                       </h3>
                       {sheep.breed && (
-                        <p className="text-[12px] font-medium text-neutral-400 mt-2 uppercase tracking-widest truncate">
+                        <p className="text-[12px] font-bold text-neutral-400 mt-2 uppercase tracking-widest truncate">
                           {sheep.breed}
                         </p>
                       )}
                       <div className="flex items-center gap-2 mt-3">
-                        <Badge variant="secondary" className="bg-neutral-100 text-neutral-600 border-none text-[12px] font-medium h-6 px-2 tracking-widest">
+                        <Badge variant="secondary" className="bg-neutral-100 text-neutral-600 border-none text-[12px] font-bold h-6 px-2 tracking-widest">
                           {sheep.currentWeight} KG
                         </Badge>
-                        <Badge variant="secondary" className="bg-neutral-100 text-neutral-600 border-none text-[12px] font-medium h-6 px-2 tracking-widest">
+                        <Badge variant="secondary" className="bg-neutral-100 text-neutral-600 border-none text-[12px] font-bold h-6 px-2 tracking-widest">
                           {sheep.age} MOS
                         </Badge>
                       </div>
@@ -544,7 +542,7 @@ export default function LivestockPage() {
                 <PlusCircle className="h-6 w-6 text-emerald-400" />
                 Register Entry
               </CardTitle>
-              <CardDescription className="text-[12px] font-medium text-white/40 uppercase tracking-[0.2em] relative z-10">Synchronize new livestock with community records</CardDescription>
+              <CardDescription className="text-[12px] font-bold text-white/40 uppercase tracking-[0.2em] relative z-10">Synchronize new livestock with community records</CardDescription>
             </CardHeader>
             <CardContent className="p-10">
               <Form {...trackingForm}>
@@ -552,7 +550,7 @@ export default function LivestockPage() {
                   <div className="space-y-6">
                     <div className="flex items-center gap-3 mb-2">
                       <div className="h-1 w-10 bg-emerald-500 rounded-full" />
-                      <span className="text-[12px] font-medium uppercase tracking-widest text-neutral-400">Visual Documentation</span>
+                      <span className="text-[12px] font-bold uppercase tracking-widest text-neutral-400">Visual Documentation</span>
                     </div>
                     
                     <div className="relative aspect-video rounded-3xl bg-neutral-50 overflow-hidden group border-2 border-dashed border-neutral-200">
@@ -576,7 +574,7 @@ export default function LivestockPage() {
                             <div className="absolute inset-0 bg-neutral-900/90 flex flex-col items-center justify-center p-8 text-center">
                               <AlertTriangle className="h-10 w-10 text-amber-400 mb-4" />
                               <p className="text-[16px] font-bold text-white uppercase tracking-[0.2em]">Camera Access Restricted</p>
-                              <p className="text-[12px] font-medium text-white/40 mt-2 leading-relaxed">Please enable hardware permissions or use the manual gallery upload protocol.</p>
+                              <p className="text-[12px] font-bold text-white/40 mt-2 leading-relaxed">Please enable hardware permissions or use the manual gallery upload protocol.</p>
                             </div>
                           )}
                           <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-4 px-8">
@@ -609,15 +607,15 @@ export default function LivestockPage() {
 
                     <div className="flex items-center gap-3 mt-10 mb-2">
                       <div className="h-1 w-10 bg-blue-500 rounded-full" />
-                      <span className="text-[12px] font-medium uppercase tracking-widest text-neutral-400">Identification Metrics</span>
+                      <span className="text-[12px] font-bold uppercase tracking-widest text-neutral-400">Identification Metrics</span>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <FormField control={trackingForm.control} name="tagId" render={({ field }) => (
                         <FormItem>
-                          <Label className="text-[12px] font-medium uppercase tracking-widest opacity-40 ml-2">Unique Tag ID</Label>
+                          <Label className="text-[14px] font-bold uppercase tracking-widest opacity-40 ml-2">Unique Tag ID</Label>
                           <FormControl>
-                            <Input placeholder="e.g. A-101" className="h-12 rounded-2xl bg-neutral-50 border-none shadow-sm text-[14px] font-semibold px-6 focus-visible:ring-primary/20" {...field} />
+                            <Input placeholder="e.g. A-101" className="h-12 rounded-2xl bg-neutral-50 border-none shadow-sm text-[14px] font-bold px-6" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -625,9 +623,9 @@ export default function LivestockPage() {
                       
                       <FormField control={trackingForm.control} name="breed" render={({ field }) => (
                         <FormItem>
-                          <Label className="text-[12px] font-medium uppercase tracking-widest opacity-40 ml-2">Clinical Breed</Label>
+                          <Label className="text-[14px] font-bold uppercase tracking-widest opacity-40 ml-2">Clinical Breed</Label>
                           <FormControl>
-                            <Input placeholder="e.g. Beltex" className="h-12 rounded-2xl bg-neutral-50 border-none shadow-sm text-[14px] font-semibold px-6" {...field} />
+                            <Input placeholder="e.g. Beltex" className="h-12 rounded-2xl bg-neutral-50 border-none shadow-sm text-[14px] font-bold px-6" {...field} />
                           </FormControl>
                         </FormItem>
                       )} />
@@ -636,23 +634,23 @@ export default function LivestockPage() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       <FormField control={trackingForm.control} name="gender" render={({ field }) => (
                         <FormItem>
-                          <Label className="text-[12px] font-medium uppercase tracking-widest opacity-40 ml-2">Gender</Label>
+                          <Label className="text-[14px] font-bold uppercase tracking-widest opacity-40 ml-2">Gender</Label>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl>
-                              <SelectTrigger className="h-12 rounded-2xl bg-neutral-50 border-none text-[14px] font-semibold px-6">
+                              <SelectTrigger className="h-12 rounded-2xl bg-neutral-50 border-none text-[14px] font-bold px-6">
                                 <SelectValue />
                               </SelectTrigger>
                             </FormControl>
-                            <SelectContent className="rounded-xl border-none shadow-2xl">
-                              <SelectItem value="female" className="text-[14px] font-semibold">Female</SelectItem>
-                              <SelectItem value="male" className="text-[14px] font-semibold">Male</SelectItem>
+                            <SelectContent className="rounded-xl">
+                              <SelectItem value="female" className="text-[14px] font-bold">Female</SelectItem>
+                              <SelectItem value="male" className="text-[14px] font-bold">Male</SelectItem>
                             </SelectContent>
                           </Select>
                         </FormItem>
                       )} />
                       <FormField control={trackingForm.control} name="weight" render={({ field }) => (
                         <FormItem>
-                          <Label className="text-[12px] font-medium uppercase tracking-widest opacity-40 ml-2">Initial Weight (kg)</Label>
+                          <Label className="text-[14px] font-bold uppercase tracking-widest opacity-40 ml-2">Initial Weight (kg)</Label>
                           <FormControl>
                             <Input type="number" step="0.1" className="h-12 rounded-2xl bg-neutral-50 border-none shadow-sm text-[22px] font-black px-6" {...field} />
                           </FormControl>
@@ -660,16 +658,16 @@ export default function LivestockPage() {
                       )} />
                       <FormField control={trackingForm.control} name="age" render={({ field }) => (
                         <FormItem>
-                          <Label className="text-[12px] font-medium uppercase tracking-widest opacity-40 ml-2">Age (months)</Label>
+                          <Label className="text-[14px] font-bold uppercase tracking-widest opacity-40 ml-2">Age (months)</Label>
                           <FormControl>
-                            <Input type="number" className="h-12 rounded-2xl bg-neutral-50 border-none shadow-sm text-[14px] font-semibold px-6" {...field} />
+                            <Input type="number" className="h-12 rounded-2xl bg-neutral-50 border-none shadow-sm text-[14px] font-bold px-6" {...field} />
                           </FormControl>
                         </FormItem>
                       )} />
                     </div>
                   </div>
                   
-                  <Button type="submit" className="w-full h-16 rounded-[1.25rem] text-[16px] font-bold uppercase tracking-[0.25em] shadow-2xl shadow-primary/20 bg-neutral-900 hover:bg-neutral-800 transition-all active:scale-95 text-white">
+                  <Button type="submit" className="w-full h-16 rounded-[1.25rem] text-[16px] font-bold uppercase tracking-[0.25em] shadow-2xl shadow-primary/20 bg-neutral-900 hover:bg-neutral-800 transition-all text-white">
                     <PlusCircle className="mr-4 h-6 w-6 text-emerald-400" /> Commit Record to Ledger
                   </Button>
                 </form>
@@ -692,23 +690,23 @@ export default function LivestockPage() {
               <Pencil className="h-5 w-5 text-emerald-400" />
               Update Record
             </DialogTitle>
-            <DialogDescription className="text-[12px] font-medium text-white/40 uppercase tracking-widest">Adjust physical metrics and identification parameters</DialogDescription>
+            <DialogDescription className="text-[12px] font-bold text-white/40 uppercase tracking-widest">Adjust physical metrics and identification parameters</DialogDescription>
           </DialogHeader>
           <Form {...editForm}>
             <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-6 p-8">
               <FormField control={editForm.control} name="tagId" render={({ field }) => (
                 <FormItem>
-                  <Label className="text-[12px] font-medium uppercase tracking-widest opacity-40 ml-2">Unique Tag ID</Label>
-                  <FormControl><Input className="h-12 rounded-xl bg-neutral-50 border-none text-[14px] font-semibold px-4" {...field} /></FormControl>
+                  <Label className="text-[14px] font-bold uppercase tracking-widest opacity-40 ml-2">Unique Tag ID</Label>
+                  <FormControl><Input className="h-12 rounded-xl bg-neutral-50 border-none text-[14px] font-bold px-4" {...field} /></FormControl>
                 </FormItem>
               )} />
               
               <div className="grid grid-cols-2 gap-4">
                 <FormField control={editForm.control} name="gender" render={({ field }) => (
                   <FormItem>
-                    <Label className="text-[12px] font-medium uppercase tracking-widest opacity-40 ml-2">Gender</Label>
+                    <Label className="text-[14px] font-bold uppercase tracking-widest opacity-40 ml-2">Gender</Label>
                     <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl><SelectTrigger className="h-12 rounded-xl bg-neutral-50 border-none text-[14px] font-semibold px-4"><SelectValue /></SelectTrigger></FormControl>
+                      <FormControl><SelectTrigger className="h-12 rounded-xl bg-neutral-50 border-none text-[14px] font-bold px-4"><SelectValue /></SelectTrigger></FormControl>
                       <SelectContent>
                         <SelectItem value="female">Female</SelectItem>
                         <SelectItem value="male">Male</SelectItem>
@@ -718,8 +716,8 @@ export default function LivestockPage() {
                 )} />
                 <FormField control={editForm.control} name="breed" render={({ field }) => (
                   <FormItem>
-                    <Label className="text-[12px] font-medium uppercase tracking-widest opacity-40 ml-2">Breed</Label>
-                    <FormControl><Input className="h-12 rounded-xl bg-neutral-50 border-none text-[14px] font-semibold px-4" {...field} /></FormControl>
+                    <Label className="text-[14px] font-bold uppercase tracking-widest opacity-40 ml-2">Breed</Label>
+                    <FormControl><Input className="h-12 rounded-xl bg-neutral-50 border-none text-[14px] font-bold px-4" {...field} /></FormControl>
                   </FormItem>
                 )} />
               </div>
@@ -727,19 +725,19 @@ export default function LivestockPage() {
               <div className="grid grid-cols-2 gap-4">
                 <FormField control={editForm.control} name="weight" render={({ field }) => (
                   <FormItem>
-                    <Label className="text-[12px] font-medium uppercase tracking-widest opacity-40 ml-2">Current Weight (kg)</Label>
+                    <Label className="text-[14px] font-bold uppercase tracking-widest opacity-40 ml-2">Current Weight (kg)</Label>
                     <FormControl><Input type="number" step="0.1" className="h-12 rounded-xl bg-neutral-50 border-none text-[22px] font-black px-4" {...field} /></FormControl>
                   </FormItem>
                 )} />
                 <FormField control={editForm.control} name="age" render={({ field }) => (
                   <FormItem>
-                    <Label className="text-[12px] font-medium uppercase tracking-widest opacity-40 ml-2">Age (months)</Label>
-                    <FormControl><Input type="number" className="h-12 rounded-xl bg-neutral-50 border-none text-[14px] font-semibold px-4" {...field} /></FormControl>
+                    <Label className="text-[14px] font-bold uppercase tracking-widest opacity-40 ml-2">Age (months)</Label>
+                    <FormControl><Input type="number" className="h-12 rounded-xl bg-neutral-50 border-none text-[14px] font-bold px-4" {...field} /></FormControl>
                   </FormItem>
                 )} />
               </div>
               <DialogFooter className="pt-4 gap-4">
-                <Button variant="outline" type="button" onClick={() => setIsEditDialogOpen(false)} className="h-12 px-6 rounded-xl text-[14px] font-semibold border-neutral-200">Cancel</Button>
+                <Button variant="outline" type="button" onClick={() => setIsEditDialogOpen(false)} className="h-12 px-6 rounded-xl text-[14px] font-bold border-neutral-200">Cancel</Button>
                 <Button type="submit" className="h-12 flex-1 rounded-xl text-[16px] font-bold uppercase tracking-widest shadow-2xl shadow-primary/20 bg-neutral-900 text-white hover:bg-neutral-800">
                   <Save className="mr-2 h-4 w-4 text-emerald-400" /> Save Changes
                 </Button>

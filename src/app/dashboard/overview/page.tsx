@@ -9,21 +9,19 @@ import {
   Skull,
   Syringe,
   Receipt,
-  ShieldCheck,
-  ArrowUpRight
+  LayoutGrid,
+  Activity
 } from 'lucide-react';
 import { SheepIcon } from '@/components/logo';
 import { StatCard } from '@/components/stat-card';
 import { useFarm } from '@/context/FarmContext';
 import { PageHeader } from '@/components/page-header';
 import { useLanguage } from '@/context/LanguageContext';
-import { Card, CardContent } from '@/components/ui/card';
 
 export default function OverviewPage() {
   const { 
     totalSheep, 
     totalExpenses, 
-    totalSales, 
     isLoading, 
     totalReceivables, 
     totalPayables, 
@@ -40,7 +38,7 @@ export default function OverviewPage() {
        <div className="flex h-[calc(100vh-120px)] w-full items-center justify-center">
         <div className="flex flex-col items-center gap-6">
           <div className="w-12 h-12 border-4 border-primary/10 rounded-full border-t-primary animate-spin" />
-          <p className="info-text-precise text-primary/40 animate-pulse uppercase tracking-[0.3em]">Establishing Elite Link</p>
+          <p className="text-[12px] font-medium text-primary/40 animate-pulse uppercase tracking-[0.3em]">Establishing Elite Link</p>
         </div>
       </div>
     )
@@ -56,17 +54,17 @@ export default function OverviewPage() {
       </div>
       
       <div className="grid gap-12">
-        {/* Core Inventory Intelligence */}
+        {/* CORE INVENTORY: Balanced Grid for Web, Stacked for Mobile */}
         <section>
           <div className="flex items-center gap-3 mb-8">
             <div className="h-px flex-1 bg-primary/10" />
-            <h2 className="info-text-precise text-primary/40 tracking-[0.4em] uppercase whitespace-nowrap">
+            <h2 className="text-[12px] font-bold text-primary/40 tracking-[0.4em] uppercase whitespace-nowrap px-4">
               {t('inventory_status')}
             </h2>
             <div className="h-px flex-1 bg-primary/10" />
           </div>
           
-          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2">
+          <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
             <StatCard
                 title={t('live_sheep')}
                 value={totalSheep.toString()}
@@ -84,11 +82,11 @@ export default function OverviewPage() {
           </div>
         </section>
 
-        {/* Financial Flow Command */}
+        {/* FINANCIAL FLOW: High-Density Column for Web */}
         <section>
           <div className="flex items-center gap-3 mb-8">
             <div className="h-px flex-1 bg-primary/10" />
-            <h2 className="info-text-precise text-primary/40 tracking-[0.4em] uppercase whitespace-nowrap">
+            <h2 className="text-[12px] font-bold text-primary/40 tracking-[0.4em] uppercase whitespace-nowrap px-4">
               {t('financial_summary')}
             </h2>
             <div className="h-px flex-1 bg-primary/10" />
@@ -119,11 +117,11 @@ export default function OverviewPage() {
           </div>
         </section>
 
-        {/* Operational Deep-Dive */}
+        {/* OPERATIONAL DEEP-DIVE: Expanded Grid for Web */}
         <section>
           <div className="flex items-center gap-3 mb-8">
             <div className="h-px flex-1 bg-primary/10" />
-            <h2 className="info-text-precise text-primary/40 tracking-[0.4em] uppercase whitespace-nowrap">
+            <h2 className="text-[12px] font-bold text-primary/40 tracking-[0.4em] uppercase whitespace-nowrap px-4">
               {t('operational_breakdown')}
             </h2>
             <div className="h-px flex-1 bg-primary/10" />
