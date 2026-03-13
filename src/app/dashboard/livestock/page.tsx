@@ -21,7 +21,10 @@ import {
   User,
   Calendar,
   Weight,
-  Loader2
+  Loader2,
+  Search,
+  X,
+  Save
 } from 'lucide-react';
 
 import { PageHeader } from '@/components/page-header';
@@ -46,16 +49,24 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
-const quickEntrySchema = z.object({
+const assetSchema = z.object({
   tagId: z.string().min(1, 'Tag ID is required'),
   gender: z.enum(['male', 'female'], { required_error: 'Gender is required' }),
   age: z.coerce.number().min(0, 'Age is required'),
-  initialWeight: z.coerce.number().min(1, 'Initial weight is required'),
+  currentWeight: z.coerce.number().min(1, 'Weight is required'),
   breed: z.string().min(1, 'Breed is required').default('Standard'),
 });
 
-type QuickEntryData = z.infer<typeof quickEntrySchema>;
+type AssetFormData = z.infer<typeof assetSchema>;
 
 export default function LivestockPage() {
   const { toast } = useToast();
@@ -63,13 +74,20 @@ export default function LivestockPage() {
   const { 
     trackedSheep, 
     addTrackedSheep, 
+    updateTrackedSheep,
+    deleteTrackedSheep,
     totalDailyFeed,
     totalFeedCost,
     totalTracked,
     isLoading
   } = useFarm();
   
-  const [viewingSheep, setViewingSheep] = useState<any>(null);
+  // Filtering State
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  // Editing State
+  const [editingAsset, setEditingAsset] = useState<any>(null);
+  const [isEditOpen, setIsEditOpen] = useState(false);
   
   // Camera States
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
@@ -78,36 +96,72 @@ export default function LivestockPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const form = useForm<QuickEntryData>({
-    resolver: zodResolver(quickEntrySchema),
+  const form = useForm<AssetFormData>({
+    resolver: zodResolver(assetSchema),
     defaultValues: { 
       tagId: '',
       gender: 'female',
       age: 6,
-      initialWeight: 25,
+      currentWeight: 25,
       breed: 'Standard'
     },
   });
 
-  const onQuickSubmit: SubmitHandler<QuickEntryData> = (data) => {
+  const editForm = useForm<AssetFormData>({
+    resolver: zodResolver(assetSchema),
+  });
+
+  const filteredAssets = useMemo(() => {
+    if (!trackedSheep) return [];
+    if (!searchTerm.trim()) return trackedSheep;
+    
+    const term = searchTerm.toLowerCase();
+    return trackedSheep.filter(s => 
+      s.tagId.toLowerCase().includes(term) || 
+      (s.breed || '').toLowerCase().includes(term)
+    );
+  }, [trackedSheep, searchTerm]);
+
+  const onQuickSubmit: SubmitHandler<AssetFormData> = (data) => {
     addTrackedSheep({ 
-      tagId: data.tagId,
-      age: data.age,
-      currentWeight: data.initialWeight,
-      gender: data.gender,
-      breed: data.breed,
+      ...data,
       photoDataUrl: capturedPhoto || undefined
     });
     form.reset({
       tagId: '',
       gender: 'female',
       age: 6,
-      initialWeight: 25,
+      currentWeight: 25,
       breed: 'Standard'
     });
     setCapturedPhoto(null);
     setIsCameraOpen(false);
     toast({ title: 'Record Saved', description: `Asset ${data.tagId} synchronized.` });
+  };
+
+  const onEditSubmit: SubmitHandler<AssetFormData> = (data) => {
+    if (!editingAsset) return;
+    updateTrackedSheep(editingAsset.id, data, editingAsset._path);
+    setIsEditOpen(false);
+    setEditingAsset(null);
+    toast({ title: 'Record Updated', description: `Asset ${data.tagId} parameters synchronized.` });
+  };
+
+  const handleEditClick = (asset: any) => {
+    setEditingAsset(asset);
+    editForm.reset({
+      tagId: asset.tagId,
+      gender: asset.gender,
+      age: asset.age,
+      currentWeight: asset.currentWeight,
+      breed: asset.breed || 'Standard',
+    });
+    setIsEditOpen(true);
+  };
+
+  const handleDeleteClick = (id: string, path?: string) => {
+    deleteTrackedSheep(id, path);
+    toast({ title: 'Record Deleted', description: 'Asset has been removed from ledger.', variant: 'destructive' });
   };
 
   const startCamera = async () => {
@@ -223,7 +277,28 @@ export default function LivestockPage() {
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pt-4">
                 <div className="lg:col-span-7 space-y-6">
-                  <div className="rounded-2xl border border-neutral-100 overflow-hidden shadow-sm">
+                  {/* FILTER BAR */}
+                  <div className="relative group">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                    <Input 
+                      placeholder="Filter by Tag ID or Breed..." 
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="h-12 pl-12 rounded-2xl bg-neutral-50 border-none shadow-inner font-bold text-sm"
+                    />
+                    {searchTerm && (
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={() => setSearchTerm('')}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 hover:bg-transparent"
+                      >
+                        <X className="h-4 w-4 text-muted-foreground" />
+                      </Button>
+                    )}
+                  </div>
+
+                  <div className="rounded-2xl border border-neutral-100 overflow-hidden shadow-sm bg-white">
                     <ScrollArea className="h-[600px] w-full">
                       <Table>
                         <TableHeader className="bg-neutral-50/50 sticky top-0 z-10 backdrop-blur-md">
@@ -231,12 +306,13 @@ export default function LivestockPage() {
                             <TableHead className="text-[12px] font-black uppercase tracking-widest py-4 pl-6">ID</TableHead>
                             <TableHead className="text-[12px] font-black uppercase tracking-widest py-4">Attributes</TableHead>
                             <TableHead className="text-[12px] font-black uppercase tracking-widest py-4">Weight</TableHead>
+                            <TableHead className="text-[12px] font-black uppercase tracking-widest py-4 text-right pr-6">Action</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {trackedSheep && trackedSheep.length > 0 ? (
-                            trackedSheep.map((sheep) => (
-                              <TableRow key={sheep.id} className="hover:bg-neutral-50 transition-colors cursor-pointer group" onClick={() => setViewingSheep(sheep)}>
+                          {filteredAssets.length > 0 ? (
+                            filteredAssets.map((sheep) => (
+                              <TableRow key={sheep.id} className="hover:bg-neutral-50 transition-colors group">
                                 <TableCell className="font-black text-[14px] py-4 pl-6 uppercase text-primary/80">
                                   {sheep.tagId}
                                   <div className="text-[10px] font-bold text-muted-foreground mt-0.5">{sheep.breed || 'Standard'}</div>
@@ -258,14 +334,34 @@ export default function LivestockPage() {
                                     </div>
                                   )}
                                 </TableCell>
+                                <TableCell className="text-right pr-6">
+                                  <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <Button 
+                                      variant="ghost" 
+                                      size="icon" 
+                                      className="h-8 w-8 rounded-lg bg-neutral-100 hover:bg-neutral-200"
+                                      onClick={() => handleEditClick(sheep)}
+                                    >
+                                      <Pencil className="h-3.5 w-3.5 text-blue-600" />
+                                    </Button>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="icon" 
+                                      className="h-8 w-8 rounded-lg bg-rose-50 hover:bg-rose-100"
+                                      onClick={() => handleDeleteClick(sheep.id, sheep._path)}
+                                    >
+                                      <Trash2 className="h-3.5 w-3.5 text-rose-600" />
+                                    </Button>
+                                  </div>
+                                </TableCell>
                               </TableRow>
                             ))
                           ) : (
                             <TableRow>
-                              <TableCell colSpan={3} className="text-center py-20 text-[14px] text-muted-foreground italic uppercase tracking-widest">
+                              <TableCell colSpan={4} className="text-center py-20 text-[14px] text-muted-foreground italic uppercase tracking-widest">
                                 <div className="flex flex-col items-center gap-4 opacity-40">
                                   <Info className="h-10 w-10" />
-                                  <span>No assets logged in flock</span>
+                                  <span>{searchTerm ? "No matching assets found" : "No assets logged in flock"}</span>
                                 </div>
                               </TableCell>
                             </TableRow>
@@ -356,7 +452,7 @@ export default function LivestockPage() {
 
                           <FormField
                             control={form.control}
-                            name="initialWeight"
+                            name="currentWeight"
                             render={({ field }) => (
                               <FormItem className="col-span-2">
                                 <Label className="text-[14px] font-black uppercase tracking-widest opacity-40 ml-2">Initial Weight (KG)</Label>
@@ -446,6 +542,89 @@ export default function LivestockPage() {
           </section>
         </div>
       </div>
+
+      {/* EDIT ASSET DIALOG */}
+      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
+          <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
+            <DialogTitle className="text-xl font-black tracking-tight flex items-center gap-3 uppercase">
+              <Pencil className="h-5 w-5 text-emerald-400" />
+              Update Asset Parameters
+            </DialogTitle>
+            <DialogDescription className="text-white/40 text-xs font-bold uppercase tracking-widest">Adjust clinical record for Tag ID: {editingAsset?.tagId}</DialogDescription>
+          </DialogHeader>
+          <Form {...editForm}>
+            <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-6 p-8 bg-white">
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={editForm.control}
+                  name="tagId"
+                  render={({ field }) => (
+                    <FormItem className="col-span-2">
+                      <Label className="text-xs font-black uppercase opacity-40 ml-2">Tag ID</Label>
+                      <FormControl><Input className="h-12 rounded-xl bg-neutral-50 border-none font-bold px-4" {...field} /></FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={editForm.control}
+                  name="breed"
+                  render={({ field }) => (
+                    <FormItem className="col-span-2">
+                      <Label className="text-xs font-black uppercase opacity-40 ml-2">Breed</Label>
+                      <FormControl><Input className="h-12 rounded-xl bg-neutral-50 border-none font-bold px-4" {...field} /></FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={editForm.control}
+                  name="gender"
+                  render={({ field }) => (
+                    <FormItem>
+                      <Label className="text-xs font-black uppercase opacity-40 ml-2">Gender</Label>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="h-12 rounded-xl bg-neutral-50 border-none font-bold"><SelectValue /></SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="female">Female</SelectItem>
+                          <SelectItem value="male">Male</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={editForm.control}
+                  name="age"
+                  render={({ field }) => (
+                    <FormItem>
+                      <Label className="text-xs font-black uppercase opacity-40 ml-2">Age (Months)</Label>
+                      <FormControl><Input type="number" className="h-12 rounded-xl bg-neutral-50 border-none font-bold px-4" {...field} /></FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={editForm.control}
+                  name="currentWeight"
+                  render={({ field }) => (
+                    <FormItem className="col-span-2">
+                      <Label className="text-xs font-black uppercase opacity-40 ml-2">Current Weight (KG)</Label>
+                      <FormControl><Input type="number" step="0.1" className="h-12 rounded-xl bg-neutral-50 border-none font-black text-lg px-4" {...field} /></FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <DialogFooter className="pt-4 gap-4">
+                <Button type="button" variant="outline" onClick={() => setIsEditOpen(false)} className="h-12 px-6 rounded-xl font-bold border-neutral-200 uppercase text-xs">Cancel</Button>
+                <Button type="submit" className="h-12 px-8 rounded-xl font-black uppercase tracking-widest shadow-2xl shadow-primary/20 bg-neutral-900 text-white hover:bg-neutral-800 flex-1 text-xs">
+                  <Save className="mr-2 h-4 w-4" /> Save Adjustments
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
