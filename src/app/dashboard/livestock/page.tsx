@@ -50,7 +50,7 @@ const quickEntrySchema = z.object({
   gender: z.enum(['male', 'female'], { required_error: 'Gender is required' }),
   age: z.coerce.number().min(0, 'Age is required'),
   initialWeight: z.coerce.number().min(1, 'Initial weight is required'),
-  breed: z.string().default('Standard'),
+  breed: z.string().min(1, 'Breed is required').default('Standard'),
 });
 
 type QuickEntryData = z.infer<typeof quickEntrySchema>;
@@ -96,7 +96,13 @@ export default function LivestockPage() {
       breed: data.breed,
       photoDataUrl: capturedPhoto || undefined
     });
-    form.reset();
+    form.reset({
+      tagId: '',
+      gender: 'female',
+      age: 6,
+      initialWeight: 25,
+      breed: 'Standard'
+    });
     setCapturedPhoto(null);
     setIsCameraOpen(false);
     toast({ title: 'Record Saved', description: `Asset ${data.tagId} synchronized.` });
@@ -267,6 +273,24 @@ export default function LivestockPage() {
                                 <FormControl>
                                   <Input 
                                     placeholder="e.g. SHP325" 
+                                    className="h-14 rounded-2xl bg-white border-neutral-200 shadow-sm font-bold text-[16px] px-6 focus-visible:ring-emerald-500/20" 
+                                    {...field} 
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name="breed"
+                            render={({ field }) => (
+                              <FormItem className="col-span-2">
+                                <Label className="text-[14px] font-black uppercase tracking-widest opacity-40 ml-2">Breed</Label>
+                                <FormControl>
+                                  <Input 
+                                    placeholder="e.g. Nellore, Deccani" 
                                     className="h-14 rounded-2xl bg-white border-neutral-200 shadow-sm font-bold text-[16px] px-6 focus-visible:ring-emerald-500/20" 
                                     {...field} 
                                   />
