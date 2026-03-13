@@ -257,7 +257,6 @@ export default function LivestockPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Badge className="bg-emerald-500 text-white border-none button-text-precise h-7 px-3 rounded-xl tracking-widest shadow-lg">VERIFIED AUDIT</Badge>
                   <p className="text-[18px] font-bold text-neutral-400 uppercase tracking-[0.2em]">{viewingSheep.breed || 'Standard Breed'}</p>
                 </div>
               </div>

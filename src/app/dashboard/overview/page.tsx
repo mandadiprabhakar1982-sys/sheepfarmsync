@@ -53,13 +53,6 @@ export default function OverviewPage() {
           title={t('farm_overview')}
           description="Operational Intelligence Command"
         />
-        <div className="px-6 py-3 bg-primary rounded-[1.5rem] text-white flex items-center gap-4 shadow-2xl elite-shadow ring-4 ring-white">
-          <ShieldCheck className="h-5 w-5 text-accent" />
-          <div>
-            <p className="info-text-precise opacity-40 leading-none mb-1">Audit Status</p>
-            <p className="button-text-precise uppercase">Verified</p>
-          </div>
-        </div>
       </div>
       
       <div className="grid gap-12">
