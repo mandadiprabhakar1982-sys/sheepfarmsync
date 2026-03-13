@@ -101,27 +101,28 @@ export default function OverviewPage() {
             <div className="h-px flex-1 bg-primary/10" />
           </div>
 
-          <div className="grid gap-6 grid-cols-1 md:grid-cols-4">
-            <Card className="md:col-span-2 border-none bg-primary text-white rounded-[2rem] shadow-2xl elite-shadow overflow-hidden relative group">
-              <ArrowUpRight className="absolute -top-4 -right-4 h-32 w-32 text-white/5 transition-transform group-hover:scale-110" />
-              <CardContent className="p-10 flex flex-col justify-between h-full min-h-[200px]">
-                <div>
-                  <p className="info-text-precise text-white/40 tracking-[0.3em] mb-4">Total Realized Revenue</p>
-                  <p className="app-header tracking-tighter text-4xl">₹{totalSales.toLocaleString()}</p>
-                </div>
-                <div className="flex items-center gap-2 button-text-precise uppercase text-accent mt-8">
-                  <TrendingUp className="h-4 w-4" /> 12% Cycle Growth
-                </div>
-              </CardContent>
-            </Card>
-
-            <div className="grid grid-cols-1 gap-6 md:col-span-2">
-              <div className="grid grid-cols-2 gap-6">
-                <StatCard title={t('receivables')} value={`₹${totalReceivables.toLocaleString()}`} icon={TrendingUp} variant="success" />
-                <StatCard title={t('payables')} value={`₹${totalPayables.toLocaleString()}`} icon={TrendingDown} variant="destructive" />
-              </div>
-              <StatCard title={t('cost')} value={`₹${totalExpenses.toLocaleString()}`} icon={IndianRupee} variant="default" className="h-full" />
-            </div>
+          <div className="grid gap-6 grid-cols-1 md:grid-cols-3">
+            <StatCard 
+              title={t('receivables')} 
+              value={`₹${totalReceivables.toLocaleString()}`} 
+              icon={TrendingUp} 
+              variant="success" 
+              description="Expected Inflow"
+            />
+            <StatCard 
+              title={t('payables')} 
+              value={`₹${totalPayables.toLocaleString()}`} 
+              icon={TrendingDown} 
+              variant="destructive" 
+              description="Pending Outflow"
+            />
+            <StatCard 
+              title={t('cost')} 
+              value={`₹${totalExpenses.toLocaleString()}`} 
+              icon={IndianRupee} 
+              variant="default" 
+              description="Total Operational Spend"
+            />
           </div>
         </section>
 
