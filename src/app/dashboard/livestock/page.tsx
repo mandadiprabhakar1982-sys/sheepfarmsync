@@ -402,8 +402,8 @@ export default function LivestockPage() {
 
                 <div className="lg:col-span-5">
                   <div className="bg-neutral-50/50 rounded-3xl p-8 border border-neutral-100">
-                    <h3 className="text-[18px] font-black text-neutral-900 uppercase tracking-[0.1em] mb-6 flex items-center gap-3">
-                      <div className="h-5 w-1.5 bg-primary rounded-full" />
+                    <h3 className="text-[18px] font-black text-[#2e7d32] uppercase tracking-[0.1em] mb-6 flex items-center gap-3">
+                      <div className="h-5 w-1.5 bg-[#2e7d32] rounded-full" />
                       Add New Sheep
                     </h3>
                     <Form {...form}>
