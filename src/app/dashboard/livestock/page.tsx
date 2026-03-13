@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useRef, useEffect } from 'react';
@@ -49,6 +48,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogContent,
@@ -163,13 +163,13 @@ export default function LivestockPage() {
   useEffect(() => {
     const [price, paid] = watchedPurchaseFields;
     purchaseForm.setValue('dueAmount', Math.max(0, (price || 0) - (paid || 0)));
-  }, [watchedPurchaseFields]);
+  }, [watchedPurchaseFields, purchaseForm]);
 
   const watchedEditPurchaseFields = editPurchaseForm.watch(['purchasePrice', 'amountPaid']);
   useEffect(() => {
     const [price, paid] = watchedEditPurchaseFields;
     editPurchaseForm.setValue('dueAmount', Math.max(0, (price || 0) - (paid || 0)));
-  }, [watchedEditPurchaseFields]);
+  }, [watchedEditPurchaseFields, editPurchaseForm]);
 
   // --- HANDLERS: ASSETS ---
 
