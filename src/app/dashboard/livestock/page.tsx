@@ -247,13 +247,6 @@ export default function LivestockPage() {
                       </TableBody>
                     </Table>
                   </div>
-
-                  <div className="p-5 rounded-[1.25rem] bg-blue-50 border border-blue-100 flex items-center gap-4">
-                    <div className="h-3 w-3 rounded-full bg-blue-500 shrink-0 shadow-sm" />
-                    <p className="text-[12px] font-bold text-blue-800 tracking-tight leading-relaxed italic">
-                      Keep a close watch for signs of illness in lambs.
-                    </p>
-                  </div>
                 </div>
 
                 <div className="lg:col-span-5">
