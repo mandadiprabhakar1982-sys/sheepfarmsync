@@ -402,7 +402,10 @@ export default function LivestockPage() {
 
                 <div className="lg:col-span-5">
                   <div className="bg-neutral-50/50 rounded-3xl p-8 border border-neutral-100">
-                    <h3 className="text-[18px] font-black text-neutral-900 uppercase tracking-tight mb-6">Add New Sheep</h3>
+                    <h3 className="text-[18px] font-black text-neutral-900 uppercase tracking-[0.1em] mb-6 flex items-center gap-3">
+                      <div className="h-5 w-1.5 bg-primary rounded-full" />
+                      Add New Sheep
+                    </h3>
                     <Form {...form}>
                       <form onSubmit={form.handleSubmit(onQuickSubmit)} className="space-y-6">
                         <div className="grid grid-cols-2 gap-4">
