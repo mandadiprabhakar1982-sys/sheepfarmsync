@@ -88,6 +88,7 @@ export default function LivestockPage() {
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
+  const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -106,6 +107,13 @@ export default function LivestockPage() {
   const editForm = useForm<AssetFormData>({
     resolver: zodResolver(assetSchema),
   });
+
+  // Attach stream to video element when it becomes available
+  useEffect(() => {
+    if (isCameraOpen && cameraStream && videoRef.current) {
+      videoRef.current.srcObject = cameraStream;
+    }
+  }, [isCameraOpen, cameraStream]);
 
   const filteredAssets = useMemo(() => {
     if (!trackedSheep) return [];
@@ -133,7 +141,7 @@ export default function LivestockPage() {
       breed: 'Standard'
     });
     setCapturedPhoto(null);
-    setIsCameraOpen(false);
+    stopCamera();
     toast({ title: 'Record Saved', description: `Asset ${data.tagId} synchronized.` });
   };
 
@@ -167,13 +175,22 @@ export default function LivestockPage() {
   };
 
   const startCamera = async () => {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      toast({
+        variant: 'destructive',
+        title: 'Platform Unsupported',
+        description: 'Camera access is not supported in this browser environment.',
+      });
+      return;
+    }
+
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: 'environment' } 
+      });
+      setCameraStream(stream);
       setHasCameraPermission(true);
       setIsCameraOpen(true);
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-      }
     } catch (error) {
       console.error('Error accessing camera:', error);
       setHasCameraPermission(false);
@@ -186,9 +203,9 @@ export default function LivestockPage() {
   };
 
   const stopCamera = () => {
-    if (videoRef.current && videoRef.current.srcObject) {
-      const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
-      tracks.forEach(track => track.stop());
+    if (cameraStream) {
+      cameraStream.getTracks().forEach(track => track.stop());
+      setCameraStream(null);
     }
     setIsCameraOpen(false);
   };
@@ -553,7 +570,13 @@ export default function LivestockPage() {
 
                           {isCameraOpen && (
                             <div className="relative rounded-2xl overflow-hidden bg-black aspect-video">
-                              <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
+                              <video 
+                                ref={videoRef} 
+                                className="w-full h-full object-cover" 
+                                autoPlay 
+                                muted 
+                                playsInline 
+                              />
                               <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-4 px-4">
                                 <Button type="button" onClick={capturePhoto} className="h-12 w-12 rounded-full bg-white text-black hover:bg-neutral-200 p-0">
                                   <div className="h-10 w-10 rounded-full border-2 border-black" />
