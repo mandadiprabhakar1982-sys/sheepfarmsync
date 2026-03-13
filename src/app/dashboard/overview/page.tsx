@@ -45,7 +45,7 @@ export default function OverviewPage() {
        <div className="flex h-[calc(100vh-120px)] w-full items-center justify-center">
         <div className="flex flex-col items-center gap-6">
           <div className="w-12 h-12 border-4 border-primary/10 rounded-full border-t-primary animate-spin" />
-          <p className="text-[9px] font-display text-primary/40 animate-pulse uppercase tracking-[0.3em]">Establishing Elite Link</p>
+          <p className="info-text-precise text-primary/40 animate-pulse uppercase tracking-[0.3em]">Establishing Elite Link</p>
         </div>
       </div>
     )
@@ -61,18 +61,18 @@ export default function OverviewPage() {
         <div className="px-6 py-3 bg-primary rounded-[1.5rem] text-white flex items-center gap-4 shadow-2xl elite-shadow ring-4 ring-white">
           <ShieldCheck className="h-5 w-5 text-accent" />
           <div>
-            <p className="text-[8px] font-display opacity-40 leading-none mb-1">Audit Status</p>
-            <p className="text-sm font-black tracking-widest uppercase">Verified</p>
+            <p className="info-text-precise opacity-40 leading-none mb-1">Audit Status</p>
+            <p className="button-text-precise uppercase">Verified</p>
           </div>
         </div>
       </div>
       
       <div className="grid gap-12">
-        {/* Core Inventory Intelligence */}
+        {/* Core Inventory Intelligence - Using Colorful Pattern from Design Reference */}
         <section>
           <div className="flex items-center gap-3 mb-8">
             <div className="h-px flex-1 bg-primary/10" />
-            <h2 className="text-[10px] font-display text-primary/40 tracking-[0.4em] uppercase whitespace-nowrap">
+            <h2 className="info-text-precise text-primary/40 tracking-[0.4em] uppercase whitespace-nowrap">
               {t('inventory_status')}
             </h2>
             <div className="h-px flex-1 bg-primary/10" />
@@ -90,14 +90,14 @@ export default function OverviewPage() {
                 title={t('tracked')}
                 value={totalTracked.toString()}
                 icon={ListChecks}
-                variant="info"
+                variant="warning"
                 description="ID Verified"
             />
             <StatCard
                 title={t('avg_weight')}
                 value={`${avgWeight.toFixed(1)} kg`}
                 icon={Scale}
-                variant="warning"
+                variant="info"
                 description="Mean Weight"
             />
             <StatCard
@@ -121,7 +121,7 @@ export default function OverviewPage() {
         <section>
           <div className="flex items-center gap-3 mb-8">
             <div className="h-px flex-1 bg-primary/10" />
-            <h2 className="text-[10px] font-display text-primary/40 tracking-[0.4em] uppercase whitespace-nowrap">
+            <h2 className="info-text-precise text-primary/40 tracking-[0.4em] uppercase whitespace-nowrap">
               {t('financial_summary')}
             </h2>
             <div className="h-px flex-1 bg-primary/10" />
@@ -132,10 +132,10 @@ export default function OverviewPage() {
               <ArrowUpRight className="absolute -top-4 -right-4 h-32 w-32 text-white/5 transition-transform group-hover:scale-110" />
               <CardContent className="p-10 flex flex-col justify-between h-full min-h-[200px]">
                 <div>
-                  <p className="text-[9px] font-display text-white/40 tracking-[0.3em] mb-4">Total Realized Revenue</p>
-                  <p className="text-5xl font-display tracking-tighter">₹{totalSales.toLocaleString()}</p>
+                  <p className="info-text-precise text-white/40 tracking-[0.3em] mb-4">Total Realized Revenue</p>
+                  <p className="app-header tracking-tighter text-4xl">₹{totalSales.toLocaleString()}</p>
                 </div>
-                <div className="flex items-center gap-2 text-[10px] font-black uppercase text-accent tracking-widest mt-8">
+                <div className="flex items-center gap-2 button-text-precise uppercase text-accent mt-8">
                   <TrendingUp className="h-4 w-4" /> 12% Cycle Growth
                 </div>
               </CardContent>
@@ -155,7 +155,7 @@ export default function OverviewPage() {
         <section>
           <div className="flex items-center gap-3 mb-8">
             <div className="h-px flex-1 bg-primary/10" />
-            <h2 className="text-[10px] font-display text-primary/40 tracking-[0.4em] uppercase whitespace-nowrap">
+            <h2 className="info-text-precise text-primary/40 tracking-[0.4em] uppercase whitespace-nowrap">
               {t('operational_breakdown')}
             </h2>
             <div className="h-px flex-1 bg-primary/10" />

@@ -12,10 +12,10 @@ export function PageHeader({ title, description, className, children }: PageHead
         <div className="space-y-2">
             <div className="flex items-center gap-3">
               <div className="h-8 w-1 bg-accent rounded-full hidden md:block" />
-              <h1 className="text-3xl font-display text-primary tracking-tight">{title}</h1>
+              <h1 className="app-header text-primary">{title}</h1>
             </div>
             {description && (
-              <p className="text-[10px] font-black text-primary/40 uppercase tracking-[0.3em] pl-1">
+              <p className="info-text-precise text-primary/40 uppercase tracking-[0.3em] pl-1">
                 {description}
               </p>
             )}
