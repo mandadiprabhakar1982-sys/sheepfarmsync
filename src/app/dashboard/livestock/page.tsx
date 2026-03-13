@@ -56,6 +56,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from '@/components/ui/dialog';
 
 const assetSchema = z.object({
@@ -316,9 +317,20 @@ export default function LivestockPage() {
                                 <TableCell className="font-black text-[14px] py-4 pl-6 uppercase text-primary/80">
                                   <div className="flex items-center gap-3">
                                     {sheep.photoDataUrl ? (
-                                      <div className="h-10 w-10 rounded-lg overflow-hidden border border-neutral-200 shrink-0 shadow-sm bg-white">
-                                        <img src={sheep.photoDataUrl} alt={sheep.tagId} className="h-full w-full object-cover" />
-                                      </div>
+                                      <Dialog>
+                                        <DialogTrigger asChild>
+                                          <div className="h-10 w-10 rounded-lg overflow-hidden border border-neutral-200 shrink-0 shadow-sm bg-white cursor-zoom-in hover:scale-110 hover:border-primary/50 transition-all group/img">
+                                            <img 
+                                              src={sheep.photoDataUrl} 
+                                              alt={sheep.tagId} 
+                                              className="h-full w-full object-cover transition-transform group-hover/img:scale-110" 
+                                            />
+                                          </div>
+                                        </DialogTrigger>
+                                        <DialogContent className="max-w-3xl border-none bg-transparent p-0 shadow-none sm:rounded-[2rem] overflow-hidden">
+                                          <img src={sheep.photoDataUrl} alt={sheep.tagId} className="w-full h-auto" />
+                                        </DialogContent>
+                                      </Dialog>
                                     ) : (
                                       <div className="h-10 w-10 rounded-lg bg-neutral-100 flex items-center justify-center shrink-0 border border-dashed border-neutral-300">
                                         <Camera className="h-4 w-4 text-neutral-400" />
