@@ -116,10 +116,10 @@ export default function DashboardPage() {
               <SyncProIcon className="h-10 w-10 text-white" />
             </div>
           </div>
-          <h1 className="text-3xl md:text-5xl font-black tracking-widest mb-2 uppercase">
+          <h1 className="text-2xl md:text-3xl font-black tracking-widest mb-2 uppercase">
             {t('dashboard_hero')}
           </h1>
-          <p className="text-[10px] md:text-xs font-bold tracking-[0.3em] uppercase opacity-80">
+          <p className="text-[10px] font-bold tracking-[0.3em] uppercase opacity-80">
             {t('dashboard_desc')}
           </p>
         </div>

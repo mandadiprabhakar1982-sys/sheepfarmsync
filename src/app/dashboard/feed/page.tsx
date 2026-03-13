@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useForm, type SubmitHandler } from 'react-hook-form';
@@ -277,7 +276,7 @@ export default function FeedPage() {
         <div className="lg:col-span-8">
           <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
             <CardHeader className="bg-primary p-8 text-white">
-              <CardTitle className="text-2xl font-black tracking-tight leading-none mb-2 flex items-center gap-3">
+              <CardTitle className="text-xl font-black tracking-tight leading-none mb-2 flex items-center gap-3">
                 <Wheat className="h-6 w-6 text-emerald-200" />
                 Procurement Ledger
               </CardTitle>
@@ -321,7 +320,7 @@ export default function FeedPage() {
                         <TableCell className="text-right text-sm font-black">{c.quantity} <span className="text-[10px] opacity-40">KG</span></TableCell>
                         <TableCell className="text-right pr-8 text-sm font-black text-emerald-600">₹{c.cost.toLocaleString()}</TableCell>
                          <TableCell className='pr-8 text-right' onClick={(e) => e.stopPropagation()}>
-                            <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="flex items-center justify-end gap-2">
                               <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl bg-neutral-100" onClick={() => handleEditClick(c)}>
                                   <Pencil className="h-4 w-4" />
                               </Button>
@@ -348,8 +347,8 @@ export default function FeedPage() {
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
         <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
-            <DialogTitle className="text-2xl font-black tracking-tight flex items-center gap-3">
-              <Pencil className="h-6 w-6 text-emerald-400" />
+            <DialogTitle className="text-xl font-black tracking-tight flex items-center gap-3">
+              <Pencil className="h-5 w-5 text-emerald-400" />
               Update Record
             </DialogTitle>
             <DialogDescription className="text-white/40 text-xs font-bold uppercase tracking-widest">

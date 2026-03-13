@@ -36,7 +36,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useFarm } from '@/context/FarmContext';
-import type { HealthTask } from '@/lib/types';
+import type { HealthTask, MedicineExpense } from '@/lib/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 
@@ -76,7 +76,7 @@ type LegacyExpenseFormData = z.infer<typeof legacyExpenseSchema>;
 export default function MedicinePage() {
   const { toast } = useToast();
   const { 
-    medicineExpenses, addMedicineExpense, deleteMedicineExpense, 
+    medicineExpenses, addMedicineExpense, updateMedicineExpense, deleteMedicineExpense, 
     healthTasks, addHealthTask, deleteHealthTask, updateHealthTask,
     trackedSheep 
   } = useFarm();
@@ -84,6 +84,7 @@ export default function MedicinePage() {
   const [isTaskEditDialogOpen, setIsTaskEditDialogOpen] = useState(false);
   const [isLegacyDialogOpen, setIsLegacyDialogOpen] = useState(false);
   const [editingHealthTask, setEditingHealthTask] = useState<HealthTask | null>(null);
+  const [editingLegacyExpense, setEditingLegacyExpense] = useState<MedicineExpense | null>(null);
 
   const [isTaskDateOpen, setIsTaskDateOpen] = useState(false);
   const [isNextDateOpen, setIsNextDateOpen] = useState(false);
@@ -132,6 +133,17 @@ export default function MedicinePage() {
     }
   }, [editingHealthTask, editHealthTaskForm]);
 
+  useEffect(() => {
+    if (editingLegacyExpense) {
+      legacyExpenseForm.reset({
+        ...editingLegacyExpense,
+        date: new Date(editingLegacyExpense.date),
+      });
+    } else {
+      legacyExpenseForm.reset({ date: new Date(), shopName: '', description: '', costOfMedicines: 0, totalAmountSpent: 0, outstandingDues: 0 });
+    }
+  }, [editingLegacyExpense, legacyExpenseForm]);
+
   const onHealthTaskSubmit: SubmitHandler<HealthTaskFormData> = (data) => {
     addHealthTask({
       ...data,
@@ -143,13 +155,21 @@ export default function MedicinePage() {
   };
 
   const onLegacySubmit: SubmitHandler<LegacyExpenseFormData> = (data) => {
-    addMedicineExpense({
+    const payload = {
       ...data,
       date: format(data.date, 'yyyy-MM-dd'),
-    });
-    legacyExpenseForm.reset({ date: new Date(), shopName: '', description: '', costOfMedicines: 0, totalAmountSpent: 0, outstandingDues: 0 });
+    };
+
+    if (editingLegacyExpense) {
+      updateMedicineExpense(editingLegacyExpense.id, payload, editingLegacyExpense._path);
+      toast({ title: 'Success!', description: 'Pharmacy audit updated.' });
+    } else {
+      addMedicineExpense(payload);
+      toast({ title: 'Success!', description: 'Pharmacy audit committed.' });
+    }
+    
+    setEditingLegacyExpense(null);
     setIsLegacyDialogOpen(false);
-    toast({ title: 'Success!', description: 'Pharmacy audit committed.' });
   };
 
   const onEditTaskSubmit: SubmitHandler<HealthTaskFormData> = (data) => {
@@ -387,7 +407,7 @@ export default function MedicinePage() {
                               {status && <Badge variant={status.variant} className="mt-1 text-[6px] font-black uppercase tracking-widest h-4 px-1 rounded-md border-none shadow-sm">{status.label}</Badge>}
                             </TableCell>
                             <TableCell className="pr-8 text-right" onClick={(e) => e.stopPropagation()}>
-                              <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <div className="flex justify-end gap-2">
                                 <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl bg-neutral-100 hover:bg-neutral-200" onClick={() => {setEditingHealthTask(task); setIsTaskEditDialogOpen(true)}}><Pencil className="h-3.5 w-3.5" /></Button>
                                 <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100" onClick={() => deleteHealthTask(task.id, task._path)}><Trash2 className="h-3.5 w-3.5" /></Button>
                               </div>
@@ -436,7 +456,7 @@ export default function MedicinePage() {
                     </div>
                   </div>
 
-                  <Button onClick={() => setIsLegacyDialogOpen(true)} className="w-full h-16 rounded-[1.25rem] font-black text-[11px] uppercase tracking-[0.25em] shadow-2xl shadow-emerald-500/20 bg-emerald-600 hover:bg-emerald-500 text-white border-none transition-all active:scale-95">
+                  <Button onClick={() => { setEditingLegacyExpense(null); setIsLegacyDialogOpen(true); }} className="w-full h-16 rounded-[1.25rem] font-black text-[11px] uppercase tracking-[0.25em] shadow-2xl shadow-emerald-500/20 bg-emerald-600 hover:bg-emerald-500 text-white border-none transition-all active:scale-95">
                     <ShoppingCart className="mr-3 h-5 w-5" />
                     Record Audit
                   </Button>
@@ -463,12 +483,12 @@ export default function MedicinePage() {
                         <TableHead className="text-[8px] font-black uppercase">Pharmacy / Origin</TableHead>
                         <TableHead className="text-[8px] font-black uppercase text-right">Value Payload</TableHead>
                         <TableHead className="text-[8px] font-black uppercase text-right pr-8">Dues</TableHead>
-                        <TableHead className="w-[60px]"></TableHead>
+                        <TableHead className="w-[100px]"></TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {sortedMedicineExpenses.map(exp => (
-                        <TableRow key={exp.id} className="group hover:bg-neutral-50 border-neutral-100 transition-all active:scale-[0.995]">
+                        <TableRow key={exp.id} className="group hover:bg-neutral-50 border-neutral-100 transition-all active:scale-[0.995]" onClick={() => { setEditingLegacyExpense(exp); setIsLegacyDialogOpen(true); }}>
                           <TableCell className="pl-8 text-[9px] font-black text-muted-foreground/60 uppercase tracking-widest">{exp.date}</TableCell>
                           <TableCell className="py-6">
                             <div className="font-black text-sm text-neutral-900 tracking-tight leading-none">{exp.shopName || 'N/A'}</div>
@@ -486,10 +506,15 @@ export default function MedicinePage() {
                               ₹{(exp.outstandingDues || 0).toLocaleString()}
                             </span>
                           </TableCell>
-                          <TableCell className="pr-4">
-                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity text-rose-600 hover:bg-rose-50" onClick={() => deleteMedicineExpense(exp.id, exp._path)}>
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </Button>
+                          <TableCell className="pr-4" onClick={(e) => e.stopPropagation()}>
+                            <div className="flex items-center justify-end gap-2">
+                              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl bg-neutral-100 hover:bg-neutral-200" onClick={() => { setEditingLegacyExpense(exp); setIsLegacyDialogOpen(true); }}>
+                                <Pencil className="h-3.5 w-3.5" />
+                              </Button>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl text-rose-600 hover:bg-rose-50" onClick={() => deleteMedicineExpense(exp.id, exp._path)}>
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </Button>
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -560,9 +585,9 @@ export default function MedicinePage() {
         <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
           <DialogHeader className="bg-neutral-900 p-10 text-left text-white relative">
             <div className="absolute top-0 right-0 p-8 opacity-10"><ShoppingCart className="h-32 w-32 text-white rotate-12" /></div>
-            <DialogTitle className="text-2xl font-black tracking-tight flex items-center gap-4 relative z-10">
+            <DialogTitle className="text-xl font-black tracking-tight flex items-center gap-4 relative z-10">
               <ReceiptIndianRupee className="h-7 w-7 text-emerald-400" />
-              Audit Transaction
+              {editingLegacyExpense ? 'Adjust Audit' : 'Audit Transaction'}
             </DialogTitle>
             <DialogDescription className="text-white/40 text-[9px] font-bold uppercase tracking-[0.2em] relative z-10">Document historical medicine procurement and dues</DialogDescription>
           </DialogHeader>
@@ -637,9 +662,9 @@ export default function MedicinePage() {
               </div>
 
               <DialogFooter className="pt-6 gap-4 border-t border-neutral-100">
-                <Button variant="ghost" type="button" onClick={() => setIsLegacyDialogOpen(false)} className="h-12 px-6 rounded-2xl font-bold text-neutral-400 hover:text-neutral-600 text-sm">Cancel Audit</Button>
+                <Button variant="ghost" type="button" onClick={() => { setEditingLegacyExpense(null); setIsLegacyDialogOpen(false); }} className="h-12 px-6 rounded-2xl font-bold text-neutral-400 hover:text-neutral-600 text-sm">Cancel Audit</Button>
                 <Button type="submit" className="h-12 px-10 rounded-2xl font-black uppercase tracking-[0.2em] shadow-2xl shadow-emerald-500/20 bg-neutral-900 text-white hover:bg-neutral-800 flex-1 transition-all active:scale-95 text-xs">
-                  <Save className="mr-3 h-4 w-4 text-emerald-400" /> Commit Transaction
+                  <Save className="mr-3 h-4 w-4 text-emerald-400" /> {editingLegacyExpense ? 'Save Adjustment' : 'Commit Transaction'}
                 </Button>
               </DialogFooter>
             </form>
