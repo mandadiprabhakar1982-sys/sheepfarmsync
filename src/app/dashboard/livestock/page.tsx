@@ -147,15 +147,9 @@ export default function LivestockPage() {
               </div>
 
               {/* ACTION ROW */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <Button className="h-12 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase text-[16px] tracking-widest shadow-lg shadow-emerald-600/20 border-none">
+              <div className="flex justify-start">
+                <Button className="h-12 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase text-[16px] tracking-widest shadow-lg shadow-emerald-600/20 border-none px-8">
                   Add Animal
-                </Button>
-                <Button className="h-12 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-black uppercase text-[16px] tracking-widest shadow-lg shadow-blue-500/20 border-none">
-                  Feed Entry
-                </Button>
-                <Button className="h-12 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-black uppercase text-[16px] tracking-widest shadow-lg shadow-amber-500/20 border-none">
-                  View Sales
                 </Button>
               </div>
 
