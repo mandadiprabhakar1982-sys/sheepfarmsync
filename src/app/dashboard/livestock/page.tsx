@@ -238,7 +238,7 @@ export default function LivestockPage() {
                   <h2 className="text-2xl font-black text-neutral-900 tracking-tighter uppercase">Asset {viewingSheep.tagId}</h2>
                   <div className={cn(
                     "h-10 w-10 rounded-xl flex items-center justify-center shadow-xl border-2 border-white",
-                    viewingSheep.gender === 'female' ? "bg-pink-500 text-white" : "bg-blue-500 text-white"
+                    viewingSheep.gender === 'female' ? "bg-pink-50 text-pink-500" : "bg-blue-50 text-blue-500"
                   )}>
                     {viewingSheep.gender === 'female' ? <Venus className="h-5 w-5" /> : <Mars className="h-5 w-5" />}
                   </div>

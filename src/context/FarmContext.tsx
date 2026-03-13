@@ -245,10 +245,11 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     const trackedCount = (qTracked || []).length;
     const totalTrackedWeight = (qTracked || []).reduce((acc, s) => acc + Number(s.currentWeight || 0), 0);
     const avgWt = trackedCount > 0 ? totalTrackedWeight / trackedCount : 0;
-    const dailyFeedTotal = (qTracked || []).reduce((acc, s) => acc + (Number(s.currentWeight || 0) * 0.04), 0);
+    const liveSheepCount = Math.max(0, pCount - sCount - deadCount);
+    const dailyFeedTotal = avgWt * 0.04 * liveSheepCount;
 
     return { 
-      totalSheep: Math.max(0, pCount - sCount - deadCount),
+      totalSheep: liveSheepCount,
       totalTracked: trackedCount,
       totalExpenses: pTotal + fCost + mCost + lCost + eCost,
       totalSales: rev,

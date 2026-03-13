@@ -49,6 +49,7 @@ export default function PurchasePage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingPurchase, setEditingPurchase] = useState<LivestockPurchase | null>(null);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [isEditDatePickerOpen, setIsEditDatePickerOpen] = useState(false);
 
   const sortedPurchases = useMemo(() => {
     if (!purchases) return [];
@@ -357,7 +358,16 @@ export default function PurchasePage() {
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel className="text-sm">Purchase Date</FormLabel>
-                    <Popover><PopoverTrigger asChild><Button type="button" variant="outline" className="h-12 text-left font-normal text-sm">{field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}</Button></PopoverTrigger><PopoverContent className="w-auto p-0"><Calendar mode="single" selected={field.value} onSelect={(d) => { field.onChange(d); }} /></PopoverContent></Popover>
+                    <Popover open={isEditDatePickerOpen} onOpenChange={setIsEditDatePickerOpen}>
+                      <PopoverTrigger asChild>
+                        <Button type="button" variant="outline" className="h-12 text-left font-normal text-sm">
+                          {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <Calendar mode="single" selected={field.value} onSelect={(d) => { field.onChange(d); setIsEditDatePickerOpen(false); }} />
+                      </PopoverContent>
+                    </Popover>
                   </FormItem>
                 )}
               />
