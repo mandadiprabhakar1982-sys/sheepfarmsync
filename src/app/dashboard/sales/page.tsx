@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
@@ -64,6 +63,7 @@ export default function SalesPage() {
   const { sales, addSale, deleteSale, updateSale, postToMarketplace } = useFarm();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingSale, setEditingSale] = useState<AnimalSale | null>(null);
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
   const form = useForm<SalesFormData>({
     resolver: zodResolver(formSchema),
@@ -105,7 +105,6 @@ export default function SalesPage() {
     const newTransaction = { ...data, saleDate: format(data.saleDate, 'yyyy-MM-dd') };
     addSale(newTransaction);
     
-    // If public, also post to community marketplace
     if (data.isPublic) {
       postToMarketplace({
         saleDate: format(data.saleDate, 'yyyy-MM-dd'),
@@ -151,8 +150,8 @@ export default function SalesPage() {
         <div className="lg:col-span-1">
           <Card>
             <CardHeader>
-              <CardTitle>Record New Sale</CardTitle>
-              <CardDescription>Enter transaction details.</CardDescription>
+              <CardTitle className="text-lg font-black">Record New Sale</CardTitle>
+              <CardDescription className="text-xs">Enter transaction details.</CardDescription>
             </CardHeader>
             <CardContent>
               <Form {...form}>
@@ -160,7 +159,7 @@ export default function SalesPage() {
                   <FormField control={form.control} name="saleDate" render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <FormLabel>Date of Sale</FormLabel>
-                        <Popover>
+                        <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
                           <PopoverTrigger asChild>
                             <FormControl>
                               <Button type="button" variant={'outline'} className={cn('w-full pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}>
@@ -170,7 +169,7 @@ export default function SalesPage() {
                             </FormControl>
                           </PopoverTrigger>
                           <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
+                            <Calendar mode="single" selected={field.value} onSelect={(d) => { field.onChange(d); setIsDatePickerOpen(false); }} initialFocus />
                           </PopoverContent>
                         </Popover>
                         <FormMessage />
@@ -242,7 +241,7 @@ export default function SalesPage() {
                           />
                         </FormControl>
                         <div className="space-y-1 leading-none">
-                          <FormLabel className="flex items-center gap-2">
+                          <FormLabel className="flex items-center gap-2 text-xs font-bold">
                             <Globe className="h-3 w-3 text-primary" />
                             Post to Marketplace
                           </FormLabel>
@@ -254,7 +253,7 @@ export default function SalesPage() {
                     )}
                   />
 
-                  <Button type="submit" className="w-full">
+                  <Button type="submit" className="w-full h-12 font-black uppercase tracking-widest text-xs">
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Record Sale
                   </Button>
@@ -266,53 +265,53 @@ export default function SalesPage() {
         <div className="lg:col-span-2">
           <Card>
             <CardHeader>
-              <CardTitle>Sales History</CardTitle>
+              <CardTitle className="text-xl font-black">Sales History</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Buyer</TableHead>
-                    <TableHead>Count</TableHead>
-                    <TableHead>Total</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className='text-right'>Action</TableHead>
+                    <TableHead className="text-[9px] font-black uppercase">Date</TableHead>
+                    <TableHead className="text-[9px] font-black uppercase">Buyer</TableHead>
+                    <TableHead className="text-[9px] font-black uppercase">Count</TableHead>
+                    <TableHead className="text-[9px] font-black uppercase">Total</TableHead>
+                    <TableHead className="text-[9px] font-black uppercase">Status</TableHead>
+                    <TableHead className='text-right'></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {sortedSales.length > 0 ? (
                     sortedSales.map((t) => (
                       <TableRow key={t.id}>
-                        <TableCell className="text-xs">{t.saleDate}</TableCell>
+                        <TableCell className="text-[10px] font-bold text-muted-foreground uppercase">{t.saleDate}</TableCell>
                         <TableCell>
-                          <div className="font-medium">{t.buyerName}</div>
-                          <div className="text-[10px] text-muted-foreground">{t.buyerVillage}</div>
+                          <div className="font-bold text-xs">{t.buyerName}</div>
+                          <div className="text-[9px] text-muted-foreground uppercase">{t.buyerVillage}</div>
                         </TableCell>
-                        <TableCell>{t.animalCount}</TableCell>
-                        <TableCell>₹{t.salePrice.toLocaleString()}</TableCell>
+                        <TableCell className="text-xs font-black">{t.animalCount}</TableCell>
+                        <TableCell className="text-xs font-black">₹{t.salePrice.toLocaleString()}</TableCell>
                         <TableCell>
                            {t.outstandingDuesFromBuyer > 0 ? (
-                             <span className="text-[10px] font-bold text-destructive">₹{t.outstandingDuesFromBuyer.toLocaleString()} DUE</span>
+                             <span className="text-[9px] font-black text-destructive">₹{t.outstandingDuesFromBuyer.toLocaleString()} DUE</span>
                            ) : (
-                             <span className="text-[10px] font-bold text-green-600 uppercase tracking-tight">Full Paid</span>
+                             <span className="text-[9px] font-black text-green-600 uppercase tracking-tight">Full Paid</span>
                            )}
                            {t.isPublic && <Globe className="h-3 w-3 mt-1 text-primary inline-block ml-1" title="Shared with marketplace" />}
                         </TableCell>
                          <TableCell className='text-right'>
                             <div className="flex items-center justify-end">
-                              <Button variant="ghost" size="icon" onClick={() => {setEditingSale(t); setIsEditDialogOpen(true)}}>
-                                  <Pencil className="h-4 w-4" />
+                              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => {setEditingSale(t); setIsEditDialogOpen(true)}}>
+                                  <Pencil className="h-3.5 w-3.5" />
                               </Button>
-                              <Button variant="ghost" size="icon" onClick={() => deleteSale(t.id, t._path)}>
-                                  <Trash2 className="h-4 w-4 text-destructive" />
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => deleteSale(t.id, t._path)}>
+                                  <Trash2 className="h-3.5 w-3.5" />
                               </Button>
                             </div>
                         </TableCell>
                       </TableRow>
                     ))
                   ) : (
-                    <TableRow><TableCell colSpan={6} className="text-center py-10 text-muted-foreground">No sales recorded yet.</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={6} className="text-center py-10 text-muted-foreground text-[10px] uppercase">No sales recorded yet.</TableCell></TableRow>
                   )}
                 </TableBody>
               </Table>
@@ -323,9 +322,9 @@ export default function SalesPage() {
        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Edit Sales Record</DialogTitle>
-            <DialogDescription>
-              Update the details of your sales record. Click save when you're done.
+            <DialogTitle className="text-lg font-black tracking-tight">Edit Sales Record</DialogTitle>
+            <DialogDescription className="text-xs">
+              Update the details of your sales record.
             </DialogDescription>
           </DialogHeader>
           <Form {...editForm}>
@@ -341,7 +340,7 @@ export default function SalesPage() {
                 <FormField control={editForm.control} name="salePrice" render={({ field }) => (<FormItem><FormLabel>Price (₹)</FormLabel><FormControl><Input type="number" {...field} /></FormControl></FormItem>)} />
                 <FormField control={editForm.control} name="amountReceived" render={({ field }) => (<FormItem><FormLabel>Paid (₹)</FormLabel><FormControl><Input type="number" {...field} /></FormControl></FormItem>)} />
               </div>
-              <DialogFooter><Button type="submit" className="w-full">Update Record</Button></DialogFooter>
+              <DialogFooter><Button type="submit" className="w-full h-11 font-black uppercase text-xs">Update Record</Button></DialogFooter>
             </form>
           </Form>
         </DialogContent>

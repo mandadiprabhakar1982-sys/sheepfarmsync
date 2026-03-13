@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
@@ -29,8 +28,6 @@ import {
 } from '@/components/ui/dialog';
 import type { LivestockPurchase } from '@/lib/types';
 
-
-// Schema for the purchase form
 const purchaseFormSchema = z.object({
   purchaseDate: z.date({ required_error: 'A purchase date is required.' }),
   villageName: z.string().min(1, 'Village name is required'),
@@ -51,6 +48,7 @@ export default function PurchasePage() {
   
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingPurchase, setEditingPurchase] = useState<LivestockPurchase | null>(null);
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
   const sortedPurchases = useMemo(() => {
     if (!purchases) return [];
@@ -106,7 +104,7 @@ export default function PurchasePage() {
   const onPurchaseSubmit: SubmitHandler<PurchaseFormData> = (data) => {
     const newPurchase = {
       ...data,
-      purchaseDate: format(data.date, 'yyyy-MM-dd'),
+      purchaseDate: format(data.purchaseDate, 'yyyy-MM-dd'),
     };
     addPurchase(newPurchase);
     purchaseForm.reset();
@@ -173,7 +171,7 @@ export default function PurchasePage() {
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <FormLabel>Purchase Date</FormLabel>
-                        <Popover>
+                        <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
                           <PopoverTrigger asChild>
                             <FormControl>
                               <Button
@@ -197,7 +195,7 @@ export default function PurchasePage() {
                             <Calendar
                               mode="single"
                               selected={field.value}
-                              onSelect={field.onChange}
+                              onSelect={(d) => { field.onChange(d); setIsDatePickerOpen(false); }}
                               disabled={(date) =>
                                 date > new Date() || date < new Date('1900-01-01')
                               }
@@ -283,7 +281,7 @@ export default function PurchasePage() {
             <CardHeader className="bg-muted/50 pb-8">
               <div className="flex items-center gap-3 mb-2">
                 <ShoppingBag className="h-6 w-6 text-primary" />
-                <CardTitle className="text-2xl font-black tracking-tight">Purchase History</CardTitle>
+                <CardTitle className="text-xl font-black tracking-tight">Purchase History</CardTitle>
               </div>
               <CardDescription className="text-[10px] font-black uppercase tracking-widest opacity-60">Complete operational log of livestock entries</CardDescription>
             </CardHeader>
@@ -292,40 +290,27 @@ export default function PurchasePage() {
                 <Table>
                   <TableHeader className="bg-neutral-50 border-b">
                     <TableRow className="hover:bg-transparent">
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-5">Date</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-5">Village</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-5">Farmer</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-5">Sheep</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-5">Price</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-5">Transport</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-5">Paid</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-5">Due</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-5 text-right">Action</TableHead>
+                      <TableHead className="text-[9px] font-black uppercase tracking-widest py-5">Date</TableHead>
+                      <TableHead className="text-[9px] font-black uppercase tracking-widest py-5">Village</TableHead>
+                      <TableHead className="text-[9px] font-black uppercase tracking-widest py-5">Farmer</TableHead>
+                      <TableHead className="text-[9px] font-black uppercase tracking-widest py-5">Sheep</TableHead>
+                      <TableHead className="text-[9px] font-black uppercase tracking-widest py-5">Price</TableHead>
+                      <TableHead className="text-[9px] font-black uppercase tracking-widest py-5 text-right">Action</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {sortedPurchases && sortedPurchases.length > 0 ? (
                       sortedPurchases.map((purchase) => (
                         <TableRow key={purchase.id} className="group hover:bg-neutral-50/50 transition-colors">
-                          <TableCell className="font-medium text-xs text-muted-foreground">{purchase.purchaseDate}</TableCell>
+                          <TableCell className="font-medium text-[10px] text-muted-foreground uppercase">{purchase.purchaseDate}</TableCell>
                           <TableCell className="font-bold text-xs">{purchase.villageName}</TableCell>
                           <TableCell className="text-xs">{purchase.farmerName}</TableCell>
                           <TableCell>
-                            <span className="inline-flex items-center justify-center bg-primary/10 text-primary rounded-lg px-2.5 py-1 text-[10px] font-black">
+                            <span className="inline-flex items-center justify-center bg-primary/10 text-primary rounded-lg px-2 py-1 text-[9px] font-black">
                               {purchase.animalCount}
                             </span>
                           </TableCell>
                           <TableCell className="font-bold text-xs">₹{purchase.purchasePrice.toLocaleString()}</TableCell>
-                          <TableCell className="text-xs text-muted-foreground">₹{(purchase.transportCost || 0).toLocaleString()}</TableCell>
-                          <TableCell className="font-bold text-xs text-green-600">₹{purchase.amountPaid.toLocaleString()}</TableCell>
-                          <TableCell>
-                            <span className={cn(
-                              "text-xs font-black",
-                              purchase.dueAmount > 0 ? "text-destructive" : "text-neutral-300"
-                            )}>
-                              ₹{purchase.dueAmount.toLocaleString()}
-                            </span>
-                          </TableCell>
                           <TableCell className="text-right">
                             <div className="flex items-center justify-end opacity-0 group-hover:opacity-100 transition-opacity">
                               <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => handleEditClick(purchase)}>
@@ -340,11 +325,10 @@ export default function PurchasePage() {
                       ))
                     ) : (
                       <TableRow>
-                        <TableCell colSpan={9} className="text-center py-20">
+                        <TableCell colSpan={6} className="text-center py-20">
                           <div className="flex flex-col items-center gap-3 opacity-40">
-                             <ShoppingBag className="h-10 w-10 mb-2" />
-                             <p className="text-sm font-bold">No purchases recorded yet.</p>
-                             <p className="text-[10px] font-medium tracking-wide">Enter your first purchase using the form on the left</p>
+                             <ShoppingBag className="h-8 w-8 mb-2" />
+                             <p className="text-xs font-bold uppercase tracking-widest">No purchases recorded yet.</p>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -360,9 +344,9 @@ export default function PurchasePage() {
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-md rounded-[2rem]">
           <DialogHeader>
-            <DialogTitle>Edit Purchase Record</DialogTitle>
-            <DialogDescription>
-              Update the details of your purchase record. Click save when you're done.
+            <DialogTitle className="text-lg font-black tracking-tight">Edit Purchase Record</DialogTitle>
+            <DialogDescription className="text-xs">
+              Update the details of your purchase record.
             </DialogDescription>
           </DialogHeader>
           <Form {...editForm}>
@@ -373,33 +357,7 @@ export default function PurchasePage() {
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel>Purchase Date</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            type="button"
-                            variant={'outline'}
-                            className={cn(
-                              'w-full pl-3 text-left font-normal h-11',
-                              !field.value && 'text-muted-foreground'
-                            )}
-                          >
-                            {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
+                    <Popover><PopoverTrigger asChild><Button type="button" variant="outline" className="h-11 text-left font-normal">{field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}</Button></PopoverTrigger><PopoverContent className="w-auto p-0"><Calendar mode="single" selected={field.value} onSelect={field.onChange} /></PopoverContent></Popover>
                   </FormItem>
                 )}
               />
@@ -407,14 +365,12 @@ export default function PurchasePage() {
                 <FormItem>
                   <FormLabel>Village Name</FormLabel>
                   <FormControl><Input className="h-11" {...field} /></FormControl>
-                  <FormMessage />
                 </FormItem>
               )} />
               <FormField control={editForm.control} name="farmerName" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Farmer's Name</FormLabel>
                   <FormControl><Input className="h-11" {...field} /></FormControl>
-                  <FormMessage />
                 </FormItem>
               )} />
               
@@ -423,20 +379,18 @@ export default function PurchasePage() {
                   <FormItem>
                     <FormLabel>Price (₹)</FormLabel>
                     <FormControl><Input type="number" className="h-11" step="0.01" {...field} /></FormControl>
-                    <FormMessage />
                   </FormItem>
                 )} />
                 <FormField control={editForm.control} name="amountPaid" render={({ field }) => (
                   <FormItem>
                     <FormLabel>Paid (₹)</FormLabel>
                     <FormControl><Input type="number" className="h-11" step="0.01" {...field} /></FormControl>
-                    <FormMessage />
                   </FormItem>
                 )} />
               </div>
 
               <DialogFooter>
-                <Button type="submit" className="w-full h-12 font-bold">Save Changes</Button>
+                <Button type="submit" className="w-full h-11 font-bold">Save Changes</Button>
               </DialogFooter>
             </form>
           </Form>

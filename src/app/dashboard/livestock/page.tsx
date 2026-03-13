@@ -14,7 +14,6 @@ import {
   Save, 
   Search,
   Activity,
-  History,
   Scale,
   MoreVertical,
   Camera,
@@ -53,13 +52,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import type { TrackedSheep, HealthTask } from '@/lib/types';
+import type { TrackedSheep } from '@/lib/types';
 import { useUser } from '@/firebase';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 const trackingFormSchema = z.object({
   tagId: z.string().min(1, 'Tag ID is required'),
@@ -74,7 +72,7 @@ type TrackingFormData = z.infer<typeof trackingFormSchema>;
 export default function LivestockPage() {
   const { toast } = useToast();
   const { user } = useUser();
-  const { trackedSheep, addTrackedSheep, deleteTrackedSheep, updateTrackedSheep, healthTasks, isLoading } = useFarm();
+  const { trackedSheep, addTrackedSheep, deleteTrackedSheep, updateTrackedSheep, healthTasks } = useFarm();
   
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -231,38 +229,39 @@ export default function LivestockPage() {
                     <LucideImage className="h-24 w-24 text-neutral-200" />
                   </div>
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
             </div>
 
             <div className="md:col-span-7 flex flex-col justify-center space-y-8">
               <div className="space-y-4">
                 <div className="flex items-center gap-4">
-                  <h2 className="text-5xl font-black text-neutral-900 tracking-tighter uppercase">Asset {viewingSheep.tagId}</h2>
+                  <h2 className="text-3xl font-black text-neutral-900 tracking-tighter uppercase">Asset {viewingSheep.tagId}</h2>
                   <div className={cn(
-                    "h-12 w-12 rounded-2xl flex items-center justify-center shadow-xl border-2 border-white",
+                    "h-10 w-10 rounded-xl flex items-center justify-center shadow-xl border-2 border-white",
                     viewingSheep.gender === 'female' ? "bg-pink-500 text-white" : "bg-blue-500 text-white"
                   )}>
-                    {viewingSheep.gender === 'female' ? <Venus className="h-6 w-6" /> : <Mars className="h-6 w-6" />}
+                    {viewingSheep.gender === 'female' ? <Venus className="h-5 w-5" /> : <Mars className="h-5 w-5" />}
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Badge className="bg-emerald-500 text-white border-none font-black h-8 px-4 rounded-xl text-[10px] tracking-widest shadow-lg">VERIFIED AUDIT</Badge>
-                  <p className="text-neutral-400 font-black text-[11px] uppercase tracking-[0.3em]">{viewingSheep.breed || 'Standard Breed'}</p>
+                  <Badge className="bg-emerald-500 text-white border-none font-black h-7 px-3 rounded-xl text-[9px] tracking-widest shadow-lg">VERIFIED AUDIT</Badge>
+                  <p className="text-neutral-400 font-black text-[10px] uppercase tracking-[0.2em]">{viewingSheep.breed || 'Standard Breed'}</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-6">
-                <div className="p-6 rounded-3xl bg-neutral-50 border border-neutral-100 flex items-center gap-5">
-                  <div className="h-12 w-12 rounded-2xl bg-white shadow-sm flex items-center justify-center">
-                    <Scale className="h-6 w-6 text-primary" />
+                <div className="p-5 rounded-3xl bg-neutral-50 border border-neutral-100 flex items-center gap-4">
+                  <div className="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center">
+                    <Scale className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Vitals Payload</p>
+                    <p className="text-[8px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Current / Prev Wt</p>
                     <div className="flex items-center gap-2">
-                      <p className="text-xl font-black text-neutral-900">{viewingSheep.currentWeight}kg</p>
+                      <p className="text-lg font-black text-neutral-900">{viewingSheep.currentWeight}kg</p>
                       {viewingSheep.previousWeight && (
-                        <div className="flex items-center">
+                        <div className="flex items-center gap-1">
+                          <span className="text-[10px] font-bold text-muted-foreground/40">/</span>
+                          <span className="text-xs font-bold text-muted-foreground/60">{viewingSheep.previousWeight}kg</span>
                           {viewingSheep.currentWeight >= viewingSheep.previousWeight ? (
                             <ArrowUp className="h-3 w-3 text-emerald-500" />
                           ) : (
@@ -274,85 +273,85 @@ export default function LivestockPage() {
                   </div>
                 </div>
 
-                <div className="p-6 rounded-3xl bg-neutral-50 border border-neutral-100 flex items-center gap-5">
-                  <div className="h-12 w-12 rounded-2xl bg-white shadow-sm flex items-center justify-center">
-                    <CalendarIcon className="h-6 w-6 text-primary" />
+                <div className="p-5 rounded-3xl bg-neutral-50 border border-neutral-100 flex items-center gap-4">
+                  <div className="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center">
+                    <CalendarIcon className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Temporal Age</p>
-                    <p className="text-xl font-black text-neutral-900">{viewingSheep.age} mos</p>
+                    <p className="text-[8px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Temporal Age</p>
+                    <p className="text-lg font-black text-neutral-900">{viewingSheep.age} mos</p>
                   </div>
                 </div>
               </div>
 
-              <div className="p-6 rounded-3xl bg-primary/5 border border-primary/10 flex items-center justify-between">
-                <div className="flex items-center gap-5">
-                  <div className="h-12 w-12 rounded-2xl bg-white shadow-sm flex items-center justify-center">
-                    <Wheat className="h-6 w-6 text-emerald-600" />
+              <div className="p-5 rounded-3xl bg-primary/5 border border-primary/10 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center">
+                    <Wheat className="h-5 w-5 text-emerald-600" />
                   </div>
                   <div>
-                    <p className="text-[9px] font-black uppercase tracking-widest text-primary/60">Daily Nutrition Ratio</p>
-                    <p className="text-xl font-black text-neutral-900">{(viewingSheep.currentWeight * 0.04).toFixed(2)}kg</p>
+                    <p className="text-[8px] font-black uppercase tracking-widest text-primary/60">Daily Nutrition Ratio</p>
+                    <p className="text-lg font-black text-neutral-900">{(viewingSheep.currentWeight * 0.04).toFixed(2)}kg</p>
                   </div>
                 </div>
-                <Badge variant="outline" className="text-[8px] font-black border-primary/20 text-primary uppercase h-6 px-2 rounded-lg">Balanced 4%</Badge>
+                <Badge variant="outline" className="text-[7px] font-black border-primary/20 text-primary uppercase h-5 px-2 rounded-lg">Balanced 4%</Badge>
               </div>
             </div>
           </div>
 
           <div className="space-y-12">
             <section>
-              <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-muted-foreground mb-8 flex items-center gap-4">
-                <Syringe className="h-5 w-5" /> Clinical History Ledger
+              <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground mb-6 flex items-center gap-3">
+                <Syringe className="h-4 w-4" /> Clinical History Ledger
               </h3>
-              <div className="space-y-5">
+              <div className="space-y-4">
                 {sheepMedicalHistory.length > 0 ? (
                   sheepMedicalHistory.map((task) => (
-                    <div key={task.id} className="p-6 rounded-[1.5rem] bg-neutral-50 border border-neutral-100 flex items-center justify-between group hover:bg-white hover:shadow-xl transition-all duration-300">
-                      <div className="flex items-center gap-5">
-                        <div className="h-12 w-12 rounded-2xl bg-white shadow-md flex items-center justify-center">
-                          <Activity className="h-6 w-6 text-primary" />
+                    <div key={task.id} className="p-5 rounded-[1.25rem] bg-neutral-50 border border-neutral-100 flex items-center justify-between group hover:bg-white hover:shadow-xl transition-all duration-300">
+                      <div className="flex items-center gap-4">
+                        <div className="h-10 w-10 rounded-xl bg-white shadow-md flex items-center justify-center">
+                          <Activity className="h-5 w-5 text-primary" />
                         </div>
                         <div>
-                          <p className="text-base font-black text-neutral-900 leading-none">{task.healthType}</p>
-                          <p className="text-[11px] font-bold text-muted-foreground mt-2 uppercase tracking-widest">{task.medicineName} • {task.date}</p>
+                          <p className="text-sm font-black text-neutral-900 leading-none">{task.healthType}</p>
+                          <p className="text-[10px] font-bold text-muted-foreground mt-1.5 uppercase tracking-widest">{task.medicineName} • {task.date}</p>
                         </div>
                       </div>
-                      <Badge variant="outline" className="text-[9px] font-black uppercase tracking-widest h-8 px-4 rounded-xl border-neutral-200 bg-white">
+                      <Badge variant="outline" className="text-[8px] font-black uppercase tracking-widest h-7 px-3 rounded-lg border-neutral-200 bg-white">
                         Due: {task.nextDueDate}
                       </Badge>
                     </div>
                   ))
                 ) : (
-                  <div className="p-16 rounded-[3rem] border-2 border-dashed border-neutral-100 text-center opacity-40">
-                    <p className="text-[11px] font-black uppercase tracking-widest">No clinical records discovered in the cloud</p>
+                  <div className="p-12 rounded-[2rem] border-2 border-dashed border-neutral-100 text-center opacity-40">
+                    <p className="text-[10px] font-black uppercase tracking-widest">No clinical records discovered in the cloud</p>
                   </div>
                 )}
               </div>
             </section>
 
             <section>
-              <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-muted-foreground mb-8 flex items-center gap-4">
-                <ShieldCheck className="h-5 w-5" /> Identity & Ownership Audit
+              <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground mb-6 flex items-center gap-3">
+                <ShieldCheck className="h-4 w-4" /> Identity & Ownership Audit
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="p-6 rounded-3xl bg-neutral-50/50 flex items-center gap-5">
-                  <div className="h-12 w-12 rounded-2xl bg-white shadow-sm flex items-center justify-center">
-                    <User className="h-6 w-6 text-neutral-400" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-5 rounded-3xl bg-neutral-50/50 flex items-center gap-4">
+                  <div className="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center">
+                    <User className="h-5 w-5 text-neutral-400" />
                   </div>
                   <div>
-                    <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Provisioned By</p>
-                    <p className="text-sm font-bold text-neutral-900">{viewingSheep.creatorName || 'Staff Shepherd'}</p>
+                    <p className="text-[8px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Provisioned By</p>
+                    <p className="text-xs font-bold text-neutral-900">{viewingSheep.creatorName || 'Staff Shepherd'}</p>
                   </div>
                 </div>
-                <div className="p-6 rounded-3xl bg-neutral-50/50 flex items-center gap-5">
-                  <div className="h-12 w-12 rounded-2xl bg-white shadow-sm flex items-center justify-center">
-                    <HistoryIcon className="h-6 w-6 text-neutral-400" />
+                <div className="p-5 rounded-3xl bg-neutral-50/50 flex items-center gap-4">
+                  <div className="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center">
+                    <HistoryIcon className="h-5 w-5 text-neutral-400" />
                   </div>
                   <div>
-                    <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Synchronized</p>
-                    <p className="text-sm font-bold text-neutral-900">
-                      {viewingSheep.createdAt ? format(viewingSheep.createdAt.toDate(), "MMM dd, yyyy HH:mm") : 'Initial Sync'}
+                    <p className="text-[8px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Synchronized</p>
+                    <p className="text-xs font-bold text-neutral-900">
+                      {viewingSheep.createdAt ? format(viewingSheep.createdAt.toDate(), "MMM dd, yyyy") : 'Initial Sync'}
                     </p>
                   </div>
                 </div>
@@ -360,26 +359,26 @@ export default function LivestockPage() {
             </section>
           </div>
 
-          <div className="pt-10 gap-6 border-t border-neutral-100 flex items-center">
+          <div className="pt-8 gap-4 border-t border-neutral-100 flex items-center">
             <Button 
               variant="outline" 
-              className="flex-1 h-16 rounded-[1.25rem] font-black text-xs uppercase tracking-[0.2em] border-neutral-200 shadow-sm bg-white hover:bg-neutral-900 hover:text-white transition-all"
+              className="flex-1 h-14 rounded-[1rem] font-black text-[10px] uppercase tracking-[0.2em] border-neutral-200 shadow-sm bg-white hover:bg-neutral-900 hover:text-white transition-all"
               onClick={() => {
                 setEditingSheep(viewingSheep);
                 setIsEditDialogOpen(true);
               }}
             >
-              <Pencil className="mr-3 h-5 w-5" /> Adjust Audit
+              <Pencil className="mr-3 h-4 w-4" /> Adjust Audit
             </Button>
             <Button 
               variant="destructive" 
-              className="h-16 w-16 rounded-[1.25rem] font-black shadow-2xl shadow-destructive/20 transition-all active:scale-90"
+              className="h-14 w-14 rounded-[1rem] font-black shadow-xl shadow-destructive/20 transition-all active:scale-90"
               onClick={() => {
                 deleteTrackedSheep(viewingSheep.id, viewingSheep._path);
                 setViewingSheep(null);
               }}
             >
-              <Trash2 className="h-6 w-6" />
+              <Trash2 className="h-5 w-5" />
             </Button>
           </div>
         </div>
@@ -412,13 +411,13 @@ export default function LivestockPage() {
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full space-y-8">
         <TabsList className="bg-neutral-100/50 p-1.5 rounded-2xl h-14 w-full max-w-2xl mx-auto grid grid-cols-3">
-          <TabsTrigger value="all" className="rounded-xl font-black text-[11px] uppercase tracking-widest h-full data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary text-neutral-500">
+          <TabsTrigger value="all" className="rounded-xl font-black text-[10px] uppercase tracking-widest h-full data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary text-neutral-500">
             All Animals ({filteredAndSortedSheep.length})
           </TabsTrigger>
-          <TabsTrigger value="register" className="rounded-xl font-black text-[11px] uppercase tracking-widest h-full data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-emerald-600 text-neutral-500">
+          <TabsTrigger value="register" className="rounded-xl font-black text-[10px] uppercase tracking-widest h-full data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-emerald-600 text-neutral-500">
             <PlusCircle className="h-3 w-3 mr-2" /> Register Entry
           </TabsTrigger>
-          <TabsTrigger value="groups" className="rounded-xl font-black text-[11px] uppercase tracking-widest h-full data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary text-neutral-500">
+          <TabsTrigger value="groups" className="rounded-xl font-black text-[10px] uppercase tracking-widest h-full data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary text-neutral-500">
             Groups
           </TabsTrigger>
         </TabsList>
@@ -433,36 +432,36 @@ export default function LivestockPage() {
                   onClick={() => setViewingSheep(sheep)}
                 >
                   <CardContent className="p-6 flex items-center gap-5">
-                    <div className="relative h-20 w-20 shrink-0">
-                      <Avatar className="h-20 w-20 rounded-[1.5rem] border-2 border-neutral-50 shadow-sm overflow-hidden">
+                    <div className="relative h-16 w-16 shrink-0">
+                      <Avatar className="h-16 w-16 rounded-[1.25rem] border-2 border-neutral-50 shadow-sm overflow-hidden">
                         <AvatarFallback className={cn(
-                          "rounded-[1.5rem] transition-colors font-black text-xl",
+                          "rounded-[1.25rem] transition-colors font-black text-lg",
                           sheep.gender === 'female' ? "bg-pink-50 text-pink-500" : "bg-blue-50 text-blue-500"
                         )}>
                           {sheep.tagId.substring(0, 2).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                       <div className={cn(
-                        "absolute -bottom-1 -right-1 h-7 w-7 rounded-full border-2 border-white flex items-center justify-center shadow-lg",
+                        "absolute -bottom-1 -right-1 h-6 w-6 rounded-full border-2 border-white flex items-center justify-center shadow-lg",
                         sheep.gender === 'female' ? "bg-pink-500 text-white" : "bg-blue-500 text-white"
                       )}>
-                        {sheep.gender === 'female' ? <Venus className="h-3.5 w-3.5" /> : <Mars className="h-3.5 w-3.5" />}
+                        {sheep.gender === 'female' ? <Venus className="h-3 w-3" /> : <Mars className="h-3 w-3" />}
                       </div>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-lg font-black tracking-tight text-neutral-900 leading-none">
-                        Sheep {sheep.tagId}
+                      <h3 className="text-base font-black tracking-tight text-neutral-900 leading-none uppercase">
+                        {sheep.tagId}
                       </h3>
                       {sheep.breed && (
-                        <p className="text-[10px] font-black text-neutral-400 mt-2 uppercase tracking-widest truncate">
+                        <p className="text-[9px] font-black text-neutral-400 mt-2 uppercase tracking-widest truncate">
                           {sheep.breed}
                         </p>
                       )}
                       <div className="flex items-center gap-2 mt-3">
-                        <Badge variant="secondary" className="bg-neutral-100 text-neutral-600 border-none text-[9px] font-black h-5 px-2 tracking-widest">
+                        <Badge variant="secondary" className="bg-neutral-100 text-neutral-600 border-none text-[8px] font-black h-5 px-2 tracking-widest">
                           {sheep.currentWeight} KG
                         </Badge>
-                        <Badge variant="secondary" className="bg-neutral-100 text-neutral-600 border-none text-[9px] font-black h-5 px-2 tracking-widest">
+                        <Badge variant="secondary" className="bg-neutral-100 text-neutral-600 border-none text-[8px] font-black h-5 px-2 tracking-widest">
                           {sheep.age} MOS
                         </Badge>
                       </div>
@@ -472,21 +471,21 @@ export default function LivestockPage() {
                       <Button 
                         variant="ghost" 
                         size="icon" 
-                        className="h-9 w-9 rounded-xl text-neutral-300 hover:text-primary hover:bg-primary/5 transition-colors"
+                        className="h-8 w-8 rounded-xl text-neutral-300 hover:text-primary hover:bg-primary/5 transition-colors"
                         onClick={() => {
                           setEditingSheep(sheep);
                           setIsEditDialogOpen(true);
                         }}
                       >
-                        <Pencil className="h-4 w-4" />
+                        <Pencil className="h-3.5 w-3.5" />
                       </Button>
                       <Button 
                         variant="ghost" 
                         size="icon" 
-                        className="h-9 w-9 rounded-xl text-neutral-300 hover:text-destructive hover:bg-destructive/5 transition-colors"
+                        className="h-8 w-8 rounded-xl text-neutral-300 hover:text-destructive hover:bg-destructive/5 transition-colors"
                         onClick={() => deleteTrackedSheep(sheep.id, sheep._path)}
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-3.5 w-3.5" />
                       </Button>
                     </div>
                   </CardContent>
@@ -504,11 +503,11 @@ export default function LivestockPage() {
           <Card className="max-w-2xl mx-auto border-none bg-white rounded-[2.5rem] shadow-2xl overflow-hidden">
             <CardHeader className="bg-neutral-900 p-10 text-white text-center relative">
               <div className="absolute top-0 right-0 p-8 opacity-5"><LayoutGrid className="h-32 w-32 rotate-12" /></div>
-              <CardTitle className="text-2xl font-black tracking-tight flex items-center justify-center gap-3 relative z-10">
-                <PlusCircle className="h-6 w-6 text-emerald-400" />
+              <CardTitle className="text-xl font-black tracking-tight flex items-center justify-center gap-3 relative z-10">
+                <PlusCircle className="h-5 w-5 text-emerald-400" />
                 Register Entry
               </CardTitle>
-              <CardDescription className="text-white/40 text-[10px] font-bold uppercase tracking-[0.2em] relative z-10">Synchronize new livestock with community records</CardDescription>
+              <CardDescription className="text-white/40 text-[9px] font-bold uppercase tracking-[0.2em] relative z-10">Synchronize new livestock with community records</CardDescription>
             </CardHeader>
             <CardContent className="p-10">
               <Form {...trackingForm}>
@@ -516,7 +515,7 @@ export default function LivestockPage() {
                   <div className="space-y-6">
                     <div className="flex items-center gap-3 mb-2">
                       <div className="h-1 w-10 bg-emerald-500 rounded-full" />
-                      <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Visual Documentation</span>
+                      <span className="text-[9px] font-black uppercase tracking-widest text-neutral-400">Visual Documentation</span>
                     </div>
                     
                     <div className="relative aspect-video rounded-3xl bg-neutral-50 overflow-hidden group border-2 border-dashed border-neutral-200">
@@ -527,10 +526,10 @@ export default function LivestockPage() {
                             type="button"
                             variant="destructive" 
                             size="icon" 
-                            className="absolute top-4 right-4 h-10 w-10 rounded-full shadow-2xl"
+                            className="absolute top-4 right-4 h-9 w-9 rounded-full shadow-2xl"
                             onClick={() => setCapturedImage(null)}
                           >
-                            <X className="h-5 w-5" />
+                            <X className="h-4 w-4" />
                           </Button>
                         </div>
                       ) : (
@@ -538,23 +537,23 @@ export default function LivestockPage() {
                           <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
                           {hasCameraPermission === false && (
                             <div className="absolute inset-0 bg-neutral-900/90 flex flex-col items-center justify-center p-8 text-center">
-                              <AlertTriangle className="h-10 w-10 text-amber-400 mb-4" />
-                              <p className="text-xs font-black text-white uppercase tracking-[0.2em]">Camera Access Restricted</p>
-                              <p className="text-[10px] text-white/40 mt-2 leading-relaxed">Please enable hardware permissions or use the manual gallery upload protocol.</p>
+                              <AlertTriangle className="h-8 w-8 text-amber-400 mb-4" />
+                              <p className="text-[10px] font-black text-white uppercase tracking-[0.2em]">Camera Access Restricted</p>
+                              <p className="text-[9px] text-white/40 mt-2 leading-relaxed">Please enable hardware permissions or use the manual gallery upload protocol.</p>
                             </div>
                           )}
                           <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-4 px-8">
                             <Button 
                               type="button"
                               onClick={handleCapture}
-                              className="bg-neutral-900/90 backdrop-blur-xl text-white border-none h-12 px-6 rounded-2xl flex-1 font-black text-[10px] uppercase tracking-widest shadow-2xl"
+                              className="bg-neutral-900/90 backdrop-blur-xl text-white border-none h-11 px-6 rounded-2xl flex-1 font-black text-[9px] uppercase tracking-widest shadow-2xl"
                             >
                               <Camera className="mr-3 h-4 w-4 text-emerald-400" /> Capture
                             </Button>
                             <Button 
                               type="button"
                               onClick={() => fileInputRef.current?.click()}
-                              className="bg-emerald-600/90 backdrop-blur-xl text-white border-none h-12 px-6 rounded-2xl flex-1 font-black text-[10px] uppercase tracking-widest shadow-2xl"
+                              className="bg-emerald-600/90 backdrop-blur-xl text-white border-none h-11 px-6 rounded-2xl flex-1 font-black text-[9px] uppercase tracking-widest shadow-2xl"
                             >
                               <UploadCloud className="mr-3 h-4 w-4" /> Upload
                             </Button>
@@ -573,15 +572,15 @@ export default function LivestockPage() {
 
                     <div className="flex items-center gap-3 mt-10 mb-2">
                       <div className="h-1 w-10 bg-blue-500 rounded-full" />
-                      <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Identification Metrics</span>
+                      <span className="text-[9px] font-black uppercase tracking-widest text-neutral-400">Identification Metrics</span>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <FormField control={trackingForm.control} name="tagId" render={({ field }) => (
                         <FormItem>
-                          <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Unique Tag ID</Label>
+                          <Label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-2">Unique Tag ID</Label>
                           <FormControl>
-                            <Input placeholder="e.g. A-101" className="h-14 rounded-2xl bg-neutral-50 border-none shadow-sm font-black text-base px-6 focus-visible:ring-primary/20" {...field} />
+                            <Input placeholder="e.g. A-101" className="h-12 rounded-2xl bg-neutral-50 border-none shadow-sm font-black text-sm px-6 focus-visible:ring-primary/20" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -589,9 +588,9 @@ export default function LivestockPage() {
                       
                       <FormField control={trackingForm.control} name="breed" render={({ field }) => (
                         <FormItem>
-                          <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Clinical Breed</Label>
+                          <Label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-2">Clinical Breed</Label>
                           <FormControl>
-                            <Input placeholder="e.g. Beltex" className="h-14 rounded-2xl bg-neutral-50 border-none shadow-sm font-bold text-base px-6" {...field} />
+                            <Input placeholder="e.g. Beltex" className="h-12 rounded-2xl bg-neutral-50 border-none shadow-sm font-bold text-sm px-6" {...field} />
                           </FormControl>
                         </FormItem>
                       )} />
@@ -600,10 +599,10 @@ export default function LivestockPage() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       <FormField control={trackingForm.control} name="gender" render={({ field }) => (
                         <FormItem>
-                          <Label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-2">Gender</Label>
+                          <Label className="text-[8px] font-black uppercase tracking-widest opacity-40 ml-2">Gender</Label>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl>
-                              <SelectTrigger className="h-14 rounded-2xl bg-neutral-50 border-none font-bold px-6">
+                              <SelectTrigger className="h-12 rounded-2xl bg-neutral-50 border-none font-bold px-6">
                                 <SelectValue />
                               </SelectTrigger>
                             </FormControl>
@@ -616,25 +615,25 @@ export default function LivestockPage() {
                       )} />
                       <FormField control={trackingForm.control} name="weight" render={({ field }) => (
                         <FormItem>
-                          <Label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-2">Initial Weight (kg)</Label>
+                          <Label className="text-[8px] font-black uppercase tracking-widest opacity-40 ml-2">Initial Weight (kg)</Label>
                           <FormControl>
-                            <Input type="number" step="0.1" className="h-14 rounded-2xl bg-neutral-50 border-none shadow-sm font-black text-lg px-6" {...field} />
+                            <Input type="number" step="0.1" className="h-12 rounded-2xl bg-neutral-50 border-none shadow-sm font-black text-base px-6" {...field} />
                           </FormControl>
                         </FormItem>
                       )} />
                       <FormField control={trackingForm.control} name="age" render={({ field }) => (
                         <FormItem>
-                          <Label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-2">Age (months)</Label>
+                          <Label className="text-[8px] font-black uppercase tracking-widest opacity-40 ml-2">Age (months)</Label>
                           <FormControl>
-                            <Input type="number" className="h-14 rounded-2xl bg-neutral-50 border-none shadow-sm font-bold text-base px-6" {...field} />
+                            <Input type="number" className="h-12 rounded-2xl bg-neutral-50 border-none shadow-sm font-bold text-sm px-6" {...field} />
                           </FormControl>
                         </FormItem>
                       )} />
                     </div>
                   </div>
                   
-                  <Button type="submit" className="w-full h-20 rounded-[1.5rem] font-black text-sm uppercase tracking-[0.3em] shadow-2xl shadow-primary/20 bg-neutral-900 hover:bg-neutral-800 transition-all active:scale-95">
-                    <PlusCircle className="mr-4 h-6 w-6 text-emerald-400" /> Commit Record to Ledger
+                  <Button type="submit" className="w-full h-16 rounded-[1.25rem] font-black text-[11px] uppercase tracking-[0.25em] shadow-2xl shadow-primary/20 bg-neutral-900 hover:bg-neutral-800 transition-all active:scale-95">
+                    <PlusCircle className="mr-4 h-5 w-5 text-emerald-400" /> Commit Record to Ledger
                   </Button>
                 </form>
               </Form>
@@ -644,7 +643,7 @@ export default function LivestockPage() {
 
         <TabsContent value="groups" className="animate-in fade-in slide-in-from-bottom-2 duration-500">
           <div className="py-32 text-center bg-white/50 rounded-[3rem] border-4 border-dashed border-neutral-100">
-            <p className="text-neutral-400 font-bold uppercase tracking-[0.3em] text-xs">Group Analytics Suite coming in v2.8</p>
+            <p className="text-neutral-400 font-bold uppercase tracking-[0.3em] text-[10px]">Group Analytics Suite coming in v2.8</p>
           </div>
         </TabsContent>
       </Tabs>
@@ -652,27 +651,27 @@ export default function LivestockPage() {
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
-            <DialogTitle className="text-2xl font-black tracking-tight flex items-center gap-3">
-              <Pencil className="h-6 w-6 text-emerald-400" />
+            <DialogTitle className="text-xl font-black tracking-tight flex items-center gap-3">
+              <Pencil className="h-5 w-5 text-emerald-400" />
               Update Record
             </DialogTitle>
-            <DialogDescription className="text-white/40 text-xs font-bold uppercase tracking-widest">Adjust physical metrics and identification parameters</DialogDescription>
+            <DialogDescription className="text-white/40 text-[9px] font-bold uppercase tracking-widest">Adjust physical metrics and identification parameters</DialogDescription>
           </DialogHeader>
           <Form {...editForm}>
             <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-6 p-8">
               <FormField control={editForm.control} name="tagId" render={({ field }) => (
                 <FormItem>
-                  <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Unique Tag ID</Label>
-                  <FormControl><Input className="h-12 rounded-xl bg-neutral-50 border-none font-black" {...field} /></FormControl>
+                  <Label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-2">Unique Tag ID</Label>
+                  <FormControl><Input className="h-11 rounded-xl bg-neutral-50 border-none font-black text-sm" {...field} /></FormControl>
                 </FormItem>
               )} />
               
               <div className="grid grid-cols-2 gap-4">
                 <FormField control={editForm.control} name="gender" render={({ field }) => (
                   <FormItem>
-                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Gender</Label>
+                    <Label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-2">Gender</Label>
                     <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl><SelectTrigger className="h-12 rounded-xl bg-neutral-50 border-none font-bold"><SelectValue /></SelectTrigger></FormControl>
+                      <FormControl><SelectTrigger className="h-11 rounded-xl bg-neutral-50 border-none font-bold text-sm"><SelectValue /></SelectTrigger></FormControl>
                       <SelectContent>
                         <SelectItem value="female">Female</SelectItem>
                         <SelectItem value="male">Male</SelectItem>
@@ -682,8 +681,8 @@ export default function LivestockPage() {
                 )} />
                 <FormField control={editForm.control} name="breed" render={({ field }) => (
                   <FormItem>
-                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Breed</Label>
-                    <FormControl><Input className="h-12 rounded-xl bg-neutral-50 border-none font-bold" {...field} /></FormControl>
+                    <Label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-2">Breed</Label>
+                    <FormControl><Input className="h-11 rounded-xl bg-neutral-50 border-none font-bold text-sm" {...field} /></FormControl>
                   </FormItem>
                 )} />
               </div>
@@ -691,20 +690,20 @@ export default function LivestockPage() {
               <div className="grid grid-cols-2 gap-4">
                 <FormField control={editForm.control} name="weight" render={({ field }) => (
                   <FormItem>
-                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Current Weight (kg)</Label>
-                    <FormControl><Input type="number" step="0.1" className="h-12 rounded-xl bg-neutral-50 border-none font-black" {...field} /></FormControl>
+                    <Label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-2">Current Weight (kg)</Label>
+                    <FormControl><Input type="number" step="0.1" className="h-11 rounded-xl bg-neutral-50 border-none font-black text-sm" {...field} /></FormControl>
                   </FormItem>
                 )} />
                 <FormField control={editForm.control} name="age" render={({ field }) => (
                   <FormItem>
-                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Age (months)</Label>
-                    <FormControl><Input type="number" className="h-12 rounded-xl bg-neutral-50 border-none font-black" {...field} /></FormControl>
+                    <Label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-2">Age (months)</Label>
+                    <FormControl><Input type="number" className="h-11 rounded-xl bg-neutral-50 border-none font-black text-sm" {...field} /></FormControl>
                   </FormItem>
                 )} />
               </div>
               <DialogFooter className="pt-4 gap-4">
-                <Button variant="outline" type="button" onClick={() => setIsEditDialogOpen(false)} className="h-12 px-8 rounded-xl font-bold border-neutral-200">Cancel</Button>
-                <Button type="submit" className="h-12 flex-1 rounded-xl font-black uppercase tracking-widest shadow-2xl shadow-primary/20 bg-neutral-900 text-white hover:bg-neutral-800">
+                <Button variant="outline" type="button" onClick={() => setIsEditDialogOpen(false)} className="h-11 px-6 rounded-xl font-bold border-neutral-200 text-sm">Cancel</Button>
+                <Button type="submit" className="h-11 flex-1 rounded-xl font-black uppercase tracking-widest shadow-2xl shadow-primary/20 bg-neutral-900 text-white hover:bg-neutral-800 text-xs">
                   <Save className="mr-2 h-4 w-4 text-emerald-400" /> Save Changes
                 </Button>
               </DialogFooter>
