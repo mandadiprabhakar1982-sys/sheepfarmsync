@@ -65,6 +65,7 @@ export default function LivestockPage() {
     addTrackedSheep, 
     totalDailyFeed,
     totalFeedCost,
+    totalTracked,
     isLoading
   } = useFarm();
   
@@ -76,10 +77,6 @@ export default function LivestockPage() {
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  const totalTrackedWeight = useMemo(() => {
-    return (trackedSheep || []).reduce((acc, s) => acc + Number(s.currentWeight || 0), 0);
-  }, [trackedSheep]);
 
   const form = useForm<QuickEntryData>({
     resolver: zodResolver(quickEntrySchema),
@@ -205,8 +202,8 @@ export default function LivestockPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <MetricCard 
                   title="Track Animal" 
-                  value={`${totalTrackedWeight.toLocaleString()} KG`} 
-                  sub="Flock Weight" 
+                  value={totalTracked.toString()} 
+                  sub="Assets Registered" 
                   color="bg-emerald-600" 
                 />
                 <MetricCard 
