@@ -20,7 +20,8 @@ import {
   RotateCcw,
   User,
   Calendar,
-  Weight
+  Weight,
+  Loader2
 } from 'lucide-react';
 
 import { PageHeader } from '@/components/page-header';
@@ -44,6 +45,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const quickEntrySchema = z.object({
   tagId: z.string().min(1, 'Tag ID is required'),
@@ -64,7 +66,8 @@ export default function LivestockPage() {
     totalSheep,
     lambsCount,
     totalDailyFeed,
-    totalFeedCost
+    totalFeedCost,
+    isLoading
   } = useFarm();
   
   const [viewingSheep, setViewingSheep] = useState<any>(null);
@@ -170,6 +173,17 @@ export default function LivestockPage() {
     </Card>
   );
 
+  if (isLoading) {
+    return (
+      <div className="flex h-[calc(100vh-120px)] w-full items-center justify-center">
+        <div className="flex flex-col items-center gap-6">
+          <div className="w-12 h-12 border-4 border-primary/10 rounded-full border-t-primary animate-spin" />
+          <p className="text-[12px] font-black text-primary/40 uppercase tracking-[0.3em]">Synchronizing Assets...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto py-8 px-4 md:px-10 max-w-7xl animate-in fade-in duration-500">
       <PageHeader
@@ -206,7 +220,7 @@ export default function LivestockPage() {
                 />
                 <MetricCard 
                   title="Feed Cost Today" 
-                  value={`₹${(totalFeedCost / 30).toLocaleString()}`} 
+                  value={`₹${Math.round(totalFeedCost / 30).toLocaleString()}`} 
                   sub="Daily Amortized" 
                   color="bg-blue-500" 
                 />
@@ -222,30 +236,55 @@ export default function LivestockPage() {
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pt-4">
                 <div className="lg:col-span-7 space-y-6">
                   <div className="rounded-2xl border border-neutral-100 overflow-hidden shadow-sm">
-                    <Table>
-                      <TableHeader className="bg-neutral-50/50">
-                        <TableRow className="hover:bg-transparent">
-                          <TableHead className="text-[12px] font-black uppercase tracking-widest py-4 pl-6">ID</TableHead>
-                          <TableHead className="text-[12px] font-black uppercase tracking-widest py-4">Breed</TableHead>
-                          <TableHead className="text-[12px] font-black uppercase tracking-widest py-4">Weight</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {trackedSheep && trackedSheep.length > 0 ? (
-                          trackedSheep.slice(0, 10).map((sheep) => (
-                            <TableRow key={sheep.id} className="hover:bg-neutral-50 transition-colors cursor-pointer group" onClick={() => setViewingSheep(sheep)}>
-                              <TableCell className="font-black text-[14px] py-4 pl-6 uppercase text-primary/80">{sheep.tagId}</TableCell>
-                              <TableCell className="text-[14px] font-bold text-neutral-500">{sheep.breed || 'Standard'}</TableCell>
-                              <TableCell className="text-[14px] font-black text-neutral-900">{sheep.currentWeight} kg</TableCell>
-                            </TableRow>
-                          ))
-                        ) : (
-                          <TableRow>
-                            <TableCell colSpan={3} className="text-center py-10 text-[14px] text-muted-foreground italic uppercase tracking-widest">Awaiting assets...</TableCell>
+                    <ScrollArea className="h-[600px] w-full">
+                      <Table>
+                        <TableHeader className="bg-neutral-50/50 sticky top-0 z-10 backdrop-blur-md">
+                          <TableRow className="hover:bg-transparent">
+                            <TableHead className="text-[12px] font-black uppercase tracking-widest py-4 pl-6">ID</TableHead>
+                            <TableHead className="text-[12px] font-black uppercase tracking-widest py-4">Attributes</TableHead>
+                            <TableHead className="text-[12px] font-black uppercase tracking-widest py-4">Weight</TableHead>
                           </TableRow>
-                        )}
-                      </TableBody>
-                    </Table>
+                        </TableHeader>
+                        <TableBody>
+                          {trackedSheep && trackedSheep.length > 0 ? (
+                            trackedSheep.map((sheep) => (
+                              <TableRow key={sheep.id} className="hover:bg-neutral-50 transition-colors cursor-pointer group" onClick={() => setViewingSheep(sheep)}>
+                                <TableCell className="font-black text-[14px] py-4 pl-6 uppercase text-primary/80">
+                                  {sheep.tagId}
+                                  <div className="text-[10px] font-bold text-muted-foreground mt-0.5">{sheep.breed || 'Standard'}</div>
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex flex-col">
+                                    <span className="text-[12px] font-bold text-neutral-500 uppercase tracking-tight">{sheep.gender}</span>
+                                    <span className="text-[10px] font-medium text-neutral-400">{sheep.age} Months</span>
+                                  </div>
+                                </TableCell>
+                                <TableCell className="text-[14px] font-black text-neutral-900">
+                                  {sheep.currentWeight} kg
+                                  {sheep.previousWeight && (
+                                    <div className={cn(
+                                      "text-[10px] font-bold mt-0.5",
+                                      sheep.currentWeight > sheep.previousWeight ? "text-emerald-500" : "text-rose-500"
+                                    )}>
+                                      {sheep.currentWeight > sheep.previousWeight ? '+' : ''}{(sheep.currentWeight - sheep.previousWeight).toFixed(1)}kg
+                                    </div>
+                                  )}
+                                </TableCell>
+                              </TableRow>
+                            ))
+                          ) : (
+                            <TableRow>
+                              <TableCell colSpan={3} className="text-center py-20 text-[14px] text-muted-foreground italic uppercase tracking-widest">
+                                <div className="flex flex-col items-center gap-4 opacity-40">
+                                  <Info className="h-10 w-10" />
+                                  <span>No assets logged in flock</span>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </TableBody>
+                      </Table>
+                    </ScrollArea>
                   </div>
                 </div>
 
