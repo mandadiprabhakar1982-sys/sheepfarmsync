@@ -85,7 +85,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-160px)]">
+    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-160px)] p-4">
       <div className="w-full max-w-6xl">
         <div className="flex items-center gap-6 mb-12 ml-4">
           <DashboardSparkleIcon className="h-16 w-16" />
@@ -99,7 +99,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="glass-panel rounded-[3rem] p-12 lg:p-16">
+        <div className="dashboard-panel">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10">
             {cards.map((item, idx) => (
               <CommandCard key={idx} item={item} />

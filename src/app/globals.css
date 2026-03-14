@@ -56,20 +56,24 @@
     -webkit-tap-highlight-color: transparent;
   }
   body {
-    @apply bg-background text-foreground antialiased;
+    background: #f4f9f1;
+    color: hsl(var(--foreground));
     font-family: 'Inter', sans-serif;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     letter-spacing: -0.01em;
     margin: 0;
+    min-height: 100vh;
   }
 }
 
-.glass-panel {
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(76, 175, 80, 0.3);
-  box-shadow: 0 8px 32px 0 rgba(22, 163, 74, 0.05);
+.dashboard-panel {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 28px;
+  padding: 30px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(76, 175, 80, 0.2);
 }
 
 .glass-card {
