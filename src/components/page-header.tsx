@@ -7,23 +7,16 @@ interface PageHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export function PageHeader({ title, description, className, children }: PageHeaderProps) {
   return (
-    <div className={cn('mb-12 relative', className)}>
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div className="space-y-2">
-            <div className="flex items-center gap-3">
-              <div className="h-8 w-1 bg-accent rounded-full hidden md:block" />
-              <h1 className="app-header text-primary">{title}</h1>
-            </div>
-            {description && (
-              <p className="info-text-precise text-primary/40 uppercase tracking-[0.3em] pl-1">
-                {description}
-              </p>
-            )}
-        </div>
-        <div className="flex items-center gap-3">
-          {children}
-        </div>
+    <div className={cn('mb-10', className)}>
+      <div className="flex flex-col gap-1">
+        <h1 className="page-title">{title}</h1>
+        {description && (
+          <p className="subtitle">
+            {description}
+          </p>
+        )}
       </div>
+      {children && <div className="mt-6">{children}</div>}
     </div>
   );
 }
