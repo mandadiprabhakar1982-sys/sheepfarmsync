@@ -4,34 +4,26 @@
 
 @layer base {
   :root {
-    --background: 100 31% 96%;
-    --foreground: 144 61% 10%;
+    --background: 88 33% 94%; /* #eef6e8 */
+    --foreground: 84 59% 20%; /* #365314 */
     --card: 0 0% 100%;
-    --card-foreground: 144 61% 10%;
+    --card-foreground: 84 59% 20%;
     --popover: 0 0% 100%;
-    --popover-foreground: 144 61% 10%;
-    --primary: 142 76% 36%;
-    --primary-foreground: 140 71% 98%;
-    --secondary: 140 71% 93%;
-    --secondary-foreground: 144 61% 20%;
-    --muted: 140 20% 92%;
-    --muted-foreground: 144 10% 40%;
-    --accent: 122 39% 49%;
-    --accent-foreground: 144 61% 10%;
+    --popover-foreground: 84 59% 20%;
+    --primary: 84 81% 34%; /* #65a30d */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 84 33% 90%; /* #e7eddc */
+    --secondary-foreground: 215 16% 47%; /* #64748b */
+    --muted: 84 33% 90%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 84 81% 34%;
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
-    --border: 122 39% 49%;
-    --input: 122 39% 49%;
-    --ring: 142 76% 36%;
-    --radius: 1.5rem;
-    --sidebar-background: 140 71% 97%;
-    --sidebar-foreground: 144 61% 10%;
-    --sidebar-primary: 142 76% 36%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 100%;
-    --sidebar-accent-foreground: 142 76% 36%;
-    --sidebar-border: 122 39% 92%;
-    --sidebar-ring: 142 76% 36%;
+    --border: 88 33% 85%; /* #d9e4cf */
+    --input: 88 33% 85%;
+    --ring: 84 81% 34%;
+    --radius: 24px;
   }
 }
 
@@ -41,70 +33,145 @@
     -webkit-tap-highlight-color: transparent;
   }
   body {
-    background: #f4f9f1;
-    color: #14532d;
+    background: #eef6e8;
+    color: #365314;
     font-family: 'Inter', sans-serif;
     margin: 0;
     min-height: 100vh;
   }
 }
 
-/* Top Header Architecture */
-.top-header {
-  height: 78px;
-  background: rgba(255, 255, 255, 0.92);
-  border-bottom: 1px solid #d9ead3;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
-
-/* Main Content Glass Panel */
-.dashboard-panel {
-  background: rgba(255, 255, 255, 0.82);
+/* Main App Architecture */
+.app-shell {
+  background: rgba(255, 255, 255, 0.78);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-radius: 28px;
-  padding: 40px;
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(76, 175, 80, 0.1);
+  margin: 20px;
+  min-height: calc(100vh - 40px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
 }
 
-/* Module Card Architecture */
+/* Header */
+.top-header {
+  height: 78px;
+  background: rgba(255, 255, 255, 0.92);
+  border-bottom: 1px solid #d9e4cf;
+  border-top-left-radius: 28px;
+  border-top-right-radius: 28px;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 250px;
+  background: #f7fbf3;
+  border-right: 1px solid #dbe7d1;
+}
+
+.active-menu {
+  background: #dcfce7 !important;
+  color: #166534 !important;
+  border-radius: 14px !important;
+}
+
+/* Typography */
+.page-title {
+  font-size: 34px;
+  font-weight: 700;
+  color: #365314;
+}
+
+.subtitle {
+  color: #94a3b8;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* Cards */
+.form-card {
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  padding: 28px;
+  border: none;
+}
+
+/* Inputs & Forms */
+input, select, textarea {
+  height: 54px !important;
+  border-radius: 14px !important;
+  border: 1px solid #d9e4cf !important;
+  background: #f8fafc !important;
+  font-weight: 600 !important;
+  padding-left: 16px !important;
+}
+
+textarea {
+  height: auto !important;
+  min-height: 100px !important;
+}
+
+/* Buttons */
+.primary-btn {
+  background: #3f7d32;
+  color: white;
+  border-radius: 18px;
+  height: 52px;
+  font-weight: 700;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 24px;
+}
+
+.primary-btn:hover {
+  background: #2f6b24;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(63, 125, 50, 0.2);
+}
+
+/* Tabs */
+.tab-active {
+  background: #65a30d !important;
+  color: white !important;
+  border-radius: 14px !important;
+  font-weight: 700 !important;
+}
+
+.tab-inactive {
+  background: #e7eddc !important;
+  color: #64748b !important;
+  border-radius: 14px !important;
+  font-weight: 600 !important;
+}
+
+/* Dashboard Modules */
 .module-card {
   width: 240px;
   height: 240px;
-  background: #e2f0e2; /* Light Sage Green */
-  border-radius: 48px; /* High Roundness */
+  background: #e2f0e2;
+  border-radius: 48px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   cursor: pointer;
-  padding: 20px;
+  padding: 24px;
   border: none;
 }
 
 .module-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 14px 24px rgba(34, 197, 94, 0.15);
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 32px rgba(34, 197, 94, 0.15);
 }
 
-/* Elite Component Architecture */
-.elite-input {
-  @apply h-14 rounded-2xl bg-neutral-50/80 border-none shadow-inner font-bold text-sm px-6 focus-visible:ring-primary/20;
-}
-
-.elite-button-pill {
-  @apply h-14 px-10 rounded-full font-black text-xs uppercase tracking-[0.25em] shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3;
-}
-
-.elite-tab-pill {
-  @apply rounded-full font-black text-[10px] uppercase tracking-widest px-8 py-3 transition-all;
-}
-
-/* Icon Style */
-.card-icon {
+.card-icon-box {
   width: 110px;
   height: 110px;
   color: #14532d;
@@ -114,40 +181,30 @@
   margin-bottom: 12px;
 }
 
-.card-icon svg {
+.card-icon-box svg, .card-icon-box img {
   width: 64px;
   height: 64px;
   object-fit: contain;
 }
 
-/* Typography */
 .card-title {
   font-size: 28px;
   font-weight: 700;
   color: #14532d;
   text-transform: uppercase;
-  letter-spacing: 1px;
 }
 
 .card-subtitle {
-  margin-top: 24px;
+  margin-top: 16px;
   font-size: 14px;
   font-weight: 600;
-  color: #64748b; /* Gray Text */
+  color: #64748b;
   text-transform: uppercase;
   letter-spacing: 2px;
   text-align: center;
 }
 
-/* Sidebar Active Item */
-.active-menu {
-  background: #dcfce7 !important;
-  border-left: 4px solid #16a34a !important;
-  color: #166534 !important;
-}
-
 @layer utilities {
-  .app-header { font-size: 24px; font-weight: 900; letter-spacing: -0.02em; text-transform: uppercase; }
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 }

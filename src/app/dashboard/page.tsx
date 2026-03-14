@@ -12,9 +12,9 @@ import {
   Users, 
   Receipt,
   ArrowRightLeft,
-  Circle,
   BarChart,
-  Globe
+  Globe,
+  Skull
 } from 'lucide-react';
 
 const SheepRamIcon = ({ className }: { className?: string }) => (
@@ -24,28 +24,21 @@ const SheepRamIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const TradeIcon = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
-    <path d="M12,18H6V14H12M21,14V12L20,7H4L3,12V14H4V20H14V14H18V20H20V14M20,4H4V6H20V4Z" />
-  </svg>
-);
-
 export default function DashboardPage() {
   const { userRole } = useFarm();
   const isAdmin = userRole === 'admin';
 
   const cards = [
-    { title: "OVERVIEW", subtitle: "ANALYTICS", icon: LayoutGrid, href: '/dashboard/overview' },
     { title: "FLOCK", subtitle: "PUBLIC PROJECT ASSETS", icon: SheepRamIcon, href: '/dashboard/livestock' },
-    { title: "INTELLIGENCE", subtitle: "AI REPORTS", icon: BarChart, href: '/dashboard/analysis' },
+    { title: "TRADE", subtitle: "PUBLIC PROJECT ASSETS", icon: ArrowRightLeft, href: '/dashboard/sales' },
+    { title: "HEALTH", subtitle: "OPERATIONS & STAFF", icon: Syringe, href: '/dashboard/medicine' },
+    { title: "FEED", subtitle: "OPERATIONS & STAFF", icon: Wheat, href: '/dashboard/feed' },
+    { title: "LABOR", subtitle: "OPERATIONS & STAFF", icon: Users, href: '/dashboard/labor' },
+    { title: "LOSS", subtitle: "PUBLIC PROJECT ASSETS", icon: Skull, href: '/dashboard/mortality' },
     { title: "LEDGER", subtitle: "PRIVATE PROJECT ASSETS", icon: Wallet, href: '/dashboard/monthly-ledger', adminOnly: true },
     { title: "LIABILITIES", subtitle: "PRIVATE PROJECT ASSETS", icon: BookOpen, href: '/dashboard/balance-sheet', adminOnly: true },
-    { title: "TRADE", subtitle: "PUBLIC PROJECT ASSETS", icon: TradeIcon, href: '/dashboard/sales' },
-    { title: "HEALTH", subtitle: "OPERATIONS", icon: Syringe, href: '/dashboard/medicine' },
-    { title: "FEED", subtitle: "OPERATIONS", icon: Wheat, href: '/dashboard/feed' },
-    { title: "LABOR", subtitle: "OPERATIONS", icon: Users, href: '/dashboard/labor' },
-    { title: "EXPENSES", subtitle: "PUBLIC ASSETS", icon: Receipt, href: '/dashboard/expenses' },
-    { title: "MARKET", subtitle: "COMMUNITY", icon: Globe, href: '/dashboard/marketplace' },
+    { title: "MARKET", subtitle: "ECOSYSTEM", icon: Globe, href: '/dashboard/marketplace' },
+    { title: "INTEL", subtitle: "AI REPORTS", icon: BarChart, href: '/dashboard/analysis' },
   ];
 
   const CommandCard = ({ item }: { item: any }) => {
@@ -54,11 +47,11 @@ export default function DashboardPage() {
 
     return (
       <div className="flex flex-col items-center">
-        <Link href={item.href} className="module-card group">
-          <div className="card-icon">
+        <Link href={item.href} className="module-card group shadow-sm hover:shadow-2xl">
+          <div className="card-icon-box">
             <Icon />
           </div>
-          <h3 className="card-title">
+          <h3 className="card-title text-center">
             {item.title}
           </h3>
         </Link>
@@ -70,28 +63,26 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-160px)] p-4">
+    <div className="flex flex-col items-center justify-center min-h-full py-12">
       <div className="w-full max-w-[1200px]">
         {/* Hub Header */}
-        <div className="flex items-center gap-6 mb-12 ml-4">
+        <div className="flex items-center gap-6 mb-16 ml-4">
           <DashboardSparkleIcon className="h-16 w-16" />
           <div className="space-y-1">
-            <h1 className="text-3xl font-black tracking-tight text-[#14532d] uppercase">
-              SYSTEM COMMAND HUB
+            <h1 className="page-title leading-tight">
+              SYSTEM HUB
             </h1>
-            <p className="text-[11px] font-bold text-[#4caf50] uppercase tracking-[0.3em]">
+            <p className="subtitle">
               SYNCHRONIZED OPERATIONAL ENVIRONMENT
             </p>
           </div>
         </div>
 
         {/* Main Dashboard Panel */}
-        <div className="dashboard-panel">
-          <div className="flex flex-wrap justify-center gap-x-12 gap-y-16">
-            {cards.map((item, idx) => (
-              <CommandCard key={idx} item={item} />
-            ))}
-          </div>
+        <div className="flex flex-wrap justify-center gap-x-12 gap-y-20">
+          {cards.map((item, idx) => (
+            <CommandCard key={idx} item={item} />
+          ))}
         </div>
       </div>
     </div>

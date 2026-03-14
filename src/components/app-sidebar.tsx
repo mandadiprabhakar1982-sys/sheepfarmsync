@@ -50,7 +50,7 @@ export function AppSidebar() {
       ]
     },
     {
-      label: "PRIVATE PROJECT ASSETS",
+      label: "PRIVATE ASSETS",
       adminOnly: true,
       links: [
         { href: '/dashboard/monthly-ledger', label: "Monthly Ledger", icon: Wallet },
@@ -58,16 +58,16 @@ export function AppSidebar() {
       ]
     },
     {
-      label: "PUBLIC PROJECT ASSETS",
+      label: "OPERATIONS",
       links: [
         { href: '/dashboard/livestock', label: "Livestock Hub", icon: LayoutGrid },
-        { href: '/dashboard/sales', label: "Purchases & Sales", icon: ArrowRightLeft },
+        { href: '/dashboard/sales', label: "Trade Ledger", icon: ArrowRightLeft },
         { href: '/dashboard/mortality', label: "Loss Log", icon: Skull },
         { href: '/dashboard/expenses', label: "Expenses", icon: Receipt },
       ]
     },
     {
-      label: "OPERATIONS & STAFF",
+      label: "MANAGEMENT",
       links: [
         { href: '/dashboard/medicine', label: "Health", icon: Syringe },
         { href: '/dashboard/feed', label: "Feed", icon: Wheat },
@@ -77,18 +77,18 @@ export function AppSidebar() {
   ], []); 
 
   return (
-    <Sidebar collapsible="none" className="border-r border-neutral-200 bg-[#f8faf4]">
+    <Sidebar collapsible="none" className="sidebar">
       <SidebarHeader className="h-20 flex items-center px-6">
         <Logo className="scale-100" />
       </SidebarHeader>
 
-      <SidebarContent className="px-0 py-4 no-scrollbar">
+      <SidebarContent className="px-4 py-4 no-scrollbar">
         {groups.map((group, gIdx) => {
           if (group.adminOnly && !isAdmin) return null;
 
           return (
-            <SidebarGroup key={gIdx} className="mb-6 px-4">
-              <SidebarGroupLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-[#14532d]/40 mb-3 px-2">
+            <SidebarGroup key={gIdx} className="mb-6">
+              <SidebarGroupLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-[#365314]/40 mb-3 px-2">
                 {group.label}
               </SidebarGroupLabel>
               <SidebarGroupContent>
@@ -101,10 +101,10 @@ export function AppSidebar() {
                           asChild
                           isActive={isActive}
                           className={cn(
-                            "transition-all duration-300 h-11 px-3 rounded-xl",
+                            "transition-all duration-300 h-11 px-3",
                             isActive 
                               ? "active-menu font-black shadow-sm" 
-                              : "text-[#14532d]/60 hover:bg-white/80 hover:text-[#16a34a]"
+                              : "text-[#365314]/60 hover:bg-white/80 hover:text-[#16a34a]"
                           )}
                         >
                           <Link href={link.href} className="flex items-center w-full">
@@ -123,14 +123,14 @@ export function AppSidebar() {
         })}
       </SidebarContent>
 
-      <SidebarFooter className="p-6 border-t border-neutral-100">
+      <SidebarFooter className="p-6 border-t border-[#dbe7d1]">
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-[#14532d] flex items-center justify-center text-white text-[12px] font-black shadow-lg">
-            N
+          <div className="h-10 w-10 rounded-full bg-[#365314] flex items-center justify-center text-white text-[12px] font-black shadow-lg">
+            S
           </div>
           <div className="flex flex-col">
-            <p className="text-[11px] font-black uppercase tracking-widest text-[#14532d] leading-none">SYNC PRO</p>
-            <p className="text-[9px] font-bold text-[#4caf50] mt-1 uppercase tracking-tighter">Energies v4.2</p>
+            <p className="text-[11px] font-black uppercase tracking-widest text-[#365314] leading-none">SYNC PRO</p>
+            <p className="text-[9px] font-bold text-[#65a30d] mt-1 uppercase tracking-tighter">Energies v5.0</p>
           </div>
         </div>
       </SidebarFooter>
