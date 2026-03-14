@@ -9,7 +9,8 @@ import {
   Wheat,
   Languages,
   Plus,
-  Monitor
+  Monitor,
+  Lock
 } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { UserNav } from '@/components/user-nav';
@@ -44,10 +45,10 @@ export default function DashboardLayout({
 
   if (isLoadingProfile) {
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-[#0a0a0a] fixed inset-0 z-[9999]">
+      <div className="flex h-screen w-full items-center justify-center bg-white fixed inset-0 z-[9999]">
         <div className="flex flex-col items-center gap-6">
-          <div className="w-12 h-12 border-4 border-white/5 rounded-full border-t-emerald-500 animate-spin" />
-          <p className="text-[12px] font-black text-white/40 uppercase tracking-[0.4em]">{t('syncing')}</p>
+          <div className="w-12 h-12 border-4 border-neutral-100 rounded-full border-t-emerald-500 animate-spin" />
+          <p className="text-[12px] font-black text-neutral-400 uppercase tracking-[0.4em]">{t('syncing')}</p>
         </div>
       </div>
     );
@@ -55,37 +56,45 @@ export default function DashboardLayout({
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-[#0a0a0a] overflow-hidden selection:bg-emerald-500/30">
-        {/* WEB MODEL: Persistent Sidebar - Hidden on mobile */}
-        <div className="hidden md:flex">
+      <div className="flex min-h-screen w-full bg-[#f0f2f5] overflow-hidden selection:bg-emerald-500/30 font-sans">
+        {/* BACKGROUND IMAGE - FUTURISTIC LAB */}
+        <div 
+          className="fixed inset-0 z-0 bg-cover bg-center opacity-40 mix-blend-multiply pointer-events-none"
+          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2070&auto=format&fit=crop')" }}
+          data-ai-hint="futuristic laboratory"
+        />
+        <div className="fixed inset-0 z-0 bg-gradient-to-tr from-white/80 via-transparent to-white/40 pointer-events-none" />
+
+        {/* WEB MODEL: Persistent Sidebar */}
+        <div className="hidden md:flex relative z-20">
           <AppSidebar />
         </div>
 
-        <SidebarInset className="flex flex-col relative bg-transparent">
+        <SidebarInset className="flex flex-col relative bg-transparent z-10">
           {/* ADAPTIVE HEADER */}
-          <header className="sticky top-0 z-50 flex h-20 items-center justify-between gap-4 bg-white/5 backdrop-blur-2xl px-6 md:px-10 safe-area-top border-b border-white/5 shadow-2xl">
+          <header className="sticky top-4 z-50 flex h-16 items-center justify-between gap-4 glass-effect mx-6 md:mx-10 mt-4 rounded-2xl border border-white/40 shadow-xl px-6">
             <div className="flex items-center gap-4">
               <div className="md:hidden">
-                <Logo showManager={false} light={true} className="scale-90 origin-left" />
+                <Logo showManager={false} light={false} className="scale-90 origin-left" />
               </div>
               <div className="hidden md:flex items-center gap-6">
-                <SidebarTrigger className="h-10 w-10 hover:bg-white/10 rounded-2xl transition-all text-white/60 hover:text-white" />
-                <Separator orientation="vertical" className="h-6 bg-white/10" />
-                <div className="flex items-center gap-3 px-4 py-2 bg-white/5 rounded-xl border border-white/5">
-                  <Monitor className="h-4 w-4 text-emerald-400" />
-                  <h2 className="text-[11px] font-black text-white/40 tracking-[0.3em] uppercase">
+                <SidebarTrigger className="h-10 w-10 hover:bg-black/5 rounded-xl transition-all text-neutral-600" />
+                <Separator orientation="vertical" className="h-6 bg-neutral-200" />
+                <div className="flex items-center gap-3 px-4 py-1.5 bg-black/5 rounded-lg border border-white/20">
+                  <Monitor className="h-3.5 w-3.5 text-neutral-500" />
+                  <h2 className="text-[10px] font-bold text-neutral-500 tracking-[0.2em] uppercase">
                      FARM MANAGEMENT SYSTEM
                   </h2>
                 </div>
               </div>
             </div>
             
-            <div className="flex items-center gap-2 md:gap-6">
+            <div className="flex items-center gap-2 md:gap-4">
               <Button 
                 variant="ghost" 
                 size="icon" 
                 onClick={toggleLanguage}
-                className="rounded-2xl hover:bg-white/10 text-white/60 transition-all"
+                className="rounded-xl hover:bg-black/5 text-neutral-500 transition-all"
               >
                 <Languages className="h-5 w-5" />
               </Button>
@@ -93,21 +102,21 @@ export default function DashboardLayout({
             </div>
           </header>
           
-          <main className="flex-1 pb-32 md:pb-10 overflow-y-auto no-scrollbar relative">
+          <main className="flex-1 pb-32 md:pb-10 overflow-y-auto no-scrollbar relative pt-6">
             {children}
           </main>
           
-          {/* MOBILE MODEL: Tactile Bottom Navigation - Hidden on desktop */}
+          {/* MOBILE MODEL: Tactile Bottom Navigation */}
           <footer className="fixed bottom-0 left-0 right-0 z-50 md:hidden pb-[env(safe-area-inset-bottom)] px-4 mb-4">
-            <nav className="flex h-20 items-center justify-around bg-black/80 backdrop-blur-3xl rounded-[2.5rem] shadow-2xl border border-white/10 px-2 ring-1 ring-white/10">
+            <nav className="flex h-16 items-center justify-around bg-white/80 backdrop-blur-3xl rounded-3xl shadow-2xl border border-white/40 px-2">
               {mobileNavItems.map((link) => {
                 const Icon = link.icon;
                 const isActive = pathname === link.href;
                 
                 if (link.isCenter) {
                   return (
-                    <Link key={link.href} href="/dashboard/livestock" className="relative -top-6 bg-emerald-600 text-white p-4 rounded-full shadow-[0_0_30px_rgba(16,185,129,0.4)] transition-transform active:scale-90 border-4 border-[#0a0a0a]">
-                      <Icon className="h-7 w-7" />
+                    <Link key={link.href} href="/dashboard/livestock" className="relative -top-6 bg-emerald-600 text-white p-4 rounded-full shadow-2xl transition-transform active:scale-90 border-4 border-[#f0f2f5]">
+                      <Icon className="h-6 w-6" />
                     </Link>
                   );
                 }
@@ -117,17 +126,12 @@ export default function DashboardLayout({
                     key={link.href}
                     href={link.href}
                     className={cn(
-                      'flex flex-col items-center justify-center gap-1.5 min-w-[64px] h-full transition-all duration-300',
-                      isActive ? 'text-emerald-400' : 'text-white/20'
+                      'flex flex-col items-center justify-center gap-1 transition-all duration-300',
+                      isActive ? 'text-emerald-600' : 'text-neutral-400'
                     )}
                   >
-                    <div className={cn(
-                      "p-2 rounded-2xl transition-all duration-300",
-                      isActive ? "bg-emerald-500/10" : ""
-                    )}>
-                      <Icon className={cn("h-5 w-5", isActive ? "scale-110" : "opacity-70")} />
-                    </div>
-                    <span className="text-[10px] font-black uppercase tracking-widest leading-none">{link.label}</span>
+                    <Icon className={cn("h-5 w-5", isActive ? "scale-110" : "opacity-70")} />
+                    <span className="text-[9px] font-bold uppercase tracking-widest leading-none">{link.label}</span>
                   </Link>
                 );
               })}

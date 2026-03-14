@@ -28,24 +28,24 @@ export const SheepIcon = SyncProIcon;
 
 export function Logo({ className, light = false, showManager = true }: { className?: string; light?: boolean; showManager?: boolean }) {
   return (
-    <div className={cn('flex items-center gap-4 select-none group cursor-pointer', className)}>
+    <div className={cn('flex items-center gap-3 select-none group cursor-pointer', className)}>
        <div className={cn(
-         "rounded-2xl p-2.5 shadow-2xl transition-all duration-500 group-hover:rotate-180",
-         light ? "bg-white text-primary" : "bg-primary text-accent"
+         "rounded-xl p-2 transition-all duration-500 group-hover:rotate-180",
+         light ? "bg-white text-[#1a4d38]" : "bg-[#1a4d38] text-[#A68A56] shadow-lg"
        )}>
-        <SyncProIcon className="h-6 w-6" />
+        <SyncProIcon className="h-5 w-5" />
       </div>
       <div className="flex flex-col">
         <h1 className={cn(
-          "text-xl font-display leading-none flex items-center gap-1.5",
-          light ? "text-white" : "text-primary"
+          "text-lg font-black leading-none flex items-center gap-1 uppercase tracking-tight",
+          light ? "text-white" : "text-neutral-900"
         )}>
-          SYNC <span className={light ? "text-white/60" : "text-accent"}>PRO</span>
+          SYNC <span className={light ? "text-white/60" : "text-[#A68A56]"}>PRO</span>
         </h1>
         {showManager && (
           <p className={cn(
-            "text-[7px] font-black uppercase tracking-[0.4em] mt-1.5 opacity-40",
-            light ? "text-white/50" : "text-primary"
+            "text-[7px] font-black uppercase tracking-[0.3em] mt-1 opacity-40",
+            light ? "text-white/50" : "text-neutral-900"
           )}>
             Elite Management Suite
           </p>

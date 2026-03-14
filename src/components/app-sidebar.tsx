@@ -91,17 +91,17 @@ export function AppSidebar() {
   ], []); 
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-white/5 bg-[#0a0a0a] text-white">
-      <SidebarHeader className="h-20 flex items-center justify-center border-b border-white/5 px-6">
-        <Logo showManager={false} light={true} className="scale-90" />
+    <Sidebar collapsible="icon" className="border-r border-white/40 bg-white/20 backdrop-blur-3xl">
+      <SidebarHeader className="h-20 flex items-center justify-center border-b border-white/40 px-6">
+        <Logo showManager={false} light={false} className="scale-90" />
       </SidebarHeader>
-      <SidebarContent className="px-3 py-6 bg-transparent">
+      <SidebarContent className="px-3 py-6">
         {groups.map((group) => {
           if (group.adminOnly && !isAdmin) return null;
 
           return (
-            <SidebarGroup key={group.label} className="mb-6">
-              <SidebarGroupLabel className="text-[10px] font-black uppercase tracking-[0.25em] text-white/30 mb-3 px-3 flex items-center gap-2">
+            <SidebarGroup key={group.label} className="mb-4">
+              <SidebarGroupLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-500/60 mb-2 px-3">
                 {group.label}
               </SidebarGroupLabel>
               <SidebarGroupContent>
@@ -115,16 +115,16 @@ export function AppSidebar() {
                           isActive={isActive}
                           tooltip={link.label}
                           className={cn(
-                            "transition-all duration-300 h-11 px-3 rounded-2xl",
+                            "transition-all duration-300 h-10 px-3 rounded-xl",
                             isActive 
-                              ? "bg-white/10 text-white shadow-xl border border-white/10" 
-                              : "text-white/50 hover:bg-white/5 hover:text-white"
+                              ? "bg-white text-neutral-900 shadow-md border border-white/60" 
+                              : "text-neutral-500 hover:bg-white/40 hover:text-neutral-900"
                           )}
                         >
                           <Link href={link.href} className="flex items-center w-full">
-                            <link.icon className={cn("shrink-0 h-5 w-5", isActive ? "text-emerald-400" : "opacity-70")} />
-                            <span className="ml-3 font-bold text-[13px] tracking-tight">{link.label}</span>
-                            {isActive && <div className="ml-auto w-1 h-1 bg-emerald-400 rounded-full" />}
+                            <link.icon className={cn("shrink-0 h-4 w-4", isActive ? "text-emerald-600" : "opacity-70")} />
+                            <span className="ml-3 font-bold text-[12px] tracking-tight">{link.label}</span>
+                            {isActive && <ChevronRight className="ml-auto h-3 w-3 text-neutral-300" />}
                           </Link>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
@@ -136,10 +136,10 @@ export function AppSidebar() {
           );
         })}
       </SidebarContent>
-      <SidebarFooter className="border-t border-white/5 p-6 opacity-30">
+      <SidebarFooter className="border-t border-white/40 p-6 opacity-40">
         <div className="flex flex-col items-center gap-1">
-          <p className="text-[9px] font-black uppercase tracking-[0.4em]">Sync Pro</p>
-          <p className="text-[7px] font-bold">Enterprise v2.8.0</p>
+          <p className="text-[9px] font-black uppercase tracking-[0.4em] text-neutral-900">Sync Pro</p>
+          <p className="text-[7px] font-bold text-neutral-500 uppercase tracking-widest">Enterprise v2.8</p>
         </div>
       </SidebarFooter>
     </Sidebar>
