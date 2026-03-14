@@ -6,22 +6,17 @@ import { usePathname } from 'next/navigation';
 import {
   Home,
   LayoutDashboard,
-  Syringe,
+  HeartPulse,
   Wheat,
   Users,
   Receipt,
   Skull,
   BarChart,
-  Calculator,
   ListChecks,
-  Smartphone,
   ChevronRight,
   BookOpen,
   Wallet,
-  ShieldAlert,
   ArrowRightLeft,
-  Globe,
-  Monitor
 } from 'lucide-react';
 
 import {
@@ -39,17 +34,15 @@ import {
 import { Logo } from '@/components/logo';
 import { cn } from '@/lib/utils';
 import { useFarm } from '@/context/FarmContext';
-import { useLanguage } from '@/context/LanguageContext';
 
 export function AppSidebar() {
   const pathname = usePathname();
   const { userRole } = useFarm();
-  const { t } = useLanguage();
   const isAdmin = userRole === 'admin';
 
   const groups = React.useMemo(() => [
     {
-      label: "HOME",
+      label: "",
       links: [
         { href: '/dashboard', label: "Home", icon: Home },
         { href: '/dashboard/overview', label: "Overview", icon: LayoutDashboard },
@@ -76,25 +69,29 @@ export function AppSidebar() {
     {
       label: "OPERATIONS & STAFF",
       links: [
+        { href: '/dashboard/medicine', label: "Health", icon: HeartPulse },
+        { href: '/dashboard/feed', label: "Feed", icon: Wheat },
         { href: '/dashboard/labor', label: "Labor", icon: Users },
       ]
     }
   ], []); 
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-white/40 bg-white/20 backdrop-blur-3xl">
-      <SidebarHeader className="h-20 flex items-center justify-center border-b border-white/40 px-6">
+    <Sidebar collapsible="icon" className="border-r border-neutral-200 bg-white shadow-sm">
+      <SidebarHeader className="h-20 flex items-center justify-center px-6">
         <Logo showManager={false} light={false} className="scale-90" />
       </SidebarHeader>
       <SidebarContent className="px-3 py-6">
-        {groups.map((group) => {
+        {groups.map((group, gIdx) => {
           if (group.adminOnly && !isAdmin) return null;
 
           return (
-            <SidebarGroup key={group.label} className="mb-4">
-              <SidebarGroupLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-500/60 mb-2 px-3">
-                {group.label}
-              </SidebarGroupLabel>
+            <SidebarGroup key={gIdx} className="mb-6">
+              {group.label && (
+                <SidebarGroupLabel className="text-[10px] font-black uppercase tracking-[0.15em] text-neutral-400 mb-3 px-3">
+                  {group.label}
+                </SidebarGroupLabel>
+              )}
               <SidebarGroupContent>
                 <SidebarMenu>
                   {group.links.map((link) => {
@@ -106,16 +103,16 @@ export function AppSidebar() {
                           isActive={isActive}
                           tooltip={link.label}
                           className={cn(
-                            "transition-all duration-300 h-10 px-3 rounded-xl",
+                            "transition-all duration-200 h-11 px-3 rounded-xl",
                             isActive 
-                              ? "bg-white text-neutral-900 shadow-md border border-white/60" 
-                              : "text-neutral-500 hover:bg-white/40 hover:text-neutral-900"
+                              ? "bg-blue-50 text-blue-600 font-bold" 
+                              : "text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900"
                           )}
                         >
                           <Link href={link.href} className="flex items-center w-full">
-                            <link.icon className={cn("shrink-0 h-4 w-4", isActive ? "text-emerald-600" : "opacity-70")} />
-                            <span className="ml-3 font-bold text-[12px] tracking-tight">{link.label}</span>
-                            {isActive && <ChevronRight className="ml-auto h-3 w-3 text-neutral-300" />}
+                            <link.icon className={cn("shrink-0 h-4.5 w-4.5", isActive ? "text-blue-600" : "opacity-60")} />
+                            <span className="ml-3 text-[13px] tracking-tight">{link.label}</span>
+                            {isActive && <ChevronRight className="ml-auto h-3 w-3 text-blue-200" />}
                           </Link>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
@@ -127,10 +124,9 @@ export function AppSidebar() {
           );
         })}
       </SidebarContent>
-      <SidebarFooter className="border-t border-white/40 p-6 opacity-40">
+      <SidebarFooter className="p-6 opacity-30 border-t border-neutral-100">
         <div className="flex flex-col items-center gap-1">
-          <Logo showManager={false} className="scale-75 opacity-50" />
-          <p className="text-[7px] font-bold text-neutral-500 uppercase tracking-widest">Enterprise v2.8</p>
+          <p className="text-[8px] font-black text-neutral-500 uppercase tracking-widest">Enterprise v2.8</p>
         </div>
       </SidebarFooter>
     </Sidebar>

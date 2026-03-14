@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils';
+import { Sparkles } from 'lucide-react';
 
 export const SyncProIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg
@@ -25,6 +26,14 @@ export const SyncProIcon = (props: React.SVGProps<SVGSVGElement>) => (
   );
 
 export const SheepIcon = SyncProIcon;
+
+export function DashboardSparkleIcon({ className }: { className?: string }) {
+  return (
+    <div className={cn("h-16 w-16 rounded-[1.25rem] bg-neutral-900 flex items-center justify-center shadow-2xl", className)}>
+      <Sparkles className="h-8 w-8 text-emerald-400" />
+    </div>
+  );
+}
 
 export function Logo({ className, light = false, showManager = true }: { className?: string; light?: boolean; showManager?: boolean }) {
   return (
