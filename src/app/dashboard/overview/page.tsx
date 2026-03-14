@@ -40,17 +40,18 @@ export default function OverviewPage() {
           <p className="text-[12px] font-black text-[#16a34a]/40 animate-pulse uppercase tracking-[0.3em]">Establishing Elite Link</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="container mx-auto pb-32 animate-in fade-in duration-700">
       <PageHeader
         title="Farm Overview"
-        description="Operational Intelligence Command"
+        description="OPERATIONAL INTELLIGENCE COMMAND"
       />
       
       <div className="grid gap-12 mt-10">
+        {/* --- INVENTORY & FLOCK --- */}
         <section className="space-y-6">
           <div className="flex items-center gap-4">
             <h2 className="text-[11px] font-black uppercase tracking-[0.4em] text-slate-400">Inventory & Flock Status</h2>
@@ -72,8 +73,9 @@ export default function OverviewPage() {
                 className="form-card border-l-4 border-rose-600"
             />
           </div>
-        </section> section>
+        </section>
 
+        {/* --- FINANCIAL SUMMARY --- */}
         <section className="space-y-6">
           <div className="flex items-center gap-4">
             <h2 className="text-[11px] font-black uppercase tracking-[0.4em] text-slate-400">Financial Summary</h2>
@@ -103,6 +105,7 @@ export default function OverviewPage() {
           </div>
         </section>
 
+        {/* --- OPERATIONAL BREAKDOWN --- */}
         <section className="space-y-6">
           <div className="flex items-center gap-4">
             <h2 className="text-[11px] font-black uppercase tracking-[0.4em] text-slate-400">Operational Breakdown</h2>
