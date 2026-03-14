@@ -153,7 +153,7 @@ export default function DashboardPage() {
               return (
                 <Link href={item.href} key={item.title} className="group">
                   <Card className={cn(
-                    "h-full border bg-white/30 backdrop-blur-xl rounded-[2rem] transition-all duration-500",
+                    "h-full border bg-white/30 backdrop-blur-xl rounded-[2.5rem] transition-all duration-500",
                     "hover:-translate-y-2 hover:bg-white/50 hover:shadow-2xl active:scale-95 border-white/60",
                     item.border,
                     item.glow,
@@ -161,7 +161,7 @@ export default function DashboardPage() {
                     "overflow-hidden relative"
                   )}>
                     <CardContent className="p-6 flex flex-col items-center justify-center min-h-[220px] text-center">
-                      <div className="w-24 h-24 mb-6 relative group-hover:scale-110 transition-transform duration-500">
+                      <div className="w-28 h-28 mb-6 relative group-hover:scale-110 transition-transform duration-500">
                          {item.asset && (
                            <img 
                              src={item.asset.imageUrl} 
@@ -171,9 +171,12 @@ export default function DashboardPage() {
                            />
                          )}
                       </div>
-                      <h3 className="text-[13px] font-black tracking-wider text-neutral-800 leading-tight uppercase">
-                        {item.title}
-                      </h3>
+                      <div className="relative">
+                        <h3 className="text-[14px] font-black tracking-tight text-neutral-800 leading-none uppercase">
+                          {item.title}
+                        </h3>
+                        <div className="absolute -right-4 bottom-0 text-[10px] font-black text-neutral-400 opacity-40">...</div>
+                      </div>
                     </CardContent>
                   </Card>
                 </Link>
@@ -188,14 +191,14 @@ export default function DashboardPage() {
               return (
                 <Link href={item.href} key={item.title} className="group">
                   <Card className={cn(
-                    "h-full border bg-white/30 backdrop-blur-xl rounded-[2rem] transition-all duration-500",
+                    "h-full border bg-white/30 backdrop-blur-xl rounded-[2.5rem] transition-all duration-500",
                     "hover:-translate-y-2 hover:bg-white/50 hover:shadow-2xl active:scale-95 border-white/60",
                     item.border,
                     item.glow,
                     "overflow-hidden relative"
                   )}>
                     <CardContent className="p-6 flex flex-col items-center justify-center min-h-[200px] text-center">
-                      <div className="w-20 h-20 mb-4 relative group-hover:scale-110 transition-transform duration-500">
+                      <div className="w-24 h-24 mb-4 relative group-hover:scale-110 transition-transform duration-500">
                          {item.asset && (
                            <img 
                              src={item.asset.imageUrl} 
@@ -205,9 +208,12 @@ export default function DashboardPage() {
                            />
                          )}
                       </div>
-                      <h3 className="text-[13px] font-black tracking-wider text-neutral-800 leading-tight uppercase">
-                        {item.title}
-                      </h3>
+                      <div className="relative">
+                        <h3 className="text-[14px] font-black tracking-tight text-neutral-800 leading-none uppercase">
+                          {item.title}
+                        </h3>
+                        <div className="absolute -right-4 bottom-0 text-[10px] font-black text-neutral-400 opacity-40">...</div>
+                      </div>
                     </CardContent>
                   </Card>
                 </Link>

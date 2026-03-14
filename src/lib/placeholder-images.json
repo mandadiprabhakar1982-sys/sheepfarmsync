@@ -20,57 +20,57 @@
     },
     {
       "id": "dash-analytics",
-      "description": "Overview Analytics 3D Icon",
-      "imageUrl": "https://picsum.photos/seed/analytics-node-3d/400/400",
-      "imageHint": "3d analytics"
+      "description": "Overview Analytics 3D Glass Spheres",
+      "imageUrl": "https://picsum.photos/seed/blue-spheres-glass/400/400",
+      "imageHint": "3d glass blue spheres"
     },
     {
       "id": "dash-ledger",
       "description": "Monthly Ledger 3D Icon",
       "imageUrl": "https://picsum.photos/seed/wallet-gold-3d/400/400",
-      "imageHint": "3d wallet"
+      "imageHint": "3d wallet gold"
     },
     {
       "id": "dash-liabilities",
       "description": "Liabilities 3D Icon",
       "imageUrl": "https://picsum.photos/seed/vault-secure-3d/400/400",
-      "imageHint": "3d vault"
+      "imageHint": "3d vault security"
     },
     {
       "id": "dash-flock",
       "description": "Flock 3D Icon",
       "imageUrl": "https://picsum.photos/seed/sheep-model-3d/400/400",
-      "imageHint": "3d sheep"
+      "imageHint": "3d sheep model"
     },
     {
       "id": "dash-sales",
       "description": "Purchases & Sales 3D Icon",
       "imageUrl": "https://picsum.photos/seed/trade-arrows-3d/400/400",
-      "imageHint": "3d trade"
+      "imageHint": "3d trade exchange"
     },
     {
       "id": "dash-health",
       "description": "Health 3D Icon",
       "imageUrl": "https://picsum.photos/seed/medical-kit-3d/400/400",
-      "imageHint": "3d medical"
+      "imageHint": "3d medical clinical"
     },
     {
       "id": "dash-feed",
       "description": "Feed 3D Icon",
       "imageUrl": "https://picsum.photos/seed/grain-sack-3d/400/400",
-      "imageHint": "3d grain"
+      "imageHint": "3d grain nutrition"
     },
     {
       "id": "dash-labor",
       "description": "Labor 3D Icon",
       "imageUrl": "https://picsum.photos/seed/people-team-3d/400/400",
-      "imageHint": "3d team"
+      "imageHint": "3d team workers"
     },
     {
       "id": "dash-expenses",
       "description": "Expenses 3D Icon",
       "imageUrl": "https://picsum.photos/seed/receipt-paper-3d/400/400",
-      "imageHint": "3d receipt"
+      "imageHint": "3d receipt paper"
     }
   ]
 }
