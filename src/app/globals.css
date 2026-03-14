@@ -5,34 +5,43 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 220 40% 10%;
+    --foreground: 160 84% 10%;
     
     --card: 0 0% 100%;
-    --card-foreground: 220 40% 10%;
+    --card-foreground: 160 84% 10%;
     
     --popover: 0 0% 100%;
-    --popover-foreground: 220 40% 10%;
+    --popover-foreground: 160 84% 10%;
     
-    --primary: 160 84% 12%;
+    --primary: 160 84% 15%;
     --primary-foreground: 210 40% 98%;
     
-    --secondary: 210 20% 94%;
-    --secondary-foreground: 160 84% 12%;
+    --secondary: 160 20% 96%;
+    --secondary-foreground: 160 84% 15%;
     
-    --muted: 210 20% 94%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 160 10% 94%;
+    --muted-foreground: 160 10% 40%;
     
     --accent: 45 93% 47%;
-    --accent-foreground: 160 84% 12%;
+    --accent-foreground: 160 84% 15%;
     
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
     
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 160 84% 12%;
+    --border: 160 20% 90%;
+    --input: 160 20% 90%;
+    --ring: 160 84% 15%;
     
-    --radius: 1rem;
+    --radius: 1.5rem;
+
+    --sidebar-background: 160 25% 97%;
+    --sidebar-foreground: 160 84% 10%;
+    --sidebar-primary: 160 84% 15%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 100%;
+    --sidebar-accent-foreground: 160 84% 15%;
+    --sidebar-border: 160 20% 92%;
+    --sidebar-ring: 160 84% 15%;
   }
 }
 
@@ -42,56 +51,46 @@
     -webkit-tap-highlight-color: transparent;
   }
   body {
-    @apply bg-[#e2ede4] text-foreground antialiased;
+    @apply bg-white text-foreground antialiased;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     letter-spacing: -0.01em;
   }
 }
 
 .dashboard-bg {
-  background-image: url('https://picsum.photos/seed/farm-iso/1920/1080');
+  background-image: url('https://picsum.photos/seed/farm-landscape/1920/1080');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
   position: fixed;
   inset: 0;
   z-index: -1;
-  opacity: 0.15;
+  opacity: 0.25;
 }
 
 .glass-panel {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border-radius: 1rem;
-  border: 1.5px solid transparent;
-  box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.03);
+  background: rgba(255, 255, 255, 0.95);
+  border: 1.5px solid rgba(46, 125, 50, 0.15);
+  box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.02);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glass-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 24px 0 rgba(0, 0, 0, 0.06);
-}
-
-.card-title-precise {
-  font-family: 'Inter', sans-serif;
-  font-weight: 800;
-  letter-spacing: 0.05em;
-  font-size: 0.7rem;
-  color: #1a1a1a;
+  box-shadow: 0 12px 24px 0 rgba(46, 125, 50, 0.08);
+  border-color: rgba(46, 125, 50, 0.3);
 }
 
 @layer utilities {
-  .app-header { font-size: 24px; font-weight: 900; letter-spacing: -0.04em; }
+  .app-header { font-size: 24px; font-weight: 900; letter-spacing: -0.02em; text-transform: uppercase; }
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 }
