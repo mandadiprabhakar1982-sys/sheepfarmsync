@@ -54,7 +54,7 @@ export default function DashboardPage() {
     const Icon = item.icon;
 
     return (
-      <Link href={item.href} className="module-card">
+      <Link href={item.href} className="module-card group">
         <div className="mb-4 p-4 bg-[#dcfce7] rounded-2xl transition-transform duration-500 group-hover:scale-110">
           <Icon className="h-12 w-12 text-[#16a34a]" />
         </div>
@@ -68,6 +68,7 @@ export default function DashboardPage() {
           </p>
         </div>
 
+        {/* Triple Dot Decorations */}
         <div className="absolute bottom-4 left-6 flex gap-0.5 opacity-20">
           <Circle className="h-1 w-1 fill-current" />
           <Circle className="h-1 w-1 fill-current" />
@@ -85,6 +86,7 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-160px)] p-4">
       <div className="w-full max-w-7xl">
+        {/* Hub Header */}
         <div className="flex items-center gap-6 mb-12 ml-4">
           <DashboardSparkleIcon className="h-16 w-16" />
           <div className="space-y-1">
@@ -97,6 +99,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* Main Dashboard Panel */}
         <div className="dashboard-panel">
           <div className="flex flex-wrap justify-center gap-8">
             {cards.map((item, idx) => (
