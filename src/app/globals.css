@@ -125,6 +125,13 @@
   color: #14532d;
 }
 
+/* Card Subtitle Specifics */
+.card-subtitle {
+  font-size: 14px;
+  color: #64748b;
+  letter-spacing: 2px;
+}
+
 @layer utilities {
   .app-header { font-size: 24px; font-weight: 900; letter-spacing: -0.02em; text-transform: uppercase; }
   .no-scrollbar::-webkit-scrollbar { display: none; }

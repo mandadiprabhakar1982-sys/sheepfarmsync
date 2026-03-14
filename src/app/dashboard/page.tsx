@@ -56,7 +56,7 @@ export default function DashboardPage() {
           <h3 className="card-title uppercase tracking-tight leading-none">
             {item.title}
           </h3>
-          <p className="text-[9px] font-bold text-neutral-400 uppercase tracking-widest leading-none">
+          <p className="card-subtitle uppercase leading-none">
             {item.subtitle}
           </p>
         </div>
