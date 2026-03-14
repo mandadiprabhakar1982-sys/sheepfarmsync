@@ -54,31 +54,29 @@ export default function DashboardPage() {
     const Icon = item.icon;
 
     return (
-      <Link href={item.href} className="group">
-        <div className="glass-card relative aspect-square rounded-[2rem] p-8 flex flex-col items-center justify-center text-center">
-          <div className="mb-6 p-4 bg-[#dcfce7] rounded-2xl transition-transform duration-500 group-hover:scale-110">
-            <Icon className="h-12 w-12 text-[#16a34a]" />
-          </div>
-          
-          <div className="space-y-1">
-            <h3 className="text-[14px] font-black tracking-tight text-neutral-900 uppercase">
-              {item.title}
-            </h3>
-            <p className="text-[9px] font-bold text-neutral-400 uppercase tracking-widest leading-none">
-              {item.subtitle}
-            </p>
-          </div>
+      <Link href={item.href} className="module-card">
+        <div className="mb-4 p-4 bg-[#dcfce7] rounded-2xl transition-transform duration-500 group-hover:scale-110">
+          <Icon className="h-12 w-12 text-[#16a34a]" />
+        </div>
+        
+        <div className="space-y-1 text-center">
+          <h3 className="text-[14px] font-black tracking-tight text-neutral-900 uppercase">
+            {item.title}
+          </h3>
+          <p className="text-[9px] font-bold text-neutral-400 uppercase tracking-widest leading-none">
+            {item.subtitle}
+          </p>
+        </div>
 
-          <div className="absolute bottom-6 left-8 flex gap-0.5 opacity-20">
-            <Circle className="h-1 w-1 fill-current" />
-            <Circle className="h-1 w-1 fill-current" />
-            <Circle className="h-1 w-1 fill-current" />
-          </div>
-          <div className="absolute bottom-6 right-8 flex gap-0.5 opacity-20">
-            <Circle className="h-1 w-1 fill-current" />
-            <Circle className="h-1 w-1 fill-current" />
-            <Circle className="h-1 w-1 fill-current" />
-          </div>
+        <div className="absolute bottom-4 left-6 flex gap-0.5 opacity-20">
+          <Circle className="h-1 w-1 fill-current" />
+          <Circle className="h-1 w-1 fill-current" />
+          <Circle className="h-1 w-1 fill-current" />
+        </div>
+        <div className="absolute bottom-4 right-6 flex gap-0.5 opacity-20">
+          <Circle className="h-1 w-1 fill-current" />
+          <Circle className="h-1 w-1 fill-current" />
+          <Circle className="h-1 w-1 fill-current" />
         </div>
       </Link>
     );
@@ -86,7 +84,7 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-160px)] p-4">
-      <div className="w-full max-w-6xl">
+      <div className="w-full max-w-7xl">
         <div className="flex items-center gap-6 mb-12 ml-4">
           <DashboardSparkleIcon className="h-16 w-16" />
           <div className="space-y-1">
@@ -100,7 +98,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="dashboard-panel">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10">
+          <div className="flex flex-wrap justify-center gap-8">
             {cards.map((item, idx) => (
               <CommandCard key={idx} item={item} />
             ))}
