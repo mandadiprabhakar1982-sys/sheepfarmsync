@@ -10,7 +10,6 @@ import {
   Languages,
   Plus,
   Monitor,
-  Lock
 } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { UserNav } from '@/components/user-nav';
@@ -56,15 +55,7 @@ export default function DashboardLayout({
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-[#f0f2f5] overflow-hidden selection:bg-emerald-500/30 font-sans">
-        {/* BACKGROUND IMAGE - FUTURISTIC HYDROPHONIC FARM */}
-        <div 
-          className="fixed inset-0 z-0 bg-cover bg-center opacity-30 mix-blend-multiply pointer-events-none"
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1558449028-b53a39d100fc?q=80&w=2070&auto=format&fit=crop')" }}
-          data-ai-hint="futuristic hydroponic farm lab"
-        />
-        <div className="fixed inset-0 z-0 bg-gradient-to-tr from-white/90 via-white/40 to-white/80 pointer-events-none" />
-
+      <div className="flex min-h-screen w-full bg-white overflow-hidden selection:bg-emerald-500/30 font-sans">
         {/* WEB MODEL: Persistent Sidebar */}
         <div className="hidden md:flex relative z-20">
           <AppSidebar />
@@ -72,7 +63,7 @@ export default function DashboardLayout({
 
         <SidebarInset className="flex flex-col relative bg-transparent z-10">
           {/* ADAPTIVE HEADER */}
-          <header className="sticky top-4 z-50 flex h-16 items-center justify-between gap-4 glass-effect mx-6 md:mx-10 mt-4 rounded-2xl border border-white/40 shadow-xl px-6">
+          <header className="sticky top-4 z-50 flex h-16 items-center justify-between gap-4 glass-effect mx-6 md:mx-10 mt-4 rounded-2xl border border-neutral-200 shadow-xl px-6">
             <div className="flex items-center gap-4">
               <div className="md:hidden">
                 <Logo showManager={false} light={false} className="scale-90 origin-left" />
@@ -108,14 +99,14 @@ export default function DashboardLayout({
           
           {/* MOBILE MODEL: Tactile Bottom Navigation */}
           <footer className="fixed bottom-0 left-0 right-0 z-50 md:hidden pb-[env(safe-area-inset-bottom)] px-4 mb-4">
-            <nav className="flex h-16 items-center justify-around bg-white/80 backdrop-blur-3xl rounded-3xl shadow-2xl border border-white/40 px-2">
+            <nav className="flex h-16 items-center justify-around bg-white/80 backdrop-blur-3xl rounded-3xl shadow-2xl border border-neutral-200 px-2">
               {mobileNavItems.map((link) => {
                 const Icon = link.icon;
                 const isActive = pathname === link.href;
                 
                 if (link.isCenter) {
                   return (
-                    <Link key={link.href} href="/dashboard/livestock" className="relative -top-6 bg-emerald-600 text-white p-4 rounded-full shadow-2xl transition-transform active:scale-90 border-4 border-[#f0f2f5]">
+                    <Link key={link.href} href="/dashboard/livestock" className="relative -top-6 bg-emerald-600 text-white p-4 rounded-full shadow-2xl transition-transform active:scale-90 border-4 border-white">
                       <Icon className="h-6 w-6" />
                     </Link>
                   );

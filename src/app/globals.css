@@ -5,7 +5,7 @@
 @layer base {
   :root {
     /* Sync Pro Elite Palette: Obsidian & Gold */
-    --background: 210 20% 98%;
+    --background: 0 0% 100%; /* Pure White */
     --foreground: 220 40% 10%;
     
     --card: 0 0% 100%;
