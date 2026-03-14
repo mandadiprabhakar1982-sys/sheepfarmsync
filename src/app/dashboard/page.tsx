@@ -17,7 +17,8 @@ export default function DashboardPage() {
       iconId: 'dash-analytics',
       href: '/dashboard/overview',
       color: 'bg-blue-500',
-      borderClass: 'card-analytics',
+      borderClass: 'border-blue-500/50',
+      indicatorColor: 'bg-blue-500',
     },
     {
       title: "MONTHLY",
@@ -25,6 +26,8 @@ export default function DashboardPage() {
       iconId: 'dash-ledger',
       href: '/dashboard/monthly-ledger',
       color: 'bg-purple-500',
+      borderClass: 'border-purple-500/50',
+      indicatorColor: 'bg-purple-500',
       adminOnly: true,
     },
     {
@@ -33,6 +36,8 @@ export default function DashboardPage() {
       iconId: 'dash-liabilities',
       href: '/dashboard/balance-sheet',
       color: 'bg-slate-700',
+      borderClass: 'border-slate-700/50',
+      indicatorColor: 'bg-slate-700',
       adminOnly: true,
     },
     {
@@ -41,6 +46,8 @@ export default function DashboardPage() {
       iconId: 'dash-flock',
       href: '/dashboard/livestock',
       color: 'bg-cyan-500',
+      borderClass: 'border-cyan-500/50',
+      indicatorColor: 'bg-cyan-500',
     },
     {
       title: "TRADE",
@@ -48,7 +55,8 @@ export default function DashboardPage() {
       iconId: 'dash-sales',
       href: '/dashboard/sales',
       color: 'bg-green-500',
-      borderClass: 'card-sales',
+      borderClass: 'border-green-500/50',
+      indicatorColor: 'bg-green-500',
     },
     {
       title: "HEALTH",
@@ -56,7 +64,8 @@ export default function DashboardPage() {
       iconId: 'dash-health',
       href: '/dashboard/medicine',
       color: 'bg-red-500',
-      borderClass: 'card-health',
+      borderClass: 'border-red-500/50',
+      indicatorColor: 'bg-red-500',
     },
     {
       title: "FEED",
@@ -64,7 +73,8 @@ export default function DashboardPage() {
       iconId: 'dash-feed',
       href: '/dashboard/feed',
       color: 'bg-lime-500',
-      borderClass: 'card-feed',
+      borderClass: 'border-lime-500/50',
+      indicatorColor: 'bg-lime-500',
     },
     {
       title: "LABOR",
@@ -72,6 +82,8 @@ export default function DashboardPage() {
       iconId: 'dash-labor',
       href: '/dashboard/labor',
       color: 'bg-orange-500',
+      borderClass: 'border-orange-500/50',
+      indicatorColor: 'bg-orange-500',
     },
     {
       title: "EXPENSES",
@@ -79,6 +91,8 @@ export default function DashboardPage() {
       iconId: 'dash-expenses',
       href: '/dashboard/expenses',
       color: 'bg-slate-500',
+      borderClass: 'border-slate-500/50',
+      indicatorColor: 'bg-slate-500',
     },
   ];
 
@@ -109,7 +123,7 @@ export default function DashboardPage() {
             return (
               <Link href={item.href} key={index} className="group">
                 <div className={cn(
-                  "glass-card h-[240px] p-8 flex flex-col items-center justify-center text-center relative overflow-hidden",
+                  "glass-card h-[240px] p-8 flex flex-col items-center justify-center text-center relative overflow-hidden border-1.5",
                   item.borderClass
                 )}>
                   {/* Icon Container */}
@@ -129,7 +143,7 @@ export default function DashboardPage() {
                     )}
                   </div>
                   
-                  <div className="space-y-1 relative z-10 w-full">
+                  <div className="space-y-1 relative z-10 w-full mb-4">
                     <h3 className="card-title-precise text-neutral-900 uppercase">
                       {item.title}
                     </h3>
@@ -137,6 +151,9 @@ export default function DashboardPage() {
                       {item.subtitle}
                     </p>
                   </div>
+
+                  {/* Indicator Bar at bottom */}
+                  <div className={cn("h-1 w-12 rounded-full absolute bottom-8", item.indicatorColor)} />
 
                   {/* Decorative Elements */}
                   <div className="absolute bottom-6 left-8 text-[8px] font-black text-neutral-200 uppercase tracking-widest">
