@@ -1,16 +1,15 @@
-
 'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
-  ClipboardList, 
-  HeartPulse, 
-  Wheat, 
+  Home,
+  LayoutGrid,
+  HeartPulse,
+  Wheat,
   Languages,
   Plus,
-  Home,
-  LayoutGrid
+  Monitor
 } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { UserNav } from '@/components/user-nav';
@@ -45,10 +44,10 @@ export default function DashboardLayout({
 
   if (isLoadingProfile) {
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-white fixed inset-0 z-[9999]">
+      <div className="flex h-screen w-full items-center justify-center bg-[#0a0a0a] fixed inset-0 z-[9999]">
         <div className="flex flex-col items-center gap-6">
-          <div className="w-12 h-12 border-4 border-primary/10 rounded-full border-t-primary animate-spin" />
-          <p className="text-[12px] font-medium text-primary/40 uppercase tracking-[0.3em]">{t('syncing')}</p>
+          <div className="w-12 h-12 border-4 border-white/5 rounded-full border-t-emerald-500 animate-spin" />
+          <p className="text-[12px] font-black text-white/40 uppercase tracking-[0.4em]">{t('syncing')}</p>
         </div>
       </div>
     );
@@ -56,7 +55,7 @@ export default function DashboardLayout({
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-[#F8F9FA] overflow-hidden">
+      <div className="flex min-h-screen w-full bg-[#0a0a0a] overflow-hidden selection:bg-emerald-500/30">
         {/* WEB MODEL: Persistent Sidebar - Hidden on mobile */}
         <div className="hidden md:flex">
           <AppSidebar />
@@ -64,47 +63,50 @@ export default function DashboardLayout({
 
         <SidebarInset className="flex flex-col relative bg-transparent">
           {/* ADAPTIVE HEADER */}
-          <header className="sticky top-0 z-50 flex h-20 items-center justify-between gap-4 glass-effect px-6 md:px-10 safe-area-top border-b border-black/5">
+          <header className="sticky top-0 z-50 flex h-20 items-center justify-between gap-4 bg-white/5 backdrop-blur-2xl px-6 md:px-10 safe-area-top border-b border-white/5 shadow-2xl">
             <div className="flex items-center gap-4">
               <div className="md:hidden">
-                <Logo showManager={false} className="scale-90 origin-left" />
+                <Logo showManager={false} light={true} className="scale-90 origin-left" />
               </div>
-              <div className="hidden md:flex items-center gap-4">
-                <SidebarTrigger className="h-10 w-10 hover:bg-black/5 rounded-xl transition-colors" />
-                <Separator orientation="vertical" className="h-6" />
-                <h2 className="text-[12px] font-medium text-primary/40 tracking-[0.3em] uppercase">
-                   {t('system_name')}
-                </h2>
+              <div className="hidden md:flex items-center gap-6">
+                <SidebarTrigger className="h-10 w-10 hover:bg-white/10 rounded-2xl transition-all text-white/60 hover:text-white" />
+                <Separator orientation="vertical" className="h-6 bg-white/10" />
+                <div className="flex items-center gap-3 px-4 py-2 bg-white/5 rounded-xl border border-white/5">
+                  <Monitor className="h-4 w-4 text-emerald-400" />
+                  <h2 className="text-[11px] font-black text-white/40 tracking-[0.3em] uppercase">
+                     FARM MANAGEMENT SYSTEM
+                  </h2>
+                </div>
               </div>
             </div>
             
-            <div className="flex items-center gap-2 md:gap-4">
+            <div className="flex items-center gap-2 md:gap-6">
               <Button 
                 variant="ghost" 
                 size="icon" 
                 onClick={toggleLanguage}
-                className="rounded-xl hover:bg-primary/5 transition-colors"
+                className="rounded-2xl hover:bg-white/10 text-white/60 transition-all"
               >
-                <Languages className="h-5 w-5 text-primary/60" />
+                <Languages className="h-5 w-5" />
               </Button>
               <UserNav />
             </div>
           </header>
           
-          <main className="flex-1 pb-32 md:pb-10 pt-6 overflow-y-auto no-scrollbar">
+          <main className="flex-1 pb-32 md:pb-10 overflow-y-auto no-scrollbar relative">
             {children}
           </main>
           
           {/* MOBILE MODEL: Tactile Bottom Navigation - Hidden on desktop */}
           <footer className="fixed bottom-0 left-0 right-0 z-50 md:hidden pb-[env(safe-area-inset-bottom)] px-4 mb-4">
-            <nav className="flex h-20 items-center justify-around glass-effect rounded-[2rem] shadow-2xl border-white/40 ring-1 ring-black/5 px-2">
+            <nav className="flex h-20 items-center justify-around bg-black/80 backdrop-blur-3xl rounded-[2.5rem] shadow-2xl border border-white/10 px-2 ring-1 ring-white/10">
               {mobileNavItems.map((link) => {
                 const Icon = link.icon;
                 const isActive = pathname === link.href;
                 
                 if (link.isCenter) {
                   return (
-                    <Link key={link.href} href="/dashboard/livestock" className="nav-center-node">
+                    <Link key={link.href} href="/dashboard/livestock" className="relative -top-6 bg-emerald-600 text-white p-4 rounded-full shadow-[0_0_30px_rgba(16,185,129,0.4)] transition-transform active:scale-90 border-4 border-[#0a0a0a]">
                       <Icon className="h-7 w-7" />
                     </Link>
                   );
@@ -116,16 +118,16 @@ export default function DashboardLayout({
                     href={link.href}
                     className={cn(
                       'flex flex-col items-center justify-center gap-1.5 min-w-[64px] h-full transition-all duration-300',
-                      isActive ? 'text-primary' : 'text-primary/30'
+                      isActive ? 'text-emerald-400' : 'text-white/20'
                     )}
                   >
                     <div className={cn(
-                      "p-2 rounded-xl transition-colors",
-                      isActive ? "bg-primary/5" : ""
+                      "p-2 rounded-2xl transition-all duration-300",
+                      isActive ? "bg-emerald-500/10" : ""
                     )}>
                       <Icon className={cn("h-5 w-5", isActive ? "scale-110" : "opacity-70")} />
                     </div>
-                    <span className="text-[12px] font-bold uppercase tracking-tight leading-none">{link.label}</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest leading-none">{link.label}</span>
                   </Link>
                 );
               })}

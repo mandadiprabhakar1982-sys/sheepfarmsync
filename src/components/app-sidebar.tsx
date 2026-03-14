@@ -6,12 +6,9 @@ import { usePathname } from 'next/navigation';
 import {
   Home,
   LayoutDashboard,
-  Package,
   Syringe,
   Wheat,
   Users,
-  BadgeIndianRupee,
-  Globe,
   Receipt,
   Skull,
   BarChart,
@@ -22,8 +19,8 @@ import {
   BookOpen,
   Wallet,
   ShieldAlert,
-  ShoppingBag,
-  ArrowRightLeft
+  ArrowRightLeft,
+  Globe
 } from 'lucide-react';
 
 import {
@@ -51,61 +48,60 @@ export function AppSidebar() {
 
   const groups = React.useMemo(() => [
     {
-      label: t('home'),
+      label: "HOME",
       links: [
-        { href: '/dashboard', label: t('home'), icon: Home },
-        { href: '/dashboard/overview', label: t('overview'), icon: LayoutDashboard },
-        { href: '/dashboard/analysis', label: t('intelligence'), icon: BarChart },
+        { href: '/dashboard', label: "Home", icon: Home },
+        { href: '/dashboard/overview', label: "Overview", icon: LayoutDashboard },
+        { href: '/dashboard/analysis', label: "AI Intelligence", icon: BarChart },
       ]
     },
     {
-      label: t('private_suite'),
+      label: "PRIVATE PROJECT ASSETS",
       adminOnly: true,
       links: [
-        { href: '/dashboard/monthly-ledger', label: t('ledger'), icon: Wallet },
-        { href: '/dashboard/balance-sheet', label: t('liabilities'), icon: BookOpen },
+        { href: '/dashboard/monthly-ledger', label: "Monthly Ledger", icon: Wallet },
+        { href: '/dashboard/balance-sheet', label: "Liabilities", icon: BookOpen },
       ]
     },
     {
-      label: t('public_suite'),
+      label: "PUBLIC PROJECT ASSETS",
       links: [
         { href: '/dashboard/livestock', label: "Livestock Hub", icon: ListChecks },
-        { href: '/dashboard/sales', label: t('sales'), icon: ArrowRightLeft },
-        { href: '/dashboard/mortality', label: t('mortality'), icon: Skull },
-        { href: '/dashboard/expenses', label: t('expenses'), icon: Receipt },
+        { href: '/dashboard/sales', label: "Purchases & Sales", icon: ArrowRightLeft },
+        { href: '/dashboard/mortality', label: "Loss Log", icon: Skull },
+        { href: '/dashboard/expenses', label: "Expenses", icon: Receipt },
       ]
     },
     {
-      label: t('ops_suite'),
+      label: "OPERATIONS & STAFF",
       links: [
-        { href: '/dashboard/labor', label: t('labor'), icon: Users },
-        { href: '/dashboard/medicine', label: t('health'), icon: Syringe },
-        { href: '/dashboard/feed', label: t('feed'), icon: Wheat },
+        { href: '/dashboard/labor', label: "Labor", icon: Users },
+        { href: '/dashboard/medicine', label: "Health", icon: Syringe },
+        { href: '/dashboard/feed', label: "Feed", icon: Wheat },
       ]
     },
     {
-      label: t('ecosystem'),
+      label: "ECOSYSTEM",
       links: [
-        { href: '/dashboard/feed-calculator', label: t('calculator'), icon: Calculator },
-        { href: '/dashboard/marketplace', label: t('marketplace'), icon: Globe },
-        { href: '/dashboard/help', label: t('install'), icon: Smartphone },
+        { href: '/dashboard/feed-calculator', label: "Calculator", icon: Calculator },
+        { href: '/dashboard/marketplace', label: "Marketplace", icon: Globe },
+        { href: '/dashboard/help', label: "Install", icon: Smartphone },
       ]
     }
-  ], [t, isAdmin]); 
+  ], []); 
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-sidebar-border">
-      <SidebarHeader className="h-20 flex items-center justify-center border-b border-sidebar-border px-6 bg-sidebar">
-        <Logo showManager={false} light={false} />
+    <Sidebar collapsible="icon" className="border-r border-white/5 bg-[#0a0a0a] text-white">
+      <SidebarHeader className="h-20 flex items-center justify-center border-b border-white/5 px-6">
+        <Logo showManager={false} light={true} className="scale-90" />
       </SidebarHeader>
-      <SidebarContent className="px-3 py-6 bg-sidebar">
+      <SidebarContent className="px-3 py-6 bg-transparent">
         {groups.map((group) => {
           if (group.adminOnly && !isAdmin) return null;
 
           return (
             <SidebarGroup key={group.label} className="mb-6">
-              <SidebarGroupLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-sidebar-foreground/40 mb-3 px-3 flex items-center gap-2">
-                {group.adminOnly && <ShieldAlert className="h-2.5 w-2.5 text-emerald-600" />}
+              <SidebarGroupLabel className="text-[10px] font-black uppercase tracking-[0.25em] text-white/30 mb-3 px-3 flex items-center gap-2">
                 {group.label}
               </SidebarGroupLabel>
               <SidebarGroupContent>
@@ -119,16 +115,16 @@ export function AppSidebar() {
                           isActive={isActive}
                           tooltip={link.label}
                           className={cn(
-                            "transition-all duration-200 h-11 px-3 rounded-xl",
+                            "transition-all duration-300 h-11 px-3 rounded-2xl",
                             isActive 
-                              ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:bg-primary/90" 
-                              : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                              ? "bg-white/10 text-white shadow-xl border border-white/10" 
+                              : "text-white/50 hover:bg-white/5 hover:text-white"
                           )}
                         >
                           <Link href={link.href} className="flex items-center w-full">
-                            <link.icon className={cn("shrink-0 h-5 w-5", isActive ? "scale-105" : "opacity-70")} />
+                            <link.icon className={cn("shrink-0 h-5 w-5", isActive ? "text-emerald-400" : "opacity-70")} />
                             <span className="ml-3 font-bold text-[13px] tracking-tight">{link.label}</span>
-                            {isActive && <ChevronRight className="ml-auto h-3 w-3 opacity-50" />}
+                            {isActive && <div className="ml-auto w-1 h-1 bg-emerald-400 rounded-full" />}
                           </Link>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
@@ -140,10 +136,10 @@ export function AppSidebar() {
           );
         })}
       </SidebarContent>
-      <SidebarFooter className="border-t border-sidebar-border p-6 bg-sidebar">
-        <div className="flex flex-col items-center gap-1 opacity-40">
-          <p className="text-[9px] font-black uppercase tracking-[0.3em] text-sidebar-foreground">Sync Pro</p>
-          <p className="text-[7px] font-bold text-sidebar-foreground">Enterprise v2.6.0</p>
+      <SidebarFooter className="border-t border-white/5 p-6 opacity-30">
+        <div className="flex flex-col items-center gap-1">
+          <p className="text-[9px] font-black uppercase tracking-[0.4em]">Sync Pro</p>
+          <p className="text-[7px] font-bold">Enterprise v2.8.0</p>
         </div>
       </SidebarFooter>
     </Sidebar>
