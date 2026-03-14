@@ -64,76 +64,67 @@
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-radius: 28px;
-  padding: 30px;
+  padding: 40px;
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.06);
   border: 1px solid rgba(76, 175, 80, 0.1);
 }
 
-/* Module Card Architecture */
+/* Module Card Architecture (Matching Image) */
 .module-card {
   width: 240px;
-  height: 190px;
-  background: white;
-  border: 2px solid #4caf50;
-  border-radius: 22px;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
+  height: 240px;
+  background: #e2f0e2; /* Light Sage Green */
+  border-radius: 48px; /* High Roundness */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  position: relative;
-  overflow: hidden;
+  transition: all 0.3s ease;
   cursor: pointer;
   padding: 20px;
+  border: none;
 }
 
 .module-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 14px 24px rgba(34, 197, 94, 0.15);
-  border-color: #16a34a;
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.04);
 }
 
-/* Icon Circle Inside Card */
+/* Icon Style */
 .card-icon {
-  width: 72px;
-  height: 72px;
-  border-radius: 20px;
-  background: linear-gradient(135deg, #4ade80, #16a34a);
+  width: 110px;
+  height: 110px;
+  color: #14532d;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 12px;
-  transition: transform 0.3s ease;
 }
 
-.card-icon svg, .card-icon img {
-  width: 64px;
-  height: 64px;
+.card-icon svg {
+  width: 100%;
+  height: 100%;
   object-fit: contain;
-  color: white;
 }
 
-.module-card:hover .card-icon {
-  transform: scale(1.05);
-}
-
-/* Card Typography */
+/* Typography (Inside Card) */
 .card-title {
-  font-size: 28px;
-  font-weight: 700;
+  font-size: 26px;
+  font-weight: 800;
   color: #14532d;
-  line-height: 1.1;
   text-transform: uppercase;
-  margin-bottom: 4px;
+  letter-spacing: 1px;
 }
 
+/* Metadata (Outside Card) */
 .card-subtitle {
+  margin-top: 24px;
   font-size: 14px;
-  color: #64748b;
-  letter-spacing: 2px;
+  font-weight: 600;
+  color: #64748b; /* Gray Text */
   text-transform: uppercase;
-  font-weight: 500;
+  letter-spacing: 2px;
+  text-align: center;
 }
 
 /* Sidebar Active Item */
