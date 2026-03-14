@@ -17,6 +17,60 @@
       "description": "App icon for PWA 512x512",
       "imageUrl": "https://images.unsplash.com/photo-1484557985045-edf25e08da73?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzaGVlcHxlbnwwfHx8fDE3NzIxNjg4NTd8MA&ixlib=rb-4.1.0&q=80&w=512",
       "imageHint": "precision sheep"
+    },
+    {
+      "id": "dash-analytics",
+      "description": "Overview Analytics 3D Icon",
+      "imageUrl": "https://picsum.photos/seed/analytics3d/400/400",
+      "imageHint": "3d analytics"
+    },
+    {
+      "id": "dash-ledger",
+      "description": "Monthly Ledger 3D Icon",
+      "imageUrl": "https://picsum.photos/seed/ledger3d/400/400",
+      "imageHint": "3d wallet"
+    },
+    {
+      "id": "dash-liabilities",
+      "description": "Liabilities 3D Icon",
+      "imageUrl": "https://picsum.photos/seed/debt3d/400/400",
+      "imageHint": "3d book"
+    },
+    {
+      "id": "dash-flock",
+      "description": "Flock 3D Icon",
+      "imageUrl": "https://picsum.photos/seed/flock3d/400/400",
+      "imageHint": "3d sheep"
+    },
+    {
+      "id": "dash-sales",
+      "description": "Purchases & Sales 3D Icon",
+      "imageUrl": "https://picsum.photos/seed/sales3d/400/400",
+      "imageHint": "3d trade"
+    },
+    {
+      "id": "dash-health",
+      "description": "Health 3D Icon",
+      "imageUrl": "https://picsum.photos/seed/health3d/400/400",
+      "imageHint": "3d medical"
+    },
+    {
+      "id": "dash-feed",
+      "description": "Feed 3D Icon",
+      "imageUrl": "https://picsum.photos/seed/feed3d/400/400",
+      "imageHint": "3d wheat"
+    },
+    {
+      "id": "dash-labor",
+      "description": "Labor 3D Icon",
+      "imageUrl": "https://picsum.photos/seed/labor3d/400/400",
+      "imageHint": "3d people"
+    },
+    {
+      "id": "dash-expenses",
+      "description": "Expenses 3D Icon",
+      "imageUrl": "https://picsum.photos/seed/expenses3d/400/400",
+      "imageHint": "3d receipt"
     }
   ]
 }

@@ -1,3 +1,4 @@
+
 'use client';
 import Link from 'next/link';
 import {
@@ -24,11 +25,14 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useFarm } from '@/context/FarmContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { cn } from '@/lib/utils';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export default function DashboardPage() {
   const { userRole, isLoadingProfile } = useFarm();
   const { t } = useLanguage();
   const isAdmin = userRole === 'admin';
+
+  const getImg = (id: string) => PlaceHolderImages.find(img => img.id === id);
 
   const menuItems = [
     {
@@ -38,7 +42,7 @@ export default function DashboardPage() {
       color: 'bg-blue-500/20 text-blue-400',
       border: 'border-blue-500/30',
       glow: 'shadow-blue-500/20',
-      iconImg: 'https://picsum.photos/seed/analytics/200/200'
+      asset: getImg('dash-analytics')
     },
     {
       title: "MONTHLY LEDGER",
@@ -48,7 +52,7 @@ export default function DashboardPage() {
       border: 'border-purple-500/30',
       glow: 'shadow-purple-500/20',
       adminOnly: true,
-      iconImg: 'https://picsum.photos/seed/ledger/200/200'
+      asset: getImg('dash-ledger')
     },
     {
       title: "LIABILITIES",
@@ -58,7 +62,7 @@ export default function DashboardPage() {
       border: 'border-zinc-500/30',
       glow: 'shadow-zinc-500/20',
       adminOnly: true,
-      iconImg: 'https://picsum.photos/seed/liabilities/200/200'
+      asset: getImg('dash-liabilities')
     },
     {
       title: "FLOCK",
@@ -67,7 +71,7 @@ export default function DashboardPage() {
       color: 'bg-cyan-500/20 text-cyan-400',
       border: 'border-cyan-500/30',
       glow: 'shadow-cyan-500/20',
-      iconImg: 'https://picsum.photos/seed/flock/200/200'
+      asset: getImg('dash-flock')
     },
     {
       title: "PURCHASES & SALES",
@@ -77,7 +81,7 @@ export default function DashboardPage() {
       border: 'border-emerald-500/30',
       glow: 'shadow-emerald-500/20',
       isHighlight: true,
-      iconImg: 'https://picsum.photos/seed/sales/200/200'
+      asset: getImg('dash-sales')
     },
     {
       title: "HEALTH",
@@ -86,7 +90,7 @@ export default function DashboardPage() {
       color: 'bg-rose-500/20 text-rose-400',
       border: 'border-rose-500/30',
       glow: 'shadow-rose-500/20',
-      iconImg: 'https://picsum.photos/seed/health/200/200'
+      asset: getImg('dash-health')
     },
     {
       title: "FEED",
@@ -95,7 +99,7 @@ export default function DashboardPage() {
       color: 'bg-lime-500/20 text-lime-400',
       border: 'border-lime-500/30',
       glow: 'shadow-lime-500/20',
-      iconImg: 'https://picsum.photos/seed/feed/200/200'
+      asset: getImg('dash-feed')
     },
     {
       title: "LABOR",
@@ -104,7 +108,7 @@ export default function DashboardPage() {
       color: 'bg-orange-500/20 text-orange-400',
       border: 'border-orange-500/30',
       glow: 'shadow-orange-500/20',
-      iconImg: 'https://picsum.photos/seed/labor/200/200'
+      asset: getImg('dash-labor')
     },
     {
       title: "EXPENSES",
@@ -113,7 +117,7 @@ export default function DashboardPage() {
       color: 'bg-indigo-500/20 text-indigo-400',
       border: 'border-indigo-500/30',
       glow: 'shadow-indigo-500/20',
-      iconImg: 'https://picsum.photos/seed/expenses/200/200'
+      asset: getImg('dash-expenses')
     },
   ];
 
@@ -146,7 +150,6 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-6">
             {menuItems.slice(0, 5).map((item) => {
               if (item.adminOnly && !isAdmin) return null;
-              const Icon = item.icon;
               return (
                 <Link href={item.href} key={item.title} className="group">
                   <Card className={cn(
@@ -159,12 +162,14 @@ export default function DashboardPage() {
                   )}>
                     <CardContent className="p-6 flex flex-col items-center justify-center min-h-[220px] text-center">
                       <div className="w-24 h-24 mb-6 relative group-hover:scale-110 transition-transform duration-500">
-                         <img 
-                           src={item.iconImg} 
-                           alt={item.title} 
-                           className="w-full h-full object-contain filter drop-shadow-lg"
-                           data-ai-hint="futuristic 3d icon"
-                         />
+                         {item.asset && (
+                           <img 
+                             src={item.asset.imageUrl} 
+                             alt={item.title} 
+                             className="w-full h-full object-contain filter drop-shadow-lg"
+                             data-ai-hint={item.asset.imageHint}
+                           />
+                         )}
                       </div>
                       <h3 className="text-[13px] font-black tracking-wider text-neutral-800 leading-tight uppercase">
                         {item.title}
@@ -180,7 +185,6 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 lg:max-w-[80%] mx-auto lg:mx-0">
             {menuItems.slice(5).map((item) => {
               if (item.adminOnly && !isAdmin) return null;
-              const Icon = item.icon;
               return (
                 <Link href={item.href} key={item.title} className="group">
                   <Card className={cn(
@@ -192,12 +196,14 @@ export default function DashboardPage() {
                   )}>
                     <CardContent className="p-6 flex flex-col items-center justify-center min-h-[200px] text-center">
                       <div className="w-20 h-20 mb-4 relative group-hover:scale-110 transition-transform duration-500">
-                         <img 
-                           src={item.iconImg} 
-                           alt={item.title} 
-                           className="w-full h-full object-contain filter drop-shadow-lg"
-                           data-ai-hint="futuristic 3d icon"
-                         />
+                         {item.asset && (
+                           <img 
+                             src={item.asset.imageUrl} 
+                             alt={item.title} 
+                             className="w-full h-full object-contain filter drop-shadow-lg"
+                             data-ai-hint={item.asset.imageHint}
+                           />
+                         )}
                       </div>
                       <h3 className="text-[13px] font-black tracking-wider text-neutral-800 leading-tight uppercase">
                         {item.title}
