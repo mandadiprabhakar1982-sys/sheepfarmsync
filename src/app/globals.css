@@ -69,7 +69,7 @@
   border: 1px solid rgba(76, 175, 80, 0.1);
 }
 
-/* Module Card Architecture (Matching Image) */
+/* Module Card Architecture */
 .module-card {
   width: 240px;
   height: 240px;
@@ -86,8 +86,21 @@
 }
 
 .module-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.04);
+  transform: translateY(-6px);
+  box-shadow: 0 14px 24px rgba(34, 197, 94, 0.15);
+}
+
+/* Elite Component Architecture */
+.elite-input {
+  @apply h-14 rounded-2xl bg-neutral-50/80 border-none shadow-inner font-bold text-sm px-6 focus-visible:ring-primary/20;
+}
+
+.elite-button-pill {
+  @apply h-14 px-10 rounded-full font-black text-xs uppercase tracking-[0.25em] shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3;
+}
+
+.elite-tab-pill {
+  @apply rounded-full font-black text-[10px] uppercase tracking-widest px-8 py-3 transition-all;
 }
 
 /* Icon Style */
@@ -102,21 +115,20 @@
 }
 
 .card-icon svg {
-  width: 100%;
-  height: 100%;
+  width: 64px;
+  height: 64px;
   object-fit: contain;
 }
 
-/* Typography (Inside Card) */
+/* Typography */
 .card-title {
-  font-size: 26px;
-  font-weight: 800;
+  font-size: 28px;
+  font-weight: 700;
   color: #14532d;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
-/* Metadata (Outside Card) */
 .card-subtitle {
   margin-top: 24px;
   font-size: 14px;

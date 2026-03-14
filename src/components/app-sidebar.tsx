@@ -77,7 +77,7 @@ export function AppSidebar() {
   ], []); 
 
   return (
-    <Sidebar collapsible="none" className="border-r border-[#4caf50]/20 bg-[#dcfce7]/40 backdrop-blur-xl">
+    <Sidebar collapsible="none" className="border-r border-neutral-200 bg-[#f8faf4]">
       <SidebarHeader className="h-20 flex items-center px-6">
         <Logo className="scale-100" />
       </SidebarHeader>
@@ -88,7 +88,7 @@ export function AppSidebar() {
 
           return (
             <SidebarGroup key={gIdx} className="mb-6 px-4">
-              <SidebarGroupLabel className="text-[10px] font-black uppercase tracking-[0.1em] text-[#14532d]/60 mb-3 px-2">
+              <SidebarGroupLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-[#14532d]/40 mb-3 px-2">
                 {group.label}
               </SidebarGroupLabel>
               <SidebarGroupContent>
@@ -101,16 +101,16 @@ export function AppSidebar() {
                           asChild
                           isActive={isActive}
                           className={cn(
-                            "transition-all duration-300 h-11 px-3",
+                            "transition-all duration-300 h-11 px-3 rounded-xl",
                             isActive 
                               ? "active-menu font-black shadow-sm" 
-                              : "text-neutral-500 hover:bg-white/50 hover:text-[#16a34a] rounded-xl"
+                              : "text-[#14532d]/60 hover:bg-white/80 hover:text-[#16a34a]"
                           )}
                         >
                           <Link href={link.href} className="flex items-center w-full">
                             <link.icon className={cn("shrink-0 h-4 w-4", isActive ? "text-[#166534]" : "opacity-60")} />
                             <span className="ml-3 text-[13px] font-bold tracking-tight">{link.label}</span>
-                            {isActive && <ChevronRight className="ml-auto h-3.5 w-3.5 text-[#166534]/40" />}
+                            <ChevronRight className={cn("ml-auto h-3.5 w-3.5 opacity-20", isActive && "opacity-40")} />
                           </Link>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
@@ -123,7 +123,7 @@ export function AppSidebar() {
         })}
       </SidebarContent>
 
-      <SidebarFooter className="p-6 border-t border-[#4caf50]/20">
+      <SidebarFooter className="p-6 border-t border-neutral-100">
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-full bg-[#14532d] flex items-center justify-center text-white text-[12px] font-black shadow-lg">
             N

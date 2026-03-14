@@ -3,7 +3,7 @@
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { PlusCircle, Calendar as CalendarIcon, Trash2, Pencil, Wheat, Package, Circle, ArrowDownCircle } from 'lucide-react';
+import { PlusCircle, Calendar as CalendarIcon, Trash2, Pencil, Wheat, Package, Circle, ArrowDownCircle, CheckCircle2, ShoppingCart, TrendingUp } from 'lucide-react';
 import { format } from 'date-fns';
 
 import { PageHeader } from '@/components/page-header';
@@ -47,9 +47,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { FeedCost } from '@/lib/types';
 import { ScrollArea } from '@/components/ui/scroll-area';
-
+import { Label } from '@/components/ui/label';
 
 const feedTypes = ['TMR', 'Silage', 'Groundnut', 'Other'] as const;
 
@@ -65,7 +66,7 @@ type FeedFormData = z.infer<typeof formSchema>;
 
 export default function FeedPage() {
   const { toast } = useToast();
-  const { feedCosts, addFeedCost, deleteFeedCost, updateFeedCost } = useFarm();
+  const { feedCosts, addFeedCost, deleteFeedCost, updateFeedCost, totalFeedCost } = useFarm();
   const [editingFeedCost, setEditingFeedCost] = useState<FeedCost | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
@@ -134,266 +135,246 @@ export default function FeedPage() {
     setIsEditOpen(true);
   };
 
-
   return (
-    <div className="container mx-auto py-8 px-4 md:px-10 max-w-7xl">
-      <div className="mb-12 relative">
-        <div className="flex items-center gap-3">
-          <div className="h-8 w-1.5 bg-[#A68A56] rounded-full" />
-          <h1 className="text-2xl font-black text-neutral-900">Feed Procurement</h1>
+    <div className="container mx-auto py-8 px-4 md:px-10 max-w-7xl animate-in fade-in duration-700">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 mb-12">
+        <div className="flex items-center gap-6">
+          <div className="h-20 w-20 rounded-[2rem] bg-[#14532d] flex items-center justify-center text-white shadow-2xl">
+            <Wheat className="h-10 w-10 text-[#4ade80]" />
+          </div>
+          <div>
+            <h1 className="text-4xl font-black text-[#14532d] tracking-tight uppercase leading-none">Feed Management</h1>
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#14532d]/40 mt-3">
+              TIGHTLY SYNCHRONIZED ENVIRONMENT
+            </p>
+          </div>
         </div>
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-400 mt-1 pl-4">
-          AUDIT-GRADE TRACKING OF NUTRITIONAL ACQUISITIONS AND TMR BAG INVENTORY.
-        </p>
+
+        <div className="bg-white/60 backdrop-blur-xl rounded-[2.5rem] p-6 px-10 shadow-xl flex items-center gap-10 border border-white/40">
+          <div className="space-y-1">
+            <p className="text-[9px] font-black uppercase tracking-widest text-[#14532d]/40">Total Expenditure</p>
+            <p className="text-2xl font-black tracking-tighter text-[#14532d]">₹{totalFeedCost.toLocaleString()}</p>
+          </div>
+          <div className="h-10 w-px bg-[#14532d]/10" />
+          <div className="space-y-1">
+            <p className="text-[9px] font-black uppercase tracking-widest text-[#14532d]/40">Active Batches</p>
+            <p className="text-2xl font-black tracking-tighter text-[#14532d]">{feedCosts?.length || 0}</p>
+          </div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
-        {/* --- PROCUREMENT ENTRY FORM --- */}
-        <div className="lg:col-span-4">
-          <Card className="border-none bg-[#FDFBF0] rounded-[2.5rem] shadow-2xl overflow-hidden sticky top-24 border-t-4 border-[#A68A56]">
-            <CardHeader className="p-8 pb-4 bg-[#A68A56] text-white">
-              <div className="flex justify-between items-start">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <div className="h-5 w-5 rounded-full border-2 border-white/40 flex items-center justify-center">
-                      <div className="h-2 w-2 bg-white rounded-full" />
+      <Tabs defaultValue="entry" className="w-full">
+        <TabsList className="mb-12 p-1.5 bg-[#14532d]/5 rounded-full flex justify-center items-center h-16 w-fit mx-auto shadow-inner border border-[#14532d]/5">
+          <TabsTrigger value="entry" className="elite-tab-pill data-[state=active]:bg-[#14532d] data-[state=active]:text-white data-[state=active]:shadow-xl">
+            <PlusCircle className="mr-2 h-4 w-4" /> Record Entry
+          </TabsTrigger>
+          <TabsTrigger value="history" className="elite-tab-pill data-[state=active]:bg-[#14532d] data-[state=active]:text-white data-[state=active]:shadow-xl">
+            <ShoppingCart className="mr-2 h-4 w-4" /> Cost Track
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="entry" className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <Card className="border-none bg-white/90 rounded-[3rem] shadow-2xl overflow-hidden p-12">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-12">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-20">
+                  <div className="space-y-8">
+                    <div>
+                      <h2 className="text-xl font-black text-[#14532d] mb-1">Feed Entry</h2>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-[#14532d]/30">BASIC LOGISTICS & CLASSIFICATION</p>
                     </div>
-                    <CardTitle className="text-base font-black tracking-tight uppercase">Procurement Entry</CardTitle>
-                  </div>
-                  <CardDescription className="text-white/60 text-[8px] font-bold uppercase tracking-widest">LOG A NEW FEED PURCHASE BATCH</CardDescription>
-                </div>
-                <ArrowDownCircle className="h-6 w-6 opacity-40" />
-              </div>
-            </CardHeader>
-            <CardContent className="p-8 space-y-8">
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                  <FormField
-                    control={form.control}
-                    name="feedType"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">Nutrition Type</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger className="h-14 rounded-2xl bg-white border-none shadow-sm font-bold px-6">
-                              <SelectValue placeholder="Select type" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent className="rounded-xl border-none shadow-2xl">
-                            {feedTypes.map((type) => (
-                              <SelectItem key={type} value={type} className="font-bold">{type}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="date"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">Purchase Date</FormLabel>
-                        <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
-                          <PopoverTrigger asChild>
+
+                    <FormField
+                      control={form.control}
+                      name="date"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <Label className="text-[10px] font-black uppercase tracking-widest text-[#14532d]/40 ml-2 mb-2">Transaction Date</Label>
+                          <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button type="button" variant="outline" className="elite-input text-left flex justify-between items-center h-16">
+                                  {field.value ? format(field.value, 'MMMM dd, yyyy') : <span>Select Date</span>}
+                                  <CalendarIcon className="h-5 w-5 opacity-20" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0 border-none rounded-3xl shadow-2xl" align="start">
+                              <Calendar mode="single" selected={field.value} onSelect={(d) => { field.onChange(d); setIsDatePickerOpen(false); }} initialFocus />
+                            </PopoverContent>
+                          </Popover>
+                        </FormItem>
+                      )}
+                    />
+
+                    <div className="grid grid-cols-2 gap-6">
+                      <FormField
+                        control={form.control}
+                        name="feedType"
+                        render={({ field }) => (
+                          <FormItem>
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-[#14532d]/40 ml-2 mb-2">Category</Label>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger className="elite-input h-16">
+                                  <SelectValue placeholder="Select type" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent className="rounded-2xl border-none shadow-2xl">
+                                {feedTypes.map((type) => (
+                                  <SelectItem key={type} value={type} className="font-bold">{type}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="quantity"
+                        render={({ field }) => (
+                          <FormItem>
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-[#14532d]/40 ml-2 mb-2">Weight (KG)</Label>
                             <FormControl>
-                              <Button
-                                type="button"
-                                variant={'outline'}
-                                className={cn(
-                                  'h-14 rounded-2xl bg-white border-none shadow-sm font-bold px-6 text-left',
-                                  !field.value && 'text-muted-foreground'
-                                )}
-                              >
-                                {field.value ? (
-                                  format(field.value, 'PPP')
-                                ) : (
-                                  <span>Pick a date</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-20" />
-                              </Button>
+                              <Input type="number" step="0.1" className="elite-input h-16 font-black text-lg" {...field} />
                             </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0 border-none rounded-2xl shadow-2xl" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={field.value}
-                              onSelect={(d) => { field.onChange(d); setIsDatePickerOpen(false); }}
-                              disabled={(date) =>
-                                date > new Date() || date < new Date('1900-01-01')
-                              }
-                              initialFocus
-                            />
-                          </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <div className="grid grid-cols-2 gap-4">
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-8">
+                    <div>
+                      <h2 className="text-xl font-black text-[#14532d] mb-1">Feed Adjustment</h2>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-[#14532d]/30">FINANCIAL PAYLOAD & PACKAGING</p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-6">
+                      <div className="p-8 rounded-[2rem] bg-neutral-50/50 border border-neutral-100 flex flex-col justify-center gap-2">
+                        <p className="text-[9px] font-black uppercase tracking-widest text-[#14532d]/40">Unit Cost (Est.)</p>
+                        <p className="text-2xl font-black text-[#14532d]">₹{(form.watch('cost') / (form.watch('quantity') || 1)).toFixed(2)}</p>
+                      </div>
+                      <div className="p-8 rounded-[2rem] bg-neutral-50/50 border border-neutral-100 flex flex-col justify-center gap-2">
+                        <p className="text-[9px] font-black uppercase tracking-widest text-[#14532d]/40">Inventory Value</p>
+                        <p className="text-2xl font-black text-[#14532d]">₹{form.watch('cost').toLocaleString()}</p>
+                      </div>
+                    </div>
+
                     <FormField
                       control={form.control}
                       name="cost"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">Total Cost (₹)</FormLabel>
-                          <div className="relative">
-                            <FormControl>
-                              <Input type="number" step="0.01" className="h-12 rounded-xl bg-white border-none shadow-sm font-black px-4 pr-10" {...field} />
-                            </FormControl>
-                            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-neutral-300">₹</span>
-                          </div>
-                          <FormMessage />
+                          <Label className="text-[10px] font-black uppercase tracking-widest text-[#14532d]/40 ml-2 mb-2">Total Fiscal Cost (₹)</Label>
+                          <FormControl>
+                            <Input type="number" step="0.01" className="elite-input h-16 font-black text-xl text-emerald-700" {...field} />
+                          </FormControl>
                         </FormItem>
                       )}
                     />
+
                     <FormField
                       control={form.control}
-                      name="quantity"
+                      name="bags"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">Total Qty (KG)</FormLabel>
-                          <div className="relative">
-                            <FormControl>
-                              <Input type="number" step="0.1" className="h-12 rounded-xl bg-white border-none shadow-sm font-black px-4 pr-10" {...field} />
-                            </FormControl>
-                            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-neutral-300">KG</span>
-                          </div>
-                          <FormMessage />
+                          <Label className="text-[10px] font-black uppercase tracking-widest text-[#14532d]/40 ml-2 mb-2">Packaging Units (Bags)</Label>
+                          <FormControl>
+                            <Input type="number" className="elite-input h-16" placeholder="0" {...field} />
+                          </FormControl>
                         </FormItem>
                       )}
                     />
                   </div>
-
-                  <FormField
-                    control={form.control}
-                    name="bags"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1 flex items-center gap-2">
-                          <div className="h-3 w-3 rounded-full border border-neutral-400 flex items-center justify-center">
-                            <div className="h-1 w-1 bg-neutral-400 rounded-full" />
-                          </div>
-                          TMR Bags Count
-                        </FormLabel>
-                        <FormControl>
-                          <Input type="number" className="h-14 rounded-2xl bg-white border-none shadow-sm font-black text-lg px-6" placeholder="0" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <Button type="submit" className="w-full h-14 rounded-2xl font-black text-xs uppercase tracking-[0.25em] shadow-xl bg-[#1a4d38] hover:bg-[#0a2618] text-white border-none flex items-center justify-center gap-3">
-                    <div className="h-4 w-4 rounded-full border-2 border-white/20 flex items-center justify-center">
-                      <div className="h-1.5 w-1.5 bg-white rounded-full" />
-                    </div>
-                    COMMIT PURCHASE
-                  </Button>
-                </form>
-              </Form>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* --- PROCUREMENT LEDGER --- */}
-        <div className="lg:col-span-8">
-          <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-[#708090]/20 relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#708090]/10 to-[#2c3e50]/20 opacity-50 pointer-events-none" />
-            <CardHeader className="p-8 pb-0 relative z-10">
-              <div className="flex justify-between items-start">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <Wheat className="h-5 w-5 text-[#2c3e50]" />
-                    <CardTitle className="text-xl font-black tracking-tight text-[#2c3e50]">Procurement Ledger</CardTitle>
-                  </div>
-                  <CardDescription className="text-[#2c3e50]/60 text-[9px] font-black uppercase tracking-widest">HISTORICAL RECORD OF ALL FEED ACQUISITIONS</CardDescription>
                 </div>
-                <Package className="h-10 w-10 text-[#2c3e50]/10" />
+
+                <div className="flex justify-center pt-8">
+                  <Button type="submit" className="elite-button-pill bg-[#14532d] hover:bg-[#0a2618] text-white w-full max-w-sm h-16 rounded-full">
+                    <CheckCircle2 className="h-5 w-5 text-[#4ade80]" />
+                    Record Entry
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="history" className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <Card className="border-none shadow-2xl rounded-[3rem] overflow-hidden bg-white/80 backdrop-blur-xl">
+            <CardHeader className="bg-[#14532d] text-white p-10">
+              <div className="flex justify-between items-end">
+                <div>
+                  <CardTitle className="text-2xl font-black tracking-tight leading-none mb-3">Procurement Ledger</CardTitle>
+                  <CardDescription className="text-white/40 text-[10px] font-black uppercase tracking-[0.2em]">TEMPORAL AUDIT OF NUTRITIONAL PAYLOADS</CardDescription>
+                </div>
+                <Wheat className="h-12 w-12 opacity-10" />
               </div>
             </CardHeader>
-            <CardContent className="p-0 mt-8 relative z-10">
-              <div className="bg-[#FDFBF0]/80 h-14 flex items-center px-10 border-b border-white/10">
-                <div className="grid grid-cols-5 w-full">
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#2c3e50]/60">Date</span>
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#2c3e50]/60">Category</span>
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#2c3e50]/60 text-center">Packaging</span>
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#2c3e50]/60 text-right">Quantity</span>
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#2c3e50]/60 text-right pr-4">Total Cost</span>
-                </div>
-              </div>
-              <ScrollArea className="max-h-[600px] w-full">
-                {sortedFeedCosts && sortedFeedCosts.length > 0 ? (
-                  <Table>
-                    <TableBody>
-                      {sortedFeedCosts.map((c) => (
-                        <TableRow key={c.id} className="group hover:bg-white/10 transition-all cursor-zoom-in border-b border-white/5" onClick={() => handleEditClick(c)}>
-                          <TableCell className="pl-10 py-6 text-[10px] font-black text-neutral-500 uppercase tracking-widest w-1/5">{c.date}</TableCell>
-                          <TableCell className="w-1/5">
-                            <div className="flex items-center gap-2">
-                              <Circle className={cn(
-                                "h-2 w-2 fill-current",
-                                c.feedType === 'TMR' ? 'text-[#A68A56]' : 'text-emerald-500'
-                              )} />
-                              <span className="text-sm font-black text-neutral-900 tracking-tight leading-none">{c.feedType}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-center w-1/5">
-                            {c.bags ? (
-                              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#A68A56]/10 border border-[#A68A56]/20">
-                                <Package className="h-3 w-3 text-[#A68A56]" />
-                                <span className="text-[10px] font-black text-[#A68A56] uppercase tracking-widest">{c.bags} BAGS</span>
-                              </div>
-                            ) : (
-                              <span className="text-[9px] font-bold text-neutral-400 uppercase tracking-[0.2em]">BULK MIX</span>
-                            )}
-                          </TableCell>
-                          <TableCell className="text-right w-1/5">
-                            <span className="text-sm font-black text-neutral-900">{c.quantity}</span>
-                            <span className="text-[10px] font-bold text-neutral-400 uppercase ml-1.5">KG</span>
-                          </TableCell>
-                          <TableCell className="text-right pr-10 w-1/5">
-                            <div className="flex items-center justify-end gap-4">
-                              <span className="text-sm font-black text-neutral-900">₹{c.cost.toLocaleString()}</span>
-                              <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-[#A68A56]/10 text-[#A68A56] hover:bg-[#A68A56]/20" onClick={(e) => { e.stopPropagation(); handleEditClick(c); }}>
-                                  <Pencil className="h-3.5 w-3.5" />
-                                </Button>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-100" onClick={(e) => { e.stopPropagation(); handleDeleteCost(c.id, c._path); }}>
-                                  <Trash2 className="h-3.5 w-3.5" />
-                                </Button>
-                              </div>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                ) : (
-                  <div className="py-48 flex flex-col items-center justify-center text-center space-y-6 opacity-40">
-                    <Wheat className="h-16 w-16 text-[#2c3e50]" />
-                    <h3 className="text-sm font-black uppercase tracking-[0.3em] text-[#2c3e50]">NO PROCUREMENT RECORDS DISCOVERED</h3>
-                  </div>
-                )}
-              </ScrollArea>
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader className="bg-neutral-50/50">
+                  <TableRow className="border-b border-neutral-100 hover:bg-transparent">
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-6 pl-10">Temporal Node</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-6">Category</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-6 text-center">Packaging</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-6 text-right">Quantity</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-6 text-right pr-10">Value Payload</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {sortedFeedCosts.map((c) => (
+                    <TableRow key={c.id} className="group hover:bg-neutral-50/50 transition-colors border-b border-neutral-50">
+                      <TableCell className="pl-10 py-6 text-[11px] font-black text-neutral-400 uppercase tracking-widest">{c.date}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <div className={cn("h-2.5 w-2.5 rounded-full", c.feedType === 'TMR' ? 'bg-[#14532d]' : 'bg-[#4ade80]')} />
+                          <span className="text-sm font-black text-[#14532d] uppercase tracking-tight">{c.feedType}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {c.bags ? (
+                          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#14532d]/5 text-[10px] font-black text-[#14532d] uppercase tracking-widest">
+                            <Package className="h-3 w-3" /> {c.bags} BAGS
+                          </span>
+                        ) : (
+                          <span className="text-[9px] font-bold text-neutral-300 uppercase tracking-widest">BULK MIX</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <span className="text-sm font-black text-[#14532d]">{c.quantity}</span>
+                        <span className="text-[10px] font-black text-neutral-300 ml-2 uppercase">KG</span>
+                      </TableCell>
+                      <TableCell className="text-right pr-10">
+                        <div className="flex items-center justify-end gap-6">
+                          <span className="text-base font-black text-[#14532d] tracking-tighter">₹{c.cost.toLocaleString()}</span>
+                          <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl bg-neutral-100" onClick={() => handleEditClick(c)}>
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl bg-rose-50 text-rose-600" onClick={() => handleDeleteCost(c.id, c._path)}>
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </CardContent>
           </Card>
-        </div>
-      </div>
+        </TabsContent>
+      </Tabs>
 
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
         <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
             <DialogTitle className="text-xl font-black tracking-tight flex items-center gap-3">
-              <Pencil className="h-5 w-5 text-emerald-400" />
+              <Pencil className="h-5 w-5 text-[#4ade80]" />
               Adjust Record
             </DialogTitle>
-            <DialogDescription className="text-white/40 text-xs font-bold uppercase tracking-widest">
-              Update historical procurement parameters
-            </DialogDescription>
+            <DialogDescription className="text-white/40 text-xs font-bold uppercase tracking-widest">Update historical procurement parameters</DialogDescription>
           </DialogHeader>
           <Form {...editForm}>
             <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-6 p-8">
@@ -403,18 +384,12 @@ export default function FeedPage() {
                   name="feedType"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">Type</FormLabel>
+                      <Label className="text-[10px] font-black uppercase tracking-widest opacity-40">Type</Label>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
-                          <SelectTrigger className="h-12 rounded-xl bg-neutral-50 border-none font-bold text-sm">
-                            <SelectValue />
-                          </SelectTrigger>
+                          <SelectTrigger className="h-12 rounded-xl bg-neutral-50 border-none font-bold text-sm"><SelectValue /></SelectTrigger>
                         </FormControl>
-                        <SelectContent>
-                          {feedTypes.map((type) => (
-                            <SelectItem key={type} value={type}>{type}</SelectItem>
-                          ))}
-                        </SelectContent>
+                        <SelectContent>{feedTypes.map((type) => (<SelectItem key={type} value={type}>{type}</SelectItem>))}</SelectContent>
                       </Select>
                     </FormItem>
                   )}
@@ -424,69 +399,19 @@ export default function FeedPage() {
                   name="date"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">Date</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button type="button" variant={'outline'} className="h-12 rounded-xl bg-neutral-50 border-none font-bold text-sm">
-                              {field.value ? format(field.value, 'MMM dd, yy') : <span>Pick date</span>}
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0 border-none shadow-2xl" align="start">
-                          <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
-                        </PopoverContent>
-                      </Popover>
+                      <Label className="text-[10px] font-black uppercase tracking-widest opacity-40">Date</Label>
+                      <Popover><PopoverTrigger asChild><Button variant="outline" className="h-12 rounded-xl bg-neutral-50 border-none font-bold text-sm text-left">{field.value ? format(field.value, 'MMM dd, yy') : <span>Pick date</span>}</Button></PopoverTrigger><PopoverContent className="w-auto p-0 border-none"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover>
                     </FormItem>
                   )}
                 />
               </div>
-              
               <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={editForm.control}
-                  name="cost"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">Total Cost (₹)</FormLabel>
-                      <FormControl>
-                        <Input type="number" step="0.01" className="h-12 rounded-xl bg-neutral-50 border-none font-black px-4" {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={editForm.control}
-                  name="quantity"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">Qty (KG)</FormLabel>
-                      <FormControl>
-                        <Input type="number" step="0.1" className="h-12 rounded-xl bg-neutral-50 border-none font-black px-4" {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
+                <FormField control={editForm.control} name="cost" render={({ field }) => (<FormItem><Label className="text-[10px] font-black uppercase tracking-widest opacity-40">Cost (₹)</Label><FormControl><Input type="number" step="0.01" className="h-12 rounded-xl bg-neutral-50 border-none font-black" {...field} /></FormControl></FormItem>)} />
+                <FormField control={editForm.control} name="quantity" render={({ field }) => (<FormItem><Label className="text-[10px] font-black uppercase tracking-widest opacity-40">Qty (KG)</Label><FormControl><Input type="number" step="0.1" className="h-12 rounded-xl bg-neutral-50 border-none font-black" {...field} /></FormControl></FormItem>)} />
               </div>
-
-              <FormField
-                control={editForm.control}
-                name="bags"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">TMR Bags Count</FormLabel>
-                    <FormControl>
-                      <Input type="number" className="h-12 rounded-xl bg-neutral-50 border-none font-black px-4" {...field} />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-
               <DialogFooter className="pt-4 gap-4">
                 <Button variant="outline" type="button" onClick={() => setIsEditOpen(false)} className="h-12 px-8 rounded-xl font-bold border-neutral-200">Cancel</Button>
-                <Button type="submit" className="h-12 px-10 rounded-xl font-black uppercase tracking-widest shadow-2xl shadow-primary/20 bg-neutral-900 text-white hover:bg-neutral-800 flex-1">
-                  Save Changes
-                </Button>
+                <Button type="submit" className="h-12 px-10 rounded-xl font-black uppercase tracking-widest shadow-2xl bg-[#14532d] text-white hover:bg-[#0a2618] flex-1">Save Changes</Button>
               </DialogFooter>
             </form>
           </Form>
