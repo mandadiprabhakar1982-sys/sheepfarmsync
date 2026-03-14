@@ -42,38 +42,49 @@
     -webkit-tap-highlight-color: transparent;
   }
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-white text-foreground antialiased;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     letter-spacing: -0.01em;
-    background-image: url('https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhZHZhbmNlZCUyMGxhYm9yYXRvcnklMjBmYXJtfGVufDB8fHx8MTc3MjE2ODg1N3ww&ixlib=rb-4.1.0&q=80&w=1920');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
   }
+}
+
+/* The Glass Card Style */
+.glass-card {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px); /* This creates the frost */
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.glass-card:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.8);
+}
+
+/* Colored Borders for Categories */
+.card-health { border-color: rgba(255, 82, 82, 0.5) !important; border-width: 2px !important; }
+.card-feed { border-color: rgba(76, 175, 80, 0.5) !important; border-width: 2px !important; }
+.card-analytics { border-color: rgba(59, 130, 246, 0.5) !important; border-width: 2px !important; }
+.card-sales { border-color: rgba(34, 197, 94, 0.5) !important; border-width: 2px !important; }
+
+/* Title Styling */
+.card-title-precise {
+  font-family: 'Inter', sans-serif;
+  font-weight: 800;
+  letter-spacing: 1px;
+  font-size: 0.75rem;
+  color: #1a1a1a;
 }
 
 .glass-panel {
   @apply bg-white/10 backdrop-blur-3xl border border-white/20 shadow-[0_8px_32px_0_rgba(31,38,135,0.37)];
 }
 
-.glass-card {
-  @apply bg-white/5 backdrop-blur-xl border border-white/10 transition-all duration-500 hover:bg-white/15;
-}
-
-.neon-glow-blue { box-shadow: 0 0 20px rgba(59, 130, 246, 0.5), inset 0 0 10px rgba(59, 130, 246, 0.3); }
-.neon-glow-purple { box-shadow: 0 0 20px rgba(168, 85, 247, 0.5), inset 0 0 10px rgba(168, 85, 247, 0.3); }
-.neon-glow-red { box-shadow: 0 0 20px rgba(239, 68, 68, 0.5), inset 0 0 10px rgba(239, 68, 68, 0.3); }
-.neon-glow-cyan { box-shadow: 0 0 20px rgba(6, 182, 212, 0.5), inset 0 0 10px rgba(6, 182, 212, 0.3); }
-.neon-glow-green { box-shadow: 0 0 20px rgba(34, 197, 94, 0.5), inset 0 0 10px rgba(34, 197, 94, 0.3); }
-.neon-glow-lime { box-shadow: 0 0 20px rgba(132, 204, 22, 0.5), inset 0 0 10px rgba(132, 204, 22, 0.3); }
-.neon-glow-orange { box-shadow: 0 0 20px rgba(249, 115, 22, 0.5), inset 0 0 10px rgba(249, 115, 22, 0.3); }
-.neon-glow-steel { box-shadow: 0 0 20px rgba(100, 116, 139, 0.5), inset 0 0 10px rgba(100, 116, 139, 0.3); }
-
 @layer utilities {
   .app-header { font-size: 24px; font-weight: 900; letter-spacing: -0.04em; }
-  .card-title-precise { font-size: 14px; font-weight: 900; letter-spacing: 0.05em; }
-  .stat-value-precise { font-size: 22px; font-weight: 900; letter-spacing: -0.03em; }
-  
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 }
