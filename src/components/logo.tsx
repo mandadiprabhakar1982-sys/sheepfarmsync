@@ -29,8 +29,8 @@ export const SheepIcon = SyncProIcon;
 
 export function DashboardSparkleIcon({ className }: { className?: string }) {
   return (
-    <div className={cn("h-16 w-16 rounded-[1.25rem] bg-neutral-900 flex items-center justify-center shadow-2xl", className)}>
-      <Sparkles className="h-8 w-8 text-emerald-400" />
+    <div className={cn("h-16 w-16 rounded-[1.25rem] bg-[#1a2e1a] flex items-center justify-center shadow-2xl", className)}>
+      <Sparkles className="h-8 w-8 text-[#eab308]" />
     </div>
   );
 }
@@ -40,7 +40,7 @@ export function Logo({ className, light = false, showManager = true }: { classNa
     <div className={cn('flex items-center gap-3 select-none group cursor-pointer', className)}>
        <div className={cn(
          "rounded-xl p-2 transition-all duration-500 group-hover:rotate-180",
-         light ? "bg-white text-[#1a4d38]" : "bg-[#1a4d38] text-[#A68A56] shadow-lg"
+         "bg-[#1a2e1a] text-[#eab308] shadow-lg border border-white/10"
        )}>
         <SyncProIcon className="h-5 w-5" />
       </div>

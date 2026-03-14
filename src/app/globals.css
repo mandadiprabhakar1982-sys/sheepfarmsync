@@ -49,6 +49,24 @@
   }
 }
 
+/* Custom Scrollbar for Sidebar matching design reference */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+
 /* Precise Font Scale from Design Guide */
 @layer utilities {
   .app-header { font-size: 24px; font-weight: 900; letter-spacing: -0.04em; }
