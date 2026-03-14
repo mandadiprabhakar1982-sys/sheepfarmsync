@@ -9,7 +9,6 @@ import {
   Skull,
   Syringe,
   Banknote,
-  LayoutGrid
 } from 'lucide-react';
 import { SheepIcon } from '@/components/logo';
 import { StatCard } from '@/components/stat-card';
@@ -34,7 +33,7 @@ export default function OverviewPage() {
   
   if (isLoading) {
     return (
-       <div className="flex h-full w-full items-center justify-center">
+       <div className="flex h-screen w-full items-center justify-center bg-[#f4f9f1] fixed inset-0 z-50">
         <div className="flex flex-col items-center gap-6">
           <div className="w-12 h-12 border-4 border-white rounded-full border-t-[#16a34a] animate-spin" />
           <p className="text-[12px] font-black text-[#16a34a]/40 animate-pulse uppercase tracking-[0.3em]">Establishing Elite Link</p>
@@ -44,7 +43,7 @@ export default function OverviewPage() {
   }
 
   return (
-    <div className="container mx-auto pb-32 animate-in fade-in duration-700">
+    <div className="container mx-auto pb-32 animate-in fade-in duration-700 max-w-7xl">
       <PageHeader
         title="Farm Overview"
         description="OPERATIONAL INTELLIGENCE COMMAND"
@@ -63,14 +62,14 @@ export default function OverviewPage() {
                 value={totalSheep.toString()}
                 icon={SheepIcon}
                 variant="success"
-                className="form-card border-l-4 border-[#16a34a]"
+                className="border-l-4 border-[#16a34a]"
             />
              <StatCard
                 title="TOTAL MORTALITIES"
                 value={totalDead.toString()}
                 icon={Skull}
                 variant="destructive"
-                className="form-card border-l-4 border-rose-600"
+                className="border-l-4 border-rose-600"
             />
           </div>
         </section>
@@ -87,20 +86,20 @@ export default function OverviewPage() {
               value={`₹${totalReceivables.toLocaleString()}`} 
               icon={TrendingUp} 
               variant="info" 
-              className="form-card border-l-4 border-blue-500"
+              className="border-l-4 border-blue-500"
             />
             <StatCard 
               title="PAYABLES" 
               value={`₹${totalPayables.toLocaleString()}`} 
               icon={TrendingDown} 
               variant="coral" 
-              className="form-card border-l-4 border-rose-500"
+              className="border-l-4 border-rose-500"
             />
             <StatCard 
               title="TOTAL DISBURSED" 
               value={`₹${totalExpenses.toLocaleString()}`} 
               icon={IndianRupee} 
-              className="form-card border-l-4 border-[#16a34a]"
+              className="border-l-4 border-[#16a34a]"
             />
           </div>
         </section>
@@ -112,10 +111,10 @@ export default function OverviewPage() {
             <div className="h-px flex-1 bg-slate-200" />
           </div>
           <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-            <StatCard title="FEED" value={`₹${totalFeedCost.toLocaleString()}`} icon={Wheat} variant="neutral" className="form-card border-t-4 border-[#84cc16]" />
-            <StatCard title="LABOR" value={`₹${totalLaborCost.toLocaleString()}`} icon={Users} variant="neutral" className="form-card border-t-4 border-[#f59e0b]" />
-            <StatCard title="MEDICAL" value={`₹${totalMedicineCost.toLocaleString()}`} icon={Syringe} variant="neutral" className="form-card border-t-4 border-[#14b8a6]" />
-            <StatCard title="MISC" value={`₹${totalFarmExpenses.toLocaleString()}`} icon={Banknote} variant="neutral" className="form-card border-t-4 border-[#64748b]" />
+            <StatCard title="FEED" value={`₹${totalFeedCost.toLocaleString()}`} icon={Wheat} variant="neutral" className="border-t-4 border-[#84cc16]" />
+            <StatCard title="LABOR" value={`₹${totalLaborCost.toLocaleString()}`} icon={Users} variant="neutral" className="border-t-4 border-[#f59e0b]" />
+            <StatCard title="MEDICAL" value={`₹${totalMedicineCost.toLocaleString()}`} icon={Syringe} variant="neutral" className="border-t-4 border-[#14b8a6]" />
+            <StatCard title="MISC" value={`₹${totalFarmExpenses.toLocaleString()}`} icon={Banknote} variant="neutral" className="border-t-4 border-[#64748b]" />
           </div>
         </section>
       </div>
