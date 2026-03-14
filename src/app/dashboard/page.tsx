@@ -13,7 +13,8 @@ import {
   Wallet,
   ShieldCheck,
   ChevronRight,
-  Sparkles
+  Sparkles,
+  ArrowRightLeft
 } from 'lucide-react';
 import { SyncProIcon } from '@/components/logo';
 import { Card, CardContent } from '@/components/ui/card';
@@ -60,11 +61,11 @@ export default function DashboardPage() {
       color: 'bg-emerald-600',
     },
     {
-      title: t('buy').toUpperCase(),
+      title: t('sales').toUpperCase(),
       description: t('public_suite').toUpperCase(),
-      icon: ShoppingBag,
-      href: '/dashboard/purchase',
-      color: 'bg-amber-500',
+      icon: ArrowRightLeft,
+      href: '/dashboard/sales',
+      color: 'bg-green-700',
     },
     {
       title: t('health').toUpperCase(),
@@ -86,13 +87,6 @@ export default function DashboardPage() {
       icon: Users,
       href: '/dashboard/labor',
       color: 'bg-orange-500',
-    },
-    {
-      title: t('sales').toUpperCase(),
-      description: t('public_suite').toUpperCase(),
-      icon: BadgeIndianRupee,
-      href: '/dashboard/sales',
-      color: 'bg-green-700',
     },
     {
       title: t('expenses').toUpperCase(),

@@ -209,7 +209,7 @@ export default function TradeLedgerPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
         <PageHeader
           title="Trade Ledger"
-          description="INTEGRATED ACQUISITION & DISPOSAL SUITE"
+          description="INTEGRATED PURCHASE & DISPOSAL SUITE"
           className="mb-0"
         />
         <div className="flex gap-4">
@@ -236,7 +236,7 @@ export default function TradeLedgerPage() {
             <BadgeIndianRupee className="h-4 w-4 mr-2" /> Sales History
           </TabsTrigger>
           <TabsTrigger value="purchases" className="rounded-xl font-black text-sm uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-lg">
-            <ShoppingBag className="h-4 w-4 mr-2" /> Acquisitions
+            <ShoppingBag className="h-4 w-4 mr-2" /> Purchases
           </TabsTrigger>
         </TabsList>
 
@@ -363,9 +363,9 @@ export default function TradeLedgerPage() {
               <Card className="border-none bg-neutral-900 text-white rounded-[2.5rem] shadow-2xl overflow-hidden sticky top-24">
                 <CardHeader className="p-8 border-b border-white/5">
                   <CardTitle className="text-xl font-black tracking-tight flex items-center gap-3">
-                    <ShoppingBag className="h-5 w-5 text-emerald-400" /> Intake Entry
+                    <ShoppingBag className="h-5 w-5 text-emerald-400" /> Purchase Entry
                   </CardTitle>
-                  <CardDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Document livestock acquisition outflow</CardDescription>
+                  <CardDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Document livestock purchase outflow</CardDescription>
                 </CardHeader>
                 <CardContent className="p-8">
                   <Form {...purchaseForm}>
@@ -395,7 +395,7 @@ export default function TradeLedgerPage() {
                           <FormItem><Label className="text-[10px] font-black uppercase opacity-40 ml-2 text-rose-400">Due (₹)</Label><FormControl><Input type="number" className="h-12 rounded-xl bg-rose-500/10 border-none text-rose-400 font-black" {...field} readOnly /></FormControl></FormItem>
                         )} />
                       </div>
-                      <Button type="submit" className="w-full h-16 rounded-[1.25rem] font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-emerald-500/20 bg-emerald-600 hover:bg-emerald-500 text-white border-none">Commit Acquisition</Button>
+                      <Button type="submit" className="w-full h-16 rounded-[1.25rem] font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-emerald-500/20 bg-emerald-600 hover:bg-emerald-500 text-white border-none">Commit Purchase</Button>
                     </form>
                   </Form>
                 </CardContent>
@@ -407,7 +407,7 @@ export default function TradeLedgerPage() {
                 <CardHeader className="bg-primary p-8 text-white">
                   <div className="flex justify-between items-end">
                     <div>
-                      <CardTitle className="text-xl font-black tracking-tight leading-none mb-2">Acquisition Ledger</CardTitle>
+                      <CardTitle className="text-xl font-black tracking-tight leading-none mb-2">Purchase Ledger</CardTitle>
                       <CardDescription className="text-white/60 text-[10px] font-black uppercase tracking-widest">Complete history of livestock entries</CardDescription>
                     </div>
                     <History className="h-7 w-7 text-emerald-400 opacity-20" />
@@ -454,7 +454,7 @@ export default function TradeLedgerPage() {
                           </TableRow>
                         ))
                       ) : (
-                        <TableRow><TableCell colSpan={6} className="text-center py-20 opacity-40 font-black uppercase text-[10px]">No acquisition records logged</TableCell></TableRow>
+                        <TableRow><TableCell colSpan={6} className="text-center py-20 opacity-40 font-black uppercase text-[10px]">No purchase records logged</TableCell></TableRow>
                       )}
                     </TableBody>
                   </Table>
@@ -496,11 +496,11 @@ export default function TradeLedgerPage() {
         </DialogContent>
       </Dialog>
 
-      {/* --- DIALOGS: EDIT ACQUISITION --- */}
+      {/* --- DIALOGS: EDIT PURCHASE --- */}
       <Dialog open={isEditPurchaseOpen} onOpenChange={setIsEditPurchaseOpen}>
         <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
-            <DialogTitle className="text-xl font-black uppercase">Update Acquisition</DialogTitle>
+            <DialogTitle className="text-xl font-black uppercase">Update Purchase</DialogTitle>
             <DialogDescription className="text-white/40 text-xs uppercase tracking-widest">Adjust record for: {editingPurchase?.farmerName}</DialogDescription>
           </DialogHeader>
           <Form {...editPurchaseForm}>

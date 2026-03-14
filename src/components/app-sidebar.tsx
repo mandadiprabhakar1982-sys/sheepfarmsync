@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -23,7 +22,8 @@ import {
   BookOpen,
   Wallet,
   ShieldAlert,
-  ShoppingBag
+  ShoppingBag,
+  ArrowRightLeft
 } from 'lucide-react';
 
 import {
@@ -70,7 +70,7 @@ export function AppSidebar() {
       label: t('public_suite'),
       links: [
         { href: '/dashboard/livestock', label: "Livestock Hub", icon: ListChecks },
-        { href: '/dashboard/sales', label: t('sales'), icon: BadgeIndianRupee },
+        { href: '/dashboard/sales', label: t('sales'), icon: ArrowRightLeft },
         { href: '/dashboard/mortality', label: t('mortality'), icon: Skull },
         { href: '/dashboard/expenses', label: t('expenses'), icon: Receipt },
       ]
