@@ -101,6 +101,7 @@ interface FarmContextType {
   totalFarmExpenses: number;
   totalReceivables: number;
   totalPayables: number;
+  totalPurchaseCost: number;
   
   avgWeight: number;
   totalDailyFeed: number;
@@ -260,6 +261,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
       totalFarmExpenses: eCost,
       totalReceivables: rev > 0 ? rec : 0, 
       totalPayables: pay,
+      totalPurchaseCost: pTotal,
       avgWeight: avgWt,
       totalDailyFeed: dailyFeedTotal,
       totalLoanBalance: blBal,

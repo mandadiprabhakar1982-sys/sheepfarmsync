@@ -94,7 +94,7 @@ export default function TradeLedgerPage() {
   const { 
     sales, addSale, deleteSale, updateSale, postToMarketplace,
     purchases, addPurchase, deletePurchase, updatePurchase,
-    totalReceivables, totalPayables
+    totalReceivables, totalPayables, totalPurchaseCost, totalSales
   } = useFarm();
 
   const [activeTab, setActiveTab] = useState('sales');
@@ -212,18 +212,32 @@ export default function TradeLedgerPage() {
           description="INTEGRATED PURCHASE & DISPOSAL SUITE"
           className="mb-0"
         />
-        <div className="flex gap-4">
+        <div className="flex flex-wrap gap-4 justify-end">
           <div className="px-5 py-2.5 bg-neutral-900 rounded-xl text-white flex items-center gap-4 shadow-xl">
-            <HandCoins className="h-4 w-4 text-emerald-400" />
+            <ShoppingBag className="h-4 w-4 text-blue-400" />
             <div>
-              <p className="text-[7px] font-black uppercase tracking-widest opacity-40 leading-none">Total Receivables</p>
+              <p className="text-[7px] font-black uppercase tracking-widest opacity-40 leading-none">Total Purchases</p>
+              <p className="text-lg font-black tracking-tight">₹{totalPurchaseCost.toLocaleString()}</p>
+            </div>
+          </div>
+          <div className="px-5 py-2.5 bg-neutral-900 rounded-xl text-white flex items-center gap-4 shadow-xl">
+            <BadgeIndianRupee className="h-4 w-4 text-emerald-400" />
+            <div>
+              <p className="text-[7px] font-black uppercase tracking-widest opacity-40 leading-none">Total Sales</p>
+              <p className="text-lg font-black tracking-tight">₹{totalSales.toLocaleString()}</p>
+            </div>
+          </div>
+          <div className="px-5 py-2.5 bg-neutral-900 rounded-xl text-white flex items-center gap-4 shadow-xl">
+            <HandCoins className="h-4 w-4 text-amber-400" />
+            <div>
+              <p className="text-[7px] font-black uppercase tracking-widest opacity-40 leading-none">Receivables</p>
               <p className="text-lg font-black tracking-tight">₹{totalReceivables.toLocaleString()}</p>
             </div>
           </div>
           <div className="px-5 py-2.5 bg-neutral-900 rounded-xl text-white flex items-center gap-4 shadow-xl">
             <ArrowRightLeft className="h-4 w-4 text-rose-400" />
             <div>
-              <p className="text-[7px] font-black uppercase tracking-widest opacity-40 leading-none">Total Payables</p>
+              <p className="text-[7px] font-black uppercase tracking-widest opacity-40 leading-none">Payables</p>
               <p className="text-lg font-black tracking-tight">₹{totalPayables.toLocaleString()}</p>
             </div>
           </div>
