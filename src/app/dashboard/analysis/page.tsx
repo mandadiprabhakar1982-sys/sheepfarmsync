@@ -28,15 +28,49 @@ export default function AnalysisPage() {
     setError(null);
     setAnalysis(null);
     try {
+      // SANITIZATION: Only pass plain serializable fields to the Server Action
       const input = {
         livestockPurchases: (purchases || []).map(p => ({
-          ...p,
           purchaseDate: p.purchaseDate,
+          villageName: p.villageName,
+          farmerName: p.farmerName,
+          animalCount: p.animalCount,
+          purchasePrice: p.purchasePrice,
+          transportCost: p.transportCost,
+          amountPaid: p.amountPaid,
+          dueAmount: p.dueAmount,
+          payingTimePeriod: p.payingTimePeriod,
         })),
-        medicineExpenses: medicineExpenses || [],
-        feedCosts: feedCosts || [],
-        laborCosts: laborCosts || [],
-        farmExpenses: farmExpenses || [],
+        medicineExpenses: (medicineExpenses || []).map(m => ({
+          shopName: m.shopName,
+          date: m.date,
+          description: m.description,
+          costOfMedicines: m.costOfMedicines,
+          totalAmountSpent: m.totalAmountSpent,
+          outstandingDues: m.outstandingDues,
+        })),
+        feedCosts: (feedCosts || []).map(f => ({
+          feedType: f.feedType,
+          cost: f.cost,
+          date: f.date,
+          quantity: f.quantity,
+          bags: f.bags,
+        })),
+        laborCosts: (laborCosts || []).map(l => ({
+          employeeName: l.employeeName,
+          date: l.date,
+          wages: l.wages,
+          numberOfLaborers: l.numberOfLaborers,
+          advancePayments: l.advancePayments,
+          foodCosts: l.foodCosts,
+          fuelCosts: l.fuelCosts,
+          totalLaborCosts: l.totalLaborCosts,
+        })),
+        farmExpenses: (farmExpenses || []).map(e => ({
+          expenseDate: e.expenseDate,
+          description: e.description,
+          amount: e.amount,
+        })),
       };
       
       const result = await analyzeFarmCosts(input);
