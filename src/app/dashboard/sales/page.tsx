@@ -245,11 +245,11 @@ export default function TradeLedgerPage() {
       </div>
 
       <Tabs defaultValue="sales" onValueChange={setActiveTab} className="w-full">
-        <TabsList className="mb-10 p-1.5 bg-neutral-100 rounded-2xl grid grid-cols-2 h-14 max-w-md mx-auto">
-          <TabsTrigger value="sales" className="rounded-xl font-black text-sm uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-lg">
+        <TabsList className="mb-10 p-1 bg-[#e7eddc] rounded-2xl grid grid-cols-2 h-14 max-w-md mx-auto shadow-inner">
+          <TabsTrigger value="sales" className="tab-inactive tab-active font-black text-xs uppercase tracking-widest">
             <BadgeIndianRupee className="h-4 w-4 mr-2" /> Sales History
           </TabsTrigger>
-          <TabsTrigger value="purchases" className="rounded-xl font-black text-sm uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-lg">
+          <TabsTrigger value="purchases" className="tab-inactive tab-active font-black text-xs uppercase tracking-widest">
             <ShoppingBag className="h-4 w-4 mr-2" /> Purchases
           </TabsTrigger>
         </TabsList>
@@ -257,43 +257,43 @@ export default function TradeLedgerPage() {
         <TabsContent value="sales" className="animate-in fade-in slide-in-from-bottom-2 duration-500">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
             <div className="lg:col-span-4">
-              <Card className="border-none bg-neutral-50/50 sticky top-24 rounded-[2.5rem] shadow-2xl overflow-hidden">
-                <CardHeader className="bg-neutral-900 p-8 text-white">
-                  <CardTitle className="text-xl font-black tracking-tight flex items-center gap-3">
-                    <TrendingUp className="h-5 w-5 text-emerald-400" />
+              <Card className="form-card sticky top-24 border-t-4 border-emerald-800">
+                <CardHeader className="p-0 mb-8">
+                  <CardTitle className="text-xl font-black tracking-tight flex items-center gap-3 text-neutral-900 uppercase">
+                    <TrendingUp className="h-5 w-5 text-emerald-600" />
                     Disposal Entry
                   </CardTitle>
-                  <CardDescription className="text-white/40 text-xs font-bold uppercase tracking-widest">Record high-value livestock outflow</CardDescription>
+                  <CardDescription className="text-neutral-400 text-[8px] font-bold uppercase tracking-widest">Record high-value livestock outflow</CardDescription>
                 </CardHeader>
-                <CardContent className="p-8">
+                <CardContent className="p-0">
                   <Form {...salesForm}>
                     <form onSubmit={salesForm.handleSubmit(onSalesSubmit)} className="space-y-6">
                       <FormField control={salesForm.control} name="saleDate" render={({ field }) => (
-                        <FormItem className="flex flex-col"><Label className="text-xs font-black uppercase opacity-40 ml-2">Date of Sale</Label><Popover><PopoverTrigger asChild><Button variant="outline" className="h-12 rounded-xl bg-white border-none shadow-sm font-bold text-left px-4">{field.value ? format(field.value, "MMM dd, yy") : "Select"}<CalendarIcon className="ml-auto h-4 w-4 opacity-20" /></Button></PopoverTrigger><PopoverContent className="w-auto p-0 border-none"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover></FormItem>
+                        <FormItem className="flex flex-col"><Label className="text-xs font-black uppercase opacity-40 ml-2">Date of Sale</Label><Popover><PopoverTrigger asChild><Button variant="outline" className="h-12 rounded-xl bg-[#f8fafc] border-[#d9e4cf] font-bold text-left px-4">{field.value ? format(field.value, "MMM dd, yy") : "Select"}<CalendarIcon className="ml-auto h-4 w-4 opacity-20" /></Button></PopoverTrigger><PopoverContent className="w-auto p-0 border-none"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover></FormItem>
                       )} />
                       <FormField control={salesForm.control} name="buyerName" render={({ field }) => (
-                        <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2">Buyer Name</Label><FormControl><Input className="h-12 rounded-xl bg-white border-none shadow-sm font-bold" placeholder="Identity" {...field} /></FormControl></FormItem>
+                        <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2">Buyer Name</Label><FormControl><Input className="h-12 rounded-xl bg-[#f8fafc] border-[#d9e4cf] font-bold" placeholder="Identity" {...field} /></FormControl></FormItem>
                       )} />
                       <FormField control={salesForm.control} name="buyerVillage" render={({ field }) => (
-                        <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2">Village</Label><FormControl><Input className="h-12 rounded-xl bg-white border-none shadow-sm font-bold" placeholder="Location" {...field} /></FormControl></FormItem>
+                        <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2">Village</Label><FormControl><Input className="h-12 rounded-xl bg-[#f8fafc] border-[#d9e4cf] font-bold" placeholder="Location" {...field} /></FormControl></FormItem>
                       )} />
                       <div className="grid grid-cols-2 gap-4">
                         <FormField control={salesForm.control} name="animalCount" render={({ field }) => (
-                          <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2">Count</Label><FormControl><Input type="number" className="h-12 rounded-xl bg-white border-none shadow-sm font-black" {...field} /></FormControl></FormItem>
+                          <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2">Count</Label><FormControl><Input type="number" className="h-12 rounded-xl bg-[#f8fafc] border-[#d9e4cf] font-black" {...field} /></FormControl></FormItem>
                         )} />
                         <FormField control={salesForm.control} name="animalWeightKg" render={({ field }) => (
-                          <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2">Total Weight (kg)</Label><FormControl><Input type="number" step="0.1" className="h-12 rounded-xl bg-white border-none shadow-sm font-black" {...field} /></FormControl></FormItem>
+                          <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2">Total Weight (kg)</Label><FormControl><Input type="number" step="0.1" className="h-12 rounded-xl bg-[#f8fafc] border-[#d9e4cf] font-black" {...field} /></FormControl></FormItem>
                         )} />
                       </div>
                       <FormField control={salesForm.control} name="salePrice" render={({ field }) => (
-                        <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2">Total Value (₹)</Label><FormControl><Input type="number" className="h-12 rounded-xl bg-white border-none shadow-sm font-black" {...field} /></FormControl></FormItem>
+                        <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2">Total Value (₹)</Label><FormControl><Input type="number" className="h-12 rounded-xl bg-[#f8fafc] border-[#d9e4cf] font-black" {...field} /></FormControl></FormItem>
                       )} />
                       <div className="grid grid-cols-2 gap-4">
                         <FormField control={salesForm.control} name="amountReceived" render={({ field }) => (
-                          <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2">Received (₹)</Label><FormControl><Input type="number" className="h-12 rounded-xl bg-white border-none shadow-sm font-bold text-emerald-600" {...field} /></FormControl></FormItem>
+                          <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2">Received (₹)</Label><FormControl><Input type="number" className="h-12 rounded-xl bg-[#f8fafc] border-[#d9e4cf] font-bold text-emerald-600" {...field} /></FormControl></FormItem>
                         )} />
                         <FormField control={salesForm.control} name="outstandingDuesFromBuyer" render={({ field }) => (
-                          <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2 text-rose-400">Due (₹)</Label><FormControl><Input type="number" className="h-12 rounded-xl bg-rose-500/10 border-none text-rose-400 font-black" {...field} readOnly /></FormControl></FormItem>
+                          <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2 text-rose-400">Due (₹)</Label><FormControl><Input type="number" className="h-12 rounded-xl bg-rose-50 border-none text-rose-400 font-black" {...field} readOnly /></FormControl></FormItem>
                         )} />
                       </div>
                       <FormField control={salesForm.control} name="isPublic" render={({ field }) => (
@@ -302,7 +302,7 @@ export default function TradeLedgerPage() {
                           <div className="leading-none"><FormLabel className="text-[10px] font-black uppercase tracking-wider flex items-center gap-2">Post to Marketplace <Globe className="h-3 w-3 text-primary" /></FormLabel></div>
                         </FormItem>
                       )} />
-                      <Button type="submit" className="w-full h-16 rounded-[1.25rem] font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-primary/20 bg-neutral-900 hover:bg-neutral-800 text-white">Commit Sale</Button>
+                      <Button type="submit" className="primary-btn w-full !bg-neutral-900 hover:!bg-black">Commit Sale</Button>
                     </form>
                   </Form>
                 </CardContent>
@@ -310,20 +310,20 @@ export default function TradeLedgerPage() {
             </div>
 
             <div className="lg:col-span-8">
-              <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
-                <CardHeader className="bg-primary p-8 text-white">
+              <Card className="form-card p-0 overflow-hidden">
+                <CardHeader className="p-8 pb-4">
                   <div className="flex justify-between items-end">
                     <div>
-                      <CardTitle className="text-xl font-black tracking-tight leading-none mb-2">Disposal Ledger</CardTitle>
-                      <CardDescription className="text-white/60 text-xs font-black uppercase tracking-widest">Audit-grade historical records of livestock sales</CardDescription>
+                      <CardTitle className="text-xl font-black tracking-tight leading-none mb-2 uppercase">Disposal Ledger</CardTitle>
+                      <CardDescription className="text-neutral-400 text-xs font-black uppercase tracking-widest">Audit-grade historical records of livestock sales</CardDescription>
                     </div>
-                    <History className="h-7 w-7 text-emerald-400 opacity-20" />
+                    <History className="h-7 w-7 text-neutral-100" />
                   </div>
                 </CardHeader>
                 <CardContent className="p-0 overflow-x-auto">
                   <Table>
                     <TableHeader className="bg-neutral-50">
-                      <TableRow>
+                      <TableRow className="border-b border-neutral-100">
                         <TableHead className="text-[10px] font-black uppercase pl-8 py-5">Date</TableHead>
                         <TableHead className="text-[10px] font-black uppercase">Buyer / Destination</TableHead>
                         <TableHead className="text-[10px] font-black uppercase">Qty</TableHead>
@@ -343,7 +343,7 @@ export default function TradeLedgerPage() {
                                 <span className="text-[9px] font-bold text-muted-foreground uppercase opacity-60">{s.buyerVillage}</span>
                               </div>
                             </TableCell>
-                            <TableCell><Badge className="bg-primary/5 text-primary border-none font-black text-[10px] px-3">{s.animalCount} Head</Badge></TableCell>
+                            <TableCell><Badge className="bg-primary/10 text-primary border-none font-black text-[10px] px-3">{s.animalCount} Head</Badge></TableCell>
                             <TableCell className="text-right font-black text-sm">₹{s.salePrice.toLocaleString()}</TableCell>
                             <TableCell className="text-right pr-8">
                               {s.outstandingDuesFromBuyer > 0 ? (
@@ -354,8 +354,8 @@ export default function TradeLedgerPage() {
                             </TableCell>
                             <TableCell className="pr-4" onClick={(e) => e.stopPropagation()}>
                               <div className="flex gap-2 opacity-0 group-hover:opacity-100">
-                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl bg-neutral-100" onClick={() => handleEditSale(s)}><Pencil className="h-3.5 w-3.5" /></Button>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl bg-rose-50 text-rose-600" onClick={() => deleteSale(s.id, s._path)}><Trash2 className="h-3.5 w-3.5" /></Button>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl bg-neutral-100 hover:bg-neutral-200" onClick={() => handleEditSale(s)}><Pencil className="h-3.5 w-3.5" /></Button>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100" onClick={() => deleteSale(s.id, s._path)}><Trash2 className="h-3.5 w-3.5" /></Button>
                               </div>
                             </TableCell>
                           </TableRow>
@@ -374,14 +374,14 @@ export default function TradeLedgerPage() {
         <TabsContent value="purchases" className="animate-in fade-in slide-in-from-bottom-2 duration-500">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
             <div className="lg:col-span-4">
-              <Card className="border-none bg-neutral-900 text-white rounded-[2.5rem] shadow-2xl overflow-hidden sticky top-24">
-                <CardHeader className="p-8 border-b border-white/5">
-                  <CardTitle className="text-xl font-black tracking-tight flex items-center gap-3">
+              <Card className="form-card sticky top-24 border-t-4 border-neutral-900 !bg-neutral-900">
+                <CardHeader className="p-0 mb-8">
+                  <CardTitle className="text-xl font-black tracking-tight flex items-center gap-3 text-white uppercase">
                     <ShoppingBag className="h-5 w-5 text-emerald-400" /> Purchase Entry
                   </CardTitle>
                   <CardDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Document livestock purchase outflow</CardDescription>
                 </CardHeader>
-                <CardContent className="p-8">
+                <CardContent className="p-0">
                   <Form {...purchaseForm}>
                     <form onSubmit={purchaseForm.handleSubmit(onPurchaseSubmit)} className="space-y-6">
                       <FormField control={purchaseForm.control} name="purchaseDate" render={({ field }) => (
@@ -409,7 +409,7 @@ export default function TradeLedgerPage() {
                           <FormItem><Label className="text-[10px] font-black uppercase opacity-40 ml-2 text-rose-400">Due (₹)</Label><FormControl><Input type="number" className="h-12 rounded-xl bg-rose-500/10 border-none text-rose-400 font-black" {...field} readOnly /></FormControl></FormItem>
                         )} />
                       </div>
-                      <Button type="submit" className="w-full h-16 rounded-[1.25rem] font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-emerald-500/20 bg-emerald-600 hover:bg-emerald-500 text-white border-none">Commit Purchase</Button>
+                      <Button type="submit" className="primary-btn w-full !bg-emerald-600 hover:!bg-emerald-500">Commit Purchase</Button>
                     </form>
                   </Form>
                 </CardContent>
@@ -417,20 +417,20 @@ export default function TradeLedgerPage() {
             </div>
 
             <div className="lg:col-span-8">
-              <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
-                <CardHeader className="bg-primary p-8 text-white">
+              <Card className="form-card p-0 overflow-hidden">
+                <CardHeader className="p-8 pb-4">
                   <div className="flex justify-between items-end">
                     <div>
-                      <CardTitle className="text-xl font-black tracking-tight leading-none mb-2">Purchase Ledger</CardTitle>
-                      <CardDescription className="text-white/60 text-[10px] font-black uppercase tracking-widest">Complete history of livestock entries</CardDescription>
+                      <CardTitle className="text-xl font-black tracking-tight leading-none mb-2 uppercase">Purchase Ledger</CardTitle>
+                      <CardDescription className="text-neutral-400 text-[10px] font-black uppercase tracking-widest">Complete history of livestock entries</CardDescription>
                     </div>
-                    <History className="h-7 w-7 text-emerald-400 opacity-20" />
+                    <History className="h-7 w-7 text-neutral-100" />
                   </div>
                 </CardHeader>
                 <CardContent className="p-0 overflow-x-auto">
                   <Table>
                     <TableHeader className="bg-neutral-50">
-                      <TableRow>
+                      <TableRow className="border-b border-neutral-100">
                         <TableHead className="text-[10px] font-black uppercase pl-8 py-5">Date</TableHead>
                         <TableHead className="text-[10px] font-black uppercase">Origin / Farmer</TableHead>
                         <TableHead className="text-[10px] font-black uppercase">Qty</TableHead>
@@ -450,7 +450,7 @@ export default function TradeLedgerPage() {
                                 <span className="text-[9px] font-bold text-muted-foreground uppercase opacity-60">{p.villageName}</span>
                               </div>
                             </TableCell>
-                            <TableCell><Badge className="bg-primary/5 text-primary border-none font-black text-[10px] px-3">{p.animalCount} Head</Badge></TableCell>
+                            <TableCell><Badge className="bg-primary/10 text-primary border-none font-black text-[10px] px-3">{p.animalCount} Head</Badge></TableCell>
                             <TableCell className="text-right font-black text-sm">₹{p.purchasePrice.toLocaleString()}</TableCell>
                             <TableCell className="text-right pr-8">
                               {p.dueAmount > 0 ? (
@@ -461,8 +461,8 @@ export default function TradeLedgerPage() {
                             </TableCell>
                             <TableCell className="pr-4" onClick={(e) => e.stopPropagation()}>
                               <div className="flex gap-2 opacity-0 group-hover:opacity-100">
-                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl bg-neutral-100" onClick={() => handleEditPurchase(p)}><Pencil className="h-3.5 w-3.5" /></Button>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl bg-rose-50 text-rose-600" onClick={() => deletePurchase(p.id, p._path)}><Trash2 className="h-3.5 w-3.5" /></Button>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl bg-neutral-100 hover:bg-neutral-200" onClick={() => handleEditPurchase(p)}><Pencil className="h-3.5 w-3.5" /></Button>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100" onClick={() => deletePurchase(p.id, p._path)}><Trash2 className="h-3.5 w-3.5" /></Button>
                               </div>
                             </TableCell>
                           </TableRow>

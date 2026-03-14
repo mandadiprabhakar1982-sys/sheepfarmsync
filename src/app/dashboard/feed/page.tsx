@@ -153,10 +153,10 @@ export default function FeedPage() {
 
       <Tabs defaultValue="entry" className="w-full">
         <TabsList className="mb-12 p-1 bg-[#e7eddc] rounded-2xl flex justify-center items-center h-16 w-fit mx-auto shadow-inner">
-          <TabsTrigger value="entry" className="tab-inactive data-[state=active]:tab-active h-14 px-10">
+          <TabsTrigger value="entry" className="tab-inactive tab-active h-14 px-10">
             <PlusCircle className="mr-2 h-4 w-4" /> Record Entry
           </TabsTrigger>
-          <TabsTrigger value="history" className="tab-inactive data-[state=active]:tab-active h-14 px-10">
+          <TabsTrigger value="history" className="tab-inactive tab-active h-14 px-10">
             <ShoppingCart className="mr-2 h-4 w-4" /> Cost Track
           </TabsTrigger>
         </TabsList>

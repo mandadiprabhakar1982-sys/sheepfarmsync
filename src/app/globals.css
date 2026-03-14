@@ -136,18 +136,22 @@ textarea {
 }
 
 /* Tabs */
-.tab-active {
+.tab-active[data-state="active"] {
   background: #65a30d !important;
   color: white !important;
   border-radius: 14px !important;
-  font-weight: 700 !important;
+  box-shadow: 0 4px 12px rgba(101, 163, 13, 0.2);
 }
 
 .tab-inactive {
   background: #e7eddc !important;
   color: #64748b !important;
   border-radius: 14px !important;
-  font-weight: 600 !important;
+  transition: all 0.2s ease;
+}
+
+.tab-inactive:hover {
+  background: #dbe7d1;
 }
 
 /* Dashboard Modules */

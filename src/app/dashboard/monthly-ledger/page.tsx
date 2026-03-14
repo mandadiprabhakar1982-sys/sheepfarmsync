@@ -300,7 +300,7 @@ export default function MonthlyLedgerPage() {
   );
 
   return (
-    <div className="container mx-auto py-8 px-4 md:px-10">
+    <div className="container mx-auto py-8 px-4 md:px-10 animate-in fade-in duration-700">
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 mb-12">
         <PageHeader
           title="Balance Sheet Audit"
@@ -358,34 +358,34 @@ export default function MonthlyLedgerPage() {
       </div>
 
       <Tabs defaultValue="ledger" className="w-full">
-        <TabsList className="mb-12 p-1.5 bg-neutral-100 rounded-2xl grid grid-cols-3 h-14 w-full max-w-xl mx-auto">
-          <TabsTrigger value="ledger" className="rounded-xl font-black text-[10px] uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-lg">Active Ledger</TabsTrigger>
-          <TabsTrigger value="entities" className="rounded-xl font-black text-[10px] uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-lg">Entity Audit</TabsTrigger>
-          <TabsTrigger value="analytics" className="rounded-xl font-black text-[10px] uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-lg">Performance</TabsTrigger>
+        <TabsList className="mb-12 p-1 bg-[#e7eddc] rounded-2xl grid grid-cols-3 h-14 w-full max-w-xl mx-auto shadow-inner">
+          <TabsTrigger value="ledger" className="tab-inactive tab-active font-black text-[10px] uppercase tracking-widest">Active Ledger</TabsTrigger>
+          <TabsTrigger value="entities" className="tab-inactive tab-active font-black text-[10px] uppercase tracking-widest">Entity Audit</TabsTrigger>
+          <TabsTrigger value="analytics" className="tab-inactive tab-active font-black text-[10px] uppercase tracking-widest">Performance</TabsTrigger>
         </TabsList>
 
         <TabsContent value="ledger" className="space-y-12 animate-in fade-in slide-in-from-bottom-2 duration-500">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
             <div className="lg:col-span-4">
-              <Card className="border-none bg-neutral-50/50 sticky top-24 rounded-[2.5rem] shadow-2xl overflow-hidden">
-                <CardHeader className="bg-neutral-900 p-8">
-                  <CardTitle className="text-white text-xl font-black tracking-tight flex items-center gap-3">
-                    <ArrowUpRight className="h-5 w-5 text-emerald-400" />
+              <Card className="form-card sticky top-24 border-t-4 border-neutral-900">
+                <CardHeader className="p-0 mb-8">
+                  <CardTitle className="text-neutral-900 text-xl font-black tracking-tight flex items-center gap-3 uppercase">
+                    <ArrowUpRight className="h-5 w-5 text-emerald-600" />
                     Accounting Entry
                   </CardTitle>
-                  <CardDescription className="text-white/40 text-[9px] font-bold uppercase tracking-widest">Update temporal financial stream</CardDescription>
+                  <CardDescription className="text-neutral-400 text-[9px] font-bold uppercase tracking-widest">Update temporal financial stream</CardDescription>
                 </CardHeader>
-                <CardContent className="p-8 space-y-8">
+                <CardContent className="p-0 space-y-8">
                   <div className="space-y-6">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-2">Date</Label>
-                        <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="h-11 rounded-xl bg-white border-none shadow-sm font-bold text-xs" />
+                        <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="h-11 rounded-xl bg-[#f8fafc] border-[#d9e4cf] font-bold text-xs" />
                       </div>
                       <div className="space-y-2">
                         <Label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-2">Stream Type</Label>
                         <Select value={type} onValueChange={(v: any) => setType(v)}>
-                          <SelectTrigger className="h-11 rounded-xl border-none bg-white shadow-sm font-black text-[9px] uppercase">
+                          <SelectTrigger className="h-11 rounded-xl bg-[#f8fafc] border-[#d9e4cf] font-black text-[9px] uppercase">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent className="rounded-xl border-none shadow-2xl">
@@ -398,16 +398,16 @@ export default function MonthlyLedgerPage() {
 
                     <div className="space-y-2">
                       <Label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-2">Description</Label>
-                      <Input value={source} onChange={(e) => setSource(e.target.value)} placeholder="e.g. Sheep Sale" className="h-12 rounded-2xl bg-white border-none shadow-sm font-bold text-sm px-6" />
+                      <Input value={source} onChange={(e) => setSource(e.target.value)} placeholder="e.g. Sheep Sale" className="h-12 rounded-2xl bg-[#f8fafc] border-[#d9e4cf] font-bold text-sm px-6" />
                     </div>
 
                     <div className="space-y-2">
                       <Label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-2">Value (₹)</Label>
-                      <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0" className="h-12 rounded-2xl bg-white border-none shadow-sm font-black text-lg px-6" />
+                      <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0" className="h-12 rounded-2xl bg-[#f8fafc] border-[#d9e4cf] font-black text-lg px-6" />
                     </div>
                   </div>
 
-                  <Button onClick={handleAdd} className="w-full h-16 rounded-[1.25rem] font-black text-[11px] uppercase tracking-[0.25em] shadow-2xl shadow-primary/20 bg-neutral-900 hover:bg-neutral-800">
+                  <Button onClick={handleAdd} className="primary-btn w-full !bg-neutral-900 hover:!bg-black">
                     <PlusCircle className="mr-3 h-5 w-5 text-emerald-400" />
                     Commit Transaction
                   </Button>
@@ -432,11 +432,11 @@ export default function MonthlyLedgerPage() {
         </TabsContent>
 
         <TabsContent value="entities" className="space-y-12 animate-in fade-in slide-in-from-bottom-2 duration-500">
-          <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
+          <Card className="form-card p-0 overflow-hidden">
             <CardHeader className="bg-neutral-900 text-white p-8">
               <div className="flex justify-between items-end">
                 <div className="space-y-1">
-                  <CardTitle className="text-xl font-black tracking-tight leading-none flex items-center gap-3">
+                  <CardTitle className="text-xl font-black tracking-tight leading-none flex items-center gap-3 uppercase">
                     <Users className="h-5 w-5 text-emerald-400" />
                     Person-Wise Audit
                   </CardTitle>
@@ -448,7 +448,7 @@ export default function MonthlyLedgerPage() {
             <CardContent className="p-0 overflow-x-auto">
               <Table>
                 <TableHeader className="bg-neutral-50">
-                  <TableRow>
+                  <TableRow className="border-b border-neutral-100">
                     <TableHead className="text-[8px] font-black uppercase pl-8 py-5">Entity / Profile</TableHead>
                     <TableHead className="text-[8px] font-black uppercase text-center">Audit Count</TableHead>
                     <TableHead className="text-[8px] font-black uppercase">Total Inflow</TableHead>
@@ -457,7 +457,7 @@ export default function MonthlyLedgerPage() {
                 </TableHeader>
                 <TableBody>
                   {entitySummary.map((entity, idx) => (
-                    <TableRow key={idx} className="group hover:bg-neutral-50 border-neutral-100 transition-all">
+                    <TableRow key={idx} className="group hover:bg-neutral-50 border-neutral-50 transition-all">
                       <TableCell className="pl-8">
                         <div className="flex items-center gap-3 py-4">
                           <div className="h-10 w-10 rounded-xl bg-neutral-900 flex items-center justify-center text-[10px] font-black text-emerald-400 shadow-xl">
@@ -491,9 +491,9 @@ export default function MonthlyLedgerPage() {
 
         <TabsContent value="analytics" className="space-y-12 animate-in fade-in slide-in-from-bottom-2 duration-500">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-            <Card className="lg:col-span-8 border-none shadow-2xl rounded-[2.5rem] bg-white overflow-hidden">
+            <Card className="lg:col-span-8 form-card p-0 overflow-hidden">
               <CardHeader className="bg-neutral-50 p-8 border-b border-neutral-100">
-                <CardTitle className="text-xl font-black tracking-tight flex items-center gap-3">
+                <CardTitle className="text-xl font-black tracking-tight flex items-center gap-3 uppercase text-neutral-900">
                   <BarChart3 className="h-5 w-5 text-primary" />
                   Performance Audit
                 </CardTitle>

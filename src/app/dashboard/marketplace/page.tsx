@@ -157,7 +157,7 @@ export default function MarketplacePage() {
   };
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="container mx-auto py-8 px-4 animate-in fade-in duration-700">
       <PageHeader
         title="Community Marketplace"
         description="View and share real-time livestock data."
@@ -165,10 +165,10 @@ export default function MarketplacePage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         <div className="lg:col-span-1">
-          <Card className="border-none shadow-xl rounded-[2rem] bg-primary text-white sticky top-24">
+          <Card className="border-none shadow-xl rounded-[2rem] bg-[#365314] text-white sticky top-24">
             <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5" />
+              <CardTitle className="text-lg flex items-center gap-2 uppercase">
+                <CheckCircle2 className="h-5 w-5 text-emerald-400" />
                 Community Trust
               </CardTitle>
             </CardHeader>
@@ -195,12 +195,12 @@ export default function MarketplacePage() {
 
         <div className="lg:col-span-3">
           <Tabs defaultValue="all" className="w-full">
-            <TabsList className="mb-6 bg-muted/50 p-1 rounded-xl">
-              <TabsTrigger value="all" className="rounded-lg font-bold">All Listings</TabsTrigger>
-              <TabsTrigger value="mine" className="rounded-lg font-bold">My Listings ({mySales.length})</TabsTrigger>
+            <TabsList className="mb-12 p-1 bg-[#e7eddc] rounded-2xl flex justify-start items-center h-16 w-fit shadow-inner">
+              <TabsTrigger value="all" className="tab-inactive tab-active h-14 px-8 font-bold">All Listings</TabsTrigger>
+              <TabsTrigger value="mine" className="tab-inactive tab-active h-14 px-8 font-bold">My Listings ({mySales.length})</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="all" className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <TabsContent value="all" className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in slide-in-from-bottom-2 duration-500">
               {communitySales && communitySales.length > 0 ? (
                 communitySales.map((sale) => (
                   <SaleCard key={sale.id} sale={sale} isOwner={user?.uid === sale.sellerId} />
@@ -210,14 +210,14 @@ export default function MarketplacePage() {
               )}
             </TabsContent>
 
-            <TabsContent value="mine" className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <TabsContent value="mine" className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in slide-in-from-bottom-2 duration-500">
               {mySales.length > 0 ? (
                 mySales.map((sale) => (
                   <SaleCard key={sale.id} sale={sale} isOwner={true} />
                 ))
               ) : (
-                <div className="col-span-full py-12 text-center">
-                  <p className="text-muted-foreground text-sm">You haven't posted any sales to the community yet.</p>
+                <div className="col-span-full py-24 text-center border-4 border-dashed rounded-[3rem] border-neutral-100 bg-white/40">
+                  <p className="text-muted-foreground text-sm font-bold uppercase tracking-widest opacity-40">No active contributions logged</p>
                 </div>
               )}
             </TabsContent>
@@ -226,30 +226,30 @@ export default function MarketplacePage() {
       </div>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Edit Listing</DialogTitle>
-            <DialogDescription>Update your marketplace post details.</DialogDescription>
+        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
+          <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
+            <DialogTitle className="text-xl font-black uppercase">Edit Listing</DialogTitle>
+            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Update your marketplace post details.</DialogDescription>
           </DialogHeader>
           <Form {...editForm}>
-            <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-4 py-4">
+            <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-6 p-8 bg-white">
               <div className="grid grid-cols-2 gap-4">
                 <FormField control={editForm.control} name="animalCount" render={({ field }) => (
-                  <FormItem><FormLabel>Count</FormLabel><FormControl><Input type="number" {...field} /></FormControl></FormItem>
+                  <FormItem><Label className="text-[10px] font-black uppercase opacity-40 ml-2">Count</Label><FormControl><Input type="number" className="h-12 rounded-xl bg-neutral-50 border-none font-black" {...field} /></FormControl></FormItem>
                 )} />
                 <FormField control={editForm.control} name="totalWeight" render={({ field }) => (
-                  <FormItem><FormLabel>Weight (kg)</FormLabel><FormControl><Input type="number" step="0.1" {...field} /></FormControl></FormItem>
+                  <FormItem><Label className="text-[10px] font-black uppercase opacity-40 ml-2">Weight (kg)</Label><FormControl><Input type="number" step="0.1" className="h-12 rounded-xl bg-neutral-50 border-none font-black" {...field} /></FormControl></FormItem>
                 )} />
               </div>
               <FormField control={editForm.control} name="askingPrice" render={({ field }) => (
-                <FormItem><FormLabel>Price (₹)</FormLabel><FormControl><Input type="number" {...field} /></FormControl></FormItem>
+                <FormItem><Label className="text-[10px] font-black uppercase opacity-40 ml-2">Price (₹)</Label><FormControl><Input type="number" className="h-12 rounded-xl bg-neutral-50 border-none font-black" {...field} /></FormControl></FormItem>
               )} />
               <FormField control={editForm.control} name="notes" render={({ field }) => (
-                <FormItem><FormLabel>Notes</FormLabel><FormControl><Textarea {...field} /></FormControl></FormItem>
+                <FormItem><Label className="text-[10px] font-black uppercase opacity-40 ml-2">Notes</Label><FormControl><Textarea className="rounded-xl bg-neutral-50 border-none font-bold" {...field} /></FormControl></FormItem>
               )} />
-              <DialogFooter>
-                <Button type="submit" className="w-full">
-                  <Save className="mr-2 h-4 w-4" />
+              <DialogFooter className="pt-4 gap-4">
+                <Button type="submit" className="primary-btn w-full !bg-neutral-900 hover:!bg-black">
+                  <Save className="mr-2 h-4 w-4 text-emerald-400" />
                   Update Listing
                 </Button>
               </DialogFooter>
@@ -263,13 +263,13 @@ export default function MarketplacePage() {
 
 function EmptyState() {
   return (
-    <div className="col-span-full py-24 text-center space-y-6">
-      <div className="bg-primary/5 h-20 w-20 rounded-full flex items-center justify-center mx-auto">
+    <div className="col-span-full py-24 text-center space-y-6 bg-white/40 rounded-[3rem] border-4 border-dashed border-neutral-100">
+      <div className="bg-primary/5 h-20 w-20 rounded-full flex items-center justify-center mx-auto shadow-inner">
          <Globe className="h-10 w-10 text-primary opacity-20" />
       </div>
       <div className="space-y-2">
-        <h3 className="text-2xl font-black tracking-tight">Marketplace is quiet...</h3>
-        <p className="text-muted-foreground text-sm max-w-xs mx-auto font-medium">No community sales yet. Be the first to contribute and unlock regional analytics!</p>
+        <h3 className="text-2xl font-black tracking-tight text-neutral-900 uppercase">Marketplace is quiet...</h3>
+        <p className="text-muted-foreground text-sm max-w-xs mx-auto font-bold uppercase tracking-widest opacity-40">No community sales yet. Be the first to contribute!</p>
       </div>
     </div>
   );
