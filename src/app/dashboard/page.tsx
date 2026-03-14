@@ -13,7 +13,9 @@ import {
   Users, 
   Receipt,
   ArrowRightLeft,
-  Circle
+  Circle,
+  BarChart,
+  Globe
 } from 'lucide-react';
 
 const SheepIcon = ({ className }: { className?: string }) => (
@@ -22,31 +24,22 @@ const SheepIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const DatabaseLockIcon = ({ className }: { className?: string }) => (
-  <div className={cn("relative flex items-center justify-center", className)}>
-    <Wallet className="h-full w-full" />
-    <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5">
-      <div className="bg-[#16a34a] h-3 w-3 rounded-full flex items-center justify-center">
-        <div className="h-1 w-1 bg-white rounded-full" />
-      </div>
-    </div>
-  </div>
-);
-
 export default function DashboardPage() {
   const { userRole } = useFarm();
   const isAdmin = userRole === 'admin';
 
   const cards = [
     { title: "OVERVIEW", subtitle: "ANALYTICS", icon: LayoutGrid, href: '/dashboard/overview' },
-    { title: "MONTHLY LEDGER", subtitle: "PRIVATE ASSETS", icon: DatabaseLockIcon, href: '/dashboard/monthly-ledger', adminOnly: true },
+    { title: "INTELLIGENCE", subtitle: "AI REPORTS", icon: BarChart, href: '/dashboard/analysis' },
+    { title: "LEDGER", subtitle: "PRIVATE ASSETS", icon: Wallet, href: '/dashboard/monthly-ledger', adminOnly: true },
     { title: "LIABILITIES", subtitle: "PRIVATE ASSETS", icon: BookOpen, href: '/dashboard/balance-sheet', adminOnly: true },
     { title: "FLOCK", subtitle: "PUBLIC ASSETS", icon: SheepIcon, href: '/dashboard/livestock' },
+    { title: "TRADE", subtitle: "PUBLIC ASSETS", icon: ArrowRightLeft, href: '/dashboard/sales' },
     { title: "HEALTH", subtitle: "OPERATIONS", icon: Syringe, href: '/dashboard/medicine' },
     { title: "FEED", subtitle: "OPERATIONS", icon: Wheat, href: '/dashboard/feed' },
     { title: "LABOR", subtitle: "OPERATIONS", icon: Users, href: '/dashboard/labor' },
     { title: "EXPENSES", subtitle: "PUBLIC ASSETS", icon: Receipt, href: '/dashboard/expenses' },
-    { title: "TRADE", subtitle: "PUBLIC ASSETS", icon: ArrowRightLeft, href: '/dashboard/sales' },
+    { title: "MARKET", subtitle: "COMMUNITY", icon: Globe, href: '/dashboard/marketplace' },
   ];
 
   const CommandCard = ({ item }: { item: any }) => {
@@ -55,11 +48,11 @@ export default function DashboardPage() {
 
     return (
       <Link href={item.href} className="module-card group">
-        <div className="mb-4 p-4 bg-[#dcfce7] rounded-2xl transition-transform duration-500 group-hover:scale-110">
-          <Icon className="h-12 w-12 text-[#16a34a]" />
+        <div className="card-icon mb-4">
+          <Icon className="h-10 w-10 text-white" />
         </div>
         
-        <div className="space-y-1 text-center">
+        <div className="space-y-1 text-center px-4">
           <h3 className="text-[14px] font-black tracking-tight text-neutral-900 uppercase">
             {item.title}
           </h3>
