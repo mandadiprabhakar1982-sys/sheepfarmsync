@@ -132,6 +132,14 @@
   letter-spacing: 2px;
 }
 
+/* Sidebar Active Item */
+.active-menu {
+  background: #dcfce7 !important;
+  border-left: 4px solid #16a34a !important;
+  color: #166534 !important;
+  border-radius: 0 12px 12px 0 !important;
+}
+
 @layer utilities {
   .app-header { font-size: 24px; font-weight: 900; letter-spacing: -0.02em; text-transform: uppercase; }
   .no-scrollbar::-webkit-scrollbar { display: none; }
