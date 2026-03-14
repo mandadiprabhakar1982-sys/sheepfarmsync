@@ -10,7 +10,10 @@ import {
   Syringe,
   Receipt,
   LayoutGrid,
-  Activity
+  Activity,
+  ArrowUpRight,
+  ArrowDownRight,
+  Banknote
 } from 'lucide-react';
 import { SheepIcon } from '@/components/logo';
 import { StatCard } from '@/components/stat-card';
@@ -44,94 +47,127 @@ export default function OverviewPage() {
     )
   }
 
+  const SectionLabel = ({ label }: { label: string }) => (
+    <div className="flex items-center gap-4 my-8">
+      <div className="h-px flex-1 bg-neutral-200" />
+      <span className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground/60 whitespace-nowrap px-2">
+        {label}
+      </span>
+      <div className="h-px flex-1 bg-neutral-200" />
+    </div>
+  );
+
   return (
-    <div className="container mx-auto py-4 px-4 md:px-10 pb-32">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+    <div className="container mx-auto py-4 px-4 md:px-10 pb-32 max-w-7xl">
+      <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8">
         <PageHeader
           title={t('farm_overview')}
           description="Operational Intelligence Command"
+          className="mb-0"
         />
+        <div className="w-full md:max-w-xl">
+          <StatCard
+            title="LIVE SHEEP INVENTORY"
+            value={totalSheep.toString()}
+            icon={SheepIcon}
+            variant="neutral"
+            description="Active Flock : as of Today"
+            className="rounded-[1.5rem]"
+          />
+        </div>
       </div>
       
-      <div className="grid gap-12">
-        {/* CORE INVENTORY: Balanced Grid for Web, Stacked for Mobile */}
+      <div className="grid gap-4">
+        {/* INVENTORY & FLOCK STATUS */}
         <section>
-          <div className="flex items-center gap-3 mb-8">
-            <div className="h-px flex-1 bg-primary/10" />
-            <h2 className="text-[12px] font-bold text-primary/40 tracking-[0.4em] uppercase whitespace-nowrap px-4">
-              {t('inventory_status')}
-            </h2>
-            <div className="h-px flex-1 bg-primary/10" />
-          </div>
-          
+          <SectionLabel label="INVENTORY & FLOCK STATUS" />
           <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
             <StatCard
-                title={t('live_sheep')}
+                title="LIVE SHEEP INVENTORY"
                 value={totalSheep.toString()}
                 icon={SheepIcon}
                 variant="success"
-                description="Live Assets"
+                description="Active Flock : as of Today"
+                className="rounded-2xl"
             />
              <StatCard
-                title={t('mortalities')}
+                title="TOTAL MORTALITIES"
                 value={totalDead.toString()}
                 icon={Skull}
                 variant="destructive"
-                description="Loss Record"
+                description="Loss Record : Current Cycle"
+                className="rounded-2xl"
             />
           </div>
         </section>
 
-        {/* FINANCIAL FLOW: High-Density Column for Web */}
+        {/* FINANCIAL SUMMARY */}
         <section>
-          <div className="flex items-center gap-3 mb-8">
-            <div className="h-px flex-1 bg-primary/10" />
-            <h2 className="text-[12px] font-bold text-primary/40 tracking-[0.4em] uppercase whitespace-nowrap px-4">
-              {t('financial_summary')}
-            </h2>
-            <div className="h-px flex-1 bg-primary/10" />
-          </div>
-
+          <SectionLabel label="FINANCIAL SUMMARY" />
           <div className="grid gap-6 grid-cols-1 md:grid-cols-3">
             <StatCard 
-              title={t('receivables')} 
+              title="RECEIVABLES PENDING" 
               value={`₹${totalReceivables.toLocaleString()}`} 
               icon={TrendingUp} 
-              variant="success" 
-              description="Expected Inflow"
+              variant="info" 
+              description={totalReceivables > 0 ? "Pending collections discovered" : "Expected Inflow: No pending collections"}
+              className="rounded-2xl"
             />
             <StatCard 
-              title={t('payables')} 
+              title="PAYABLES DUE" 
               value={`₹${totalPayables.toLocaleString()}`} 
               icon={TrendingDown} 
-              variant="destructive" 
-              description="Pending Outflow"
+              variant="coral" 
+              description="Pending Outflow: Active Commitments"
+              className="rounded-2xl"
             />
             <StatCard 
-              title={t('cost')} 
+              title="TOTAL COST SUMMARY" 
               value={`₹${totalExpenses.toLocaleString()}`} 
               icon={IndianRupee} 
               variant="default" 
-              description="Total Operational Spend"
+              description="Total Operational Spend: YTD"
+              className="rounded-2xl"
             />
           </div>
         </section>
 
-        {/* OPERATIONAL DEEP-DIVE: Expanded Grid for Web */}
+        {/* OPERATIONAL BREAKDOWN */}
         <section>
-          <div className="flex items-center gap-3 mb-8">
-            <div className="h-px flex-1 bg-primary/10" />
-            <h2 className="text-[12px] font-bold text-primary/40 tracking-[0.4em] uppercase whitespace-nowrap px-4">
-              {t('operational_breakdown')}
-            </h2>
-            <div className="h-px flex-1 bg-primary/10" />
-          </div>
-          
+          <SectionLabel label="OPERATIONAL BREAKDOWN" />
           <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-            <StatCard title={t('feed_usage')} value={`₹${totalFeedCost.toLocaleString()}`} icon={Wheat} variant="info" />
-            <StatCard title={t('labor_costs')} value={`₹${totalLaborCost.toLocaleString()}`} icon={Users} variant="info" />
-            <StatCard title={t('medical')} value={`₹${totalMedicineCost.toLocaleString()}`} icon={Syringe} variant="info" />
-            <StatCard title={t('misc')} value={`₹${totalFarmExpenses.toLocaleString()}`} icon={Receipt} variant="info" />
+            <StatCard 
+              title="FEED USAGE BREAKDOWN" 
+              value={`₹${totalFeedCost.toLocaleString()}`} 
+              icon={Wheat} 
+              variant="gold" 
+              description="Inventory: Wheat & Corn"
+              className="rounded-xl"
+            />
+            <StatCard 
+              title="LABOR COST BREAKDOWN" 
+              value={`₹${totalLaborCost.toLocaleString()}`} 
+              icon={Users} 
+              variant="gold" 
+              description="Total Staff Hours"
+              className="rounded-xl"
+            />
+            <StatCard 
+              title="MEDICAL EXPENSES" 
+              value={`₹${totalMedicineCost.toLocaleString()}`} 
+              icon={Syringe} 
+              variant="gold" 
+              description="Vaccinations & Checkups"
+              className="rounded-xl"
+            />
+            <StatCard 
+              title="MISC. EXPENDITURES" 
+              value={`₹${totalFarmExpenses.toLocaleString()}`} 
+              icon={Banknote} 
+              variant="gold" 
+              description="Operational Overheads"
+              className="rounded-xl"
+            />
           </div>
         </section>
       </div>
