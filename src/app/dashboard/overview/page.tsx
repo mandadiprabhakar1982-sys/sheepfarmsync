@@ -72,7 +72,7 @@ export default function OverviewPage() {
                 className="form-card border-l-4 border-rose-600"
             />
           </div>
-        </section>
+        </section> section>
 
         <section className="space-y-6">
           <div className="flex items-center gap-4">

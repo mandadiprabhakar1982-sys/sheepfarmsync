@@ -44,7 +44,7 @@
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.06);
 }
 
-/* --- MODULE CARD ARCHITECTURE --- */
+/* --- MODULE CARD ARCHITECTURE (SYNC PRO GIF STYLE) --- */
 .module-card {
   width: 240px;
   height: 240px;
@@ -117,9 +117,9 @@
 }
 
 .form-card {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 28px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 24px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
   @apply border-none;
 }
 
@@ -134,7 +134,7 @@ input, select, textarea {
 
 /* --- TABLE UNIFICATION --- */
 .sync-table-header {
-  @apply bg-[#f1f5f0] border-none;
+  @apply bg-[#e2e8f0] border-none;
 }
 
 .sync-table-row {
@@ -143,15 +143,15 @@ input, select, textarea {
 
 /* --- TAB UNIFICATION --- */
 .tab-active {
-  background: #a3b18a !important;
+  background: #65a30d !important;
   color: white !important;
-  border-radius: 20px !important;
+  border-radius: 14px !important;
 }
 
 .tab-inactive {
-  background: transparent !important;
+  background: #e7eddc !important;
   color: #64748b !important;
-  border-radius: 20px !important;
+  border-radius: 14px !important;
 }
 
 @layer utilities {

@@ -49,6 +49,7 @@ const healthTaskFormSchema = z.object({
   nextDueDate: z.date().optional(),
   administeredBy: z.string().min(1, 'Required.'),
   notes: z.string().optional(),
+  cost: z.coerce.number().nonnegative().default(0),
 });
 
 type HealthTaskFormData = z.infer<typeof healthTaskFormSchema>;
@@ -65,7 +66,7 @@ export default function MedicinePage() {
   const healthTaskForm = useForm<HealthTaskFormData>({
     resolver: zodResolver(healthTaskFormSchema),
     defaultValues: { 
-      date: new Date(), animalGroup: 'Adult', healthType: 'Treatment', symptom: 'None', unit: 'ml', route: 'Oral', administeredBy: ''
+      date: new Date(), animalGroup: 'Adult', healthType: 'Treatment', symptom: 'None', unit: 'ml', route: 'Oral', administeredBy: '', cost: 0
     },
   });
 
@@ -97,7 +98,7 @@ export default function MedicinePage() {
           <HighFidelityHealth className="h-10 w-10 text-[#4caf50]" />
         </div>
         <div>
-          <h1 className="text-4xl font-black text-[#14532d] tracking-tight">Medicines & Health</h1>
+          <h1 className="page-title text-[#14532d]">Medicines & Health</h1>
           <p className="subtitle mt-1">SYNCHRONIZED OPERATIONAL ENVIRONMENT</p>
         </div>
       </div>
@@ -107,7 +108,7 @@ export default function MedicinePage() {
           <CardContent className="p-10 space-y-10">
             {/* Tactical Sub-Nav */}
             <div className="flex justify-start">
-              <TabsList className="bg-[#e7eddc] p-1.5 rounded-[22px] h-14 w-fit">
+              <TabsList className="bg-[#e7eddc] p-1.5 rounded-[14px] h-14 w-fit">
                 <TabsTrigger value="health" className="tab-inactive data-[state=active]:tab-active font-black text-[10px] tracking-[0.2em] px-8 h-11">
                   HEALTH TRACK
                 </TabsTrigger>
@@ -118,7 +119,7 @@ export default function MedicinePage() {
             </div>
 
             <TabsContent value="health" className="m-0 space-y-10">
-              {/* Header Context Bar */}
+              {/* Clinical Ledger Header */}
               <div className="flex items-center justify-between border-b border-neutral-100 pb-6">
                 <div className="flex items-center gap-4">
                   <h3 className="text-sm font-black text-neutral-400 uppercase tracking-widest">Treatment Ledger</h3>
@@ -131,52 +132,93 @@ export default function MedicinePage() {
                 </div>
               </div>
 
-              {/* Clinical Table */}
-              <div className="rounded-2xl border border-neutral-100 overflow-hidden shadow-sm">
-                <Table>
-                  <TableHeader className="bg-[#f8fafc]">
-                    <TableRow className="border-none">
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-5 pl-8">Date</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest">Operation</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest">Treatment Pair</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest">Outcome</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest text-right pr-8">System</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {sortedHealthTasks.length > 0 ? (
-                      sortedHealthTasks.map((t) => (
-                        <TableRow key={t.id} className="hover:bg-neutral-50/50 transition-colors border-b border-neutral-50">
-                          <TableCell className="pl-8 py-6">
-                            <span className="text-xs font-black text-neutral-900 uppercase">{t.date}</span>
-                          </TableCell>
-                          <TableCell>
-                            <span className="text-xs font-bold text-neutral-500 uppercase">{t.animalGroup}</span>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex flex-col">
-                              <span className="text-sm font-black text-neutral-900">{t.healthType}</span>
-                              <span className="text-[10px] text-neutral-400 font-bold uppercase">{t.medicineName}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Badge className="bg-emerald-50 text-emerald-700 border-none font-black text-[9px] px-3">STABLE</Badge>
-                          </TableCell>
-                          <TableCell className="text-right pr-8">
-                            <div className="flex items-center justify-end gap-3">
-                              <span className="text-xs font-mono font-bold text-neutral-400">#{t.id.slice(0, 5)}</span>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-neutral-300 hover:text-rose-500" onClick={() => handleDeleteTask(t.id, t._path)}>
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                {/* Form Section */}
+                <div className="lg:col-span-4 space-y-6">
+                  <Form {...healthTaskForm}>
+                    <form onSubmit={healthTaskForm.handleSubmit(onHealthTaskSubmit)} className="space-y-5">
+                      <div className="space-y-2">
+                        <Label className="text-[10px] font-black uppercase opacity-40 ml-2">Clinical Date</Label>
+                        <Popover open={isTaskDateOpen} onOpenChange={setIsTaskDateOpen}>
+                          <PopoverTrigger asChild>
+                            <Button variant="outline" className="w-full text-left h-14 bg-[#f8fafc] border-[#d9e4cf] rounded-[14px] font-bold">
+                              {healthTaskForm.watch('date') ? format(healthTaskForm.watch('date'), "PPP") : "Pick date"}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-20" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0 border-none shadow-2xl">
+                            <Calendar mode="single" selected={healthTaskForm.watch('date')} onSelect={(d) => { healthTaskForm.setValue('date', d!); setIsTaskDateOpen(false); }} initialFocus />
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-[10px] font-black uppercase opacity-40 ml-2">Target Asset</Label>
+                        <Select onValueChange={(v) => healthTaskForm.setValue('sheepId', v)}>
+                          <SelectTrigger className="h-14"><SelectValue placeholder="Select tag" /></SelectTrigger>
+                          <SelectContent className="rounded-xl border-none shadow-2xl">
+                            {trackedSheep?.map(s => <SelectItem key={s.id} value={s.tagId}>{s.tagId}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-[10px] font-black uppercase opacity-40 ml-2">Clinical Agent</Label>
+                        <Input placeholder="Medicine Name" className="h-14 font-bold" {...healthTaskForm.register('medicineName')} />
+                      </div>
+
+                      <Button type="submit" className="primary-btn w-full !bg-[#14b8a6] hover:!bg-[#0d9488]">
+                        <Plus className="mr-2 h-4 w-4" /> Record Clinical Event
+                      </Button>
+                    </form>
+                  </Form>
+                </div>
+
+                {/* Table Section */}
+                <div className="lg:col-span-8">
+                  <div className="rounded-2xl border border-neutral-100 overflow-hidden shadow-sm">
+                    <Table>
+                      <TableHeader className="bg-[#e2e8f0]">
+                        <TableRow className="border-none">
+                          <TableHead className="text-[10px] font-black uppercase tracking-widest py-5 pl-8">Date</TableHead>
+                          <TableHead className="text-[10px] font-black uppercase tracking-widest">Asset</TableHead>
+                          <TableHead className="text-[10px] font-black uppercase tracking-widest">Treatment Pair</TableHead>
+                          <TableHead className="text-[10px] font-black uppercase tracking-widest text-right pr-8">System</TableHead>
                         </TableRow>
-                      ))
-                    ) : (
-                      <TableRow><TableCell colSpan={5} className="text-center py-20 opacity-20 italic font-black uppercase text-[10px]">No records discovered</TableCell></TableRow>
-                    )}
-                  </TableBody>
-                </Table>
+                      </TableHeader>
+                      <TableBody>
+                        {sortedHealthTasks.length > 0 ? (
+                          sortedHealthTasks.map((t) => (
+                            <TableRow key={t.id} className="hover:bg-neutral-50/50 transition-colors border-b border-neutral-50">
+                              <TableCell className="pl-8 py-6">
+                                <span className="text-xs font-black text-neutral-900 uppercase">{t.date}</span>
+                              </TableCell>
+                              <TableCell>
+                                <Badge className="bg-emerald-50 text-emerald-700 border-none font-black text-[9px] px-3">{t.sheepId}</Badge>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex flex-col">
+                                  <span className="text-sm font-black text-neutral-900">{t.healthType}</span>
+                                  <span className="text-[10px] text-neutral-400 font-bold uppercase">{t.medicineName}</span>
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-right pr-8">
+                                <div className="flex items-center justify-end gap-3">
+                                  <span className="text-xs font-mono font-bold text-neutral-400">#{t.id.slice(0, 5)}</span>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 text-neutral-300 hover:text-rose-500" onClick={() => handleDeleteTask(t.id, t._path)}>
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        ) : (
+                          <TableRow><TableCell colSpan={4} className="text-center py-20 opacity-20 italic font-black uppercase text-[10px]">No records discovered</TableCell></TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
               </div>
 
               {/* Foot Stats Grid */}
@@ -186,8 +228,8 @@ export default function MedicinePage() {
                     <Scale className="h-6 w-6" />
                   </div>
                   <div>
-                    <p className="text-2xl font-black tracking-tight text-[#14532d]">2,410 kg</p>
-                    <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Total Mass</p>
+                    <p className="text-2xl font-black tracking-tight text-[#14532d]">Clinical Mass</p>
+                    <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Control Metrics</p>
                   </div>
                 </div>
                 <div className="bg-white border border-neutral-100 p-6 rounded-[22px] flex items-center gap-6 shadow-sm hover:shadow-md transition-shadow">

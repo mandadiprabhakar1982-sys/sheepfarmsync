@@ -178,11 +178,13 @@ export default function MonthlyLedgerPage() {
       </div>
 
       <Tabs defaultValue="all" className="w-full" onValueChange={setActiveTab}>
-        <TabsList className="mb-10 p-1 bg-[#e7eddc] rounded-2xl flex justify-start items-center h-16 w-fit shadow-inner">
-          <TabsTrigger value="all" className="tab-inactive data-[state=active]:tab-active h-14 px-8 font-black text-[10px] tracking-widest uppercase">Overview Stream</TabsTrigger>
-          <TabsTrigger value="income" className="tab-inactive data-[state=active]:tab-active h-14 px-8 font-black text-[10px] tracking-widest uppercase">Inflow Ledger</TabsTrigger>
-          <TabsTrigger value="expense" className="tab-inactive data-[state=active]:tab-active h-14 px-8 font-black text-[10px] tracking-widest uppercase">Outflow Ledger</TabsTrigger>
-        </TabsList>
+        <div className="flex justify-center mb-10">
+          <TabsList className="p-1 bg-[#e7eddc] rounded-[14px] flex justify-start items-center h-16 w-fit shadow-inner">
+            <TabsTrigger value="all" className="tab-inactive data-[state=active]:tab-active h-14 px-8 font-black text-[10px] tracking-widest uppercase">Overview Stream</TabsTrigger>
+            <TabsTrigger value="income" className="tab-inactive data-[state=active]:tab-active h-14 px-8 font-black text-[10px] tracking-widest uppercase">Inflow Ledger</TabsTrigger>
+            <TabsTrigger value="expense" className="tab-inactive data-[state=active]:tab-active h-14 px-8 font-black text-[10px] tracking-widest uppercase">Outflow Ledger</TabsTrigger>
+          </TabsList>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           {/* --- ENTRY FORM --- */}
@@ -248,7 +250,7 @@ export default function MonthlyLedgerPage() {
                   </div>
                 )}
 
-                <Button onClick={handleAdd} className="primary-btn w-full !bg-[#15803d] flex items-center justify-center gap-3">
+                <Button onClick={handleAdd} className="primary-btn w-full !bg-[#15803d] flex items-center justify-center gap-3 hover:!bg-[#166534]">
                   <PlusCircle className="h-5 w-5" />
                   Commit Ledger Payload
                 </Button>

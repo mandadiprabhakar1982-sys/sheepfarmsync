@@ -102,10 +102,12 @@ export default function FeedPage() {
       </div>
 
       <Tabs defaultValue="entry" className="w-full">
-        <TabsList className="mb-10 p-1 bg-slate-200/50 rounded-2xl flex justify-start items-center h-16 w-fit shadow-inner">
-          <TabsTrigger value="entry" className="tab-inactive data-[state=active]:tab-active h-14 px-10">Record Entry</TabsTrigger>
-          <TabsTrigger value="history" className="tab-inactive data-[state=active]:tab-active h-14 px-10">Purchase Ledger</TabsTrigger>
-        </TabsList>
+        <div className="flex justify-center mb-10">
+          <TabsList className="p-1 bg-[#e7eddc] rounded-[14px] flex justify-start items-center h-16 w-fit shadow-inner">
+            <TabsTrigger value="entry" className="tab-inactive data-[state=active]:tab-active h-14 px-10">Record Entry</TabsTrigger>
+            <TabsTrigger value="history" className="tab-inactive data-[state=active]:tab-active h-14 px-10">Purchase Ledger</TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="entry" className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           <div className="lg:col-span-4">
@@ -117,7 +119,7 @@ export default function FeedPage() {
                       <Label className="subtitle !text-[10px] ml-2 mb-2">Transaction Date</Label>
                       <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
                         <PopoverTrigger asChild>
-                          <Button variant="outline" className="w-full text-left flex justify-between items-center h-14 bg-[#f8fafc] border-slate-200 font-bold">
+                          <Button variant="outline" className="w-full text-left flex justify-between items-center h-14 bg-[#f8fafc] border-[#d9e4cf] font-bold rounded-[14px]">
                             {field.value ? format(field.value, 'MMMM dd, yyyy') : "Select Date"}
                             <CalendarIcon className="h-5 w-5 opacity-20" />
                           </Button>
@@ -134,7 +136,7 @@ export default function FeedPage() {
                       <FormItem>
                         <Label className="subtitle !text-[10px] ml-2 mb-2">Category</Label>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl><SelectTrigger className="h-14 bg-[#f8fafc] border-slate-200 font-bold"><SelectValue /></SelectTrigger></FormControl>
+                          <FormControl><SelectTrigger className="h-14 bg-[#f8fafc] border-[#d9e4cf] font-bold"><SelectValue /></SelectTrigger></FormControl>
                           <SelectContent className="rounded-2xl border-none shadow-2xl">{feedTypes.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
                         </Select>
                       </FormItem>
@@ -154,15 +156,9 @@ export default function FeedPage() {
                         <FormControl><Input type="number" step="0.01" className="h-14 font-black text-emerald-700" {...field} /></FormControl>
                       </FormItem>
                     )} />
-                    <FormField control={form.control} name="bags" render={({ field }) => (
-                      <FormItem>
-                        <Label className="subtitle !text-[10px] ml-2 mb-2">Units (Bags)</Label>
-                        <FormControl><Input type="number" className="h-14" placeholder="0" {...field} /></FormControl>
-                      </FormItem>
-                    )} />
                   </div>
 
-                  <Button type="submit" className="primary-btn w-full !bg-[#84cc16]">Record Entry</Button>
+                  <Button type="submit" className="primary-btn w-full !bg-[#84cc16] hover:!bg-[#65a30d]">Record Entry</Button>
                 </form>
               </Form>
             </Card>
@@ -170,7 +166,7 @@ export default function FeedPage() {
           <div className="lg:col-span-8">
             <Card className="form-card p-0 overflow-hidden">
               <Table>
-                <TableHeader className="sync-table-header">
+                <TableHeader className="bg-[#e2e8f0]">
                   <TableRow>
                     <TableHead className="subtitle !text-[10px] py-6 pl-10">Date</TableHead>
                     <TableHead className="subtitle !text-[10px] py-6">Type</TableHead>
@@ -201,7 +197,7 @@ export default function FeedPage() {
         <TabsContent value="history">
            <Card className="form-card p-0 overflow-hidden">
               <Table>
-                <TableHeader className="sync-table-header">
+                <TableHeader className="bg-[#e2e8f0]">
                   <TableRow>
                     <TableHead className="subtitle !text-[10px] py-6 pl-10">Temporal Node</TableHead>
                     <TableHead className="subtitle !text-[10px] py-6">Category</TableHead>
