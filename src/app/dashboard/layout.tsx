@@ -30,13 +30,11 @@ export default function DashboardLayout({
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-white overflow-hidden font-sans">
-        <div className="dashboard-bg" />
-        
         <AppSidebar />
 
         <SidebarInset className="flex flex-col relative bg-transparent z-10">
           {/* Header Bar */}
-          <header className="flex h-16 items-center justify-between gap-4 border-b border-neutral-200/50 px-8 bg-white/50 backdrop-blur-sm">
+          <header className="top-header flex items-center justify-between gap-4 px-8 sticky top-0 z-50">
             <div className="flex items-center gap-8">
               <Logo className="md:hidden" />
               <div className="hidden md:flex items-center gap-3 text-neutral-400">
