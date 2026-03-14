@@ -29,10 +29,10 @@ export default function DashboardPage() {
 
   const cards = [
     { title: "OVERVIEW", subtitle: "ANALYTICS", icon: LayoutGrid, href: '/dashboard/overview' },
+    { title: "FLOCK", subtitle: "PUBLIC PROJECT ASSETS", icon: SheepRamIcon, href: '/dashboard/livestock' },
     { title: "INTELLIGENCE", subtitle: "AI REPORTS", icon: BarChart, href: '/dashboard/analysis' },
     { title: "LEDGER", subtitle: "PRIVATE PROJECT ASSETS", icon: Wallet, href: '/dashboard/monthly-ledger', adminOnly: true },
     { title: "LIABILITIES", subtitle: "PRIVATE PROJECT ASSETS", icon: BookOpen, href: '/dashboard/balance-sheet', adminOnly: true },
-    { title: "FLOCK", subtitle: "PUBLIC PROJECT ASSETS", icon: SheepRamIcon, href: '/dashboard/livestock' },
     { title: "TRADE", subtitle: "PUBLIC PROJECT ASSETS", icon: ArrowRightLeft, href: '/dashboard/sales' },
     { title: "HEALTH", subtitle: "OPERATIONS", icon: Syringe, href: '/dashboard/medicine' },
     { title: "FEED", subtitle: "OPERATIONS", icon: Wheat, href: '/dashboard/feed' },

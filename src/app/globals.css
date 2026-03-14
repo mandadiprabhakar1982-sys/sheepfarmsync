@@ -42,7 +42,7 @@
   }
   body {
     background: #f4f9f1;
-    color: hsl(var(--foreground));
+    color: #14532d;
     font-family: 'Inter', sans-serif;
     margin: 0;
     min-height: 100vh;
