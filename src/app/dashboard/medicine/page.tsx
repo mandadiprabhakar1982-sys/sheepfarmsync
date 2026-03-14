@@ -1,15 +1,19 @@
 'use client';
 
+import { useState, useMemo } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { 
   Calendar as CalendarIcon, 
   Trash2,
-  Syringe
+  Syringe,
+  Scale,
+  IndianRupee,
+  Activity,
+  Plus
 } from 'lucide-react';
 import { format, addMonths } from 'date-fns';
-import { useState, useMemo } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
@@ -24,7 +28,7 @@ import { useFarm } from '@/context/FarmContext';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
-import { PageHeader } from '@/components/page-header';
+import { HighFidelityHealth } from '@/components/logo';
 
 const animalGroups = ['Lamb', 'Adult', 'Pregnant', 'Ram'] as const;
 const healthTypes = ['Vaccination', 'Deworming', 'Supplement', 'Treatment'] as const;
@@ -86,121 +90,129 @@ export default function MedicinePage() {
   };
 
   return (
-    <div className="container mx-auto animate-in fade-in duration-700">
-      <div className="flex justify-between items-start mb-10">
-        <PageHeader
-          title="Health & Medicine"
-          description="Clinical Audit & Medical Records"
-        />
-        <div className="bg-white/90 p-6 rounded-2xl shadow-xl flex flex-col items-center justify-center min-w-[180px] border-t-4 border-[#14b8a6]">
-          <p className="subtitle !text-[10px] mb-1">Total Procurement</p>
-          <p className="text-3xl font-black text-[#14b8a6]">₹{totalMedicineCost.toLocaleString()}</p>
+    <div className="container mx-auto max-w-6xl animate-in fade-in duration-700">
+      {/* Module Header */}
+      <div className="flex items-center gap-6 mb-10">
+        <div className="h-20 w-20 rounded-[24px] bg-[#14532d] flex items-center justify-center shadow-xl">
+          <HighFidelityHealth className="h-10 w-10 text-[#4caf50]" />
+        </div>
+        <div>
+          <h1 className="text-4xl font-black text-[#14532d] tracking-tight">Medicines & Health</h1>
+          <p className="subtitle mt-1">SYNCHRONIZED OPERATIONAL ENVIRONMENT</p>
         </div>
       </div>
 
-      <Tabs defaultValue="health" className="w-full">
-        <TabsList className="mb-10 p-1 bg-slate-200/50 rounded-2xl flex justify-start items-center h-16 w-fit shadow-inner">
-          <TabsTrigger value="health" className="tab-inactive data-[state=active]:tab-active h-14 px-10">Treatment Track</TabsTrigger>
-          <TabsTrigger value="cost" className="tab-inactive data-[state=active]:tab-active h-14 px-10">Procurement Ledger</TabsTrigger>
-        </TabsList>
+      <Card className="form-card overflow-hidden">
+        <Tabs defaultValue="health" className="w-full">
+          <CardContent className="p-10 space-y-10">
+            {/* Tactical Sub-Nav */}
+            <div className="flex justify-start">
+              <TabsList className="bg-[#e7eddc] p-1.5 rounded-[22px] h-14 w-fit">
+                <TabsTrigger value="health" className="tab-inactive data-[state=active]:tab-active font-black text-[10px] tracking-[0.2em] px-8 h-11">
+                  HEALTH TRACK
+                </TabsTrigger>
+                <TabsTrigger value="cost" className="tab-inactive data-[state=active]:tab-active font-black text-[10px] tracking-[0.2em] px-8 h-11">
+                  COST TRACK
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
-        <TabsContent value="health" className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-          <div className="lg:col-span-4">
-            <Card className="form-card p-10 border-t-4 border-[#14b8a6]">
-              <Form {...healthTaskForm}>
-                <form onSubmit={healthTaskForm.handleSubmit(onHealthTaskSubmit)} className="space-y-6">
-                  <div className="grid grid-cols-1 gap-4">
-                    <FormField control={healthTaskForm.control} name="date" render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <Label className="subtitle !text-[10px] ml-2 mb-2">Date</Label>
-                        <Popover open={isTaskDateOpen} onOpenChange={setIsTaskDateOpen}>
-                          <PopoverTrigger asChild>
-                            <Button variant="outline" className="h-14 bg-[#f8fafc] border-slate-200 font-bold text-left px-4">
-                              {field.value ? format(field.value, "MMM dd, yy") : "Select"}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-20" />
-                            </Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0 border-none shadow-2xl" align="start"><Calendar mode="single" selected={field.value} onSelect={(d) => { field.onChange(d); setIsTaskDateOpen(false); }} initialFocus /></PopoverContent>
-                        </Popover>
-                      </FormItem>
-                    )} />
-                    <FormField control={healthTaskForm.control} name="sheepId" render={({ field }) => (
-                      <FormItem>
-                        <Label className="subtitle !text-[10px] ml-2 mb-2">Sheep ID</Label>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl><SelectTrigger className="h-14 bg-[#f8fafc] border-slate-200 font-bold"><SelectValue placeholder="Select Asset" /></SelectTrigger></FormControl>
-                          <SelectContent className="rounded-xl">{trackedSheep?.map(s => <SelectItem key={s.id} value={s.tagId}>{s.tagId}</SelectItem>)}</SelectContent>
-                        </Select>
-                      </FormItem>
-                    )} />
-                  </div>
+            <TabsContent value="health" className="m-0 space-y-10">
+              {/* Header Context Bar */}
+              <div className="flex items-center justify-between border-b border-neutral-100 pb-6">
+                <div className="flex items-center gap-4">
+                  <h3 className="text-sm font-black text-neutral-400 uppercase tracking-widest">Treatment Ledger</h3>
+                  <span className="text-neutral-200">|</span>
+                  <span className="text-xs font-bold text-neutral-900">SHEEP (CONTROL)</span>
+                </div>
+                <div className="bg-neutral-50 px-4 py-2 rounded-xl border border-neutral-100">
+                  <span className="text-[10px] font-black text-neutral-400 mr-2">LOGGED ASSETS:</span>
+                  <span className="text-sm font-black text-[#14532d]">{trackedSheep?.length || 0}</span>
+                </div>
+              </div>
 
-                  <div className="grid grid-cols-1 gap-4">
-                    <FormField control={healthTaskForm.control} name="healthType" render={({ field }) => (
-                      <FormItem>
-                        <Label className="subtitle !text-[10px] ml-2 mb-2">Treatment Type</Label>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl><SelectTrigger className="h-14"><SelectValue /></SelectTrigger></FormControl>
-                          <SelectContent>{healthTypes.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
-                        </Select>
-                      </FormItem>
-                    )} />
-                    <FormField control={healthTaskForm.control} name="administeredBy" render={({ field }) => (
-                      <FormItem>
-                        <Label className="subtitle !text-[10px] ml-2 mb-2">Administered By</Label>
-                        <FormControl><Input className="h-14" placeholder="Identity" {...field} /></FormControl>
-                      </FormItem>
-                    )} />
-                  </div>
-
-                  <FormField control={healthTaskForm.control} name="medicineName" render={({ field }) => (
-                    <FormItem>
-                      <Label className="subtitle !text-[10px] ml-2 mb-2">Medicine Name</Label>
-                      <FormControl><Input className="h-14" placeholder="e.g. Albendazole" {...field} /></FormControl>
-                    </FormItem>
-                  )} />
-
-                  <Button type="submit" className="primary-btn w-full !bg-[#14b8a6]">Commit Record</Button>
-                </form>
-              </Form>
-            </Card>
-          </div>
-          <div className="lg:col-span-8">
-            <Card className="form-card p-0 overflow-hidden">
-              <Table>
-                <TableHeader className="sync-table-header">
-                  <TableRow>
-                    <TableHead className="subtitle !text-[10px] py-6 pl-10">Date</TableHead>
-                    <TableHead className="subtitle !text-[10px] py-6">Asset</TableHead>
-                    <TableHead className="subtitle !text-[10px] py-6">Treatment</TableHead>
-                    <TableHead className="subtitle !text-[10px] py-6 text-right pr-10">Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {sortedHealthTasks.map(t => (
-                    <TableRow key={t.id} className="sync-table-row">
-                      <TableCell className="pl-10 py-6 text-xs font-bold text-slate-500">{t.date}</TableCell>
-                      <TableCell><span className="text-sm font-black text-slate-900">{t.sheepId}</span></TableCell>
-                      <TableCell>
-                        <div className="flex flex-col">
-                          <span className="text-sm font-black text-slate-900 uppercase">{t.healthType}</span>
-                          <span className="text-[10px] text-slate-400">{t.medicineName}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right pr-10">
-                        <div className="flex items-center justify-end gap-3">
-                          <Badge variant="secondary" className="bg-teal-50 text-teal-700 border-none font-bold">LOGGED</Badge>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-rose-500" onClick={() => handleDeleteTask(t.id, t._path)}><Trash2 className="h-4 w-4" /></Button>
-                        </div>
-                      </TableCell>
+              {/* Clinical Table */}
+              <div className="rounded-2xl border border-neutral-100 overflow-hidden shadow-sm">
+                <Table>
+                  <TableHeader className="bg-[#f8fafc]">
+                    <TableRow className="border-none">
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-5 pl-8">Date</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest">Operation</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest">Treatment Pair</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest">Outcome</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest text-right pr-8">System</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Card>
-          </div>
-        </TabsContent>
-      </Tabs>
+                  </TableHeader>
+                  <TableBody>
+                    {sortedHealthTasks.length > 0 ? (
+                      sortedHealthTasks.map((t) => (
+                        <TableRow key={t.id} className="hover:bg-neutral-50/50 transition-colors border-b border-neutral-50">
+                          <TableCell className="pl-8 py-6">
+                            <span className="text-xs font-black text-neutral-900 uppercase">{t.date}</span>
+                          </TableCell>
+                          <TableCell>
+                            <span className="text-xs font-bold text-neutral-500 uppercase">{t.animalGroup}</span>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex flex-col">
+                              <span className="text-sm font-black text-neutral-900">{t.healthType}</span>
+                              <span className="text-[10px] text-neutral-400 font-bold uppercase">{t.medicineName}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className="bg-emerald-50 text-emerald-700 border-none font-black text-[9px] px-3">STABLE</Badge>
+                          </TableCell>
+                          <TableCell className="text-right pr-8">
+                            <div className="flex items-center justify-end gap-3">
+                              <span className="text-xs font-mono font-bold text-neutral-400">#{t.id.slice(0, 5)}</span>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-neutral-300 hover:text-rose-500" onClick={() => handleDeleteTask(t.id, t._path)}>
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow><TableCell colSpan={5} className="text-center py-20 opacity-20 italic font-black uppercase text-[10px]">No records discovered</TableCell></TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Foot Stats Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
+                <div className="bg-white border border-neutral-100 p-6 rounded-[22px] flex items-center gap-6 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="h-12 w-12 rounded-xl bg-[#f1f5f0] flex items-center justify-center text-[#14532d]">
+                    <Scale className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-black tracking-tight text-[#14532d]">2,410 kg</p>
+                    <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Total Mass</p>
+                  </div>
+                </div>
+                <div className="bg-white border border-neutral-100 p-6 rounded-[22px] flex items-center gap-6 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="h-12 w-12 rounded-xl bg-[#f1f5f0] flex items-center justify-center text-[#14532d]">
+                    <IndianRupee className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-black tracking-tight text-[#14532d]">₹{totalMedicineCost.toLocaleString()}</p>
+                    <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Total Spend</p>
+                  </div>
+                </div>
+                <div className="bg-white border border-neutral-100 p-6 rounded-[22px] flex items-center gap-6 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="h-12 w-12 rounded-xl bg-[#f1f5f0] flex items-center justify-center text-[#14532d]">
+                    <Activity className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-black tracking-tight text-[#14532d]">{sortedHealthTasks.length}</p>
+                    <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Event Density</p>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+          </CardContent>
+        </Tabs>
+      </Card>
     </div>
   );
 }
