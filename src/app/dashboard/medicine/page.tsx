@@ -18,7 +18,8 @@ import {
   Store,
   FileText,
   Save,
-  Stethoscope
+  Stethoscope,
+  TrendingDown
 } from 'lucide-react';
 import { format, addMonths, differenceInDays, endOfDay, startOfDay } from 'date-fns';
 import { useState, useEffect, useMemo } from 'react';
@@ -39,6 +40,7 @@ import { useFarm } from '@/context/FarmContext';
 import type { HealthTask, MedicineExpense } from '@/lib/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
 
 const animalGroups = ['Lamb', 'Adult', 'Pregnant', 'Ram'] as const;
 const healthTypes = ['Vaccination', 'Deworming', 'Supplement', 'Treatment'] as const;
@@ -123,6 +125,9 @@ export default function MedicinePage() {
     return [...healthTasks].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [healthTasks]);
 
+  const totalProcurement = useMemo(() => sortedMedicineExpenses.reduce((s, e) => s + e.totalAmountSpent, 0), [sortedMedicineExpenses]);
+  const totalOutstanding = useMemo(() => sortedMedicineExpenses.reduce((s, e) => s + (e.outstandingDues || 0), 0), [sortedMedicineExpenses]);
+
   useEffect(() => {
     if (editingHealthTask) {
       editHealthTaskForm.reset({
@@ -201,11 +206,20 @@ export default function MedicinePage() {
           description="High-precision flock wellness and clinical audit suite."
           className="mb-0"
         />
-        <div className="flex items-center gap-4 px-6 py-3 bg-neutral-900 rounded-2xl text-white shadow-xl">
-          <ShieldCheck className="h-5 w-5 text-emerald-400" />
-          <div>
-            <p className="text-xs font-black uppercase tracking-widest opacity-40 leading-none">Clinical Protocol</p>
-            <p className="text-xl font-black tracking-tight text-white">Active Audit</p>
+        <div className="flex flex-wrap gap-4 justify-end">
+          <div className="px-5 py-2.5 bg-neutral-900 rounded-xl text-white flex items-center gap-4 shadow-xl">
+            <TrendingUp className="h-4 w-4 text-emerald-400" />
+            <div>
+              <p className="text-[7px] font-black uppercase tracking-widest opacity-40 leading-none">Total Procurement</p>
+              <p className="text-lg font-black tracking-tight">₹{totalProcurement.toLocaleString()}</p>
+            </div>
+          </div>
+          <div className="px-5 py-2.5 bg-neutral-900 rounded-xl text-white flex items-center gap-4 shadow-xl">
+            <TrendingDown className="h-4 w-4 text-rose-400" />
+            <div>
+              <p className="text-[7px] font-black uppercase tracking-widest opacity-40 leading-none">Total Outstanding</p>
+              <p className="text-lg font-black tracking-tight">₹{totalOutstanding.toLocaleString()}</p>
+            </div>
           </div>
         </div>
       </div>
@@ -442,7 +456,7 @@ export default function MedicinePage() {
                     </div>
                     <div>
                       <p className="text-xs font-black uppercase tracking-[0.2em] text-white/40 mb-1">Total Procurement</p>
-                      <p className="text-[22px] font-black tracking-tighter">₹{sortedMedicineExpenses.reduce((s, e) => s + e.totalAmountSpent, 0).toLocaleString()}</p>
+                      <p className="text-[22px] font-black tracking-tighter">₹{totalProcurement.toLocaleString()}</p>
                     </div>
                   </div>
                   
@@ -452,7 +466,7 @@ export default function MedicinePage() {
                     </div>
                     <div>
                       <p className="text-xs font-black uppercase tracking-[0.2em] text-rose-400 mb-1">Total Outstanding</p>
-                      <p className="text-[22px] font-black tracking-tighter text-rose-400">₹{sortedMedicineExpenses.reduce((s, e) => s + (e.outstandingDues || 0), 0).toLocaleString()}</p>
+                      <p className="text-[22px] font-black tracking-tighter text-rose-400">₹{totalOutstanding.toLocaleString()}</p>
                     </div>
                   </div>
 
