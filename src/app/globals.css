@@ -5,43 +5,47 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 160 84% 10%;
+    --foreground: 144 61% 10%;
     
     --card: 0 0% 100%;
-    --card-foreground: 160 84% 10%;
+    --card-foreground: 144 61% 10%;
     
     --popover: 0 0% 100%;
-    --popover-foreground: 160 84% 10%;
+    --popover-foreground: 144 61% 10%;
     
-    --primary: 160 84% 15%;
-    --primary-foreground: 210 40% 98%;
+    /* Main Green #16a34a */
+    --primary: 142 76% 36%;
+    --primary-foreground: 140 71% 98%;
     
-    --secondary: 160 20% 96%;
-    --secondary-foreground: 160 84% 15%;
+    /* Light Green #dcfce7 */
+    --secondary: 140 71% 93%;
+    --secondary-foreground: 144 61% 20%;
     
-    --muted: 160 10% 94%;
-    --muted-foreground: 160 10% 40%;
+    --muted: 140 20% 96%;
+    --muted-foreground: 144 10% 40%;
     
-    --accent: 45 93% 47%;
-    --accent-foreground: 160 84% 15%;
+    /* Accent Green #4caf50 */
+    --accent: 122 39% 49%;
+    --accent-foreground: 144 61% 10%;
     
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
     
-    --border: 160 20% 90%;
-    --input: 160 20% 90%;
-    --ring: 160 84% 15%;
+    /* Border Green #4caf50 */
+    --border: 122 39% 49%;
+    --input: 122 39% 49%;
+    --ring: 142 76% 36%;
     
     --radius: 1.5rem;
 
-    --sidebar-background: 160 25% 97%;
-    --sidebar-foreground: 160 84% 10%;
-    --sidebar-primary: 160 84% 15%;
+    --sidebar-background: 140 71% 97%;
+    --sidebar-foreground: 144 61% 10%;
+    --sidebar-primary: 142 76% 36%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 0 0% 100%;
-    --sidebar-accent-foreground: 160 84% 15%;
-    --sidebar-border: 160 20% 92%;
-    --sidebar-ring: 160 84% 15%;
+    --sidebar-accent-foreground: 142 76% 36%;
+    --sidebar-border: 122 39% 92%;
+    --sidebar-ring: 142 76% 36%;
   }
 }
 
@@ -57,36 +61,25 @@
   }
 }
 
-.dashboard-bg {
-  background-image: url('https://picsum.photos/seed/farm-landscape/1920/1080');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  opacity: 0.25;
-}
-
 .glass-panel {
   background: rgba(255, 255, 255, 0.4);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  box-shadow: 0 8px 32px 0 rgba(22, 163, 74, 0.05);
 }
 
 .glass-card {
   background: rgba(255, 255, 255, 0.95);
-  border: 1.5px solid rgba(46, 125, 50, 0.15);
+  border: 1px solid rgba(76, 175, 80, 0.2);
   box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.02);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glass-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 24px 0 rgba(46, 125, 50, 0.08);
-  border-color: rgba(46, 125, 50, 0.3);
+  box-shadow: 0 12px 24px 0 rgba(22, 163, 74, 0.08);
+  border-color: rgba(22, 163, 74, 0.4);
 }
 
 @layer utilities {

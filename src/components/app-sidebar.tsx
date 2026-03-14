@@ -16,10 +16,7 @@ import {
   Users,
   Receipt,
   Syringe,
-  Wheat,
-  Calculator,
-  Search,
-  Settings
+  Wheat
 } from 'lucide-react';
 
 import {
@@ -80,7 +77,7 @@ export function AppSidebar() {
   ], []); 
 
   return (
-    <Sidebar collapsible="none" className="border-r border-neutral-200/50 bg-[#f4f7f5]/80 backdrop-blur-xl">
+    <Sidebar collapsible="none" className="border-r border-[#4caf50]/20 bg-[#dcfce7]/40 backdrop-blur-xl">
       <SidebarHeader className="h-20 flex items-center px-6">
         <Logo className="scale-100" />
       </SidebarHeader>
@@ -91,7 +88,7 @@ export function AppSidebar() {
 
           return (
             <SidebarGroup key={gIdx} className="mb-6">
-              <SidebarGroupLabel className="text-[10px] font-black uppercase tracking-[0.1em] text-neutral-500/70 mb-3 px-2">
+              <SidebarGroupLabel className="text-[10px] font-black uppercase tracking-[0.1em] text-[#14532d]/60 mb-3 px-2">
                 {group.label}
               </SidebarGroupLabel>
               <SidebarGroupContent>
@@ -106,12 +103,12 @@ export function AppSidebar() {
                           className={cn(
                             "transition-all duration-300 h-11 px-3 rounded-xl",
                             isActive 
-                              ? "bg-white text-[#2e7d32] font-black shadow-sm" 
-                              : "text-neutral-500 hover:bg-white/50 hover:text-neutral-900"
+                              ? "bg-white text-[#16a34a] font-black shadow-sm" 
+                              : "text-neutral-500 hover:bg-white/50 hover:text-[#16a34a]"
                           )}
                         >
                           <Link href={link.href} className="flex items-center w-full">
-                            <link.icon className={cn("shrink-0 h-4 w-4", isActive ? "text-[#2e7d32]" : "opacity-60")} />
+                            <link.icon className={cn("shrink-0 h-4 w-4", isActive ? "text-[#16a34a]" : "opacity-60")} />
                             <span className="ml-3 text-[13px] font-bold tracking-tight">{link.label}</span>
                             {isActive && <ChevronRight className="ml-auto h-3.5 w-3.5 text-neutral-300" />}
                           </Link>
@@ -126,14 +123,14 @@ export function AppSidebar() {
         })}
       </SidebarContent>
 
-      <SidebarFooter className="p-6 border-t border-neutral-200/50">
+      <SidebarFooter className="p-6 border-t border-[#4caf50]/20">
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-[#1a4d38] flex items-center justify-center text-white text-[12px] font-black shadow-lg">
+          <div className="h-10 w-10 rounded-full bg-[#14532d] flex items-center justify-center text-white text-[12px] font-black shadow-lg">
             N
           </div>
           <div className="flex flex-col">
-            <p className="text-[11px] font-black uppercase tracking-widest text-neutral-900 leading-none">SYNC PRO</p>
-            <p className="text-[9px] font-bold text-neutral-400 mt-1 uppercase tracking-tighter">Example 1990</p>
+            <p className="text-[11px] font-black uppercase tracking-widest text-[#14532d] leading-none">SYNC PRO</p>
+            <p className="text-[9px] font-bold text-[#4caf50] mt-1 uppercase tracking-tighter">Energies v4.2</p>
           </div>
         </div>
       </SidebarFooter>
