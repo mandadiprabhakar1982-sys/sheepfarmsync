@@ -20,7 +20,8 @@ import {
   Wallet,
   ShieldAlert,
   ArrowRightLeft,
-  Globe
+  Globe,
+  Monitor
 } from 'lucide-react';
 
 import {
@@ -76,16 +77,6 @@ export function AppSidebar() {
       label: "OPERATIONS & STAFF",
       links: [
         { href: '/dashboard/labor', label: "Labor", icon: Users },
-        { href: '/dashboard/medicine', label: "Health", icon: Syringe },
-        { href: '/dashboard/feed', label: "Feed", icon: Wheat },
-      ]
-    },
-    {
-      label: "ECOSYSTEM",
-      links: [
-        { href: '/dashboard/feed-calculator', label: "Calculator", icon: Calculator },
-        { href: '/dashboard/marketplace', label: "Marketplace", icon: Globe },
-        { href: '/dashboard/help', label: "Install", icon: Smartphone },
       ]
     }
   ], []); 
@@ -138,7 +129,7 @@ export function AppSidebar() {
       </SidebarContent>
       <SidebarFooter className="border-t border-white/40 p-6 opacity-40">
         <div className="flex flex-col items-center gap-1">
-          <p className="text-[9px] font-black uppercase tracking-[0.4em] text-neutral-900">Sync Pro</p>
+          <Logo showManager={false} className="scale-75 opacity-50" />
           <p className="text-[7px] font-bold text-neutral-500 uppercase tracking-widest">Enterprise v2.8</p>
         </div>
       </SidebarFooter>

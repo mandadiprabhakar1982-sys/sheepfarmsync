@@ -57,13 +57,13 @@ export default function DashboardLayout({
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-[#f0f2f5] overflow-hidden selection:bg-emerald-500/30 font-sans">
-        {/* BACKGROUND IMAGE - FUTURISTIC LAB */}
+        {/* BACKGROUND IMAGE - FUTURISTIC HYDROPHONIC FARM */}
         <div 
-          className="fixed inset-0 z-0 bg-cover bg-center opacity-40 mix-blend-multiply pointer-events-none"
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2070&auto=format&fit=crop')" }}
-          data-ai-hint="futuristic laboratory"
+          className="fixed inset-0 z-0 bg-cover bg-center opacity-30 mix-blend-multiply pointer-events-none"
+          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1558449028-b53a39d100fc?q=80&w=2070&auto=format&fit=crop')" }}
+          data-ai-hint="futuristic hydroponic farm lab"
         />
-        <div className="fixed inset-0 z-0 bg-gradient-to-tr from-white/80 via-transparent to-white/40 pointer-events-none" />
+        <div className="fixed inset-0 z-0 bg-gradient-to-tr from-white/90 via-white/40 to-white/80 pointer-events-none" />
 
         {/* WEB MODEL: Persistent Sidebar */}
         <div className="hidden md:flex relative z-20">
