@@ -57,8 +57,10 @@ export default function DashboardLayout({
         <SidebarInset className="flex flex-col relative z-10 bg-transparent">
           {/* Universal Header with precise design specs */}
           <header className="top-header">
-            <div className="flex-1 flex justify-start">
+            <div className="flex-1 flex justify-start items-center gap-8">
               <Logo />
+              <div className="h-6 w-px bg-neutral-100 hidden md:block" />
+              <p className="text-[11px] font-black uppercase tracking-[0.3em] text-neutral-300 hidden lg:block">FARM MANAGEMENT SYSTEM</p>
             </div>
             
             <div className="flex-1 flex justify-center">
@@ -76,7 +78,7 @@ export default function DashboardLayout({
             {pathname === '/dashboard' ? (
               children
             ) : (
-              <div className="dashboard-panel">
+              <div className="dashboard-panel animate-in fade-in zoom-in-95 duration-500">
                 {children}
               </div>
             )}
