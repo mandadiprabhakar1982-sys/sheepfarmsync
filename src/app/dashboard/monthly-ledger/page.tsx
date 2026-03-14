@@ -12,11 +12,14 @@ import {
   PlusCircle, 
   Trash2, 
   Receipt, 
-  ArrowUpCircle, 
-  ArrowDownCircle, 
   History,
   TrendingUp,
-  TrendingDown
+  TrendingDown,
+  Landmark,
+  CreditCard,
+  Home as HomeIcon,
+  User as UserIcon,
+  BadgeIndianRupee
 } from 'lucide-react';
 import { useFarm } from '@/context/FarmContext';
 import { useToast } from '@/hooks/use-toast';
@@ -30,7 +33,6 @@ export default function MonthlyLedgerPage() {
   const { 
     monthlyIncomes, addMonthlyIncome, deleteMonthlyIncome,
     monthlyExpenses, addMonthlyExpense, deleteMonthlyExpense,
-    totalReceivables, totalPayables
   } = useFarm();
 
   const [activeTab, setActiveTab] = useState('all');
@@ -60,6 +62,23 @@ export default function MonthlyLedgerPage() {
   const filteredIncomes = useMemo(() => combinedData.filter(i => i.type === 'income'), [combinedData]);
   const filteredExpenses = useMemo(() => combinedData.filter(e => e.type === 'expense'), [combinedData]);
 
+  // Category Summaries
+  const categoryTotals = useMemo(() => {
+    const totals = { loan: 0, card: 0, household: 0, private: 0, totalIncome: 0, totalExpense: 0 };
+    combinedData.forEach(item => {
+      if (item.type === 'income') {
+        totals.totalIncome += Number(item.amount || 0);
+      } else {
+        totals.totalExpense += Number(item.amount || 0);
+        if (item.category === 'loan') totals.loan += Number(item.amount || 0);
+        if (item.category === 'card') totals.card += Number(item.amount || 0);
+        if (item.category === 'household') totals.household += Number(item.amount || 0);
+        if (item.category === 'private') totals.private += Number(item.amount || 0);
+      }
+    });
+    return totals;
+  }, [combinedData]);
+
   const handleAdd = () => {
     if (!source || !amount || !date) {
       toast({ variant: 'destructive', title: 'Input Required', description: 'Please fill all required fields.' });
@@ -75,6 +94,18 @@ export default function MonthlyLedgerPage() {
     }
     setSource(''); setAmount('');
   };
+
+  const SummaryMiniCard = ({ title, value, icon: Icon, color }: { title: string, value: number, icon: any, color: string }) => (
+    <div className="bg-white/90 p-4 rounded-2xl shadow-sm border border-neutral-100 flex items-center gap-4 flex-1">
+      <div className={cn("p-2 rounded-xl text-white", color)}>
+        <Icon className="h-4 w-4" />
+      </div>
+      <div>
+        <p className="text-[8px] font-black uppercase tracking-widest text-muted-foreground opacity-60 leading-none mb-1">{title}</p>
+        <p className="text-sm font-black text-slate-900 leading-none">₹{value.toLocaleString()}</p>
+      </div>
+    </div>
+  );
 
   const TableHeaderRow = () => (
     <TableHeader className="bg-[#e2e8f0]">
@@ -92,7 +123,13 @@ export default function MonthlyLedgerPage() {
       <TableCell>
         <div className="flex flex-col">
           <span className="text-sm font-black text-slate-900">{item.source}</span>
-          {item.category && <span className="text-[9px] font-black text-rose-400 uppercase tracking-widest">{item.category}</span>}
+          {item.type === 'expense' && (
+            <span className="text-[9px] font-black text-rose-400 uppercase tracking-widest mt-0.5">
+              {item.category === 'loan' ? 'Monthly EMI' : 
+               item.category === 'card' ? 'Credit Card' : 
+               item.category === 'household' ? 'Home Spends' : 'Personal Debt'}
+            </span>
+          )}
         </div>
       </TableCell>
       <TableCell className="text-right pr-10">
@@ -123,14 +160,21 @@ export default function MonthlyLedgerPage() {
         />
         <div className="flex gap-4">
           <div className="bg-white/90 p-5 px-8 rounded-[24px] shadow-xl border-l-4 border-[#15803d]">
-            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Receivables</p>
-            <p className="text-2xl font-black text-[#15803d]">₹{totalReceivables.toLocaleString()}</p>
+            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Total Inflow</p>
+            <p className="text-2xl font-black text-[#15803d]">₹{categoryTotals.totalIncome.toLocaleString()}</p>
           </div>
           <div className="bg-white/90 p-5 px-8 rounded-[24px] shadow-xl border-l-4 border-rose-600">
-            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Payables</p>
-            <p className="text-2xl font-black text-rose-600">₹{totalPayables.toLocaleString()}</p>
+            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Total Outflow</p>
+            <p className="text-2xl font-black text-rose-600">₹{categoryTotals.totalExpense.toLocaleString()}</p>
           </div>
         </div>
+      </div>
+
+      <div className="flex flex-wrap gap-4 mb-10">
+        <SummaryMiniCard title="Monthly EMI" value={categoryTotals.loan} icon={Landmark} color="bg-blue-600" />
+        <SummaryMiniCard title="Credit Card" value={categoryTotals.card} icon={CreditCard} color="bg-indigo-600" />
+        <SummaryMiniCard title="Home Spends" value={categoryTotals.household} icon={HomeIcon} color="bg-amber-600" />
+        <SummaryMiniCard title="Personal" value={categoryTotals.private} icon={UserIcon} color="bg-rose-600" />
       </div>
 
       <Tabs defaultValue="all" className="w-full" onValueChange={setActiveTab}>
@@ -173,7 +217,7 @@ export default function MonthlyLedgerPage() {
                   <Input 
                     value={source} 
                     onChange={(e) => setSource(e.target.value)} 
-                    placeholder="e.g. Bulk Sale, Rent, Feed" 
+                    placeholder="e.g. Bulk Sale, ICICI EMI, Rent" 
                     className="font-bold"
                   />
                 </div>
@@ -195,10 +239,10 @@ export default function MonthlyLedgerPage() {
                     <Select value={category} onValueChange={(v: any) => setCategory(v)}>
                       <SelectTrigger className="h-14"><SelectValue /></SelectTrigger>
                       <SelectContent className="rounded-2xl shadow-2xl border-none">
-                        <SelectItem value="household" className="font-bold">Household</SelectItem>
-                        <SelectItem value="loan" className="font-bold">Institutional Loan</SelectItem>
+                        <SelectItem value="household" className="font-bold">Home Spends</SelectItem>
+                        <SelectItem value="loan" className="font-bold">Monthly EMI</SelectItem>
                         <SelectItem value="card" className="font-bold">Credit Card</SelectItem>
-                        <SelectItem value="private" className="font-bold">Private Debt</SelectItem>
+                        <SelectItem value="private" className="font-bold">Personal Debt</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
