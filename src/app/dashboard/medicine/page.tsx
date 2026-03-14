@@ -35,6 +35,7 @@ import type { HealthTask, MedicineExpense } from '@/lib/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const animalGroups = ['Lamb', 'Adult', 'Pregnant', 'Ram'] as const;
 const healthTypes = ['Vaccination', 'Deworming', 'Supplement', 'Treatment'] as const;
@@ -236,7 +237,7 @@ export default function MedicinePage() {
 
         <TabsContent value="health" className="space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-500">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-            {/* --- TREATMENT ENTRY FORM: Marble Background --- */}
+            {/* --- TREATMENT ENTRY FORM --- */}
             <div className="lg:col-span-4">
               <Card className="border-none bg-[#FDFBF0] rounded-[2.5rem] shadow-2xl overflow-hidden sticky top-24 border-t-4 border-emerald-800">
                 <CardHeader className="p-8 pb-4">
@@ -246,7 +247,7 @@ export default function MedicinePage() {
                         <CheckCircle2 className="h-4 w-4 text-[#1a4d38]" />
                         <CardTitle className="text-base font-black tracking-tight text-[#1a4d38]">Treatment Entry</CardTitle>
                       </div>
-                      <CardDescription className="text-[#1a4d38]/40 text-[8px] font-bold uppercase tracking-widest">DOCUMENT HIGH-PRECISION...</CardDescription>
+                      <CardDescription className="text-[#1a4d38]/40 text-[8px] font-bold uppercase tracking-widest">DOCUMENT HIGH-PRECISION TREATMENT</CardDescription>
                     </div>
                     <Stethoscope className="h-6 w-6 text-[#1a4d38]" />
                   </div>
@@ -360,7 +361,7 @@ export default function MedicinePage() {
                         <FormField control={healthTaskForm.control} name="administeredBy" render={({ field }) => (
                           <FormItem>
                             <Label className="text-[9px] font-black uppercase opacity-40 ml-1">Vet / Given By</Label>
-                            <FormControl><Input className="h-12 rounded-xl bg-neutral-50/50 border border-emerald-800/10 shadow-sm font-bold text-xs" placeholder="Identity (Select)" {...field} /></FormControl>
+                            <FormControl><Input className="h-12 rounded-xl bg-neutral-50/50 border border-emerald-800/10 shadow-sm font-bold text-xs" placeholder="Identity" {...field} /></FormControl>
                           </FormItem>
                         )} />
                       </div>
@@ -377,7 +378,7 @@ export default function MedicinePage() {
               </Card>
             </div>
 
-            {/* --- CLINICAL HISTORY TABLE: Dark Marble Background --- */}
+            {/* --- CLINICAL HISTORY TABLE --- */}
             <div className="lg:col-span-8">
               <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-[#708090]/20 relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-[#708090]/10 to-[#2c3e50]/20 opacity-50 pointer-events-none" />
@@ -457,7 +458,7 @@ export default function MedicinePage() {
                     <ReceiptIndianRupee className="h-5 w-5 text-[#A68A56]" />
                     <CardTitle className="text-base font-black tracking-tight text-neutral-900">Pharmacy Audit</CardTitle>
                   </div>
-                  <CardDescription className="text-neutral-400 text-[8px] font-bold uppercase tracking-widest">Document high-precision pharmacy procurement</CardDescription>
+                  <CardDescription className="text-neutral-400 text-[8px] font-bold uppercase tracking-widest">Document pharmacy procurement</CardDescription>
                 </CardHeader>
                 <CardContent className="p-8">
                   <Form {...legacyExpenseForm}>
