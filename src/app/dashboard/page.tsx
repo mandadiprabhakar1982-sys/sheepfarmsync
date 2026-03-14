@@ -53,7 +53,7 @@ export default function DashboardPage() {
         </div>
         
         <div className="space-y-1 text-center px-4">
-          <h3 className="text-[14px] font-black tracking-tight text-neutral-900 uppercase">
+          <h3 className="card-title uppercase tracking-tight leading-none">
             {item.title}
           </h3>
           <p className="text-[9px] font-bold text-neutral-400 uppercase tracking-widest leading-none">

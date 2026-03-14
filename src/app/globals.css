@@ -118,6 +118,13 @@
   transform: scale(1.1) rotate(5deg);
 }
 
+/* Card Title Specifics */
+.card-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #14532d;
+}
+
 @layer utilities {
   .app-header { font-size: 24px; font-weight: 900; letter-spacing: -0.02em; text-transform: uppercase; }
   .no-scrollbar::-webkit-scrollbar { display: none; }
