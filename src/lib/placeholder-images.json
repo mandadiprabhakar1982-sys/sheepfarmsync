@@ -38,9 +38,9 @@
     },
     {
       "id": "dash-flock",
-      "description": "Flock 3D Icon",
-      "imageUrl": "https://picsum.photos/seed/sheep-model-3d/400/400",
-      "imageHint": "3d sheep model"
+      "description": "Flock 3D Icon - Sheep in Bubble",
+      "imageUrl": "https://picsum.photos/seed/sheep-bubble-3d/400/400",
+      "imageHint": "3d sheep bubble"
     },
     {
       "id": "dash-sales",

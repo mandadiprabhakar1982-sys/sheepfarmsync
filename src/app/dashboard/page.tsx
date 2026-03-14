@@ -160,7 +160,7 @@ export default function DashboardPage() {
                     item.isHighlight && "ring-2 ring-emerald-500/20",
                     "overflow-hidden relative"
                   )}>
-                    <CardContent className="p-6 flex flex-col items-center justify-center min-h-[220px] text-center">
+                    <CardContent className="p-6 pb-10 flex flex-col items-center justify-center min-h-[240px] text-center relative">
                       <div className="w-28 h-28 mb-6 relative group-hover:scale-110 transition-transform duration-500">
                          {item.asset && (
                            <img 
@@ -171,11 +171,18 @@ export default function DashboardPage() {
                            />
                          )}
                       </div>
-                      <div className="relative">
-                        <h3 className="text-[14px] font-black tracking-tight text-neutral-800 leading-none uppercase">
-                          {item.title}
-                        </h3>
-                        <div className="absolute -right-4 bottom-0 text-[10px] font-black text-neutral-400 opacity-40">...</div>
+                      
+                      <h3 className="text-[14px] font-black tracking-tight text-neutral-800 leading-none uppercase mb-4">
+                        {item.title}
+                      </h3>
+
+                      {/* DECORATIVE ELEMENTS FROM DESIGN */}
+                      <div className="w-full px-4 flex flex-col gap-2">
+                        <div className="h-0.5 w-full bg-cyan-400/30 rounded-full shadow-[0_0_10px_rgba(34,211,238,0.5)]" />
+                        <div className="flex justify-between items-center px-1">
+                          <span className="text-[8px] font-black text-neutral-400 opacity-40 tracking-widest">...</span>
+                          <span className="text-[8px] font-black text-neutral-400 opacity-40 tracking-widest">109</span>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -197,7 +204,7 @@ export default function DashboardPage() {
                     item.glow,
                     "overflow-hidden relative"
                   )}>
-                    <CardContent className="p-6 flex flex-col items-center justify-center min-h-[200px] text-center">
+                    <CardContent className="p-6 pb-10 flex flex-col items-center justify-center min-h-[220px] text-center relative">
                       <div className="w-24 h-24 mb-4 relative group-hover:scale-110 transition-transform duration-500">
                          {item.asset && (
                            <img 
@@ -208,11 +215,18 @@ export default function DashboardPage() {
                            />
                          )}
                       </div>
-                      <div className="relative">
-                        <h3 className="text-[14px] font-black tracking-tight text-neutral-800 leading-none uppercase">
-                          {item.title}
-                        </h3>
-                        <div className="absolute -right-4 bottom-0 text-[10px] font-black text-neutral-400 opacity-40">...</div>
+                      
+                      <h3 className="text-[14px] font-black tracking-tight text-neutral-800 leading-none uppercase mb-4">
+                        {item.title}
+                      </h3>
+
+                      {/* DECORATIVE ELEMENTS FROM DESIGN */}
+                      <div className="w-full px-4 flex flex-col gap-2">
+                        <div className="h-0.5 w-full bg-cyan-400/30 rounded-full shadow-[0_0_10px_rgba(34,211,238,0.5)]" />
+                        <div className="flex justify-between items-center px-1">
+                          <span className="text-[8px] font-black text-neutral-400 opacity-40 tracking-widest">...</span>
+                          <span className="text-[8px] font-black text-neutral-400 opacity-40 tracking-widest">109</span>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
