@@ -455,17 +455,6 @@ export default function MedicinePage() {
                   <CardDescription className="text-white/40 text-xs font-bold uppercase tracking-widest">Document high-precision pharmacy procurement</CardDescription>
                 </CardHeader>
                 <CardContent className="p-8 space-y-8">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="p-4 rounded-[1.25rem] bg-emerald-500/10 border border-emerald-500/20">
-                      <p className="text-[8px] font-black uppercase tracking-widest text-emerald-600 mb-1 opacity-60">Procured</p>
-                      <p className="text-base font-black tracking-tight text-emerald-700">₹{totalProcurement.toLocaleString()}</p>
-                    </div>
-                    <div className="p-4 rounded-[1.25rem] bg-rose-500/10 border border-rose-500/20">
-                      <p className="text-[8px] font-black uppercase tracking-widest text-rose-600 mb-1 opacity-60">Pending</p>
-                      <p className="text-base font-black tracking-tight text-rose-700">₹{totalOutstanding.toLocaleString()}</p>
-                    </div>
-                  </div>
-
                   <Form {...legacyExpenseForm}>
                     <form onSubmit={legacyExpenseForm.handleSubmit(onLegacySubmit)} className="space-y-6">
                       <div className="grid grid-cols-2 gap-4">
