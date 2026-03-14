@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { useFarm } from '@/context/FarmContext';
-import { DashboardSparkleIcon } from '@/components/logo';
 import { 
   LayoutGrid, 
   Wallet, 
@@ -10,11 +9,11 @@ import {
   Syringe, 
   Wheat, 
   Users, 
-  Receipt,
   ArrowRightLeft,
   BarChart,
   Globe,
-  Skull
+  Skull,
+  LayoutDashboard
 } from 'lucide-react';
 
 const SheepRamIcon = ({ className }: { className?: string }) => (
@@ -29,6 +28,7 @@ export default function DashboardPage() {
   const isAdmin = userRole === 'admin';
 
   const cards = [
+    { title: "OVERVIEW", subtitle: "FLOCK INTELLIGENCE", icon: LayoutDashboard, href: '/dashboard/overview' },
     { title: "FLOCK", subtitle: "PUBLIC PROJECT ASSETS", icon: SheepRamIcon, href: '/dashboard/livestock' },
     { title: "TRADE", subtitle: "PUBLIC PROJECT ASSETS", icon: ArrowRightLeft, href: '/dashboard/sales' },
     { title: "HEALTH", subtitle: "OPERATIONS & STAFF", icon: Syringe, href: '/dashboard/medicine' },
@@ -47,39 +47,26 @@ export default function DashboardPage() {
 
     return (
       <div className="flex flex-col items-center">
-        <Link href={item.href} className="module-card group shadow-sm hover:shadow-2xl">
+        <Link href={item.href} className="module-card">
           <div className="card-icon-box">
             <Icon />
           </div>
-          <h3 className="card-title text-center">
+          <h3 className="card-title">
             {item.title}
           </h3>
+          <p className="card-subtitle">
+            {item.subtitle}
+          </p>
         </Link>
-        <p className="card-subtitle">
-          {item.subtitle}
-        </p>
       </div>
     );
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-full py-12">
+    <div className="flex flex-col items-center justify-center min-h-full py-12 px-4">
       <div className="w-full max-w-[1200px]">
-        {/* Hub Header */}
-        <div className="flex items-center gap-6 mb-16 ml-4">
-          <DashboardSparkleIcon className="h-16 w-16" />
-          <div className="space-y-1">
-            <h1 className="page-title leading-tight">
-              SYSTEM HUB
-            </h1>
-            <p className="subtitle">
-              SYNCHRONIZED OPERATIONAL ENVIRONMENT
-            </p>
-          </div>
-        </div>
-
-        {/* Main Dashboard Panel */}
-        <div className="flex flex-wrap justify-center gap-x-12 gap-y-20">
+        {/* Main Dashboard Grid */}
+        <div className="flex flex-wrap justify-center gap-x-10 gap-y-12">
           {cards.map((item, idx) => (
             <CommandCard key={idx} item={item} />
           ))}

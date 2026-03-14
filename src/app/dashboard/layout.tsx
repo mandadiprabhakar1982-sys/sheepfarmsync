@@ -54,32 +54,33 @@ export default function DashboardLayout({
       <div className="flex min-h-screen w-full bg-[#f4f9f1] overflow-hidden font-sans">
         <AppSidebar />
 
-        <SidebarInset className="flex flex-col relative bg-[#f4f9f1] z-10">
-          <div className="flex flex-col h-screen overflow-hidden">
-            {/* Standardized Universal Header */}
-            <header className="h-[78px] bg-white border-b border-[#e5e7eb] flex items-center justify-between px-8 shrink-0 z-50">
-              {/* Logo Left */}
-              <div className="flex-1 flex justify-start">
-                <Logo />
-              </div>
-              
-              {/* Page Title Center */}
-              <div className="flex-1 flex justify-center">
-                <h2 className="text-[13px] font-black uppercase tracking-[0.2em] text-[#1e293b] whitespace-nowrap">
-                  {pageTitle}
-                </h2>
-              </div>
-              
-              {/* Profile Right */}
-              <div className="flex-1 flex justify-end">
-                <UserNav />
-              </div>
-            </header>
+        <SidebarInset className="flex flex-col relative z-10 bg-transparent">
+          {/* Universal Header with precise design specs */}
+          <header className="top-header">
+            <div className="flex-1 flex justify-start">
+              <Logo />
+            </div>
             
-            <main className="flex-1 overflow-y-auto no-scrollbar p-10">
-              {children}
-            </main>
-          </div>
+            <div className="flex-1 flex justify-center">
+              <h2 className="text-[13px] font-black uppercase tracking-[0.2em] text-[#14532d] whitespace-nowrap">
+                {pageTitle}
+              </h2>
+            </div>
+            
+            <div className="flex-1 flex justify-end">
+              <UserNav />
+            </div>
+          </header>
+          
+          <main className="flex-1 overflow-y-auto no-scrollbar p-10">
+            {pathname === '/dashboard' ? (
+              children
+            ) : (
+              <div className="dashboard-panel">
+                {children}
+              </div>
+            )}
+          </main>
         </SidebarInset>
       </div>
     </SidebarProvider>

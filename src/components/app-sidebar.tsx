@@ -44,40 +44,40 @@ export function AppSidebar() {
     {
       label: "HOME",
       links: [
-        { href: '/dashboard', label: "Home", icon: Home },
+        { href: '/dashboard', label: "Home Hub", icon: Home },
         { href: '/dashboard/overview', label: "Overview", icon: LayoutDashboard },
-        { href: '/dashboard/analysis', label: "Ai Intelligence", icon: BarChart },
+        { href: '/dashboard/analysis', label: "AI Intel", icon: BarChart },
       ]
     },
     {
-      label: "PRIVATE ASSETS",
+      label: "PRIVATE PROJECT ASSETS",
       adminOnly: true,
       links: [
-        { href: '/dashboard/monthly-ledger', label: "Monthly Ledger", icon: Wallet },
+        { href: '/dashboard/monthly-ledger', label: "Ledger", icon: Wallet },
         { href: '/dashboard/balance-sheet', label: "Liabilities", icon: BookOpen },
       ]
     },
     {
-      label: "OPERATIONS",
+      label: "PUBLIC PROJECT ASSETS",
       links: [
-        { href: '/dashboard/livestock', label: "Livestock Hub", icon: LayoutGrid },
-        { href: '/dashboard/sales', label: "Trade Ledger", icon: ArrowRightLeft },
+        { href: '/dashboard/livestock', label: "Livestock", icon: LayoutGrid },
+        { href: '/dashboard/sales', label: "Trade", icon: ArrowRightLeft },
         { href: '/dashboard/mortality', label: "Loss Log", icon: Skull },
-        { href: '/dashboard/expenses', label: "Expenses", icon: Receipt },
       ]
     },
     {
-      label: "MANAGEMENT",
+      label: "OPERATIONS & STAFF",
       links: [
         { href: '/dashboard/medicine', label: "Health", icon: Syringe },
         { href: '/dashboard/feed', label: "Feed", icon: Wheat },
         { href: '/dashboard/labor', label: "Labor", icon: Users },
+        { href: '/dashboard/expenses', label: "Misc", icon: Receipt },
       ]
     }
   ], []); 
 
   return (
-    <Sidebar collapsible="none" className="sidebar">
+    <Sidebar collapsible="none" className="sidebar !bg-[#f7fbf3] border-r border-[#dbe7d1]">
       <SidebarHeader className="h-20 flex items-center px-6">
         <Logo className="scale-100" />
       </SidebarHeader>
@@ -88,7 +88,7 @@ export function AppSidebar() {
 
           return (
             <SidebarGroup key={gIdx} className="mb-6">
-              <SidebarGroupLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-[#365314]/40 mb-3 px-2">
+              <SidebarGroupLabel className="text-[9px] font-black uppercase tracking-[0.2em] text-[#365314]/40 mb-3 px-2">
                 {group.label}
               </SidebarGroupLabel>
               <SidebarGroupContent>
@@ -101,16 +101,16 @@ export function AppSidebar() {
                           asChild
                           isActive={isActive}
                           className={cn(
-                            "transition-all duration-300 h-11 px-3",
+                            "transition-all duration-300 h-11 px-3 group/btn",
                             isActive 
-                              ? "active-menu font-black shadow-sm" 
+                              ? "active-menu shadow-sm" 
                               : "text-[#365314]/60 hover:bg-white/80 hover:text-[#16a34a]"
                           )}
                         >
                           <Link href={link.href} className="flex items-center w-full">
-                            <link.icon className={cn("shrink-0 h-4 w-4", isActive ? "text-[#166534]" : "opacity-60")} />
-                            <span className="ml-3 text-[13px] font-bold tracking-tight">{link.label}</span>
-                            <ChevronRight className={cn("ml-auto h-3.5 w-3.5 opacity-20", isActive && "opacity-40")} />
+                            <link.icon className={cn("shrink-0 h-4 w-4 transition-colors", isActive ? "text-[#166534]" : "opacity-60 group-hover/btn:text-[#16a34a]")} />
+                            <span className="ml-3 text-[12px] font-bold tracking-tight">{link.label}</span>
+                            <ChevronRight className={cn("ml-auto h-3 w-3 opacity-20 transition-all", isActive && "opacity-100 translate-x-1")} />
                           </Link>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
@@ -130,7 +130,7 @@ export function AppSidebar() {
           </div>
           <div className="flex flex-col">
             <p className="text-[11px] font-black uppercase tracking-widest text-[#365314] leading-none">SYNC PRO</p>
-            <p className="text-[9px] font-bold text-[#65a30d] mt-1 uppercase tracking-tighter">Energies v5.0</p>
+            <p className="text-[9px] font-bold text-[#65a30d] mt-1 uppercase tracking-tighter">Enterprise v5.2</p>
           </div>
         </div>
       </SidebarFooter>
