@@ -3,19 +3,16 @@
 import Link from 'next/link';
 import { useFarm } from '@/context/FarmContext';
 import { 
-  LayoutGrid, 
-  Database, 
-  Dna, 
-  Leaf, 
-  Users, 
-  ArrowRightLeft,
-  Skull,
-  Wallet,
-  Lock,
-  Search,
-  FlaskConical
-} from 'lucide-react';
-import { SheepIcon, HighFidelityLiabilities, DashboardSparkleIcon } from '@/components/logo';
+  HighFidelityOverview,
+  HighFidelityLedger,
+  HighFidelityLiabilities,
+  HighFidelityRam,
+  HighFidelityHealth,
+  HighFidelityFeed,
+  HighFidelityLabor,
+  HighFidelityExpenses,
+  DashboardSparkleIcon 
+} from '@/components/logo';
 
 export default function DashboardPage() {
   const { userRole } = useFarm();
@@ -25,18 +22,13 @@ export default function DashboardPage() {
     { 
       title: "OVERVIEW", 
       subtitle: "... ANALYTICS ...", 
-      icon: LayoutGrid, 
+      icon: HighFidelityOverview, 
       href: '/dashboard/overview' 
     },
     { 
       title: "MONTHLY LEDGER", 
       subtitle: "PRIVATE PROJECT ASSETS", 
-      icon: (props: any) => (
-        <div className="relative">
-          <Database {...props} />
-          <Lock className="absolute -bottom-1 -right-1 h-4 w-4 text-emerald-900 bg-white rounded-full p-0.5" />
-        </div>
-      ), 
+      icon: HighFidelityLedger, 
       href: '/dashboard/monthly-ledger', 
       adminOnly: true 
     },
@@ -50,41 +42,31 @@ export default function DashboardPage() {
     { 
       title: "FLOCK", 
       subtitle: "... PUBLIC PROJECT ASSETS ...", 
-      icon: SheepIcon, 
+      icon: HighFidelityRam, 
       href: '/dashboard/livestock' 
     },
     { 
       title: "HEALTH", 
       subtitle: "... OPERATIONS & STAFF ...", 
-      icon: Dna, 
+      icon: HighFidelityHealth, 
       href: '/dashboard/medicine' 
     },
     { 
       title: "FEED", 
       subtitle: "... OPERATIONS & STAFF ...", 
-      icon: (props: any) => (
-        <div className="flex items-center gap-0.5">
-          <FlaskConical {...props} />
-          <Leaf className="h-4 w-4 text-emerald-400 -ml-2 mb-4" />
-        </div>
-      ), 
+      icon: HighFidelityFeed, 
       href: '/dashboard/feed' 
     },
     { 
       title: "LABOR", 
       subtitle: "... OPERATIONS & STAFF ...", 
-      icon: Users, 
+      icon: HighFidelityLabor, 
       href: '/dashboard/labor' 
     },
     { 
       title: "EXPENSES", 
       subtitle: "... PUBLIC PROJECT ASSETS ...", 
-      icon: (props: any) => (
-        <div className="relative">
-          <Wallet {...props} />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[10px] font-black text-emerald-900">$</div>
-        </div>
-      ), 
+      icon: HighFidelityExpenses, 
       href: '/dashboard/expenses' 
     },
   ];
@@ -97,7 +79,7 @@ export default function DashboardPage() {
       <div className="flex flex-col items-center gap-4 group">
         <Link href={item.href} className="module-card">
           <div className="card-icon-container">
-            <Icon className="w-16 h-16 text-white" />
+            <Icon className="w-10 h-10 text-white" />
           </div>
           <h3 className="card-title mt-2">{item.title}</h3>
           <p className="card-subtitle opacity-60">{item.subtitle}</p>
