@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { analyzeFarmCosts, type AnalyzeFarmCostsOutput } from '@/ai/flows/analyze-farm-costs';
-import { Loader2, Sparkles, AlertTriangle, TrendingUp } from 'lucide-react';
+import { Loader2, Sparkles, AlertTriangle, TrendingUp, ShieldCheck, Zap, BarChart3, Target } from 'lucide-react';
 import { useFarm } from '@/context/FarmContext';
 
 import { PageHeader } from '@/components/page-header';
@@ -84,40 +84,47 @@ export default function AnalysisPage() {
   };
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="container mx-auto py-8 px-4 md:px-10 max-w-7xl animate-in fade-in duration-700">
       <PageHeader
-        title="AI Intelligence Reports"
+        title="Intelligence Engine"
         description="Private deep analysis of your farm's operational efficiency."
       />
       
       <div className="flex flex-col items-center">
-        <Card className="w-full max-w-4xl border-primary/20 bg-primary/5">
-          <CardHeader>
-            <div className="flex items-center gap-3 mb-2">
-              <Sparkles className="h-6 w-6 text-primary" />
-              <CardTitle>Private Performance Audit</CardTitle>
+        <Card className="w-full border-none bg-neutral-900 text-white rounded-[2.5rem] shadow-2xl overflow-hidden relative">
+          <div className="absolute top-0 right-0 p-12 opacity-10">
+            <ShieldCheck className="h-48 w-48 rotate-12" />
+          </div>
+          <CardHeader className="p-12 pb-6 relative z-10">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="h-12 w-12 rounded-2xl bg-emerald-500/20 flex items-center justify-center text-emerald-400">
+                <Zap className="h-6 w-6" />
+              </div>
+              <div>
+                <CardTitle className="text-3xl font-black tracking-tight uppercase leading-none mb-2">Neural Audit Pro</CardTitle>
+                <CardDescription className="text-white/40 text-xs font-bold uppercase tracking-widest">Secure private computational intelligence</CardDescription>
+              </div>
             </div>
-            <CardDescription className="text-foreground/70">
-              Our AI analyzes your private data to identify cost-saving opportunities and optimize your flock management.
-              Your data remains strictly confidential and is never shared during this process.
-            </CardDescription>
+            <p className="text-white/60 text-sm font-medium leading-relaxed max-w-2xl">
+              Our AI engine synchronizes with your private operational ledger to identify fiscal anomalies and provide actionable growth vectors. 
+              Your data remains strictly encrypted and non-persistent during the audit cycle.
+            </p>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-12 pt-0 relative z-10">
             <Button
               onClick={handleAnalysis}
               disabled={isLoading || isFarmDataLoading}
-              size="lg"
-              className="w-full sm:w-auto font-bold h-12 px-8"
+              className="h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-black uppercase tracking-[0.2em] shadow-xl px-10 transition-all active:scale-95 border-none"
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="mr-3 h-5 w-5 animate-spin" />
                   Generating Intelligence...
                 </>
               ) : (
                 <>
-                  <TrendingUp className="mr-2 h-4 w-4" />
-                  Run Efficiency Report
+                  <BarChart3 className="mr-3 h-5 w-5" />
+                  Execute Efficiency Report
                 </>
               )}
             </Button>
@@ -125,69 +132,79 @@ export default function AnalysisPage() {
         </Card>
 
         {error && (
-          <Alert variant="destructive" className="mt-8 max-w-4xl">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertTitle>Analysis Error</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
+          <Alert variant="destructive" className="mt-8 w-full rounded-[2rem] border-rose-500/20 bg-rose-50">
+            <AlertTriangle className="h-5 w-5" />
+            <AlertTitle className="font-black uppercase tracking-widest">Computation Error</AlertTitle>
+            <AlertDescription className="font-bold">{error}</AlertDescription>
           </Alert>
         )}
 
         {analysis && (
-          <div className="mt-8 w-full max-w-4xl space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card className="border-none shadow-md">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">Executive Summary</CardTitle>
+          <div className="mt-12 w-full space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <Card className="border-none shadow-xl rounded-[2.5rem] bg-white overflow-hidden group hover:-translate-y-1 transition-all duration-500">
+                <CardHeader className="bg-neutral-50 p-8 border-b border-neutral-100">
+                  <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-2">
+                    <Target className="h-3.5 w-3.5 text-primary" /> Executive Summary
+                  </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{analysis.summary}</p>
+                <CardContent className="p-8">
+                  <p className="text-sm font-medium text-neutral-700 leading-relaxed">{analysis.summary}</p>
                 </CardContent>
               </Card>
 
-              <Card className="border-none shadow-md bg-accent/30">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">Cost Insights</CardTitle>
+              <Card className="border-none shadow-xl rounded-[2.5rem] bg-emerald-900 text-white overflow-hidden group hover:-translate-y-1 transition-all duration-500">
+                <CardHeader className="bg-white/5 p-8 border-b border-white/5">
+                  <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400 flex items-center gap-2">
+                    <Zap className="h-3.5 w-3.5" /> Core Insights
+                  </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-sm font-medium text-foreground">{analysis.communityBenchmarking}</p>
+                <CardContent className="p-8">
+                  <p className="text-sm font-bold text-white/80 leading-relaxed italic">"{analysis.communityBenchmarking}"</p>
                 </CardContent>
               </Card>
             </div>
 
-            <Card className="border-none shadow-md">
-              <CardHeader>
-                <CardTitle className="text-lg">High Expenditure Areas</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-3">
-                  {analysis.highExpenditureAreas.map((area, index) => (
-                    <li key={index} className="flex items-start gap-3 text-sm">
-                      <div className="h-1.5 w-1.5 rounded-full bg-destructive mt-1.5 shrink-0" />
-                      <span className="text-muted-foreground">{area}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-
-            <Card className="border-primary/20 shadow-lg border-2">
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-primary" />
-                  Strategic Recommendations
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-4">
-                  {analysis.actionableInsights.map((insight, index) => (
-                    <div key={index} className="flex gap-4 p-4 rounded-xl bg-primary/5 border border-primary/10">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white font-bold shrink-0">{index + 1}</div>
-                      <p className="text-sm font-medium text-foreground self-center">{insight}</p>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+              <div className="lg:col-span-5">
+                <Card className="border-none shadow-xl rounded-[2.5rem] bg-white overflow-hidden h-full">
+                  <CardHeader className="bg-rose-50 p-8 border-b border-rose-100">
+                    <CardTitle className="text-sm font-black uppercase tracking-widest text-rose-900">Critical Cost Centers</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-8">
+                    <div className="space-y-4">
+                      {analysis.highExpenditureAreas.map((area, index) => (
+                        <div key={index} className="flex items-center gap-4 p-4 rounded-2xl bg-rose-50/50 border border-rose-100">
+                          <div className="h-8 w-8 rounded-full bg-rose-100 flex items-center justify-center text-rose-600 font-black text-xs">{index + 1}</div>
+                          <span className="text-sm font-bold text-neutral-700">{area}</span>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <div className="lg:col-span-7">
+                <Card className="border-none shadow-2xl rounded-[2.5rem] bg-neutral-900 text-white overflow-hidden h-full border-t-4 border-emerald-500">
+                  <CardHeader className="p-8 pb-4">
+                    <CardTitle className="text-xl font-black tracking-tight flex items-center gap-3">
+                      <Sparkles className="h-5 w-5 text-emerald-400" /> Strategic Protocol
+                    </CardTitle>
+                    <CardDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Actionable operational intelligence</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-8">
+                    <div className="grid gap-4">
+                      {analysis.actionableInsights.map((insight, index) => (
+                        <div key={index} className="flex gap-6 p-6 rounded-[2rem] bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-500 text-neutral-900 font-black shrink-0 shadow-lg shadow-emerald-500/20">{index + 1}</div>
+                          <p className="text-sm font-bold text-white/90 self-center leading-relaxed">{insight}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
           </div>
         )}
       </div>
