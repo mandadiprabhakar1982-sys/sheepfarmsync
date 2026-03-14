@@ -4,41 +4,26 @@
 
 @layer base {
   :root {
-    /* Background #f4f9f1 */
     --background: 100 31% 96%;
     --foreground: 144 61% 10%;
-    
     --card: 0 0% 100%;
     --card-foreground: 144 61% 10%;
-    
     --popover: 0 0% 100%;
     --popover-foreground: 144 61% 10%;
-    
-    /* Main Green #16a34a */
     --primary: 142 76% 36%;
     --primary-foreground: 140 71% 98%;
-    
-    /* Light Green #dcfce7 */
     --secondary: 140 71% 93%;
     --secondary-foreground: 144 61% 20%;
-    
     --muted: 140 20% 92%;
     --muted-foreground: 144 10% 40%;
-    
-    /* Accent Green #4caf50 */
     --accent: 122 39% 49%;
     --accent-foreground: 144 61% 10%;
-    
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
-    
-    /* Border Green #4caf50 */
     --border: 122 39% 49%;
     --input: 122 39% 49%;
     --ring: 142 76% 36%;
-    
     --radius: 1.5rem;
-
     --sidebar-background: 140 71% 97%;
     --sidebar-foreground: 144 61% 10%;
     --sidebar-primary: 142 76% 36%;
@@ -59,14 +44,12 @@
     background: #f4f9f1;
     color: hsl(var(--foreground));
     font-family: 'Inter', sans-serif;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
-    letter-spacing: -0.01em;
     margin: 0;
     min-height: 100vh;
   }
 }
 
-/* Header Architecture */
+/* Top Header Architecture */
 .top-header {
   height: 78px;
   background: rgba(255, 255, 255, 0.92);
@@ -81,9 +64,9 @@
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-radius: 28px;
-  padding: 40px;
+  padding: 30px;
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(76, 175, 80, 0.2);
+  border: 1px solid rgba(76, 175, 80, 0.1);
 }
 
 /* Module Card Architecture */
@@ -102,9 +85,9 @@
   position: relative;
   overflow: hidden;
   cursor: pointer;
+  padding: 20px;
 }
 
-/* Precise Hover Effect */
 .module-card:hover {
   transform: translateY(-6px);
   box-shadow: 0 14px 24px rgba(34, 197, 94, 0.15);
@@ -113,38 +96,44 @@
 
 /* Icon Circle Inside Card */
 .card-icon {
-  width: 80px;
-  height: 80px;
+  width: 72px;
+  height: 72px;
   border-radius: 20px;
   background: linear-gradient(135deg, #4ade80, #16a34a);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.5s ease;
+  margin-bottom: 12px;
+  transition: transform 0.3s ease;
 }
 
 .card-icon svg, .card-icon img {
   width: 64px;
   height: 64px;
   object-fit: contain;
+  color: white;
 }
 
 .module-card:hover .card-icon {
-  transform: scale(1.1) rotate(5deg);
+  transform: scale(1.05);
 }
 
-/* Card Title Specifics */
+/* Card Typography */
 .card-title {
   font-size: 28px;
   font-weight: 700;
   color: #14532d;
+  line-height: 1.1;
+  text-transform: uppercase;
+  margin-bottom: 4px;
 }
 
-/* Card Subtitle Specifics */
 .card-subtitle {
   font-size: 14px;
   color: #64748b;
   letter-spacing: 2px;
+  text-transform: uppercase;
+  font-weight: 500;
 }
 
 /* Sidebar Active Item */
@@ -152,7 +141,6 @@
   background: #dcfce7 !important;
   border-left: 4px solid #16a34a !important;
   color: #166534 !important;
-  border-radius: 0 12px 12px 0 !important;
 }
 
 @layer utilities {

@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { useFarm } from '@/context/FarmContext';
-import { cn } from '@/lib/utils';
 import { DashboardSparkleIcon } from '@/components/logo';
 import { 
   LayoutGrid, 
@@ -48,18 +47,20 @@ export default function DashboardPage() {
 
     return (
       <Link href={item.href} className="module-card group">
-        <div className="card-icon mb-4">
-          <Icon className="w-16 h-16 text-white" style={{ objectFit: 'contain' }} />
+        {/* Layout Part 1: Icon */}
+        <div className="card-icon">
+          <Icon />
         </div>
         
-        <div className="space-y-1 text-center px-4">
-          <h3 className="card-title uppercase tracking-tight leading-none">
-            {item.title}
-          </h3>
-          <p className="card-subtitle uppercase leading-none">
-            {item.subtitle}
-          </p>
-        </div>
+        {/* Layout Part 2: Title */}
+        <h3 className="card-title">
+          {item.title}
+        </h3>
+
+        {/* Layout Part 3: Subtitle */}
+        <p className="card-subtitle">
+          {item.subtitle}
+        </p>
 
         {/* Triple Dot Decorations */}
         <div className="absolute bottom-4 left-6 flex gap-0.5 opacity-20 text-[#14532d]">
