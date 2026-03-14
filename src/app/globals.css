@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: 88 33% 94%; /* #eef6e8 */
+    --background: 98 38% 96%; /* #f4f9f1 */
     --foreground: 84 59% 20%; /* #365314 */
     --card: 0 0% 100%;
     --card-foreground: 84 59% 20%;
@@ -33,7 +33,7 @@
     -webkit-tap-highlight-color: transparent;
   }
   body {
-    background: #eef6e8;
+    background: #f4f9f1;
     color: #365314;
     font-family: 'Inter', sans-serif;
     margin: 0;

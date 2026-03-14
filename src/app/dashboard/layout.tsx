@@ -40,7 +40,7 @@ export default function DashboardLayout({
 
   if (isLoadingProfile) {
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-[#eef6e8] fixed inset-0 z-[9999]">
+      <div className="flex h-screen w-full items-center justify-center bg-[#f4f9f1] fixed inset-0 z-[9999]">
         <div className="flex flex-col items-center gap-6">
           <div className="w-12 h-12 border-4 border-white rounded-full border-t-[#65a30d] animate-spin" />
           <p className="text-[12px] font-black text-[#365314]/40 uppercase tracking-[0.4em]">SYNCING</p>
@@ -51,7 +51,7 @@ export default function DashboardLayout({
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-[#eef6e8] overflow-hidden font-sans">
+      <div className="flex min-h-screen w-full bg-[#f4f9f1] overflow-hidden font-sans">
         <AppSidebar />
 
         <SidebarInset className="flex flex-col relative bg-transparent z-10">
