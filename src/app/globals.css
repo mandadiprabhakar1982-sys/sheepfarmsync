@@ -44,54 +44,44 @@
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.06);
 }
 
-/* --- MODULE CARD ARCHITECTURE (HIGH-FIDELITY) --- */
+/* --- MODULE CARD ARCHITECTURE (HIGH-FIDELITY GIF STYLE) --- */
 .module-card {
   width: 240px;
-  height: 190px;
-  background: white;
-  border: 2px solid #4caf50;
-  border-radius: 22px;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
+  height: 240px;
+  background: #e2f0e2;
+  border-radius: 48px;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
   text-decoration: none !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
 }
 
 .module-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 14px 24px rgba(34, 197, 94, 0.15);
-}
-
-.card-icon-container {
-  width: 72px;
-  height: 72px;
-  border-radius: 20px;
-  background: linear-gradient(135deg, #4ade80, #16a34a);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 4px;
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(22, 163, 74, 0.1);
+  background: #d9ead3;
 }
 
 .card-title {
-  font-size: 28px;
-  font-weight: 700;
+  font-size: 24px;
+  font-weight: 800;
   color: #14532d;
   line-height: 1;
   text-transform: uppercase;
+  letter-spacing: -0.02em;
 }
 
 .card-subtitle {
-  font-size: 14px;
+  font-size: 13px;
   color: #64748b;
   letter-spacing: 2px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   text-align: center;
+  margin-top: 4px;
 }
 
 /* --- HEADER ARCHITECTURE --- */
