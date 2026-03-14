@@ -3,7 +3,7 @@
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { PlusCircle, Calendar as CalendarIcon, Trash2, Pencil, Wheat, Package, CheckCircle2, ShoppingCart } from 'lucide-react';
+import { PlusCircle, Calendar as CalendarIcon, Trash2, Pencil, Leaf, Package } from 'lucide-react';
 import { format } from 'date-fns';
 
 import { Button } from '@/components/ui/button';
@@ -26,17 +26,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useFarm } from '@/context/FarmContext';
 import { useState, useEffect, useMemo } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { FeedCost } from '@/lib/types';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -58,8 +53,6 @@ type FeedFormData = z.infer<typeof formSchema>;
 export default function FeedPage() {
   const { toast } = useToast();
   const { feedCosts, addFeedCost, deleteFeedCost, updateFeedCost, totalFeedCost } = useFarm();
-  const [editingFeedCost, setEditingFeedCost] = useState<FeedCost | null>(null);
-  const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   
   const form = useForm<FeedFormData>({
@@ -71,24 +64,10 @@ export default function FeedPage() {
     },
   });
 
-  const editForm = useForm<FeedFormData>({
-    resolver: zodResolver(formSchema),
-  });
-
   const sortedFeedCosts = useMemo(() => {
     if (!feedCosts) return [];
     return [...feedCosts].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [feedCosts]);
-
-  useEffect(() => {
-    if (editingFeedCost) {
-      editForm.reset({
-        ...editingFeedCost,
-        date: new Date(editingFeedCost.date),
-        bags: editingFeedCost.bags || 0,
-      });
-    }
-  }, [editingFeedCost, editForm]);
 
   const onSubmit: SubmitHandler<FeedFormData> = (data) => {
     const newCost = { ...data, date: format(data.date, 'yyyy-MM-dd') };
@@ -100,18 +79,6 @@ export default function FeedPage() {
     });
   };
 
-  const onEditSubmit: SubmitHandler<FeedFormData> = (data) => {
-    if (!editingFeedCost) return;
-    const updatedData = { ...data, date: format(data.date, 'yyyy-MM-dd') };
-    updateFeedCost(editingFeedCost.id, updatedData, editingFeedCost._path);
-    setIsEditOpen(false);
-    setEditingFeedCost(null);
-    toast({
-      title: 'Updated!',
-      description: 'Feed cost record updated.',
-    });
-  };
-  
   const handleDeleteCost = (id: string, path?: string) => {
     deleteFeedCost(id, path);
      toast({
@@ -128,23 +95,21 @@ export default function FeedPage() {
           title="Feed Management"
           description="Operational Inventory & Procurement"
         />
-        <div className="sync-card p-6 px-10 flex items-center gap-10 border border-white/40">
-          <div className="space-y-1 text-center">
-            <p className="subtitle !text-[9px] !tracking-widest">Total Expend</p>
-            <p className="text-2xl font-black tracking-tighter text-[#84cc16]">₹{totalFeedCost.toLocaleString()}</p>
-          </div>
+        <div className="bg-white/90 p-6 rounded-2xl shadow-xl flex flex-col items-center justify-center min-w-[180px] border-t-4 border-[#84cc16]">
+          <p className="subtitle !text-[10px] mb-1">Total Expend</p>
+          <p className="text-3xl font-black tracking-tighter text-[#84cc16]">₹{totalFeedCost.toLocaleString()}</p>
         </div>
       </div>
 
       <Tabs defaultValue="entry" className="w-full">
         <TabsList className="mb-10 p-1 bg-slate-200/50 rounded-2xl flex justify-start items-center h-16 w-fit shadow-inner">
-          <TabsTrigger value="entry" className="tab-inactive tab-active h-14 px-10 font-bold">Record Entry</TabsTrigger>
-          <TabsTrigger value="history" className="tab-inactive tab-active h-14 px-10 font-bold">Purchase Ledger</TabsTrigger>
+          <TabsTrigger value="entry" className="tab-inactive data-[state=active]:tab-active h-14 px-10">Record Entry</TabsTrigger>
+          <TabsTrigger value="history" className="tab-inactive data-[state=active]:tab-active h-14 px-10">Purchase Ledger</TabsTrigger>
         </TabsList>
 
         <TabsContent value="entry" className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-          <div className="lg:col-span-5">
-            <Card className="sync-card p-10 border-t-4 border-[#84cc16]">
+          <div className="lg:col-span-4">
+            <Card className="form-card p-10 border-t-4 border-[#84cc16]">
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                   <FormField control={form.control} name="date" render={({ field }) => (
@@ -164,7 +129,7 @@ export default function FeedPage() {
                     </FormItem>
                   )} />
 
-                  <div className="grid grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 gap-6">
                     <FormField control={form.control} name="feedType" render={({ field }) => (
                       <FormItem>
                         <Label className="subtitle !text-[10px] ml-2 mb-2">Category</Label>
@@ -182,7 +147,7 @@ export default function FeedPage() {
                     )} />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 gap-6">
                     <FormField control={form.control} name="cost" render={({ field }) => (
                       <FormItem>
                         <Label className="subtitle !text-[10px] ml-2 mb-2">Total Price (₹)</Label>
@@ -202,8 +167,8 @@ export default function FeedPage() {
               </Form>
             </Card>
           </div>
-          <div className="lg:col-span-7">
-            <div className="sync-card overflow-hidden">
+          <div className="lg:col-span-8">
+            <Card className="form-card p-0 overflow-hidden">
               <Table>
                 <TableHeader className="sync-table-header">
                   <TableRow>
@@ -229,12 +194,12 @@ export default function FeedPage() {
                   ))}
                 </TableBody>
               </Table>
-            </div>
+            </Card>
           </div>
         </TabsContent>
 
         <TabsContent value="history">
-           <div className="sync-card p-0 overflow-hidden">
+           <Card className="form-card p-0 overflow-hidden">
               <Table>
                 <TableHeader className="sync-table-header">
                   <TableRow>
@@ -259,7 +224,7 @@ export default function FeedPage() {
                   ))}
                 </TableBody>
               </Table>
-           </div>
+           </Card>
         </TabsContent>
       </Tabs>
     </div>

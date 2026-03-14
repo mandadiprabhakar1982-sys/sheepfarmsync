@@ -53,6 +53,11 @@
   border-radius: 22px;
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
   text-decoration: none !important;
 }
 
@@ -93,29 +98,66 @@
   text-transform: uppercase;
 }
 
-/* --- SIDEBAR ACTIVE MENU --- */
-.active-menu {
-  background: #dcfce7 !important;
-  border-left: 4px solid #16a34a !important;
-  color: #166534 !important;
-}
-
 /* --- HEADER ARCHITECTURE --- */
 .top-header {
   height: 78px;
-  background: rgba(255, 255, 255, 0.92);
-  border-bottom: 1px solid #d9ead3;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
   @apply flex items-center justify-between px-8 z-50;
 }
 
-/* --- TACTICAL UI ELEMENTS --- */
+/* --- UNIFIED PAGE ELEMENTS --- */
+.page-title {
+  font-size: 34px;
+  font-weight: 700;
+  color: #1e293b;
+  text-transform: uppercase;
+}
+
+.subtitle {
+  font-size: 13px;
+  letter-spacing: 4px;
+  color: #94a3b8;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.form-card {
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 24px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  @apply border-none;
+}
+
 .primary-btn {
-  @apply bg-[#166534] text-white font-bold uppercase tracking-widest rounded-[16px] h-14 px-8 shadow-lg transition-all active:scale-95;
+  @apply bg-[#166534] text-white font-bold uppercase tracking-widest rounded-[16px] h-14 px-8 shadow-lg transition-all active:scale-95 border-none;
 }
 
 input, select, textarea {
   height: 56px !important;
   @apply rounded-[14px] border border-[#d9e4cf] bg-[#f8fafc] px-4 font-semibold focus:outline-none focus:ring-2 focus:ring-[#16a34a]/20 !important;
+}
+
+/* --- TABLE UNIFICATION --- */
+.sync-table-header {
+  @apply bg-[#e2e8f0] border-none;
+}
+
+.sync-table-row {
+  @apply bg-white border-b border-neutral-50 hover:bg-neutral-50 transition-colors;
+}
+
+/* --- TAB UNIFICATION --- */
+.tab-active {
+  background: #65a30d !important;
+  color: white !important;
+  border-radius: 14px !important;
+}
+
+.tab-inactive {
+  background: #e7eddc !important;
+  color: #64748b !important;
+  border-radius: 14px !important;
 }
 
 @layer utilities {

@@ -5,32 +5,22 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { 
   Calendar as CalendarIcon, 
-  Syringe, 
-  Stethoscope,
-  CheckCircle2,
-  ClipboardList,
-  ReceiptIndianRupee,
-  ShoppingCart,
-  Pencil,
-  PlusCircle,
-  Trash2
+  Trash2,
+  Syringe
 } from 'lucide-react';
-import { format, addMonths, differenceInDays, endOfDay, startOfDay } from 'date-fns';
-import { useState, useEffect, useMemo } from 'react';
+import { format, addMonths } from 'date-fns';
+import { useState, useMemo } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { Card, CardContent } from '@/components/ui/card';
+import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
 import { useFarm } from '@/context/FarmContext';
-import type { HealthTask, MedicineExpense } from '@/lib/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
@@ -62,7 +52,6 @@ type HealthTaskFormData = z.infer<typeof healthTaskFormSchema>;
 export default function MedicinePage() {
   const { toast } = useToast();
   const { 
-    medicineExpenses, addMedicineExpense, 
     healthTasks, addHealthTask, deleteHealthTask,
     trackedSheep, totalMedicineCost
   } = useFarm();
@@ -91,6 +80,11 @@ export default function MedicinePage() {
     toast({ title: 'Success!', description: 'Clinical record committed.' });
   };
 
+  const handleDeleteTask = (id: string, path?: string) => {
+    deleteHealthTask(id, path);
+    toast({ title: 'Deleted', description: 'Medical record removed.', variant: 'destructive' });
+  };
+
   return (
     <div className="container mx-auto animate-in fade-in duration-700">
       <div className="flex justify-between items-start mb-10">
@@ -98,24 +92,24 @@ export default function MedicinePage() {
           title="Health & Medicine"
           description="Clinical Audit & Medical Records"
         />
-        <div className="sync-card p-6 px-10 border border-white/40">
-          <p className="subtitle !text-[9px]">Total Procurement</p>
-          <p className="text-2xl font-black text-[#14b8a6]">₹{totalMedicineCost.toLocaleString()}</p>
+        <div className="bg-white/90 p-6 rounded-2xl shadow-xl flex flex-col items-center justify-center min-w-[180px] border-t-4 border-[#14b8a6]">
+          <p className="subtitle !text-[10px] mb-1">Total Procurement</p>
+          <p className="text-3xl font-black text-[#14b8a6]">₹{totalMedicineCost.toLocaleString()}</p>
         </div>
       </div>
 
       <Tabs defaultValue="health" className="w-full">
         <TabsList className="mb-10 p-1 bg-slate-200/50 rounded-2xl flex justify-start items-center h-16 w-fit shadow-inner">
-          <TabsTrigger value="health" className="tab-inactive tab-active h-14 px-10 font-bold">Treatment Track</TabsTrigger>
-          <TabsTrigger value="cost" className="tab-inactive tab-active h-14 px-10 font-bold">Procurement Ledger</TabsTrigger>
+          <TabsTrigger value="health" className="tab-inactive data-[state=active]:tab-active h-14 px-10">Treatment Track</TabsTrigger>
+          <TabsTrigger value="cost" className="tab-inactive data-[state=active]:tab-active h-14 px-10">Procurement Ledger</TabsTrigger>
         </TabsList>
 
         <TabsContent value="health" className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-          <div className="lg:col-span-5">
-            <Card className="sync-card p-10 border-t-4 border-[#14b8a6]">
+          <div className="lg:col-span-4">
+            <Card className="form-card p-10 border-t-4 border-[#14b8a6]">
               <Form {...healthTaskForm}>
                 <form onSubmit={healthTaskForm.handleSubmit(onHealthTaskSubmit)} className="space-y-6">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-4">
                     <FormField control={healthTaskForm.control} name="date" render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <Label className="subtitle !text-[10px] ml-2 mb-2">Date</Label>
@@ -134,17 +128,17 @@ export default function MedicinePage() {
                       <FormItem>
                         <Label className="subtitle !text-[10px] ml-2 mb-2">Sheep ID</Label>
                         <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl><SelectTrigger className="h-14 bg-[#f8fafc] border-slate-200 font-bold"><SelectValue placeholder="Select" /></SelectTrigger></FormControl>
+                          <FormControl><SelectTrigger className="h-14 bg-[#f8fafc] border-slate-200 font-bold"><SelectValue placeholder="Select Asset" /></SelectTrigger></FormControl>
                           <SelectContent className="rounded-xl">{trackedSheep?.map(s => <SelectItem key={s.id} value={s.tagId}>{s.tagId}</SelectItem>)}</SelectContent>
                         </Select>
                       </FormItem>
                     )} />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-4">
                     <FormField control={healthTaskForm.control} name="healthType" render={({ field }) => (
                       <FormItem>
-                        <Label className="subtitle !text-[10px] ml-2 mb-2">Type</Label>
+                        <Label className="subtitle !text-[10px] ml-2 mb-2">Treatment Type</Label>
                         <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl><SelectTrigger className="h-14"><SelectValue /></SelectTrigger></FormControl>
                           <SelectContent>{healthTypes.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
@@ -153,7 +147,7 @@ export default function MedicinePage() {
                     )} />
                     <FormField control={healthTaskForm.control} name="administeredBy" render={({ field }) => (
                       <FormItem>
-                        <Label className="subtitle !text-[10px] ml-2 mb-2">Given By</Label>
+                        <Label className="subtitle !text-[10px] ml-2 mb-2">Administered By</Label>
                         <FormControl><Input className="h-14" placeholder="Identity" {...field} /></FormControl>
                       </FormItem>
                     )} />
@@ -171,8 +165,8 @@ export default function MedicinePage() {
               </Form>
             </Card>
           </div>
-          <div className="lg:col-span-7">
-            <div className="sync-card overflow-hidden">
+          <div className="lg:col-span-8">
+            <Card className="form-card p-0 overflow-hidden">
               <Table>
                 <TableHeader className="sync-table-header">
                   <TableRow>
@@ -194,13 +188,16 @@ export default function MedicinePage() {
                         </div>
                       </TableCell>
                       <TableCell className="text-right pr-10">
-                        <Badge variant="secondary" className="bg-teal-50 text-teal-700 border-none font-bold">LOGGED</Badge>
+                        <div className="flex items-center justify-end gap-3">
+                          <Badge variant="secondary" className="bg-teal-50 text-teal-700 border-none font-bold">LOGGED</Badge>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-rose-500" onClick={() => handleDeleteTask(t.id, t._path)}><Trash2 className="h-4 w-4" /></Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
-            </div>
+            </Card>
           </div>
         </TabsContent>
       </Tabs>
