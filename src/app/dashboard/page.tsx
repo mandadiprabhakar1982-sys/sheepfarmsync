@@ -5,6 +5,13 @@ import { cn } from '@/lib/utils';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import { DashboardSparkleIcon } from '@/components/logo';
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function DashboardPage() {
   const { userRole, isLoadingProfile } = useFarm();
@@ -12,110 +19,106 @@ export default function DashboardPage() {
 
   const menuItems = [
     {
-      title: "OVERVIEW",
-      subtitle: "ANALYTICS",
+      title: "OVERVIEW ANALYTICS",
       iconId: 'dash-analytics',
       href: '/dashboard/overview',
-      color: 'bg-blue-500',
-      borderClass: 'border-blue-500/50',
-      indicatorColor: 'bg-blue-500',
+      borderColor: 'border-blue-200',
+      activeColor: 'text-blue-500',
     },
     {
-      title: "MONTHLY",
-      subtitle: "LEDGER",
+      title: "MONTHLY LEDGER",
       iconId: 'dash-ledger',
       href: '/dashboard/monthly-ledger',
-      color: 'bg-purple-500',
-      borderClass: 'border-purple-500/50',
-      indicatorColor: 'bg-purple-500',
+      borderColor: 'border-purple-200',
+      activeColor: 'text-purple-500',
       adminOnly: true,
     },
     {
-      title: "LIABILITY",
-      subtitle: "PORTFOLIO",
+      title: "LIABILITIES",
       iconId: 'dash-liabilities',
       href: '/dashboard/balance-sheet',
-      color: 'bg-slate-700',
-      borderClass: 'border-slate-700/50',
-      indicatorColor: 'bg-slate-700',
+      borderColor: 'border-neutral-200',
+      activeColor: 'text-neutral-500',
       adminOnly: true,
     },
     {
       title: "FLOCK",
-      subtitle: "REGISTRY",
       iconId: 'dash-flock',
       href: '/dashboard/livestock',
-      color: 'bg-cyan-500',
-      borderClass: 'border-cyan-500/50',
-      indicatorColor: 'bg-cyan-500',
+      borderColor: 'border-emerald-200',
+      activeColor: 'text-emerald-500',
     },
     {
-      title: "TRADE",
-      subtitle: "LEDGER",
+      title: "PURCHASES & SALES",
       iconId: 'dash-sales',
       href: '/dashboard/sales',
-      color: 'bg-green-500',
-      borderClass: 'border-green-500/50',
-      indicatorColor: 'bg-green-500',
+      borderColor: 'border-green-200',
+      activeColor: 'text-green-500',
     },
     {
       title: "HEALTH",
-      subtitle: "TRACK",
       iconId: 'dash-health',
       href: '/dashboard/medicine',
-      color: 'bg-red-500',
-      borderClass: 'border-red-500/50',
-      indicatorColor: 'bg-red-500',
+      borderColor: 'border-red-200',
+      activeColor: 'text-red-500',
     },
     {
       title: "FEED",
-      subtitle: "PROCUREMENT",
       iconId: 'dash-feed',
       href: '/dashboard/feed',
-      color: 'bg-lime-500',
-      borderClass: 'border-lime-500/50',
-      indicatorColor: 'bg-lime-500',
+      borderColor: 'border-green-200',
+      activeColor: 'text-green-500',
     },
     {
       title: "LABOR",
-      subtitle: "DISBURSEMENTS",
       iconId: 'dash-labor',
       href: '/dashboard/labor',
-      color: 'bg-orange-500',
-      borderClass: 'border-orange-500/50',
-      indicatorColor: 'bg-orange-500',
+      borderColor: 'border-orange-200',
+      activeColor: 'text-orange-500',
     },
     {
       title: "EXPENSES",
-      subtitle: "OVERHEADS",
       iconId: 'dash-expenses',
       href: '/dashboard/expenses',
-      color: 'bg-slate-500',
-      borderClass: 'border-slate-500/50',
-      indicatorColor: 'bg-slate-500',
+      borderColor: 'border-blue-200',
+      activeColor: 'text-blue-500',
     },
   ];
 
   if (isLoadingProfile) return null;
 
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-start p-6 lg:p-12">
-      <div className="w-full max-w-7xl">
+    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-160px)] p-4">
+      <div className="w-full max-w-6xl glass-panel rounded-[2rem] p-10 lg:p-12 relative overflow-hidden">
         {/* Header Block */}
-        <div className="flex items-start gap-6 mb-16 animate-in fade-in slide-in-from-top-4 duration-1000">
-          <DashboardSparkleIcon className="bg-neutral-900" />
-          <div className="space-y-1">
-            <h1 className="text-3xl font-black tracking-tight text-neutral-900 uppercase">
-              SYSTEM COMMAND HUB
-            </h1>
-            <p className="text-[10px] font-black text-neutral-400 uppercase tracking-[0.4em]">
-              SYNCHRONIZED OPERATIONAL ENVIRONMENT
-            </p>
+        <div className="flex items-center justify-between mb-12">
+          <div className="flex items-start gap-6">
+            <DashboardSparkleIcon className="bg-neutral-900 h-14 w-14 rounded-2xl" />
+            <div className="space-y-1">
+              <h1 className="text-2xl font-black tracking-tight text-neutral-900 uppercase">
+                SYSTEM COMMAND HUB
+              </h1>
+              <p className="text-[9px] font-bold text-neutral-400 uppercase tracking-[0.2em]">
+                SYNCHRONIZED OPERATIONAL ENVIRONMENT
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-6">
+            <div className="text-2xl font-black text-neutral-900 tracking-tighter">100</div>
+            <Select defaultValue="identity">
+              <SelectTrigger className="w-[160px] h-10 rounded-xl bg-white border-neutral-100 shadow-sm font-bold text-xs">
+                <SelectValue placeholder="Identity (Select)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="identity">Identity (Select)</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
-        {/* 4-Column Tactical Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+        {/* Tactical Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {menuItems.map((item, index) => {
             if (item.adminOnly && !isAdmin) return null;
             const icon = PlaceHolderImages.find(img => img.id === item.iconId);
@@ -123,44 +126,33 @@ export default function DashboardPage() {
             return (
               <Link href={item.href} key={index} className="group">
                 <div className={cn(
-                  "glass-card h-[240px] p-8 flex flex-col items-center justify-center text-center relative overflow-hidden border-1.5",
-                  item.borderClass
+                  "glass-card aspect-[1.1] p-6 flex flex-col items-center justify-center text-center relative overflow-hidden border-1.5",
+                  item.borderColor
                 )}>
                   {/* Icon Container */}
-                  <div className={cn(
-                    "h-24 w-24 rounded-[2rem] flex items-center justify-center mb-6 shadow-2xl transition-transform duration-500 group-hover:scale-110",
-                    item.color
-                  )}>
+                  <div className="h-20 w-20 flex items-center justify-center mb-4 transition-transform duration-500 group-hover:scale-110">
                     {icon && (
                       <Image 
                         src={icon.imageUrl} 
                         alt={item.title} 
-                        width={56} 
-                        height={56} 
-                        className="drop-shadow-2xl object-contain invert brightness-0"
+                        width={64} 
+                        height={64} 
+                        className="object-contain"
                         data-ai-hint={icon.imageHint}
                       />
                     )}
                   </div>
                   
-                  <div className="space-y-1 relative z-10 w-full mb-4">
-                    <h3 className="card-title-precise text-neutral-900 uppercase">
-                      {item.title}
-                    </h3>
-                    <p className="text-[9px] font-black text-neutral-400 uppercase tracking-widest">
-                      {item.subtitle}
-                    </p>
-                  </div>
-
-                  {/* Indicator Bar at bottom */}
-                  <div className={cn("h-1 w-12 rounded-full absolute bottom-8", item.indicatorColor)} />
+                  <h3 className="card-title-precise uppercase px-2 leading-tight">
+                    {item.title}
+                  </h3>
 
                   {/* Decorative Elements */}
-                  <div className="absolute bottom-6 left-8 text-[8px] font-black text-neutral-200 uppercase tracking-widest">
+                  <div className="absolute bottom-3 left-4 text-[8px] font-black text-neutral-300 uppercase tracking-widest">
                     ...
                   </div>
-                  <div className="absolute bottom-6 right-8 text-[8px] font-black text-neutral-200 uppercase tracking-widest">
-                    109
+                  <div className="absolute bottom-3 right-4 text-[8px] font-black text-neutral-300 uppercase tracking-widest">
+                    ...
                   </div>
                 </div>
               </Link>

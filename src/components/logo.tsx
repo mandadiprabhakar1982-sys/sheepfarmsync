@@ -28,8 +28,8 @@ export const SheepIcon = SyncProIcon;
 
 export function DashboardSparkleIcon({ className }: { className?: string }) {
   return (
-    <div className={cn("h-16 w-16 rounded-[1.25rem] bg-black flex items-center justify-center shadow-2xl", className)}>
-      <Sparkles className="h-8 w-8 text-emerald-400" />
+    <div className={cn("flex items-center justify-center shadow-2xl", className)}>
+      <Sparkles className="h-6 w-6 text-[#4ade80]" />
     </div>
   );
 }
@@ -38,26 +38,14 @@ export function Logo({ className, light = false, showManager = true }: { classNa
   return (
     <div className={cn('flex items-center gap-3 select-none group cursor-pointer', className)}>
        <div className={cn(
-         "rounded-xl p-2 transition-all duration-500 group-hover:rotate-180 shadow-lg border",
-         light ? "bg-black text-emerald-400 border-white/10" : "bg-primary text-accent border-white/10"
+         "rounded-lg p-1.5 transition-all duration-500 group-hover:rotate-180 bg-neutral-900 text-[#4ade80]"
        )}>
-        <SyncProIcon className="h-5 w-5" />
+        <SyncProIcon className="h-4 w-4" />
       </div>
-      <div className="flex flex-col">
-        <h1 className={cn(
-          "text-lg font-black leading-none flex items-center gap-1 uppercase tracking-tight",
-          light ? "text-white" : "text-neutral-900"
-        )}>
-          SYNC <span className={light ? "text-white/60" : "text-[#A68A56]"}>PRO</span>
+      <div className="flex items-center gap-1.5">
+        <h1 className="text-base font-black leading-none uppercase tracking-tight text-neutral-900">
+          SYNC <span className="text-[#A68A56]">PRO</span>
         </h1>
-        {showManager && (
-          <p className={cn(
-            "text-[7px] font-black uppercase tracking-[0.3em] mt-1 opacity-40",
-            light ? "text-white/50" : "text-neutral-900"
-          )}>
-            Elite Management Suite
-          </p>
-        )}
       </div>
     </div>
   );

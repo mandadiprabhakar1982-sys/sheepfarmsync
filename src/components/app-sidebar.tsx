@@ -6,18 +6,15 @@ import { usePathname } from 'next/navigation';
 import {
   Home,
   LayoutDashboard,
-  HeartPulse,
-  Wheat,
-  Users,
-  Receipt,
-  Skull,
   BarChart,
   ChevronRight,
   BookOpen,
   Wallet,
   ArrowRightLeft,
   LayoutGrid,
-  Square
+  Skull,
+  Users,
+  Receipt
 } from 'lucide-react';
 
 import {
@@ -76,24 +73,22 @@ export function AppSidebar() {
   ], []); 
 
   return (
-    <Sidebar collapsible="icon" className="border-none bg-transparent">
-      <div className="absolute inset-0 bg-white/10 backdrop-blur-3xl -z-10 shadow-2xl border-r border-white/10" />
-      
-      <SidebarHeader className="h-24 flex items-center px-6 mb-4">
-        <Logo showManager={false} light={true} className="scale-100" />
+    <Sidebar collapsible="icon" className="border-r border-neutral-100 bg-white shadow-sm">
+      <SidebarHeader className="h-20 flex items-center px-6">
+        <Logo showManager={false} className="scale-100" />
       </SidebarHeader>
 
-      <SidebarContent className="px-4 py-4 scrollbar-thin">
+      <SidebarContent className="px-3 py-4">
         {groups.map((group, gIdx) => {
           if (group.adminOnly && !isAdmin) return null;
 
           return (
-            <SidebarGroup key={gIdx} className="mb-8">
-              <SidebarGroupLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-4 px-3">
+            <SidebarGroup key={gIdx} className="mb-6">
+              <SidebarGroupLabel className="text-[9px] font-black uppercase tracking-[0.15em] text-neutral-400 mb-2 px-3">
                 {group.label}
               </SidebarGroupLabel>
               <SidebarGroupContent>
-                <SidebarMenu className="gap-1.5">
+                <SidebarMenu className="gap-1">
                   {group.links.map((link) => {
                     const isActive = pathname === link.href;
                     return (
@@ -103,16 +98,16 @@ export function AppSidebar() {
                           isActive={isActive}
                           tooltip={link.label}
                           className={cn(
-                            "transition-all duration-300 h-12 px-4 rounded-xl relative",
+                            "transition-all duration-200 h-10 px-3 rounded-lg",
                             isActive 
-                              ? "bg-white/10 text-white font-black shadow-lg" 
-                              : "text-white/60 hover:bg-white/5 hover:text-white"
+                              ? "bg-[#eef2ff] text-blue-600 font-bold shadow-sm" 
+                              : "text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900"
                           )}
                         >
                           <Link href={link.href} className="flex items-center w-full">
-                            <link.icon className={cn("shrink-0 h-4 w-4", isActive ? "text-white" : "opacity-60")} />
-                            <span className="ml-4 text-[12px] tracking-tight">{link.label}</span>
-                            {isActive && <ChevronRight className="ml-auto h-3.5 w-3.5 text-white/40" />}
+                            <link.icon className={cn("shrink-0 h-4 w-4", isActive ? "text-blue-600" : "opacity-60")} />
+                            <span className="ml-3 text-[12px] tracking-tight">{link.label}</span>
+                            {isActive && <ChevronRight className="ml-auto h-3.5 w-3.5 text-blue-400" />}
                           </Link>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
@@ -125,14 +120,14 @@ export function AppSidebar() {
         })}
       </SidebarContent>
 
-      <SidebarFooter className="p-6 border-t border-white/5">
-        <div className="flex items-center gap-4 group cursor-pointer px-2">
-          <div className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center text-white shadow-xl ring-1 ring-white/20">
-            <span className="text-xs font-black">N</span>
+      <SidebarFooter className="p-4 border-t border-neutral-50">
+        <div className="flex items-center gap-3 px-2">
+          <div className="h-8 w-8 rounded-full bg-neutral-900 flex items-center justify-center text-white text-[10px] font-black">
+            N
           </div>
           <div className="flex flex-col">
-            <p className="text-[11px] font-black uppercase tracking-widest text-white leading-none">SYNC PRO</p>
-            <p className="text-[8px] font-bold text-white/30 uppercase tracking-widest mt-1">Enterprise v2.8</p>
+            <p className="text-[10px] font-black uppercase tracking-widest text-neutral-900 leading-none">SYNC PRO</p>
+            <p className="text-[8px] font-medium text-neutral-400 mt-1">Energies 1090</p>
           </div>
         </div>
       </SidebarFooter>
