@@ -22,19 +22,19 @@
       "id": "dash-analytics",
       "description": "Overview Analytics 3D Glass Spheres",
       "imageUrl": "https://picsum.photos/seed/blue-spheres-glass/400/400",
-      "imageHint": "3d glass blue spheres"
+      "imageHint": "3d blue glass spheres"
     },
     {
       "id": "dash-ledger",
       "description": "Monthly Ledger 3D Icon",
-      "imageUrl": "https://picsum.photos/seed/wallet-gold-3d/400/400",
-      "imageHint": "3d wallet gold"
+      "imageUrl": "https://picsum.photos/seed/wallet-purple-3d/400/400",
+      "imageHint": "3d purple database"
     },
     {
       "id": "dash-liabilities",
       "description": "Liabilities 3D Icon",
-      "imageUrl": "https://picsum.photos/seed/vault-secure-3d/400/400",
-      "imageHint": "3d vault security"
+      "imageUrl": "https://picsum.photos/seed/red-nodes-3d/400/400",
+      "imageHint": "3d geometric nodes"
     },
     {
       "id": "dash-flock",
@@ -45,32 +45,32 @@
     {
       "id": "dash-sales",
       "description": "Purchases & Sales 3D Icon",
-      "imageUrl": "https://picsum.photos/seed/trade-arrows-3d/400/400",
-      "imageHint": "3d trade exchange"
+      "imageUrl": "https://picsum.photos/seed/trade-conveyor-3d/400/400",
+      "imageHint": "3d green factory"
     },
     {
       "id": "dash-health",
       "description": "Health 3D Icon",
-      "imageUrl": "https://picsum.photos/seed/medical-kit-3d/400/400",
-      "imageHint": "3d medical clinical"
+      "imageUrl": "https://picsum.photos/seed/dna-red-3d/400/400",
+      "imageHint": "3d red dna"
     },
     {
       "id": "dash-feed",
       "description": "Feed 3D Icon",
-      "imageUrl": "https://picsum.photos/seed/grain-sack-3d/400/400",
-      "imageHint": "3d grain nutrition"
+      "imageUrl": "https://picsum.photos/seed/flask-yellow-3d/400/400",
+      "imageHint": "3d yellow flask"
     },
     {
       "id": "dash-labor",
       "description": "Labor 3D Icon",
       "imageUrl": "https://picsum.photos/seed/people-team-3d/400/400",
-      "imageHint": "3d team workers"
+      "imageHint": "3d orange team"
     },
     {
       "id": "dash-expenses",
       "description": "Expenses 3D Icon",
-      "imageUrl": "https://picsum.photos/seed/receipt-paper-3d/400/400",
-      "imageHint": "3d receipt paper"
+      "imageUrl": "https://picsum.photos/seed/receipt-blue-3d/400/400",
+      "imageHint": "3d blue receipt"
     }
   ]
 }

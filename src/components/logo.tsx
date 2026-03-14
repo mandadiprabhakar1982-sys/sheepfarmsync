@@ -12,8 +12,7 @@ export const SyncProIcon = (props: React.SVGProps<SVGSVGElement>) => (
       strokeLinejoin="round"
       {...props}
     >
-      <circle cx="12" cy="12" r="10" strokeWidth="1" className="opacity-10" />
-      <path d="M12 2v4" />
+      <path d="M12 2V4" />
       <path d="M12 18v4" />
       <path d="M4.93 4.93l2.83 2.83" />
       <path d="M16.24 16.24l2.83 2.83" />
@@ -29,8 +28,8 @@ export const SheepIcon = SyncProIcon;
 
 export function DashboardSparkleIcon({ className }: { className?: string }) {
   return (
-    <div className={cn("h-16 w-16 rounded-[1.25rem] bg-[#1a2e1a] flex items-center justify-center shadow-2xl", className)}>
-      <Sparkles className="h-8 w-8 text-[#eab308]" />
+    <div className={cn("h-16 w-16 rounded-[1.25rem] bg-black flex items-center justify-center shadow-2xl", className)}>
+      <Sparkles className="h-8 w-8 text-emerald-400" />
     </div>
   );
 }
@@ -39,8 +38,8 @@ export function Logo({ className, light = false, showManager = true }: { classNa
   return (
     <div className={cn('flex items-center gap-3 select-none group cursor-pointer', className)}>
        <div className={cn(
-         "rounded-xl p-2 transition-all duration-500 group-hover:rotate-180",
-         "bg-[#1a2e1a] text-[#eab308] shadow-lg border border-white/10"
+         "rounded-xl p-2 transition-all duration-500 group-hover:rotate-180 shadow-lg border",
+         light ? "bg-black text-emerald-400 border-white/10" : "bg-primary text-accent border-white/10"
        )}>
         <SyncProIcon className="h-5 w-5" />
       </div>
