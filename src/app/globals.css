@@ -4,7 +4,8 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    /* Background #f4f9f1 */
+    --background: 100 31% 96%;
     --foreground: 144 61% 10%;
     
     --card: 0 0% 100%;
@@ -21,7 +22,7 @@
     --secondary: 140 71% 93%;
     --secondary-foreground: 144 61% 20%;
     
-    --muted: 140 20% 96%;
+    --muted: 140 20% 92%;
     --muted-foreground: 144 10% 40%;
     
     /* Accent Green #4caf50 */
@@ -55,9 +56,11 @@
     -webkit-tap-highlight-color: transparent;
   }
   body {
-    @apply bg-white text-foreground antialiased;
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', sans-serif;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     letter-spacing: -0.01em;
+    margin: 0;
   }
 }
 
