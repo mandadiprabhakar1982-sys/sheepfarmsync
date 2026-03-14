@@ -16,7 +16,8 @@ import {
   ArrowUpRight, 
   TrendingUp, 
   HandCoins,
-  ArrowRightLeft
+  ArrowRightLeft,
+  Save
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -31,9 +32,9 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  FormDescription,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   Table,
@@ -93,7 +94,7 @@ export default function TradeLedgerPage() {
   const { 
     sales, addSale, deleteSale, updateSale, postToMarketplace,
     purchases, addPurchase, deletePurchase, updatePurchase,
-    totalSales, totalReceivables, totalPayables
+    totalReceivables, totalPayables
   } = useFarm();
 
   const [activeTab, setActiveTab] = useState('sales');
@@ -127,11 +128,25 @@ export default function TradeLedgerPage() {
     salesForm.setValue('outstandingDuesFromBuyer', Math.max(0, (price || 0) - (received || 0)));
   }, [watchedSalesFields, salesForm]);
 
+  const watchedEditSalesFields = editSalesForm.watch(['salePrice', 'amountReceived']);
+  useEffect(() => {
+    if (!isEditSaleOpen) return;
+    const [price, received] = watchedEditSalesFields;
+    editSalesForm.setValue('outstandingDuesFromBuyer', Math.max(0, (price || 0) - (received || 0)));
+  }, [watchedEditSalesFields, editSalesForm, isEditSaleOpen]);
+
   const watchedPurchaseFields = purchaseForm.watch(['purchasePrice', 'amountPaid']);
   useEffect(() => {
     const [price, paid] = watchedPurchaseFields;
     purchaseForm.setValue('dueAmount', Math.max(0, (price || 0) - (paid || 0)));
   }, [watchedPurchaseFields, purchaseForm]);
+
+  const watchedEditPurchaseFields = editPurchaseForm.watch(['purchasePrice', 'amountPaid']);
+  useEffect(() => {
+    if (!isEditPurchaseOpen) return;
+    const [price, paid] = watchedEditPurchaseFields;
+    editPurchaseForm.setValue('dueAmount', Math.max(0, (price || 0) - (paid || 0)));
+  }, [watchedEditPurchaseFields, editPurchaseForm, isEditPurchaseOpen]);
 
   // --- HANDLERS ---
 
@@ -152,6 +167,38 @@ export default function TradeLedgerPage() {
     addPurchase({ ...data, purchaseDate: format(data.purchaseDate, 'yyyy-MM-dd') });
     purchaseForm.reset();
     toast({ title: 'Purchase Logged', description: 'Acquisition recorded in trade ledger.' });
+  };
+
+  const onEditSaleSubmit: SubmitHandler<SalesFormData> = (data) => {
+    if (!editingSale) return;
+    updateSale(editingSale.id, { ...data, saleDate: format(data.saleDate, 'yyyy-MM-dd') }, editingSale._path);
+    setIsEditSaleOpen(false);
+    toast({ title: 'Sale Updated', description: 'Ledger record has been adjusted.' });
+  };
+
+  const onEditPurchaseSubmit: SubmitHandler<PurchaseFormData> = (data) => {
+    if (!editingPurchase) return;
+    updatePurchase(editingPurchase.id, { ...data, purchaseDate: format(data.purchaseDate, 'yyyy-MM-dd') }, editingPurchase._path);
+    setIsEditPurchaseOpen(false);
+    toast({ title: 'Acquisition Updated', description: 'Ledger record has been adjusted.' });
+  };
+
+  const handleEditSale = (sale: AnimalSale) => {
+    setEditingSale(sale);
+    editSalesForm.reset({
+      ...sale,
+      saleDate: new Date(sale.saleDate),
+    });
+    setIsEditSaleOpen(true);
+  };
+
+  const handleEditPurchase = (purchase: LivestockPurchase) => {
+    setEditingPurchase(purchase);
+    editPurchaseForm.reset({
+      ...purchase,
+      purchaseDate: new Date(purchase.purchaseDate),
+    });
+    setIsEditPurchaseOpen(true);
   };
 
   const sortedSales = useMemo(() => sales ? [...sales].sort((a, b) => new Date(b.saleDate).getTime() - new Date(a.saleDate).getTime()) : [], [sales]);
@@ -193,7 +240,6 @@ export default function TradeLedgerPage() {
           </TabsTrigger>
         </TabsList>
 
-        {/* --- TAB: SALES --- */}
         <TabsContent value="sales" className="animate-in fade-in slide-in-from-bottom-2 duration-500">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
             <div className="lg:col-span-4">
@@ -214,14 +260,20 @@ export default function TradeLedgerPage() {
                       <FormField control={salesForm.control} name="buyerName" render={({ field }) => (
                         <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2">Buyer Name</Label><FormControl><Input className="h-12 rounded-xl bg-white border-none shadow-sm font-bold" placeholder="Identity" {...field} /></FormControl></FormItem>
                       )} />
+                      <FormField control={salesForm.control} name="buyerVillage" render={({ field }) => (
+                        <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2">Village</Label><FormControl><Input className="h-12 rounded-xl bg-white border-none shadow-sm font-bold" placeholder="Location" {...field} /></FormControl></FormItem>
+                      )} />
                       <div className="grid grid-cols-2 gap-4">
                         <FormField control={salesForm.control} name="animalCount" render={({ field }) => (
                           <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2">Count</Label><FormControl><Input type="number" className="h-12 rounded-xl bg-white border-none shadow-sm font-black" {...field} /></FormControl></FormItem>
                         )} />
-                        <FormField control={salesForm.control} name="salePrice" render={({ field }) => (
-                          <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2">Total Value (₹)</Label><FormControl><Input type="number" className="h-12 rounded-xl bg-white border-none shadow-sm font-black" {...field} /></FormControl></FormItem>
+                        <FormField control={salesForm.control} name="animalWeightKg" render={({ field }) => (
+                          <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2">Total Weight (kg)</Label><FormControl><Input type="number" step="0.1" className="h-12 rounded-xl bg-white border-none shadow-sm font-black" {...field} /></FormControl></FormItem>
                         )} />
                       </div>
+                      <FormField control={salesForm.control} name="salePrice" render={({ field }) => (
+                        <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2">Total Value (₹)</Label><FormControl><Input type="number" className="h-12 rounded-xl bg-white border-none shadow-sm font-black" {...field} /></FormControl></FormItem>
+                      )} />
                       <div className="grid grid-cols-2 gap-4">
                         <FormField control={salesForm.control} name="amountReceived" render={({ field }) => (
                           <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2">Received (₹)</Label><FormControl><Input type="number" className="h-12 rounded-xl bg-white border-none shadow-sm font-bold text-emerald-600" {...field} /></FormControl></FormItem>
@@ -269,7 +321,7 @@ export default function TradeLedgerPage() {
                     <TableBody>
                       {sortedSales.length > 0 ? (
                         sortedSales.map((s) => (
-                          <TableRow key={s.id} className="group hover:bg-neutral-50 border-neutral-50 transition-all">
+                          <TableRow key={s.id} className="group hover:bg-neutral-50 border-neutral-50 transition-all cursor-zoom-in active:scale-[0.995]" onClick={() => handleEditSale(s)}>
                             <TableCell className="pl-8 text-[10px] font-black text-muted-foreground/60 uppercase">{s.saleDate}</TableCell>
                             <TableCell>
                               <div className="flex flex-col">
@@ -288,7 +340,7 @@ export default function TradeLedgerPage() {
                             </TableCell>
                             <TableCell className="pr-4" onClick={(e) => e.stopPropagation()}>
                               <div className="flex gap-2 opacity-0 group-hover:opacity-100">
-                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl bg-neutral-100" onClick={() => { setEditingSale(s); setIsEditSaleOpen(true); }}><Pencil className="h-3.5 w-3.5" /></Button>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl bg-neutral-100" onClick={() => handleEditSale(s)}><Pencil className="h-3.5 w-3.5" /></Button>
                                 <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl bg-rose-50 text-rose-600" onClick={() => deleteSale(s.id, s._path)}><Trash2 className="h-3.5 w-3.5" /></Button>
                               </div>
                             </TableCell>
@@ -305,7 +357,6 @@ export default function TradeLedgerPage() {
           </div>
         </TabsContent>
 
-        {/* --- TAB: ACQUISITIONS --- */}
         <TabsContent value="purchases" className="animate-in fade-in slide-in-from-bottom-2 duration-500">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
             <div className="lg:col-span-4">
@@ -324,6 +375,9 @@ export default function TradeLedgerPage() {
                       )} />
                       <FormField control={purchaseForm.control} name="farmerName" render={({ field }) => (
                         <FormItem><Label className="text-[10px] font-black uppercase opacity-40 ml-2">Origin Farmer</Label><FormControl><Input className="h-12 rounded-xl bg-white/5 border-none text-white font-bold" {...field} /></FormControl></FormItem>
+                      )} />
+                      <FormField control={purchaseForm.control} name="villageName" render={({ field }) => (
+                        <FormItem><Label className="text-[10px] font-black uppercase opacity-40 ml-2">Village</Label><FormControl><Input className="h-12 rounded-xl bg-white/5 border-none text-white font-bold" {...field} /></FormControl></FormItem>
                       )} />
                       <div className="grid grid-cols-2 gap-4">
                         <FormField control={purchaseForm.control} name="animalCount" render={({ field }) => (
@@ -374,12 +428,12 @@ export default function TradeLedgerPage() {
                     <TableBody>
                       {sortedPurchases.length > 0 ? (
                         sortedPurchases.map((p) => (
-                          <TableRow key={p.id} className="group hover:bg-neutral-50 transition-all border-neutral-50">
+                          <TableRow key={p.id} className="group hover:bg-neutral-50 border-neutral-50 transition-all cursor-zoom-in active:scale-[0.995]" onClick={() => handleEditPurchase(p)}>
                             <TableCell className="pl-8 py-6 text-[10px] font-black text-muted-foreground/60 uppercase">{p.purchaseDate}</TableCell>
                             <TableCell>
                               <div className="flex flex-col">
-                                <span className="text-sm font-black text-neutral-900">{p.villageName}</span>
-                                <span className="text-[9px] font-bold text-muted-foreground uppercase opacity-60">{p.farmerName}</span>
+                                <span className="text-sm font-black text-neutral-900">{p.farmerName}</span>
+                                <span className="text-[9px] font-bold text-muted-foreground uppercase opacity-60">{p.villageName}</span>
                               </div>
                             </TableCell>
                             <TableCell><Badge className="bg-primary/5 text-primary border-none font-black text-[10px] px-3">{p.animalCount} Head</Badge></TableCell>
@@ -393,7 +447,7 @@ export default function TradeLedgerPage() {
                             </TableCell>
                             <TableCell className="pr-4" onClick={(e) => e.stopPropagation()}>
                               <div className="flex gap-2 opacity-0 group-hover:opacity-100">
-                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl bg-neutral-100" onClick={() => { setEditingPurchase(p); setIsEditPurchaseOpen(true); }}><Pencil className="h-3.5 w-3.5" /></Button>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl bg-neutral-100" onClick={() => handleEditPurchase(p)}><Pencil className="h-3.5 w-3.5" /></Button>
                                 <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl bg-rose-50 text-rose-600" onClick={() => deletePurchase(p.id, p._path)}><Trash2 className="h-3.5 w-3.5" /></Button>
                               </div>
                             </TableCell>
@@ -411,14 +465,65 @@ export default function TradeLedgerPage() {
         </TabsContent>
       </Tabs>
 
-      {/* --- DIALOGS: EDIT TRADE --- */}
+      {/* --- DIALOGS: EDIT SALE --- */}
       <Dialog open={isEditSaleOpen} onOpenChange={setIsEditSaleOpen}>
         <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
             <DialogTitle className="text-xl font-black uppercase">Update Disposal</DialogTitle>
             <DialogDescription className="text-white/40 text-xs uppercase tracking-widest">Adjust record for: {editingSale?.buyerName}</DialogDescription>
           </DialogHeader>
-          {/* Content Omitted for brevity, follows pattern of original edit forms */}
+          <Form {...editSalesForm}>
+            <form onSubmit={editSalesForm.handleSubmit(onEditSaleSubmit)} className="space-y-6 p-8 bg-white">
+              <FormField control={editSalesForm.control} name="saleDate" render={({ field }) => (
+                <FormItem className="flex flex-col"><Label className="text-xs font-black uppercase opacity-40">Date</Label><Popover><PopoverTrigger asChild><Button variant="outline" className="h-12 rounded-xl bg-neutral-50 border-none font-bold text-left px-4">{field.value ? format(field.value, "MMM dd, yy") : "Select"}</Button></PopoverTrigger><PopoverContent className="w-auto p-0"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover></FormItem>
+              )} />
+              <div className="grid grid-cols-2 gap-4">
+                <FormField control={editSalesForm.control} name="buyerName" render={({ field }) => (<FormItem><Label className="text-xs font-black uppercase opacity-40">Buyer</Label><FormControl><Input className="h-12 rounded-xl bg-neutral-50 border-none font-bold" {...field} /></FormControl></FormItem>)} />
+                <FormField control={editSalesForm.control} name="buyerVillage" render={({ field }) => (<FormItem><Label className="text-xs font-black uppercase opacity-40">Village</Label><FormControl><Input className="h-12 rounded-xl bg-neutral-50 border-none font-bold" {...field} /></FormControl></FormItem>)} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <FormField control={editSalesForm.control} name="salePrice" render={({ field }) => (<FormItem><Label className="text-xs font-black uppercase opacity-40">Price</Label><FormControl><Input type="number" className="h-12 rounded-xl bg-neutral-50 border-none font-black" {...field} /></FormControl></FormItem>)} />
+                <FormField control={editSalesForm.control} name="amountReceived" render={({ field }) => (<FormItem><Label className="text-xs font-black uppercase opacity-40">Received</Label><FormControl><Input type="number" className="h-12 rounded-xl bg-emerald-50 border-none text-emerald-600 font-bold" {...field} /></FormControl></FormItem>)} />
+              </div>
+              <DialogFooter className="pt-4 gap-4">
+                <Button variant="outline" type="button" onClick={() => setIsEditSaleOpen(false)} className="h-12 px-6 rounded-xl font-bold uppercase text-xs">Cancel</Button>
+                <Button type="submit" className="h-12 px-8 rounded-xl font-black uppercase bg-neutral-900 text-white hover:bg-neutral-800 flex-1 text-xs">
+                  <Save className="mr-2 h-4 w-4" /> Save Ledger Changes
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* --- DIALOGS: EDIT ACQUISITION --- */}
+      <Dialog open={isEditPurchaseOpen} onOpenChange={setIsEditPurchaseOpen}>
+        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
+          <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
+            <DialogTitle className="text-xl font-black uppercase">Update Acquisition</DialogTitle>
+            <DialogDescription className="text-white/40 text-xs uppercase tracking-widest">Adjust record for: {editingPurchase?.farmerName}</DialogDescription>
+          </DialogHeader>
+          <Form {...editPurchaseForm}>
+            <form onSubmit={editPurchaseForm.handleSubmit(onEditPurchaseSubmit)} className="space-y-6 p-8 bg-white">
+              <FormField control={editPurchaseForm.control} name="purchaseDate" render={({ field }) => (
+                <FormItem className="flex flex-col"><Label className="text-xs font-black uppercase opacity-40">Date</Label><Popover><PopoverTrigger asChild><Button variant="outline" className="h-12 rounded-xl bg-neutral-50 border-none font-bold text-left px-4">{field.value ? format(field.value, "MMM dd, yy") : "Select"}</Button></PopoverTrigger><PopoverContent className="w-auto p-0"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover></FormItem>
+              )} />
+              <div className="grid grid-cols-2 gap-4">
+                <FormField control={editPurchaseForm.control} name="farmerName" render={({ field }) => (<FormItem><Label className="text-xs font-black uppercase opacity-40">Farmer</Label><FormControl><Input className="h-12 rounded-xl bg-neutral-50 border-none font-bold" {...field} /></FormControl></FormItem>)} />
+                <FormField control={editPurchaseForm.control} name="villageName" render={({ field }) => (<FormItem><Label className="text-xs font-black uppercase opacity-40">Village</Label><FormControl><Input className="h-12 rounded-xl bg-neutral-50 border-none font-bold" {...field} /></FormControl></FormItem>)} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <FormField control={editPurchaseForm.control} name="purchasePrice" render={({ field }) => (<FormItem><Label className="text-xs font-black uppercase opacity-40">Total Price</Label><FormControl><Input type="number" className="h-12 rounded-xl bg-neutral-50 border-none font-black" {...field} /></FormControl></FormItem>)} />
+                <FormField control={editPurchaseForm.control} name="amountPaid" render={({ field }) => (<FormItem><Label className="text-xs font-black uppercase opacity-40">Paid</Label><FormControl><Input type="number" className="h-12 rounded-xl bg-emerald-50 border-none text-emerald-600 font-bold" {...field} /></FormControl></FormItem>)} />
+              </div>
+              <DialogFooter className="pt-4 gap-4">
+                <Button variant="outline" type="button" onClick={() => setIsEditPurchaseOpen(false)} className="h-12 px-6 rounded-xl font-bold uppercase text-xs">Cancel</Button>
+                <Button type="submit" className="h-12 px-8 rounded-xl font-black uppercase bg-neutral-900 text-white hover:bg-neutral-800 flex-1 text-xs">
+                  <Save className="mr-2 h-4 w-4" /> Save Ledger Changes
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
     </div>
