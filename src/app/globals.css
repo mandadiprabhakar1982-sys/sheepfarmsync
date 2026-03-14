@@ -56,8 +56,8 @@
 /* Header */
 .top-header {
   height: 78px;
-  background: rgba(255, 255, 255, 0.92);
-  border-bottom: 1px solid #d9e4cf;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
   border-top-left-radius: 28px;
   border-top-right-radius: 28px;
 }

@@ -1,11 +1,30 @@
 'use client';
 
-import { Monitor } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 import { UserNav } from '@/components/user-nav';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/app-sidebar';
 import { useFarm } from '@/context/FarmContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { Logo } from '@/components/logo';
+
+const routeToKey: Record<string, string> = {
+  '/dashboard': 'dashboard_hero',
+  '/dashboard/overview': 'overview',
+  '/dashboard/analysis': 'intelligence',
+  '/dashboard/monthly-ledger': 'ledger',
+  '/dashboard/balance-sheet': 'liabilities',
+  '/dashboard/livestock': 'flock',
+  '/dashboard/sales': 'sales',
+  '/dashboard/mortality': 'mortality',
+  '/dashboard/expenses': 'expenses',
+  '/dashboard/medicine': 'health',
+  '/dashboard/feed': 'feed',
+  '/dashboard/labor': 'labor',
+  '/dashboard/marketplace': 'marketplace',
+  '/dashboard/feed-calculator': 'calculator',
+  '/dashboard/help': 'install',
+};
 
 export default function DashboardLayout({
   children,
@@ -13,6 +32,11 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const { isLoadingProfile } = useFarm();
+  const { t } = useLanguage();
+  const pathname = usePathname();
+  
+  const pageTitleKey = routeToKey[pathname] || 'home';
+  const pageTitle = t(pageTitleKey);
 
   if (isLoadingProfile) {
     return (
@@ -32,19 +56,22 @@ export default function DashboardLayout({
 
         <SidebarInset className="flex flex-col relative bg-transparent z-10">
           <div className="app-shell flex flex-col overflow-hidden">
-            {/* Header Bar */}
-            <header className="top-header flex items-center justify-between gap-4 px-8 sticky top-0 z-50">
-              <div className="flex items-center gap-8">
-                <Logo className="md:hidden" />
-                <div className="hidden md:flex items-center gap-3 text-[#365314]/40">
-                  <span className="text-[11px] font-bold tracking-[0.1em] uppercase">PREMIUM FARM MANAGEMENT</span>
-                </div>
+            {/* Standardized Universal Header */}
+            <header className="top-header flex items-center justify-between px-8 sticky top-0 z-50">
+              {/* Logo Left */}
+              <div className="flex-1 flex justify-start">
+                <Logo />
               </div>
               
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-3 text-[#365314]/40 px-4">
-                   <Monitor className="h-4 w-4" />
-                </div>
+              {/* Page Title Center */}
+              <div className="flex-1 flex justify-center">
+                <h2 className="text-[13px] font-black uppercase tracking-[0.2em] text-[#365314] whitespace-nowrap">
+                  {pageTitle}
+                </h2>
+              </div>
+              
+              {/* Profile Right */}
+              <div className="flex-1 flex justify-end">
                 <UserNav />
               </div>
             </header>
