@@ -16,7 +16,7 @@
     --secondary-foreground: 84 47% 11.2%;
     --muted: 84 20% 90%;
     --muted-foreground: 84 16.3% 46.9%;
-    --accent: 38 92% 50%;       /* Sunset Gold */
+    --accent: 38 92% 50%;       /* Sunset Gold sampled from image sun */
     --accent-foreground: 84 47% 11.2%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
@@ -93,7 +93,8 @@
 }
 
 .dashboard-backdrop {
-  background-image: linear-gradient(to bottom, rgba(248, 250, 242, 0.4), rgba(248, 250, 242, 0.85)), url('https://images.unsplash.com/photo-1511117835895-4b902c0b6348?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1920');
+  /* High-fidelity background with warm sunset overlay mapping the provided image */
+  background-image: linear-gradient(to bottom, rgba(255, 247, 237, 0.3), rgba(248, 250, 242, 0.85)), url('https://images.unsplash.com/photo-1589923188900-85dae523342b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;

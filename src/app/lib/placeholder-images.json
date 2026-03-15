@@ -1,4 +1,3 @@
-
 {
   "placeholderImages": [
     {
@@ -11,61 +10,61 @@
       "id": "dash-analytics",
       "description": "Overview Analytics",
       "imageUrl": "https://picsum.photos/seed/dash-analytics/400/400",
-      "imageHint": "3d chart icon"
+      "imageHint": "high-fidelity blue atom icon"
     },
     {
       "id": "dash-ledger",
       "description": "Monthly Ledger",
       "imageUrl": "https://picsum.photos/seed/dash-ledger/400/400",
-      "imageHint": "3d wallet icon"
+      "imageHint": "purple database lock icon"
     },
     {
       "id": "dash-liabilities",
       "description": "Liabilities",
       "imageUrl": "https://picsum.photos/seed/dash-liabilities/400/400",
-      "imageHint": "3d bank icon"
+      "imageHint": "geometric gray crystal icon"
     },
     {
       "id": "dash-flock",
       "description": "Flock",
       "imageUrl": "https://picsum.photos/seed/dash-flock/400/400",
-      "imageHint": "3d sheep icon"
+      "imageHint": "shepherd sheep dog landscape illustration"
     },
     {
       "id": "dash-sales",
       "description": "Purchases & Sales",
       "imageUrl": "https://picsum.photos/seed/dash-sales/400/400",
-      "imageHint": "3d shopping icon"
+      "imageHint": "green warehouse conveyor icon"
     },
     {
       "id": "dash-health",
       "description": "Health",
       "imageUrl": "https://picsum.photos/seed/dash-health/400/400",
-      "imageHint": "3d medical icon"
+      "imageHint": "caduceus microscope dna medical illustration"
     },
     {
       "id": "dash-feed",
       "description": "Feed",
       "imageUrl": "https://picsum.photos/seed/dash-feed/400/400",
-      "imageHint": "3d grain icon"
+      "imageHint": "grain sack wheat silos agriculture illustration"
     },
     {
       "id": "dash-labor",
       "description": "Labor",
       "imageUrl": "https://picsum.photos/seed/dash-labor/400/400",
-      "imageHint": "3d people icon"
+      "imageHint": "orange people group icon"
     },
     {
       "id": "dash-expenses",
       "description": "Expenses",
       "imageUrl": "https://picsum.photos/seed/dash-expenses/400/400",
-      "imageHint": "3d receipt icon"
+      "imageHint": "blue dollar box icon"
     },
     {
       "id": "telangana-backdrop",
       "description": "Telangana Sheep Farm Backdrop",
-      "imageUrl": "https://images.unsplash.com/photo-1511117835895-4b902c0b6348?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1920",
-      "imageHint": "sheep farm sunset"
+      "imageUrl": "https://images.unsplash.com/photo-1589923188900-85dae523342b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80",
+      "imageHint": "telangana sunset farm sheep"
     }
   ]
 }
