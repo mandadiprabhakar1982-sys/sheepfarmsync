@@ -94,7 +94,7 @@
 
 .dashboard-backdrop {
   /* High-fidelity background with warm sunset overlay mapping the provided image */
-  background-image: linear-gradient(to bottom, rgba(255, 247, 237, 0.3), rgba(248, 250, 242, 0.85)), url('https://images.unsplash.com/photo-1589923188900-85dae523342b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+  background-image: linear-gradient(to bottom, rgba(255, 247, 237, 0.3), rgba(248, 250, 242, 0.85)), url('https://firebasestorage.googleapis.com/v0/b/studio-7371766246-d12c8.firebasestorage.app/o/ChatGPT%20Image%20Mar%2015%2C%202026%2C%2007_48_46%20PM.png?alt=media&token=bfab8b76-54b7-47ff-beeb-afd82a03b28e');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
