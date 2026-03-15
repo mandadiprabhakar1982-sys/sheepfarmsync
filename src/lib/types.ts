@@ -10,6 +10,7 @@ export type LivestockPurchase = AnalyzeFarmCostsInput['livestockPurchases'][0] &
   createdBy?: string;
   creatorEmail?: string;
   creatorName?: string;
+  imageUrl?: string;
 };
 
 export type MedicineExpense = AnalyzeFarmCostsInput['medicineExpenses'][0] & { 
@@ -42,6 +43,7 @@ export type FarmExpense = AnalyzeFarmCostsInput['farmExpenses'][0] & {
   createdBy?: string;
   creatorEmail?: string;
   creatorName?: string;
+  imageUrl?: string;
 };
 
 export type AnimalSale = {
@@ -59,6 +61,7 @@ export type AnimalSale = {
   createdBy?: string;
   creatorEmail?: string;
   creatorName?: string;
+  imageUrl?: string;
 };
 
 export type PublicSale = {
