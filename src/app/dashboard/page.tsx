@@ -110,34 +110,28 @@ export default function DashboardPage() {
   }
 
   const HubCard = ({ item }: { item: any }) => {
-    const Icon = item.icon;
     const imageData = PlaceHolderImages.find(img => img.id === item.imageId);
     
     return (
       <Link href={item.href} className="group transition-all active:scale-95">
-        <div className="hub-card w-full h-[240px] bg-white rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-6 border border-slate-100 hover:border-primary/40 hover:-translate-y-2 transition-all shadow-xl hover:shadow-2xl relative overflow-hidden">
-          {/* Background Hint Image */}
-          {imageData && (
-            <div className="absolute inset-0 z-0 opacity-[0.08] grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700">
+        <div className="w-full h-[280px] bg-white rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-6 shadow-[0_20px_50px_rgba(0,0,0,0.05)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.1)] transition-all hover:-translate-y-2 border border-white relative">
+          
+          {/* Illustration Container */}
+          <div className="relative w-32 h-32 mb-2 transition-transform group-hover:scale-110 duration-500">
+            {imageData && (
               <Image 
                 src={imageData.imageUrl} 
                 alt={imageData.description}
                 fill
-                className="object-cover"
+                className="object-contain"
                 data-ai-hint={imageData.imageHint}
               />
-            </div>
-          )}
-          
-          <div className="absolute inset-0 bg-gradient-to-br from-white via-white/95 to-primary/5 z-1" />
-          
-          <div className="p-5 rounded-[2rem] flex items-center justify-center relative z-10 transition-transform group-hover:scale-110 duration-500 shadow-inner bg-primary/10">
-            <Icon className="h-14 w-14 text-primary" />
+            )}
           </div>
           
-          <div className="text-center relative z-10">
-            <h3 className="text-[14px] font-black text-slate-900 tracking-wider leading-none mb-2 uppercase">{item.title}</h3>
-            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em]">{item.subtitle}</p>
+          <div className="text-center">
+            <h3 className="text-[15px] font-black text-slate-900 tracking-wider leading-none mb-2 uppercase">{item.title}</h3>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em]">{item.subtitle}</p>
           </div>
         </div>
       </Link>
@@ -145,34 +139,35 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="animate-in fade-in duration-1000 max-w-7xl mx-auto py-8">
-      <div className="flex items-center gap-8 mb-16">
+    <div className="animate-in fade-in duration-1000 max-w-7xl mx-auto py-8 px-4">
+      <div className="flex items-center gap-6 mb-16">
         <HubSparkle />
-        <div className="space-y-1">
-          <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none">
+        <div className="space-y-1.5">
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight uppercase leading-none">
             SYSTEM COMMAND HUB
           </h1>
-          <p className="text-[11px] font-black text-primary uppercase tracking-[0.5em]">
+          <p className="text-[10px] font-black text-primary/60 uppercase tracking-[0.4em]">
             SYNCHRONIZED OPERATIONAL ENVIRONMENT
           </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
         {groups[0].items.map((item, idx) => {
           if (item.adminOnly && !isAdmin) return null;
           return <HubCard key={idx} item={item} />;
         })}
       </div>
       
-      <div className="mt-24 border-t border-slate-200 pt-10 opacity-40">
+      <div className="mt-24 border-t border-slate-200/60 pt-10 opacity-30">
         <div className="flex justify-between items-center">
           <div>
             <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">SYNC PRO ENTERPRISE</p>
             <p className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter mt-1">Tactical v4.5.0 Deployment</p>
           </div>
-          <div className="h-8 w-8 rounded-full border-2 border-slate-200 flex items-center justify-center">
-            <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+          <div className="h-10 w-10 flex items-center justify-center relative">
+             <div className="absolute inset-0 bg-primary/10 rounded-full animate-ping opacity-20" />
+             <div className="h-2 w-2 rounded-full bg-primary" />
           </div>
         </div>
       </div>

@@ -1,3 +1,4 @@
+
 import { cn } from '@/lib/utils';
 import { 
   Sparkles, 
@@ -23,8 +24,8 @@ export const Logo = ({ className }: { className?: string }) => (
 export const SyncProIcon = ({ className }: { className?: string }) => <Sparkles className={className} />;
 
 export const HubSparkle = ({ className }: { className?: string }) => (
-  <div className={cn("bg-white p-5 rounded-[20px] shadow-xl border border-slate-100", className)}>
-    <Sparkles className="h-7 w-7 text-[#3B82F6]" />
+  <div className={cn("bg-white p-4 rounded-2xl shadow-xl border border-slate-100/50 flex items-center justify-center", className)}>
+    <Sparkles className="h-6 w-6 text-[#3B82F6]" />
   </div>
 );
 
