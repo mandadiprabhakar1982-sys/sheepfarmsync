@@ -17,7 +17,8 @@ import {
   Upload,
   RefreshCcw,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  X
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -78,6 +79,7 @@ export default function LivestockPage() {
   // Camera & Photo State
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
+  const [isCameraActive, setIsCameraActive] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -89,30 +91,35 @@ export default function LivestockPage() {
   const editAssetForm = useForm<AssetFormData>({ resolver: zodResolver(assetSchema) });
 
   // Handle Camera Permission
-  useEffect(() => {
-    const getCameraPermission = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-        setHasCameraPermission(true);
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-      } catch (error) {
-        console.error('Error accessing camera:', error);
-        setHasCameraPermission(false);
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: 'environment' } 
+      });
+      setHasCameraPermission(true);
+      setIsCameraActive(true);
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
       }
-    };
+    } catch (error) {
+      console.error('Error accessing camera:', error);
+      setHasCameraPermission(false);
+      toast({
+        variant: 'destructive',
+        title: 'Camera Access Denied',
+        description: 'Please enable camera permissions in your browser settings to use this feature.',
+      });
+    }
+  };
 
-    getCameraPermission();
-
-    // Cleanup stream on unmount
-    return () => {
-      if (videoRef.current && videoRef.current.srcObject) {
-        const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
-        tracks.forEach(track => track.stop());
-      }
-    };
-  }, []);
+  const stopCamera = () => {
+    if (videoRef.current && videoRef.current.srcObject) {
+      const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
+      tracks.forEach(track => track.stop());
+      videoRef.current.srcObject = null;
+    }
+    setIsCameraActive(false);
+  };
 
   const capturePhoto = () => {
     if (videoRef.current && canvasRef.current) {
@@ -126,6 +133,7 @@ export default function LivestockPage() {
         const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
         setCapturedPhoto(dataUrl);
         assetForm.setValue('photoDataUrl', dataUrl);
+        stopCamera();
       }
     }
   };
@@ -138,6 +146,7 @@ export default function LivestockPage() {
         const dataUrl = reader.result as string;
         setCapturedPhoto(dataUrl);
         assetForm.setValue('photoDataUrl', dataUrl);
+        setIsCameraActive(false);
       };
       reader.readAsDataURL(file);
     }
@@ -146,6 +155,7 @@ export default function LivestockPage() {
   const resetPhoto = () => {
     setCapturedPhoto(null);
     assetForm.setValue('photoDataUrl', '');
+    setIsCameraActive(false);
   };
 
   const filteredAssets = useMemo(() => {
@@ -159,6 +169,7 @@ export default function LivestockPage() {
     addTrackedSheep({ ...data, registrationDate: format(data.registrationDate, 'yyyy-MM-dd') });
     assetForm.reset();
     setCapturedPhoto(null);
+    stopCamera();
     toast({ title: 'Record Saved', description: `Asset ${data.tagId} synchronized.` });
   };
 
@@ -324,47 +335,69 @@ export default function LivestockPage() {
                         className="absolute top-4 right-4 h-10 w-10 rounded-full shadow-lg"
                         onClick={resetPhoto}
                       >
-                        <RefreshCcw className="h-4 w-4" />
+                        <X className="h-4 w-4" />
                       </Button>
                     </>
+                  ) : isCameraActive ? (
+                    <div className="relative w-full h-full">
+                      <video 
+                        ref={videoRef} 
+                        className="w-full h-full object-cover" 
+                        autoPlay 
+                        muted 
+                        playsInline 
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none border-2 border-emerald-500/30 rounded-3xl" />
+                    </div>
                   ) : (
                     <div className="flex flex-col items-center gap-4">
-                      <video ref={videoRef} className="absolute inset-0 w-full h-full object-cover opacity-0 pointer-events-none" autoPlay muted playsInline />
                       <div className="p-6 rounded-full bg-white shadow-sm border border-slate-100 text-slate-300">
                         <Camera className="h-8 w-8" />
                       </div>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Awaiting Capture</p>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">No Media Selected</p>
                     </div>
                   )}
                 </div>
 
                 {!capturedPhoto && (
                   <div className="grid grid-cols-2 gap-4 mt-4">
-                    <Button 
-                      type="button" 
-                      onClick={capturePhoto} 
-                      disabled={hasCameraPermission === false}
-                      className="h-12 rounded-xl bg-neutral-900 hover:bg-black text-white font-black text-[10px] uppercase tracking-widest gap-2"
-                    >
-                      <Camera className="h-4 w-4 text-emerald-400" />
-                      Take Photo
-                    </Button>
-                    <div className="relative">
-                      <Input 
-                        type="file" 
-                        accept="image/*" 
-                        onChange={handleFileUpload}
-                        className="absolute inset-0 opacity-0 cursor-pointer z-10"
-                      />
+                    {isCameraActive ? (
                       <Button 
                         type="button" 
-                        variant="outline" 
-                        className="w-full h-12 rounded-xl border-slate-200 font-black text-[10px] uppercase tracking-widest gap-2"
+                        onClick={capturePhoto} 
+                        className="col-span-2 h-14 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs uppercase tracking-widest gap-2 shadow-lg shadow-emerald-500/20"
                       >
-                        <Upload className="h-4 w-4 text-blue-500" />
-                        Gallery
+                        <Camera className="h-5 w-5" />
+                        Capture Frame
                       </Button>
-                    </div>
+                    ) : (
+                      <>
+                        <Button 
+                          type="button" 
+                          onClick={startCamera} 
+                          className="h-12 rounded-xl bg-neutral-900 hover:bg-black text-white font-black text-[10px] uppercase tracking-widest gap-2"
+                        >
+                          <Camera className="h-4 w-4 text-emerald-400" />
+                          Open Camera
+                        </Button>
+                        <div className="relative">
+                          <Input 
+                            type="file" 
+                            accept="image/*" 
+                            onChange={handleFileUpload}
+                            className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                          />
+                          <Button 
+                            type="button" 
+                            variant="outline" 
+                            className="w-full h-12 rounded-xl border-slate-200 font-black text-[10px] uppercase tracking-widest gap-2"
+                          >
+                            <Upload className="h-4 w-4 text-blue-500" />
+                            Gallery
+                          </Button>
+                        </div>
+                      </>
+                    )}
                   </div>
                 )}
 
@@ -372,7 +405,7 @@ export default function LivestockPage() {
                   <Alert variant="destructive" className="mt-4 rounded-2xl border-none bg-rose-50">
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle className="text-[10px] font-black uppercase tracking-widest">Camera Locked</AlertTitle>
-                    <AlertDescription className="text-[10px] font-bold">Please allow camera access in browser settings.</AlertDescription>
+                    <AlertDescription className="text-[10px] font-bold">Please allow camera access in browser settings to use the capture feature.</AlertDescription>
                   </Alert>
                 )}
               </div>
