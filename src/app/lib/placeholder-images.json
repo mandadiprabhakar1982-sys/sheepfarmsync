@@ -64,8 +64,8 @@
     {
       "id": "telangana-backdrop",
       "description": "Telangana Farm Backdrop",
-      "imageUrl": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxmYXJtJTIwc3Vuc2V0fGVufDB8fHx8MTc3MTQ4MDEzNXww&ixlib=rb-4.1.0&q=80&w=1920",
-      "imageHint": "farm sunset"
+      "imageUrl": "https://images.unsplash.com/photo-1516467508483-a7212febe31a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1920",
+      "imageHint": "sheep field sunset"
     }
   ]
 }
