@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -13,7 +13,11 @@ import {
   Scale,
   Users,
   ClipboardList,
-  Camera
+  Camera,
+  Upload,
+  RefreshCcw,
+  CheckCircle2,
+  AlertCircle
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -44,6 +48,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const assetSchema = z.object({
   tagId: z.string().min(1, 'Tag ID is required'),
@@ -54,6 +59,7 @@ const assetSchema = z.object({
   breed: z.string().min(1, 'Breed is required').default('Standard'),
   shepherd: z.string().optional(),
   task: z.string().optional(),
+  photoDataUrl: z.string().optional(),
 });
 
 type AssetFormData = z.infer<typeof assetSchema>;
@@ -69,12 +75,78 @@ export default function LivestockPage() {
   const [editingAsset, setEditingAsset] = useState<any>(null);
   const [isEditAssetOpen, setIsEditAssetOpen] = useState(false);
   
+  // Camera & Photo State
+  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
+  const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
   const assetForm = useForm<AssetFormData>({
     resolver: zodResolver(assetSchema),
-    defaultValues: { tagId: '', registrationDate: new Date(), gender: 'female', age: 6, currentWeight: 25, breed: 'Standard', shepherd: '', task: 'Flock Check-in' },
+    defaultValues: { tagId: '', registrationDate: new Date(), gender: 'female', age: 6, currentWeight: 25, breed: 'Standard', shepherd: '', task: 'Flock Check-in', photoDataUrl: '' },
   });
 
   const editAssetForm = useForm<AssetFormData>({ resolver: zodResolver(assetSchema) });
+
+  // Handle Camera Permission
+  useEffect(() => {
+    const getCameraPermission = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        setHasCameraPermission(true);
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      } catch (error) {
+        console.error('Error accessing camera:', error);
+        setHasCameraPermission(false);
+      }
+    };
+
+    getCameraPermission();
+
+    // Cleanup stream on unmount
+    return () => {
+      if (videoRef.current && videoRef.current.srcObject) {
+        const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
+        tracks.forEach(track => track.stop());
+      }
+    };
+  }, []);
+
+  const capturePhoto = () => {
+    if (videoRef.current && canvasRef.current) {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const context = canvas.getContext('2d');
+      if (context) {
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+        setCapturedPhoto(dataUrl);
+        assetForm.setValue('photoDataUrl', dataUrl);
+      }
+    }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const dataUrl = reader.result as string;
+        setCapturedPhoto(dataUrl);
+        assetForm.setValue('photoDataUrl', dataUrl);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const resetPhoto = () => {
+    setCapturedPhoto(null);
+    assetForm.setValue('photoDataUrl', '');
+  };
 
   const filteredAssets = useMemo(() => {
     if (!trackedSheep) return [];
@@ -86,6 +158,7 @@ export default function LivestockPage() {
   const onAssetSubmit: SubmitHandler<AssetFormData> = (data) => {
     addTrackedSheep({ ...data, registrationDate: format(data.registrationDate, 'yyyy-MM-dd') });
     assetForm.reset();
+    setCapturedPhoto(null);
     toast({ title: 'Record Saved', description: `Asset ${data.tagId} synchronized.` });
   };
 
@@ -127,7 +200,7 @@ export default function LivestockPage() {
           <div className="flex justify-between items-start">
             <div>
               <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Tracked Animals</p>
-              <p className="text-5xl font-black tracking-tighter text-slate-900">{totalTracked || 100}</p>
+              <p className="text-5xl font-black tracking-tighter text-slate-900">{totalTracked || 0}</p>
             </div>
             <div className="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center">
               <Users className="h-5 w-5 text-amber-600" />
@@ -140,7 +213,7 @@ export default function LivestockPage() {
           <div className="flex justify-between items-start">
             <div>
               <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Total Biomass</p>
-              <p className="text-5xl font-black tracking-tighter text-slate-900">{(totalTracked || 100) * 50}<span className="text-2xl ml-2 opacity-20">kg</span></p>
+              <p className="text-5xl font-black tracking-tighter text-slate-900">{(totalTracked || 0) * 50}<span className="text-2xl ml-2 opacity-20">kg</span></p>
             </div>
             <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
               <Scale className="h-5 w-5 text-purple-600" />
@@ -153,7 +226,7 @@ export default function LivestockPage() {
           <div className="flex justify-between items-start">
             <div>
               <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Daily Feed (KG)</p>
-              <p className="text-5xl font-black tracking-tighter text-slate-900">{totalDailyFeed ? totalDailyFeed.toFixed(0) : 250}</p>
+              <p className="text-5xl font-black tracking-tighter text-slate-900">{totalDailyFeed ? totalDailyFeed.toFixed(0) : 0}</p>
             </div>
             <div className="h-10 w-10 rounded-full bg-rose-100 flex items-center justify-center">
               <ClipboardList className="h-5 w-5 text-rose-600" />
@@ -238,9 +311,81 @@ export default function LivestockPage() {
               <h3 className="text-lg font-black uppercase tracking-widest">Add New Sheep</h3>
             </div>
             
+            <div className="mb-8 space-y-4">
+              <Label className="form-label-tactical text-slate-400">Sheep Identity Photo</Label>
+              <div className="relative group">
+                <div className="w-full aspect-video rounded-3xl bg-slate-50 border-2 border-dashed border-slate-200 overflow-hidden flex items-center justify-center relative">
+                  {capturedPhoto ? (
+                    <>
+                      <img src={capturedPhoto} className="w-full h-full object-cover" alt="Captured sheep" />
+                      <Button 
+                        size="icon" 
+                        variant="destructive" 
+                        className="absolute top-4 right-4 h-10 w-10 rounded-full shadow-lg"
+                        onClick={resetPhoto}
+                      >
+                        <RefreshCcw className="h-4 w-4" />
+                      </Button>
+                    </>
+                  ) : (
+                    <div className="flex flex-col items-center gap-4">
+                      <video ref={videoRef} className="absolute inset-0 w-full h-full object-cover opacity-0 pointer-events-none" autoPlay muted playsInline />
+                      <div className="p-6 rounded-full bg-white shadow-sm border border-slate-100 text-slate-300">
+                        <Camera className="h-8 w-8" />
+                      </div>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Awaiting Capture</p>
+                    </div>
+                  )}
+                </div>
+
+                {!capturedPhoto && (
+                  <div className="grid grid-cols-2 gap-4 mt-4">
+                    <Button 
+                      type="button" 
+                      onClick={capturePhoto} 
+                      disabled={hasCameraPermission === false}
+                      className="h-12 rounded-xl bg-neutral-900 hover:bg-black text-white font-black text-[10px] uppercase tracking-widest gap-2"
+                    >
+                      <Camera className="h-4 w-4 text-emerald-400" />
+                      Take Photo
+                    </Button>
+                    <div className="relative">
+                      <Input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={handleFileUpload}
+                        className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                      />
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        className="w-full h-12 rounded-xl border-slate-200 font-black text-[10px] uppercase tracking-widest gap-2"
+                      >
+                        <Upload className="h-4 w-4 text-blue-500" />
+                        Gallery
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {hasCameraPermission === false && (
+                  <Alert variant="destructive" className="mt-4 rounded-2xl border-none bg-rose-50">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle className="text-[10px] font-black uppercase tracking-widest">Camera Locked</AlertTitle>
+                    <AlertDescription className="text-[10px] font-bold">Please allow camera access in browser settings.</AlertDescription>
+                  </Alert>
+                )}
+              </div>
+            </div>
+
             <Form {...assetForm}>
               <form onSubmit={assetForm.handleSubmit(onAssetSubmit)} className="space-y-10">
                 <div className="space-y-8">
+                  <div className="space-y-2">
+                    <Label className="form-label-tactical text-slate-400">Tag ID</Label>
+                    <Input placeholder="e.g., A-102" className="form-input-tactical bg-slate-50 border-slate-200 text-slate-900" {...assetForm.register('tagId')} />
+                  </div>
+
                   <FormField control={assetForm.control} name="registrationDate" render={({ field }) => (
                     <FormItem className="flex flex-col">
                       <Label className="form-label-tactical text-slate-400">Registration Date</Label>
@@ -270,6 +415,15 @@ export default function LivestockPage() {
                         </Select>
                       </FormItem>
                     )} />
+                    <FormField control={assetForm.control} name="currentWeight" render={({ field }) => (
+                      <FormItem>
+                        <Label className="form-label-tactical text-slate-400">Weight (KG)</Label>
+                        <FormControl><Input type="number" step="0.1" className="form-input-tactical bg-slate-50 border-slate-200 text-slate-900 font-black" {...field} /></FormControl>
+                      </FormItem>
+                    )} />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-6">
                     <FormField control={assetForm.control} name="age" render={({ field }) => (
                       <FormItem>
                         <Label className="form-label-tactical text-slate-400">Age (Mos)</Label>
@@ -281,24 +435,19 @@ export default function LivestockPage() {
                         </Select>
                       </FormItem>
                     )} />
+                    <FormField control={assetForm.control} name="gender" render={({ field }) => (
+                      <FormItem>
+                        <Label className="form-label-tactical text-slate-400">Gender</Label>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl><SelectTrigger className="form-input-tactical bg-slate-50 border-slate-200 text-slate-900"><SelectValue /></SelectTrigger></FormControl>
+                          <SelectContent className="bg-white border-slate-200">
+                            <SelectItem value="female">Female</SelectItem>
+                            <SelectItem value="male">Male</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )} />
                   </div>
-
-                  <div className="space-y-2">
-                    <Label className="form-label-tactical text-slate-400">Labor Assignment</Label>
-                    <Input placeholder="e.g., S. Singh" className="form-input-tactical bg-slate-50 border-slate-200 text-slate-900" {...assetForm.register('shepherd')} />
-                  </div>
-
-                  <FormField control={assetForm.control} name="task" render={({ field }) => (
-                    <FormItem>
-                      <Label className="form-label-tactical text-slate-400">Task Description</Label>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl><SelectTrigger className="form-input-tactical bg-slate-50 border-slate-200 text-slate-900"><SelectValue /></SelectTrigger></FormControl>
-                        <SelectContent className="bg-white border-slate-200">
-                          {['Flock Check-in', 'Medical Check', 'Tagging', 'Sorting'].map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                    </FormItem>
-                  )} />
                 </div>
 
                 <Button type="submit" className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm uppercase tracking-[0.25em] transition-all active:scale-95 shadow-xl">
@@ -331,6 +480,7 @@ export default function LivestockPage() {
           </Form>
         </DialogContent>
       </Dialog>
+      <canvas ref={canvasRef} className="hidden" />
     </div>
   );
 }
