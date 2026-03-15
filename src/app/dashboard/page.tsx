@@ -1,6 +1,8 @@
+
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useFarm } from '@/context/FarmContext';
 import { 
   HubSparkle,
@@ -14,6 +16,7 @@ import {
   IconLabor,
   IconExpenses
 } from '@/components/logo';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export default function DashboardPage() {
   const { 
@@ -30,14 +33,14 @@ export default function DashboardPage() {
           title: "OVERVIEW", 
           subtitle: "ANALYTICS ENGINE", 
           icon: IconOverview, 
-          color: "hsl(var(--primary))", 
+          imageId: "dash-analytics",
           href: '/dashboard/overview'
         },
         { 
           title: "MONTHLY LEDGER", 
           subtitle: "PRIVATE PROJECT", 
           icon: IconLedger, 
-          color: "hsl(var(--primary))", 
+          imageId: "dash-ledger",
           href: '/dashboard/monthly-ledger',
           adminOnly: true
         },
@@ -45,7 +48,7 @@ export default function DashboardPage() {
           title: "LIABILITIES", 
           subtitle: "PRIVATE PROJECT", 
           icon: IconLiabilities, 
-          color: "hsl(var(--primary))", 
+          imageId: "dash-liabilities",
           href: '/dashboard/balance-sheet',
           adminOnly: true
         },
@@ -53,42 +56,42 @@ export default function DashboardPage() {
           title: "FLOCK", 
           subtitle: "LIVESTOCK ASSETS", 
           icon: IconFlock, 
-          color: "hsl(var(--primary))", 
+          imageId: "dash-flock",
           href: '/dashboard/livestock'
         },
         { 
           title: "TRADE LEDGER", 
           subtitle: "BUY & DISPOSAL", 
           icon: IconTrade, 
-          color: "hsl(var(--primary))", 
+          imageId: "dash-sales",
           href: '/dashboard/sales'
         },
         { 
           title: "MEDICINES", 
           subtitle: "HEALTH & CLINICAL", 
           icon: IconHealth, 
-          color: "hsl(var(--primary))", 
+          imageId: "dash-health",
           href: '/dashboard/medicine'
         },
         { 
           title: "FEED", 
           subtitle: "GRAIN INVENTORY", 
           icon: IconFeed, 
-          color: "hsl(var(--primary))", 
+          imageId: "dash-feed",
           href: '/dashboard/feed'
         },
         { 
           title: "LABOR", 
           subtitle: "STAFF OPERATIONS", 
           icon: IconLabor, 
-          color: "hsl(var(--primary))", 
+          imageId: "dash-labor",
           href: '/dashboard/labor'
         },
         { 
           title: "EXPENSES", 
           subtitle: "OVERHEAD AUDIT", 
           icon: IconExpenses, 
-          color: "hsl(var(--primary))", 
+          imageId: "dash-expenses",
           href: '/dashboard/expenses'
         },
       ]
@@ -108,17 +111,33 @@ export default function DashboardPage() {
 
   const HubCard = ({ item }: { item: any }) => {
     const Icon = item.icon;
+    const imageData = PlaceHolderImages.find(img => img.id === item.imageId);
+    
     return (
       <Link href={item.href} className="group transition-all active:scale-95">
-        <div className="hub-card w-full h-[220px] bg-white rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-6 border border-slate-100 hover:border-primary/40 hover:-translate-y-1 transition-all shadow-xl hover:shadow-2xl relative overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+        <div className="hub-card w-full h-[240px] bg-white rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-6 border border-slate-100 hover:border-primary/40 hover:-translate-y-2 transition-all shadow-xl hover:shadow-2xl relative overflow-hidden">
+          {/* Background Hint Image */}
+          {imageData && (
+            <div className="absolute inset-0 z-0 opacity-[0.08] grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700">
+              <Image 
+                src={imageData.imageUrl} 
+                alt={imageData.description}
+                fill
+                className="object-cover"
+                data-ai-hint={imageData.imageHint}
+              />
+            </div>
+          )}
           
-          <div className="p-4 rounded-3xl flex items-center justify-center relative z-10 transition-transform group-hover:scale-110 duration-500" style={{ backgroundColor: `${item.color}15` }}>
-            <Icon className="h-16 w-16" style={{ color: item.color }} />
+          <div className="absolute inset-0 bg-gradient-to-br from-white via-white/95 to-primary/5 z-1" />
+          
+          <div className="p-5 rounded-[2rem] flex items-center justify-center relative z-10 transition-transform group-hover:scale-110 duration-500 shadow-inner bg-primary/10">
+            <Icon className="h-14 w-14 text-primary" />
           </div>
+          
           <div className="text-center relative z-10">
-            <h3 className="text-[13px] font-black text-slate-900 tracking-wider leading-none mb-1 uppercase">{item.title}</h3>
-            <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{item.subtitle}</p>
+            <h3 className="text-[14px] font-black text-slate-900 tracking-wider leading-none mb-2 uppercase">{item.title}</h3>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em]">{item.subtitle}</p>
           </div>
         </div>
       </Link>
@@ -127,28 +146,35 @@ export default function DashboardPage() {
 
   return (
     <div className="animate-in fade-in duration-1000 max-w-7xl mx-auto py-8">
-      <div className="flex items-center gap-8 mb-12">
+      <div className="flex items-center gap-8 mb-16">
         <HubSparkle />
         <div className="space-y-1">
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight uppercase">
+          <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none">
             SYSTEM COMMAND HUB
           </h1>
-          <p className="text-[11px] font-black text-primary uppercase tracking-[0.4em]">
+          <p className="text-[11px] font-black text-primary uppercase tracking-[0.5em]">
             SYNCHRONIZED OPERATIONAL ENVIRONMENT
           </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
         {groups[0].items.map((item, idx) => {
           if (item.adminOnly && !isAdmin) return null;
           return <HubCard key={idx} item={item} />;
         })}
       </div>
       
-      <div className="mt-20 border-t border-slate-100 pt-8 opacity-40">
-        <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">SYNC PRO ELITE</p>
-        <p className="text-[8px] font-bold text-slate-300 uppercase tracking-tighter">Tactical v4.2.0</p>
+      <div className="mt-24 border-t border-slate-200 pt-10 opacity-40">
+        <div className="flex justify-between items-center">
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">SYNC PRO ENTERPRISE</p>
+            <p className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter mt-1">Tactical v4.5.0 Deployment</p>
+          </div>
+          <div className="h-8 w-8 rounded-full border-2 border-slate-200 flex items-center justify-center">
+            <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+          </div>
+        </div>
       </div>
     </div>
   );
