@@ -15,7 +15,12 @@ import {
   Receipt,
   Users,
   ChevronRight,
-  Sparkles
+  Sparkles,
+  Syringe,
+  Wheat,
+  Calculator,
+  Globe,
+  Smartphone
 } from 'lucide-react';
 
 import {
@@ -42,8 +47,8 @@ export function AppSidebar() {
     {
       label: "HOME",
       links: [
-        { href: '/dashboard', label: "Home", icon: Home },
-        { href: '/dashboard/overview', label: "Overview", icon: LayoutDashboard },
+        { href: '/dashboard', label: "Dashboard Hub", icon: Home },
+        { href: '/dashboard/overview', label: "Analytics Overview", icon: LayoutDashboard },
         { href: '/dashboard/analysis', label: "AI Intelligence", icon: BarChart },
       ]
     },
@@ -51,18 +56,33 @@ export function AppSidebar() {
       label: "PRIVATE ASSETS",
       adminOnly: true,
       links: [
-        { href: '/dashboard/monthly-ledger', label: "Monthly Ledger", icon: Wallet },
-        { href: '/dashboard/balance-sheet', label: "Liabilities", icon: BookOpen },
+        { href: '/dashboard/monthly-ledger', label: "Monthly Balance Sheet", icon: Wallet },
+        { href: '/dashboard/balance-sheet', label: "Liability Portfolio", icon: BookOpen },
       ]
     },
     {
-      label: "PUBLIC ASSETS",
+      label: "OPERATIONS & STAFF",
+      links: [
+        { href: '/dashboard/labor', label: "Labor", icon: Users },
+        { href: '/dashboard/medicine', label: "Health", icon: Syringe },
+        { href: '/dashboard/feed', label: "Feed", icon: Wheat },
+      ]
+    },
+    {
+      label: "ECOSYSTEM",
+      links: [
+        { href: '/dashboard/feed-calculator', label: "Calculator", icon: Calculator },
+        { href: '/dashboard/marketplace', label: "Marketplace", icon: Globe },
+        { href: '/dashboard/help', label: "Install App", icon: Smartphone },
+      ]
+    },
+    {
+      label: "CORE REGISTRIES",
       links: [
         { href: '/dashboard/livestock', label: "Livestock Hub", icon: LayoutGrid },
-        { href: '/dashboard/sales', label: "Purchases & Sales", icon: ArrowRightLeft },
+        { href: '/dashboard/sales', label: "Trade Ledger", icon: ArrowRightLeft },
         { href: '/dashboard/mortality', label: "Loss Log", icon: Skull },
         { href: '/dashboard/expenses', label: "Expenses", icon: Receipt },
-        { href: '/dashboard/labor', label: "Labor", icon: Users },
       ]
     }
   ], []); 
@@ -71,11 +91,11 @@ export function AppSidebar() {
     <Sidebar collapsible="none" className="sidebar border-none shadow-2xl">
       <SidebarHeader className="h-24 flex items-center px-10 mb-2">
         <div className="flex items-center gap-3 select-none group">
-          <div className="bg-white p-2.5 rounded-xl shadow-lg">
-            <Sparkles className="h-5 w-5 text-primary" />
+          <div className="bg-primary p-2.5 rounded-xl shadow-lg">
+            <Sparkles className="h-5 w-5 text-white" />
           </div>
-          <h1 className="text-xl font-black leading-none uppercase tracking-tight text-white">
-            SYNC <span className="opacity-60">PRO</span>
+          <h1 className="text-xl font-black leading-none uppercase tracking-tight text-neutral-900">
+            SYNC <span className="text-primary">PRO</span>
           </h1>
         </div>
       </SidebarHeader>
@@ -86,11 +106,11 @@ export function AppSidebar() {
 
           return (
             <SidebarGroup key={gIdx} className="mb-6">
-              <SidebarGroupLabel className="text-[9px] font-black uppercase tracking-[0.3em] text-white/40 mb-4 px-4">
+              <SidebarGroupLabel className="text-[10px] font-black uppercase tracking-[0.3em] text-neutral-900 mb-4 px-4">
                 {group.label}
               </SidebarGroupLabel>
               <SidebarGroupContent>
-                <SidebarMenu className="gap-1.5">
+                <SidebarMenu className="gap-1">
                   {group.links.map((link) => {
                     const isActive = pathname === link.href;
                     return (
@@ -102,13 +122,13 @@ export function AppSidebar() {
                             "h-12 px-4 rounded-xl transition-all duration-300",
                             isActive 
                               ? "bg-white text-primary shadow-xl scale-[1.02] font-black" 
-                              : "text-white/70 hover:bg-white/10 hover:text-white"
+                              : "text-neutral-600 hover:bg-white/50 hover:text-neutral-900"
                           )}
                         >
                           <Link href={link.href} className="flex items-center justify-between w-full">
                             <div className="flex items-center">
-                              <link.icon className={cn("h-4 w-4", isActive ? "text-primary" : "opacity-60")} />
-                              <span className="ml-3 text-[12px] font-bold tracking-tight">{link.label}</span>
+                              <link.icon className={cn("h-5 w-5", isActive ? "text-primary" : "opacity-60")} />
+                              <span className="ml-4 text-[14px] font-bold tracking-tight">{link.label}</span>
                             </div>
                             {isActive && <ChevronRight className="h-3 w-3 text-primary" />}
                           </Link>
@@ -123,8 +143,8 @@ export function AppSidebar() {
         })}
       </SidebarContent>
 
-      <SidebarFooter className="p-10 opacity-40 bg-transparent">
-        <p className="text-[14px] font-black tracking-tighter text-white uppercase">SYNC PRO</p>
+      <SidebarFooter className="p-10 opacity-20 bg-transparent">
+        <p className="text-[12px] font-black tracking-[0.4em] text-neutral-900 uppercase">SYNC PRO v4.5</p>
       </SidebarFooter>
     </Sidebar>
   );
