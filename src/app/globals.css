@@ -4,25 +4,25 @@
 
 @layer base {
   :root {
-    --background: 165 10% 96%; /* #F4F7F6 */
-    --foreground: 0 0% 10%;    /* #1A1A1A */
+    --background: 165 10% 96.5%; /* #F4F7F6 - Cool Bone White */
+    --foreground: 0 0% 10%;      /* #1A1A1A - Jet Black */
     --card: 0 0% 100%;
     --card-foreground: 0 0% 10%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 10%;
-    --primary: 113 39% 25%;    /* #2D5A27 */
+    --primary: 108 39% 25%;      /* #2D5A27 - Forest Green */
     --primary-foreground: 0 0% 100%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222 47% 11.2%;
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 113 39% 25%;
+    --accent: 108 39% 25%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 113 39% 25%;
+    --ring: 108 39% 25%;
     --radius: 24px;
   }
 }
@@ -35,61 +35,35 @@
   }
 }
 
-/* --- MAIN CONTENT GLASS PANEL --- */
+/* --- BENTO DASHBOARD ARCHITECTURE --- */
 .dashboard-panel {
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.82);
   backdrop-filter: blur(10px);
   border-radius: 28px;
   padding: 30px;
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.06);
 }
 
-/* --- MODULE CARD ARCHITECTURE (DAYLIGHT ORGANIC) --- */
-.module-card {
-  width: 240px;
-  height: 240px;
-  background: #e2f0e2;
-  border-radius: 48px;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+.bento-card {
+  @apply bg-white rounded-[24px] p-6 shadow-[0_4px_10px_rgba(0,0,0,0.05)] transition-all duration-300 relative overflow-hidden flex flex-col items-start;
 }
 
-.module-card:hover {
-  transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 20px 40px rgba(45, 90, 39, 0.15);
-  background: #d9ead3;
+.bento-card:hover {
+  @apply -translate-y-1.5 shadow-[0_14px_24px_rgba(0,0,0,0.08)];
 }
 
-.card-title {
-  font-size: 24px;
-  font-weight: 800;
-  color: #2D5A27;
-  line-height: 1;
-  text-transform: uppercase;
-  letter-spacing: -0.02em;
+.icon-blob {
+  @apply w-[65px] h-[65px] rounded-[32px] flex items-center justify-center mb-4 transition-transform duration-500 group-hover:scale-110;
 }
 
-.card-subtitle {
-  font-size: 12px;
-  color: #94a3b8;
-  letter-spacing: 3px;
-  font-weight: 700;
-  text-transform: uppercase;
-  text-align: center;
-  margin-top: 8px;
+.card-indicator {
+  @apply absolute bottom-0 left-0 right-0 h-1;
 }
 
-/* --- HEADER ARCHITECTURE --- */
+/* --- UNIVERSAL HEADER --- */
 .top-header {
   height: 78px;
-  background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
-  @apply flex items-center justify-between px-8 z-50;
+  @apply bg-white border-b border-[#EDEDED] flex items-center justify-between px-8 z-50;
 }
 
 /* --- SIDEBAR ELITE STYLING --- */
@@ -102,25 +76,15 @@
 
 /* --- UNIFIED PAGE ELEMENTS --- */
 .page-title {
-  font-size: 34px;
-  font-weight: 700;
-  color: #1A1A1A;
-  text-transform: uppercase;
+  @apply text-[34px] font-bold text-[#1e293b] uppercase;
 }
 
 .subtitle {
-  font-size: 13px;
-  letter-spacing: 4px;
-  color: #94a3b8;
-  font-weight: 800;
-  text-transform: uppercase;
+  @apply text-[13px] font-extrabold uppercase tracking-[4px] text-[#94a3b8];
 }
 
 .form-card {
-  background: #FFFFFF;
-  border-radius: 24px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
-  @apply border-none;
+  @apply bg-white rounded-[24px] shadow-[0_8px_20px_rgba(0,0,0,0.06)] border-none;
 }
 
 .primary-btn {
@@ -130,28 +94,6 @@
 input, select, textarea {
   height: 56px !important;
   @apply rounded-[14px] border border-[#d9e4cf] bg-[#F8FAFC] px-4 font-semibold focus:outline-none focus:ring-2 focus:ring-[#2D5A27]/20 !important;
-}
-
-/* --- TABLE UNIFICATION --- */
-.sync-table-header {
-  @apply bg-[#E2E8F0] border-none;
-}
-
-.sync-table-row {
-  @apply bg-white border-b border-neutral-50 hover:bg-neutral-50 transition-colors;
-}
-
-/* --- TAB UNIFICATION --- */
-.tab-active {
-  background: #2D5A27 !important;
-  color: white !important;
-  border-radius: 14px !important;
-}
-
-.tab-inactive {
-  background: #e7eddc !important;
-  color: #64748b !important;
-  border-radius: 14px !important;
 }
 
 @layer utilities {
