@@ -35,7 +35,7 @@
   }
 }
 
-/* --- BENTO DASHBOARD ARCHITECTURE --- */
+/* --- DAYLIGHT ORGANIC DASHBOARD --- */
 .dashboard-panel {
   background: rgba(255, 255, 255, 0.82);
   backdrop-filter: blur(10px);
@@ -44,20 +44,12 @@
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.06);
 }
 
-.bento-card {
-  @apply bg-white rounded-[24px] p-6 shadow-[0_4px_10px_rgba(0,0,0,0.05)] transition-all duration-300 relative overflow-hidden flex flex-col items-start;
+.squircle-card {
+  @apply aspect-square w-full rounded-[48px] flex flex-col items-center justify-center gap-4 transition-all duration-500 shadow-sm relative overflow-hidden;
 }
 
-.bento-card:hover {
-  @apply -translate-y-1.5 shadow-[0_14px_24px_rgba(0,0,0,0.08)];
-}
-
-.icon-blob {
-  @apply w-[65px] h-[65px] rounded-[32px] flex items-center justify-center mb-4 transition-transform duration-500 group-hover:scale-110;
-}
-
-.card-indicator {
-  @apply absolute bottom-0 left-0 right-0 h-1;
+.squircle-card:hover {
+  @apply -translate-y-2 shadow-2xl scale-[1.02];
 }
 
 /* --- UNIVERSAL HEADER --- */
@@ -66,21 +58,13 @@
   @apply bg-white border-b border-[#EDEDED] flex items-center justify-between px-8 z-50;
 }
 
-/* --- SIDEBAR ELITE STYLING --- */
-.sidebar-active-menu {
-  background: #dcfce7 !important;
-  border-left: 4px solid #2D5A27 !important;
-  color: #2D5A27 !important;
-  border-radius: 0 14px 14px 0 !important;
-}
-
 /* --- UNIFIED PAGE ELEMENTS --- */
 .page-title {
-  @apply text-[34px] font-bold text-[#1e293b] uppercase;
+  @apply text-[34px] font-black text-[#1A1A1A] uppercase tracking-tight;
 }
 
 .subtitle {
-  @apply text-[13px] font-extrabold uppercase tracking-[4px] text-[#94a3b8];
+  @apply text-[13px] font-bold uppercase tracking-[0.3em] text-[#9E9E9E];
 }
 
 .form-card {
