@@ -20,6 +20,7 @@ import { useState, useEffect, useMemo } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -135,7 +136,7 @@ export default function MortalityPage() {
   }
 
   const handleEditClick = (animal: DeadAnimal) => {
-    setEditingDeadAnimal(animal);
+    setEditingExpense(animal);
     setIsEditDialogOpen(true);
   };
 
