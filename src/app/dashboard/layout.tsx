@@ -19,7 +19,7 @@ export default function DashboardLayout({
     return (
       <div className="flex h-screen w-full items-center justify-center bg-white fixed inset-0 z-[9999]">
         <div className="flex flex-col items-center gap-6">
-          <div className="w-12 h-12 border-4 border-slate-100 rounded-full border-t-emerald-500 animate-spin" />
+          <div className="w-12 h-12 border-4 border-slate-100 rounded-full border-t-blue-500 animate-spin" />
           <p className="text-[12px] font-black text-slate-400 uppercase tracking-[0.4em]">AUTHENTICATING</p>
         </div>
       </div>
@@ -44,7 +44,7 @@ export default function DashboardLayout({
             </div>
             
             <div className="flex items-center gap-8">
-              <div className="flex items-center gap-2 text-slate-400 hover:text-emerald-600 transition-colors cursor-pointer">
+              <div className="flex items-center gap-2 text-slate-400 hover:text-blue-600 transition-colors cursor-pointer">
                 <Globe className="h-4 w-4" />
                 <span className="text-[10px] font-black uppercase tracking-widest">EN</span>
               </div>

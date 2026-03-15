@@ -95,16 +95,16 @@ export function AppSidebar() {
                           className={cn(
                             "h-12 px-4 rounded-xl transition-all duration-300",
                             isActive 
-                              ? "bg-white text-emerald-600 border border-slate-200 shadow-md scale-[1.02]" 
+                              ? "bg-white text-blue-600 border border-slate-200 shadow-md scale-[1.02]" 
                               : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
                           )}
                         >
                           <Link href={link.href} className="flex items-center justify-between w-full">
                             <div className="flex items-center">
-                              <link.icon className={cn("h-4 w-4", isActive ? "text-emerald-500" : "opacity-40")} />
+                              <link.icon className={cn("h-4 w-4", isActive ? "text-blue-500" : "opacity-40")} />
                               <span className="ml-3 text-[12px] font-bold tracking-tight">{link.label}</span>
                             </div>
-                            {isActive && <ChevronRight className="h-3 w-3 text-emerald-500" />}
+                            {isActive && <ChevronRight className="h-3 w-3 text-blue-500" />}
                           </Link>
                         </SidebarMenuButton>
                       </SidebarMenuItem>

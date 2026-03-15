@@ -30,14 +30,14 @@ export default function DashboardPage() {
           title: "OVERVIEW", 
           subtitle: "ANALYTICS ENGINE", 
           icon: IconOverview, 
-          color: "#10B981", 
+          color: "#3B82F6", 
           href: '/dashboard/overview'
         },
         { 
           title: "MONTHLY LEDGER", 
           subtitle: "PRIVATE PROJECT", 
           icon: IconLedger, 
-          color: "#EF4444", 
+          color: "#3B82F6", 
           href: '/dashboard/monthly-ledger',
           adminOnly: true
         },
@@ -53,42 +53,42 @@ export default function DashboardPage() {
           title: "FLOCK", 
           subtitle: "LIVESTOCK ASSETS", 
           icon: IconFlock, 
-          color: "#F59E0B", 
+          color: "#3B82F6", 
           href: '/dashboard/livestock'
         },
         { 
           title: "TRADE LEDGER", 
           subtitle: "BUY & DISPOSAL", 
           icon: IconTrade, 
-          color: "#06B6D4", 
+          color: "#3B82F6", 
           href: '/dashboard/sales'
         },
         { 
           title: "MEDICINES", 
           subtitle: "HEALTH & CLINICAL", 
           icon: IconHealth, 
-          color: "#8B5CF6", 
+          color: "#3B82F6", 
           href: '/dashboard/medicine'
         },
         { 
           title: "FEED", 
           subtitle: "GRAIN INVENTORY", 
           icon: IconFeed, 
-          color: "#EAB308", 
+          color: "#3B82F6", 
           href: '/dashboard/feed'
         },
         { 
           title: "LABOR", 
           subtitle: "STAFF OPERATIONS", 
           icon: IconLabor, 
-          color: "#0EA5E9", 
+          color: "#3B82F6", 
           href: '/dashboard/labor'
         },
         { 
           title: "EXPENSES", 
           subtitle: "OVERHEAD AUDIT", 
           icon: IconExpenses, 
-          color: "#64748B", 
+          color: "#3B82F6", 
           href: '/dashboard/expenses'
         },
       ]
@@ -99,7 +99,7 @@ export default function DashboardPage() {
     return (
       <div className="flex h-[calc(100vh-120px)] w-full items-center justify-center">
         <div className="flex flex-col items-center gap-6">
-          <div className="w-12 h-12 border-4 border-slate-100 rounded-full border-t-emerald-500 animate-spin" />
+          <div className="w-12 h-12 border-4 border-slate-100 rounded-full border-t-blue-500 animate-spin" />
           <p className="text-[12px] font-black text-slate-400 uppercase tracking-[0.4em]">SYNCING COMMAND HUB...</p>
         </div>
       </div>
@@ -110,7 +110,7 @@ export default function DashboardPage() {
     const Icon = item.icon;
     return (
       <Link href={item.href} className="group transition-all active:scale-95">
-        <div className="hub-card w-full h-[220px] bg-white rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-6 border border-slate-100 hover:border-emerald-500/40 hover:-translate-y-1 transition-all shadow-xl hover:shadow-2xl relative overflow-hidden group">
+        <div className="hub-card w-full h-[220px] bg-white rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-6 border border-slate-100 hover:border-blue-500/40 hover:-translate-y-1 transition-all shadow-xl hover:shadow-2xl relative overflow-hidden group">
           <div className="absolute inset-0 bg-gradient-to-br from-slate-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
           
           <div className="p-4 rounded-3xl flex items-center justify-center relative z-10 transition-transform group-hover:scale-110 duration-500" style={{ backgroundColor: `${item.color}10` }}>
@@ -133,7 +133,7 @@ export default function DashboardPage() {
           <h1 className="text-3xl font-black text-slate-900 tracking-tight uppercase">
             SYSTEM COMMAND HUB
           </h1>
-          <p className="text-[11px] font-black text-emerald-600/60 uppercase tracking-[0.4em]">
+          <p className="text-[11px] font-black text-blue-600/60 uppercase tracking-[0.4em]">
             SYNCHRONIZED OPERATIONAL ENVIRONMENT
           </p>
         </div>

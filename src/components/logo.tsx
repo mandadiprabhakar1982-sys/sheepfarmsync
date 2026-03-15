@@ -11,11 +11,11 @@ import {
 
 export const Logo = ({ className }: { className?: string }) => (
   <div className={cn('flex items-center gap-3 select-none group', className)}>
-    <div className="bg-[#10B981] p-2.5 rounded-xl shadow-[0_8px_20px_rgba(16,185,129,0.2)]">
+    <div className="bg-[#3B82F6] p-2.5 rounded-xl shadow-[0_8px_20px_rgba(59,130,246,0.2)]">
       <Sparkles className="h-5 w-5 text-white" />
     </div>
     <h1 className="text-xl font-black leading-none uppercase tracking-tight text-slate-900">
-      SYNC <span className="text-[#10B981]">PRO</span>
+      SYNC <span className="text-[#3B82F6]">PRO</span>
     </h1>
   </div>
 );
@@ -24,7 +24,7 @@ export const SyncProIcon = ({ className }: { className?: string }) => <Sparkles 
 
 export const HubSparkle = ({ className }: { className?: string }) => (
   <div className={cn("bg-white p-5 rounded-[20px] shadow-xl border border-slate-100", className)}>
-    <Sparkles className="h-7 w-7 text-[#10B981]" />
+    <Sparkles className="h-7 w-7 text-[#3B82F6]" />
   </div>
 );
 
