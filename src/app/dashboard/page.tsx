@@ -52,7 +52,7 @@ export default function DashboardPage() {
           icon: IconOverview, 
           color: "#4A8FA1", 
           href: '/dashboard/overview',
-          value: "367" // Keeping reference value for visual consistency, or use totalSheep + others
+          value: totalSheep.toString()
         },
         { 
           title: "MONTHLY LEDGER", 
