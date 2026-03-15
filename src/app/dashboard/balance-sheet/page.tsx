@@ -27,13 +27,17 @@ import {
   ShieldCheck,
   TrendingDown,
   ArrowUpRight,
-  Plus
+  Plus,
+  Maximize2,
+  CalendarDays,
+  Target,
+  Clock
 } from 'lucide-react';
 import { useFarm } from '@/context/FarmContext';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
-import { differenceInMonths, startOfMonth, isValid, parseISO } from 'date-fns';
+import { differenceInMonths, startOfMonth, isValid, parseISO, format } from 'date-fns';
 import {
   Dialog,
   DialogContent,
@@ -43,6 +47,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
 
 export default function BalanceSheetPage() {
   const { toast } = useToast();
@@ -81,9 +86,11 @@ export default function BalanceSheetPage() {
   const [monthlyInterest, setMonthlyInterest] = useState('');
   const [yearlyInterest, setYearlyInterest] = useState('');
 
-  // Edit States
+  // UI States
   const [editingItem, setEditingItem] = useState<any>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [viewingItem, setViewingItem] = useState<any>(null);
+  const [isZoomViewOpen, setIsZoomViewOpen] = useState(false);
 
   // LOGICAL AUTOMATION: Bank Loan Amortization
   useEffect(() => {
@@ -217,6 +224,11 @@ export default function BalanceSheetPage() {
       setMonthlyInterest(item.monthlyInterest?.toString() || ''); setYearlyInterest(item.yearlyInterest?.toString() || '');
     }
     setIsEditDialogOpen(true);
+  };
+
+  const handleZoomClick = (item: any, type: string) => {
+    setViewingItem({ ...item, _type: type });
+    setIsZoomViewOpen(true);
   };
 
   const handleSaveEdit = () => {
@@ -437,7 +449,7 @@ export default function BalanceSheetPage() {
                         <TableRow 
                           key={loan.id} 
                           className="group hover:bg-neutral-50 transition-all cursor-zoom-in border-neutral-100 active:scale-[0.995]"
-                          onClick={() => handleEditClick(loan, 'loan')}
+                          onClick={() => handleZoomClick(loan, 'loan')}
                         >
                           <TableCell className="pl-10 py-8 text-[10px] font-black text-muted-foreground/40">{idx + 1}</TableCell>
                           <TableCell>
@@ -520,7 +532,7 @@ export default function BalanceSheetPage() {
                         <TableRow 
                           key={card.id} 
                           className="group hover:bg-neutral-50 transition-all cursor-zoom-in border-neutral-100 active:scale-[0.995]"
-                          onClick={() => handleEditClick(card, 'card')}
+                          onClick={() => handleZoomClick(card, 'card')}
                         >
                           <TableCell className="pl-10 py-8 text-[16px] font-black whitespace-nowrap">{card.bankName}</TableCell>
                           <TableCell className="min-w-[160px]">
@@ -585,7 +597,7 @@ export default function BalanceSheetPage() {
                       <TableRow 
                         key={debt.id} 
                         className="group hover:bg-neutral-50 transition-all cursor-zoom-in border-neutral-100 active:scale-[0.995]"
-                        onClick={() => handleEditClick(debt, 'private')}
+                        onClick={() => handleZoomClick(debt, 'private')}
                       >
                         <TableCell className="pl-10 py-8 text-[10px] font-black text-muted-foreground uppercase">{debt.date || 'N/A'}</TableCell>
                         <TableCell className="text-[16px] font-black">{debt.personName}</TableCell>
@@ -617,6 +629,127 @@ export default function BalanceSheetPage() {
         </Tabs>
       </div>
 
+      {/* --- ZOOM DETAIL DIALOG (31-1 FOCUS) --- */}
+      <Dialog open={isZoomViewOpen} onOpenChange={setIsZoomViewOpen}>
+        <DialogContent className="sm:max-w-3xl rounded-[3rem] p-0 overflow-hidden border-none shadow-2xl bg-neutral-50">
+          {viewingItem && (
+            <div className="flex flex-col h-full">
+              <DialogHeader className={cn(
+                "p-12 text-white relative",
+                viewingItem._type === 'loan' ? "bg-blue-600" : 
+                viewingItem._type === 'card' ? "bg-indigo-600" : "bg-rose-600"
+              )}>
+                <div className="absolute top-0 right-0 p-12 opacity-10">
+                  <Maximize2 className="h-48 w-48 rotate-12" />
+                </div>
+                <div className="relative z-10 space-y-6">
+                  <div className="flex items-center gap-4">
+                    <Badge className="bg-white/20 text-white border-none px-4 py-1.5 font-black text-[10px] uppercase tracking-[0.2em]">Audit Grade Insight</Badge>
+                    <span className="text-white/40 text-[10px] font-black uppercase tracking-widest">ID: {viewingItem.id.slice(0, 8)}</span>
+                  </div>
+                  <div>
+                    <h2 className="text-5xl font-black tracking-tighter uppercase leading-none">{viewingItem.bankName || viewingItem.personName}</h2>
+                    <p className="text-white/60 text-xs font-bold uppercase tracking-[0.3em] mt-2">Verified Operational Liability</p>
+                  </div>
+                </div>
+              </DialogHeader>
+
+              <div className="p-12 space-y-10">
+                {/* 31-1 Temporal Cycle Visualization */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  <Card className="col-span-2 border-none shadow-xl rounded-[2.5rem] bg-white p-8 relative overflow-hidden">
+                    <div className="flex justify-between items-start mb-10">
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 mb-1">Monthly Lifecycle</p>
+                        <h3 className="text-xl font-black tracking-tight text-neutral-900">31-Day Temporal Node</h3>
+                      </div>
+                      <div className="h-12 w-12 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400">
+                        <Clock className="h-6 w-6" />
+                      </div>
+                    </div>
+                    
+                    <div className="relative pt-4 pb-8">
+                      {/* Timeline Day Indicators (1 to 31) */}
+                      <div className="flex justify-between items-end h-16 gap-1">
+                        {Array.from({ length: 31 }, (_, i) => {
+                          const day = i + 1;
+                          const isToday = new Date().getDate() === day;
+                          const isPayDay = parseInt(viewingItem.paymentDate || viewingItem.dueDate?.split('-')[2] || '0') === day;
+                          
+                          return (
+                            <div key={day} className="flex flex-col items-center flex-1 gap-2">
+                              {isPayDay && <Target className="h-3 w-3 text-rose-500 animate-pulse mb-1" />}
+                              <div className={cn(
+                                "w-full rounded-full transition-all duration-500",
+                                isToday ? "h-12 bg-primary shadow-lg shadow-primary/20" : 
+                                isPayDay ? "h-10 bg-rose-500" : "h-4 bg-slate-100"
+                              )} />
+                              <span className={cn(
+                                "text-[7px] font-black",
+                                isToday ? "text-primary" : 
+                                isPayDay ? "text-rose-500" : "text-slate-300"
+                              )}>{day}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      <div className="mt-8 flex justify-between items-center px-2">
+                        <div className="flex items-center gap-2">
+                          <div className="h-2 w-2 rounded-full bg-primary" />
+                          <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Today</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="h-2 w-2 rounded-full bg-rose-500" />
+                          <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Due Date (31-1 Cycle)</span>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+
+                  <Card className="border-none shadow-xl rounded-[2.5rem] bg-neutral-900 text-white p-8 flex flex-col justify-between">
+                    <Target className="h-8 w-8 text-emerald-400" />
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-1">Principal Bal</p>
+                      <p className="text-3xl font-black tracking-tighter leading-none mb-4">₹{(viewingItem.balanceLoan || viewingItem.outstandingAmount || viewingItem.amount).toLocaleString()}</p>
+                      <Progress 
+                        value={viewingItem.totalLoan ? ((viewingItem.totalLoan - viewingItem.balanceLoan) / viewingItem.totalLoan) * 100 : 50} 
+                        className="h-1 bg-white/10" 
+                      />
+                    </div>
+                  </Card>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {[
+                    { label: "Int Rate", val: `${viewingItem.interest || viewingItem.interestRate || '0'}%`, icon: TrendingDown },
+                    { label: "Tenure", val: `${viewingItem.totalTenure || 'N/A'} Mos`, icon: CalendarDays },
+                    { label: "Monthly EMI", val: `₹${(viewingItem.monthlyEmi || viewingItem.minimumPayment || viewingItem.monthlyInterest || '0').toLocaleString()}`, icon: ReceiptIndianRupee },
+                    { label: "Est. Start", val: viewingItem.startDate || viewingItem.date || 'N/A', icon: Target },
+                  ].map((stat, i) => (
+                    <div key={i} className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex items-center gap-4">
+                      <div className="h-10 w-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400">
+                        <stat.icon className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <p className="text-[8px] font-black uppercase tracking-widest text-slate-400 leading-none mb-1">{stat.label}</p>
+                        <p className="text-sm font-black text-slate-900">{stat.val}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="p-12 pt-0 mt-auto flex justify-end gap-4">
+                <Button variant="outline" onClick={() => setIsZoomViewOpen(false)} className="h-14 px-8 rounded-2xl font-black uppercase text-xs tracking-widest">Close Audit</Button>
+                <Button onClick={() => { setIsZoomViewOpen(false); handleEditClick(viewingItem, viewingItem._type); }} className="h-14 px-10 rounded-2xl bg-neutral-900 text-white font-black uppercase text-xs tracking-widest gap-2">
+                  <Pencil className="h-4 w-4" /> Adjust Parameters
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* --- EDIT DIALOG --- */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
@@ -635,31 +768,31 @@ export default function BalanceSheetPage() {
               <div className="space-y-6">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase opacity-40 ml-2">Bank Name</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Bank Name</Label>
                     <Input value={bankName} onChange={(e) => setBankName(e.target.value)} className="h-12 rounded-xl bg-neutral-50 border-none font-bold" />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase opacity-40 ml-2">EMI Day</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">EMI Day</Label>
                     <Input value={paymentDate} onChange={(e) => setPaymentDate(e.target.value)} className="h-12 rounded-xl bg-neutral-50 border-none font-bold" />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase opacity-40 ml-2">Total Amount</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Total Amount</Label>
                     <Input type="number" value={totalLoan} onChange={(e) => setTotalLoan(e.target.value)} className="h-12 rounded-xl bg-neutral-50 border-none font-black" />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase opacity-40 ml-2">Interest Rate (%)</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Interest Rate (%)</Label>
                     <Input type="number" value={interest} onChange={(e) => setInterest(e.target.value)} step="0.1" className="h-12 rounded-xl bg-neutral-50 border-none font-black" />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase opacity-40 ml-2">Monthly EMI</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Monthly EMI</Label>
                     <Input type="number" value={monthlyEmi} onChange={(e) => setMonthlyEmi(e.target.value)} className="h-12 rounded-xl bg-neutral-50 border-none font-black" />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase opacity-40 ml-2 text-rose-600">Current Balance</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2 text-rose-600">Current Balance</Label>
                     <Input type="number" value={balanceLoan} onChange={(e) => setBalanceLoan(e.target.value)} className="h-12 rounded-xl bg-rose-50 border-none font-black text-rose-600" />
                   </div>
                 </div>
@@ -669,21 +802,21 @@ export default function BalanceSheetPage() {
             {editingItem?._type === 'card' && (
               <div className="space-y-6">
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase opacity-40 ml-2">Issuer</Label>
+                  <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Issuer</Label>
                   <Input value={bankName} onChange={(e) => setBankName(e.target.value)} className="h-12 rounded-xl bg-neutral-50 border-none font-bold" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase opacity-40 ml-2">Due Date</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Due Date</Label>
                     <Input type="date" value={cardDueDate} onChange={(e) => setCardDueDate(e.target.value)} className="h-12 rounded-xl bg-neutral-50 border-none font-bold" />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase opacity-40 ml-2">Total Limit</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Total Limit</Label>
                     <Input type="number" value={cardTotalLimit} onChange={(e) => setCardTotalLimit(e.target.value)} className="h-12 rounded-xl bg-neutral-50 border-none font-black" />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase opacity-40 ml-2">Outstanding Amount</Label>
+                  <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Outstanding Amount</Label>
                   <Input type="number" value={cardOutstanding} onChange={(e) => setCardOutstanding(e.target.value)} className="h-14 rounded-2xl bg-rose-50 border-none font-black text-xl text-rose-600 px-6" />
                 </div>
               </div>
@@ -693,20 +826,20 @@ export default function BalanceSheetPage() {
               <div className="space-y-6">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase opacity-40 ml-2">Date</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Date</Label>
                     <Input type="date" value={debtDate} onChange={(e) => setDebtDate(e.target.value)} className="h-12 rounded-xl bg-neutral-50 border-none font-bold" />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase opacity-40 ml-2">Int Rate %</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Int Rate %</Label>
                     <Input type="number" value={privateInterestRate} onChange={(e) => setPrivateInterestRate(e.target.value)} step="0.1" className="h-12 rounded-xl bg-neutral-50 border-none font-black" />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase opacity-40 ml-2">Lender Name</Label>
+                  <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Lender Name</Label>
                   <Input value={personName} onChange={(e) => setPersonName(e.target.value)} className="h-12 rounded-xl bg-neutral-50 border-none font-bold" />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase opacity-40 ml-2">Total Amount</Label>
+                  <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Total Amount</Label>
                   <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} className="h-12 rounded-xl bg-neutral-50 border-none font-black" />
                 </div>
               </div>

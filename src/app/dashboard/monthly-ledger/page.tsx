@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -23,7 +24,10 @@ import {
   TrendingUp,
   PlusCircle,
   Pencil,
-  Save
+  Save,
+  Maximize2,
+  Clock,
+  Target
 } from 'lucide-react';
 import { useFarm } from '@/context/FarmContext';
 import { useToast } from '@/hooks/use-toast';
@@ -53,10 +57,12 @@ export default function MonthlyLedgerPage() {
   const [selectedYear, setSelectedYear] = useState(format(new Date(), 'yyyy'));
   const [searchTerm, setSearchTerm] = useState('');
   
-  // Dialog States
+  // UI States
   const [isEntryDialogOpen, setIsEntryDialogOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isZoomViewOpen, setIsZoomViewOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
+  const [viewingItem, setViewingItem] = useState<any>(null);
 
   // Form States
   const [date, setDate] = useState(format(new Date(), 'yyyy-MM-dd'));
@@ -124,6 +130,11 @@ export default function MonthlyLedgerPage() {
     setIsEditModalOpen(true);
   };
 
+  const handleZoomClick = (item: any) => {
+    setViewingItem(item);
+    setIsZoomViewOpen(true);
+  };
+
   const handleUpdate = () => {
     if (!editingItem) return;
     const val = parseFloat(amount);
@@ -179,7 +190,11 @@ export default function MonthlyLedgerPage() {
         <TableBody>
           {data.length > 0 ? (
             data.map(item => (
-              <TableRow key={item.id} className="group hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-0">
+              <TableRow 
+                key={item.id} 
+                className="group hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-0 cursor-zoom-in active:scale-[0.99]"
+                onClick={() => handleZoomClick(item)}
+              >
                 <TableCell className="pl-10 py-10">
                   <span className="text-sm font-black text-slate-300 tracking-tight leading-none whitespace-nowrap block">
                     {item.date.split('-').slice(0, 2).join('-')}
@@ -206,7 +221,7 @@ export default function MonthlyLedgerPage() {
                         variant="ghost" 
                         size="icon" 
                         className="h-8 w-8 text-blue-500 hover:bg-blue-50" 
-                        onClick={() => handleEditClick(item)}
+                        onClick={(e) => { e.stopPropagation(); handleEditClick(item); }}
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -214,7 +229,7 @@ export default function MonthlyLedgerPage() {
                         variant="ghost" 
                         size="icon" 
                         className="h-8 w-8 text-rose-500 hover:bg-rose-50" 
-                        onClick={() => item.type === 'income' ? deleteMonthlyIncome(item.id, item._path) : deleteMonthlyExpense(item.id, item._path)}
+                        onClick={(e) => { e.stopPropagation(); item.type === 'income' ? deleteMonthlyIncome(item.id, item._path) : deleteMonthlyExpense(item.id, item._path); }}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -486,6 +501,97 @@ export default function MonthlyLedgerPage() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* --- ZOOM DETAIL DIALOG (31-1 FOCUS) --- */}
+      <Dialog open={isZoomViewOpen} onOpenChange={setIsZoomViewOpen}>
+        <DialogContent className="sm:max-w-3xl rounded-[3rem] p-0 overflow-hidden border-none shadow-2xl bg-neutral-50">
+          {viewingItem && (
+            <div className="flex flex-col h-full">
+              <DialogHeader className={cn(
+                "p-12 text-white relative",
+                viewingItem.type === 'income' ? "bg-emerald-600" : "bg-neutral-900"
+              )}>
+                <div className="absolute top-0 right-0 p-12 opacity-10">
+                  <Maximize2 className="h-48 w-48 rotate-12" />
+                </div>
+                <div className="relative z-10 space-y-6">
+                  <div className="flex items-center gap-4">
+                    <Badge className="bg-white/20 text-white border-none px-4 py-1.5 font-black text-[10px] uppercase tracking-[0.2em]">Temporal Node Insight</Badge>
+                    <span className="text-white/40 text-[10px] font-black uppercase tracking-widest">STAMP: {viewingItem.date}</span>
+                  </div>
+                  <div>
+                    <h2 className="text-5xl font-black tracking-tighter uppercase leading-none">{viewingItem.source}</h2>
+                    <p className="text-white/60 text-xs font-bold uppercase tracking-[0.3em] mt-2">Verified Ledger Event</p>
+                  </div>
+                </div>
+              </DialogHeader>
+
+              <div className="p-12 space-y-10">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <Card className="border-none shadow-xl rounded-[2.5rem] bg-white p-8 flex items-center gap-6">
+                    <div className={cn(
+                      "h-16 w-16 rounded-2xl flex items-center justify-center text-white shadow-lg",
+                      viewingItem.type === 'income' ? "bg-emerald-500" : "bg-rose-500"
+                    )}>
+                      {viewingItem.type === 'income' ? <ArrowUpCircle className="h-8 w-8" /> : <ArrowDownCircle className="h-8 w-8" />}
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 mb-1">Fiscal Impact</p>
+                      <p className="text-4xl font-black tracking-tighter text-neutral-900">₹{viewingItem.amount.toLocaleString()}</p>
+                    </div>
+                  </Card>
+
+                  <Card className="border-none shadow-xl rounded-[2.5rem] bg-white p-8 relative overflow-hidden">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 mb-1">Cycle Position</p>
+                        <h3 className="text-lg font-black tracking-tight text-neutral-900">Day {viewingItem.date.split('-')[2]} of 31</h3>
+                      </div>
+                      <Clock className="h-6 w-6 text-primary opacity-20" />
+                    </div>
+                    <div className="mt-6 flex gap-1 h-2">
+                      {Array.from({ length: 31 }, (_, i) => (
+                        <div 
+                          key={i} 
+                          className={cn(
+                            "flex-1 rounded-full",
+                            (i + 1) === parseInt(viewingItem.date.split('-')[2]) ? "bg-primary" : "bg-slate-100"
+                          )} 
+                        />
+                      ))}
+                    </div>
+                  </Card>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {[
+                    { label: "Category", val: (viewingItem.category || viewingItem.type).toUpperCase(), icon: History },
+                    { label: "Temporal Lock", val: viewingItem.date, icon: Clock },
+                    { label: "Status", val: "CONFIRMED", icon: ShieldCheck },
+                  ].map((stat, i) => (
+                    <div key={i} className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex items-center gap-4">
+                      <div className="h-10 w-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400">
+                        <stat.icon className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <p className="text-[8px] font-black uppercase tracking-widest text-slate-400 leading-none mb-1">{stat.label}</p>
+                        <p className="text-sm font-black text-slate-900">{stat.val}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="p-12 pt-0 mt-auto flex justify-end gap-4">
+                <Button variant="outline" onClick={() => setIsZoomViewOpen(false)} className="h-14 px-8 rounded-2xl font-black uppercase text-xs tracking-widest">Close Audit</Button>
+                <Button onClick={() => { setIsZoomViewOpen(false); handleEditClick(viewingItem); }} className="h-14 px-10 rounded-2xl bg-neutral-900 text-white font-black uppercase text-xs tracking-widest gap-2">
+                  <Pencil className="h-4 w-4" /> Adjust Record
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* --- EDIT DIALOG --- */}
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
