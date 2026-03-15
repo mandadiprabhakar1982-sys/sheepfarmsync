@@ -35,14 +35,6 @@ export default function DashboardPage() {
   
   const isAdmin = userRole === 'admin';
 
-  const tradeCount = (purchases?.length || 0) + (sales?.length || 0);
-  const healthCount = healthTasks?.length || 0;
-  const feedCount = feedCosts?.length || 0;
-  const laborCount = laborCosts?.length || 0;
-  const expenseCount = farmExpenses?.length || 0;
-  const ledgerCount = (monthlyIncomes?.length || 0) + (monthlyExpenses?.length || 0);
-  const liabCount = (bankLoans?.length || 0) + (creditCards?.length || 0) + (privateDebts?.length || 0);
-
   const groups = [
     {
       items: [
@@ -50,75 +42,66 @@ export default function DashboardPage() {
           title: "OVERVIEW", 
           subtitle: "ANALYTICS ENGINE", 
           icon: IconOverview, 
-          color: "#4ADE80", 
-          href: '/dashboard/overview',
-          value: "ACTIVE"
+          color: "#4A8FA1", 
+          href: '/dashboard/overview'
         },
         { 
           title: "MONTHLY LEDGER", 
           subtitle: "PRIVATE PROJECT", 
           icon: IconLedger, 
-          color: "#F87171", 
+          color: "#B04A3E", 
           href: '/dashboard/monthly-ledger',
-          adminOnly: true,
-          value: ledgerCount.toString()
+          adminOnly: true
         },
         { 
           title: "LIABILITIES", 
           subtitle: "PRIVATE PROJECT", 
           icon: IconLiabilities, 
-          color: "#3B82F6", 
+          color: "#569668", 
           href: '/dashboard/balance-sheet',
-          adminOnly: true,
-          value: liabCount.toString()
+          adminOnly: true
         },
         { 
           title: "FLOCK", 
           subtitle: "LIVESTOCK ASSETS", 
           icon: IconFlock, 
-          color: "#FBBF24", 
-          href: '/dashboard/livestock',
-          value: totalSheep.toString()
+          color: "#D97D3A", 
+          href: '/dashboard/livestock'
         },
         { 
           title: "TRADE LEDGER", 
           subtitle: "BUY & DISPOSAL", 
           icon: IconTrade, 
-          color: "#2DD4BF", 
-          href: '/dashboard/sales',
-          value: tradeCount.toString()
+          color: "#5A9A94", 
+          href: '/dashboard/sales'
         },
         { 
           title: "MEDICINES", 
           subtitle: "HEALTH & CLINICAL", 
           icon: IconHealth, 
           color: "#A78BFA", 
-          href: '/dashboard/medicine',
-          value: healthCount.toString()
+          href: '/dashboard/medicine'
         },
         { 
           title: "FEED", 
           subtitle: "GRAIN INVENTORY", 
           icon: IconFeed, 
           color: "#F59E0B", 
-          href: '/dashboard/feed',
-          value: feedCount.toString()
+          href: '/dashboard/feed'
         },
         { 
           title: "LABOR", 
           subtitle: "STAFF OPERATIONS", 
           icon: IconLabor, 
           color: "#60A5FA", 
-          href: '/dashboard/labor',
-          value: laborCount.toString()
+          href: '/dashboard/labor'
         },
         { 
           title: "EXPENSES", 
           subtitle: "OVERHEAD AUDIT", 
           icon: IconExpenses, 
           color: "#94A3B8", 
-          href: '/dashboard/expenses',
-          value: expenseCount.toString()
+          href: '/dashboard/expenses'
         },
       ]
     }
@@ -139,16 +122,13 @@ export default function DashboardPage() {
     const Icon = item.icon;
     return (
       <Link href={item.href} className="group transition-all active:scale-95 w-[240px]">
-        <div className="hub-card h-[280px] bg-[#C9D1D6] rounded-[40px] p-8 flex flex-col items-center justify-between border-b-4 border-black/10 hover:border-black/20 hover:-translate-y-1 transition-all shadow-xl">
+        <div className="hub-card h-[240px] bg-[#C9D1D6] rounded-[40px] p-8 flex flex-col items-center justify-center gap-6 border-b-4 border-black/10 hover:border-black/20 hover:-translate-y-1 transition-all shadow-xl">
           <div className="blob-shape p-6 rounded-[2rem] flex items-center justify-center" style={{ backgroundColor: `${item.color}20` }}>
             <Icon className="h-14 w-14" style={{ color: item.color }} />
           </div>
           <div className="text-center">
             <h3 className="text-[14px] font-black text-neutral-900 tracking-tight leading-none mb-1 uppercase">{item.title}</h3>
             <p className="text-[9px] font-bold text-neutral-500 uppercase tracking-widest">{item.subtitle}</p>
-          </div>
-          <div className="text-3xl font-black text-neutral-900 tracking-tighter tabular-nums">
-            {item.value}
           </div>
         </div>
       </Link>
