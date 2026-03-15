@@ -12,13 +12,15 @@ import {
   Trash2, 
   ArrowUpCircle,
   Plus,
-  Home as HomeIcon,
-  Pencil,
+  ArrowDownCircle,
+  Search,
   History,
-  ShieldAlert,
+  ShieldCheck,
   ShoppingBag,
   CreditCard,
-  Landmark
+  Landmark,
+  Wallet,
+  TrendingUp
 } from 'lucide-react';
 import { useFarm } from '@/context/FarmContext';
 import { useToast } from '@/hooks/use-toast';
@@ -37,6 +39,7 @@ export default function MonthlyLedgerPage() {
   const [activeTab, setActiveTab] = useState('income');
   const [selectedMonth, setSelectedMonth] = useState(format(new Date(), 'MM'));
   const [selectedYear, setSelectedYear] = useState(format(new Date(), 'yyyy'));
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Form States
   const [date, setDate] = useState(format(new Date(), 'yyyy-MM-dd'));
@@ -53,10 +56,12 @@ export default function MonthlyLedgerPage() {
     return [...incomes, ...expenses]
       .filter(item => {
         const d = parseISO(item.date);
-        return format(d, 'MM') === selectedMonth && format(d, 'yyyy') === selectedYear;
+        const matchesDate = format(d, 'MM') === selectedMonth && format(d, 'yyyy') === selectedYear;
+        const matchesSearch = item.source.toLowerCase().includes(searchTerm.toLowerCase());
+        return matchesDate && matchesSearch;
       })
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }, [monthlyIncomes, monthlyExpenses, selectedMonth, selectedYear]);
+  }, [monthlyIncomes, monthlyExpenses, selectedMonth, selectedYear, searchTerm]);
 
   const filteredIncomes = useMemo(() => combinedData.filter(i => i.type === 'income'), [combinedData]);
   const filteredInstitutional = useMemo(() => combinedData.filter(e => e.type === 'expense' && e.category === 'loan'), [combinedData]);
@@ -65,10 +70,15 @@ export default function MonthlyLedgerPage() {
   const filteredHousehold = useMemo(() => combinedData.filter(e => e.type === 'expense' && e.category === 'household'), [combinedData]);
 
   const totalInflow = useMemo(() => filteredIncomes.reduce((s, i) => s + Number(i.amount || 0), 0), [filteredIncomes]);
-  const totalInstitutional = useMemo(() => filteredInstitutional.reduce((s, e) => s + Number(e.amount || 0), 0), [filteredInstitutional]);
-  const totalCards = useMemo(() => filteredCards.reduce((s, e) => s + Number(e.amount || 0), 0), [filteredCards]);
-  const totalPrivate = useMemo(() => filteredPrivate.reduce((s, e) => s + Number(e.amount || 0), 0), [filteredPrivate]);
-  const totalHousehold = useMemo(() => filteredHousehold.reduce((s, e) => s + Number(e.amount || 0), 0), [filteredHousehold]);
+  const totalOutflow = useMemo(() => {
+    const institutional = filteredInstitutional.reduce((s, e) => s + Number(e.amount || 0), 0);
+    const cards = filteredCards.reduce((s, e) => s + Number(e.amount || 0), 0);
+    const privateDebt = filteredPrivate.reduce((s, e) => s + Number(e.amount || 0), 0);
+    const household = filteredHousehold.reduce((s, e) => s + Number(e.amount || 0), 0);
+    return institutional + cards + privateDebt + household;
+  }, [filteredInstitutional, filteredCards, filteredPrivate, filteredHousehold]);
+
+  const netBalance = totalInflow - totalOutflow;
 
   const handleAdd = () => {
     if (!source || !amount || !date) {
@@ -85,6 +95,23 @@ export default function MonthlyLedgerPage() {
     }
     setSource(''); setAmount('');
   };
+
+  const SummaryCard = ({ title, value, icon: Icon, color, subtitle }: { title: string, value: number, icon: any, color: string, subtitle: string }) => (
+    <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white group transition-all hover:-translate-y-1">
+      <CardContent className="p-8 flex items-center gap-6">
+        <div className={cn("p-4 rounded-2xl text-white shadow-lg", color)}>
+          <Icon className="h-7 w-7" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 mb-1">{title}</p>
+          <div className="flex items-baseline gap-2">
+            <p className="text-3xl font-black tracking-tighter">₹{value.toLocaleString()}</p>
+          </div>
+          <p className="text-[8px] font-bold text-slate-300 uppercase tracking-widest mt-1">{subtitle}</p>
+        </div>
+      </CardContent>
+    </Card>
+  );
 
   const LedgerTable = ({ data, emptyMsg, badgeLabel, badgeClass }: { data: any[], emptyMsg: string, badgeLabel?: string, badgeClass?: string }) => (
     <CardContent className="p-0 overflow-x-auto">
@@ -146,7 +173,7 @@ export default function MonthlyLedgerPage() {
   );
 
   return (
-    <div className="container mx-auto py-8 px-4 animate-in fade-in duration-700 max-w-7xl">
+    <div className="container mx-auto py-8 px-4 md:px-10 max-w-7xl animate-in fade-in duration-700">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
         <PageHeader
           title="Operational Inflow"
@@ -178,107 +205,147 @@ export default function MonthlyLedgerPage() {
         </div>
       </div>
 
+      {/* TACTICAL DASHBOARD SUMMARY */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <SummaryCard 
+          title="Net Savings" 
+          value={netBalance} 
+          icon={ShieldCheck} 
+          color="bg-primary" 
+          subtitle="Remaining Liquidity"
+        />
+        <SummaryCard 
+          title="Total Inflow" 
+          value={totalInflow} 
+          icon={ArrowUpCircle} 
+          color="bg-[#059669]" 
+          subtitle="Cumulative Inbound"
+        />
+        <SummaryCard 
+          title="Total Outflow" 
+          value={totalOutflow} 
+          icon={ArrowDownCircle} 
+          color="bg-[#e11d48]" 
+          subtitle="All Liability Spends"
+        />
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         <div className="lg:col-span-8">
-          <Tabs defaultValue="income" className="w-full" onValueChange={setActiveTab}>
-            <TabsList className="mb-8 p-1 bg-white rounded-2xl flex flex-wrap justify-start items-center h-auto w-full shadow-md border border-slate-100 gap-1">
-              <TabsTrigger value="income" className="rounded-xl font-black text-[9px] tracking-widest uppercase data-[state=active]:bg-emerald-600 data-[state=active]:text-white">Inflow</TabsTrigger>
-              <TabsTrigger value="institutional" className="rounded-xl font-black text-[9px] tracking-widest uppercase data-[state=active]:bg-primary data-[state=active]:text-white">Institutional</TabsTrigger>
-              <TabsTrigger value="cards" className="rounded-xl font-black text-[9px] tracking-widest uppercase data-[state=active]:bg-[#ea580c] data-[state=active]:text-white">Credit Line</TabsTrigger>
-              <TabsTrigger value="private" className="rounded-xl font-black text-[9px] tracking-widest uppercase data-[state=active]:bg-slate-700 data-[state=active]:text-white">Private Debt</TabsTrigger>
-              <TabsTrigger value="household" className="rounded-xl font-black text-[9px] tracking-widest uppercase data-[state=active]:bg-rose-600 data-[state=active]:text-white">Household</TabsTrigger>
-            </TabsList>
+          <div className="flex flex-col md:flex-row gap-4 mb-8">
+            <div className="relative flex-1">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Input 
+                placeholder="Easy lookup: search origin..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="h-12 pl-12 rounded-xl bg-white border-none shadow-sm font-bold text-sm"
+              />
+            </div>
+            <Tabs defaultValue="income" className="w-auto" onValueChange={setActiveTab}>
+              <TabsList className="p-1 bg-white rounded-xl flex items-center h-12 shadow-sm border border-slate-100 gap-1">
+                <TabsTrigger value="income" className="rounded-lg font-black text-[8px] tracking-widest uppercase data-[state=active]:bg-emerald-600 data-[state=active]:text-white">Inflow</TabsTrigger>
+                <TabsTrigger value="institutional" className="rounded-lg font-black text-[8px] tracking-widest uppercase data-[state=active]:bg-primary data-[state=active]:text-white">Inst.</TabsTrigger>
+                <TabsTrigger value="cards" className="rounded-lg font-black text-[8px] tracking-widest uppercase data-[state=active]:bg-[#ea580c] data-[state=active]:text-white">Card</TabsTrigger>
+                <TabsTrigger value="private" className="rounded-lg font-black text-[8px] tracking-widest uppercase data-[state=active]:bg-slate-700 data-[state=active]:text-white">Priv.</TabsTrigger>
+                <TabsTrigger value="household" className="rounded-lg font-black text-[8px] tracking-widest uppercase data-[state=active]:bg-rose-600 data-[state=active]:text-white">House.</TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
 
-            <TabsContent value="income" className="m-0">
-              <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
-                <CardHeader className="bg-[#059669] text-white p-10 py-12">
-                  <div className="flex justify-between items-center">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-3">
-                        <ArrowUpCircle className="h-6 w-6" />
-                        <CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Operational Inflow</CardTitle>
+          <div className="mt-4">
+            <Tabs value={activeTab}>
+              <TabsContent value="income" className="m-0">
+                <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
+                  <CardHeader className="bg-[#059669] text-white p-10 py-12">
+                    <div className="flex justify-between items-center">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-3">
+                          <ArrowUpCircle className="h-6 w-6" />
+                          <CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Operational Inflow</CardTitle>
+                        </div>
+                        <CardDescription className="text-emerald-100/60 text-xs font-black uppercase tracking-[0.2em]">Temporal Stream Audit</CardDescription>
                       </div>
-                      <CardDescription className="text-emerald-100/60 text-xs font-black uppercase tracking-[0.2em]">Temporal Stream Audit</CardDescription>
+                      <p className="text-4xl font-black tracking-tighter">₹{totalInflow.toLocaleString()}</p>
                     </div>
-                    <p className="text-4xl font-black tracking-tighter">₹{totalInflow.toLocaleString()}</p>
-                  </div>
-                </CardHeader>
-                <LedgerTable data={filteredIncomes} emptyMsg="No inflow transactions logged" badgeLabel="OPERATIONAL INFLOW" badgeClass="bg-[#ecfdf5] text-[#059669]" />
-              </Card>
-            </TabsContent>
+                  </CardHeader>
+                  <LedgerTable data={filteredIncomes} emptyMsg="No inflow transactions logged" badgeLabel="OPERATIONAL INFLOW" badgeClass="bg-[#ecfdf5] text-[#059669]" />
+                </Card>
+              </TabsContent>
 
-            <TabsContent value="institutional" className="m-0">
-              <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
-                <CardHeader className="bg-primary text-white p-10 py-12">
-                  <div className="flex justify-between items-center">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-3">
-                        <Landmark className="h-6 w-6" />
-                        <CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Institutional EMI</CardTitle>
+              <TabsContent value="institutional" className="m-0">
+                <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
+                  <CardHeader className="bg-primary text-white p-10 py-12">
+                    <div className="flex justify-between items-center">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-3">
+                          <Landmark className="h-6 w-6" />
+                          <CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Institutional EMI</CardTitle>
+                        </div>
+                        <CardDescription className="text-blue-100/60 text-xs font-black uppercase tracking-[0.2em]">Temporal Stream Audit</CardDescription>
                       </div>
-                      <CardDescription className="text-blue-100/60 text-xs font-black uppercase tracking-[0.2em]">Temporal Stream Audit</CardDescription>
+                      <p className="text-4xl font-black tracking-tighter">₹{filteredInstitutional.reduce((s, e) => s + Number(e.amount || 0), 0).toLocaleString()}</p>
                     </div>
-                    <p className="text-4xl font-black tracking-tighter">₹{totalInstitutional.toLocaleString()}</p>
-                  </div>
-                </CardHeader>
-                <LedgerTable data={filteredInstitutional} emptyMsg="No institutional records discovered" badgeClass="bg-blue-50 text-primary" />
-              </Card>
-            </TabsContent>
+                  </CardHeader>
+                  <LedgerTable data={filteredInstitutional} emptyMsg="No institutional records discovered" badgeClass="bg-blue-50 text-primary" />
+                </Card>
+              </TabsContent>
 
-            <TabsContent value="cards" className="m-0">
-              <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
-                <CardHeader className="bg-[#ea580c] text-white p-10 py-12">
-                  <div className="flex justify-between items-center">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-3">
-                        <CreditCard className="h-6 w-6" />
-                        <CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Revolving Lines</CardTitle>
+              <TabsContent value="cards" className="m-0">
+                <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
+                  <CardHeader className="bg-[#ea580c] text-white p-10 py-12">
+                    <div className="flex justify-between items-center">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-3">
+                          <CreditCard className="h-6 w-6" />
+                          <CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Revolving Lines</CardTitle>
+                        </div>
+                        <CardDescription className="text-orange-100/60 text-xs font-black uppercase tracking-[0.2em]">Temporal Stream Audit</CardDescription>
                       </div>
-                      <CardDescription className="text-orange-100/60 text-xs font-black uppercase tracking-[0.2em]">Temporal Stream Audit</CardDescription>
+                      <p className="text-4xl font-black tracking-tighter">₹{filteredCards.reduce((s, e) => s + Number(e.amount || 0), 0).toLocaleString()}</p>
                     </div>
-                    <p className="text-4xl font-black tracking-tighter">₹{totalCards.toLocaleString()}</p>
-                  </div>
-                </CardHeader>
-                <LedgerTable data={filteredCards} emptyMsg="No card transactions discovered" badgeLabel="CARD" badgeClass="bg-pink-50 text-pink-600" />
-              </Card>
-            </TabsContent>
+                  </CardHeader>
+                  <LedgerTable data={filteredCards} emptyMsg="No card transactions discovered" badgeLabel="CARD" badgeClass="bg-pink-50 text-pink-600" />
+                </Card>
+              </TabsContent>
 
-            <TabsContent value="private" className="m-0">
-              <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
-                <CardHeader className="bg-[#334155] text-white p-10 py-12">
-                  <div className="flex justify-between items-center">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-3">
-                        <ShieldAlert className="h-6 w-6" />
-                        <CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Unsecured Debt</CardTitle>
+              <TabsContent value="private" className="m-0">
+                <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
+                  <CardHeader className="bg-[#334155] text-white p-10 py-12">
+                    <div className="flex justify-between items-center">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-3">
+                          <ShieldCheck className="h-6 w-6" />
+                          <CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Unsecured Debt</CardTitle>
+                        </div>
+                        <CardDescription className="text-slate-100/60 text-xs font-black uppercase tracking-[0.2em]">Temporal Stream Audit</CardDescription>
                       </div>
-                      <CardDescription className="text-slate-100/60 text-xs font-black uppercase tracking-[0.2em]">Temporal Stream Audit</CardDescription>
+                      <p className="text-4xl font-black tracking-tighter">₹{filteredPrivate.reduce((s, e) => s + Number(e.amount || 0), 0).toLocaleString()}</p>
                     </div>
-                    <p className="text-4xl font-black tracking-tighter">₹{totalPrivate.toLocaleString()}</p>
-                  </div>
-                </CardHeader>
-                <LedgerTable data={filteredPrivate} emptyMsg="No private debt entries discovered" badgeLabel="PRIVATE" badgeClass="bg-rose-50 text-rose-600" />
-              </Card>
-            </TabsContent>
+                  </CardHeader>
+                  <LedgerTable data={filteredPrivate} emptyMsg="No private debt entries discovered" badgeLabel="PRIVATE" badgeClass="bg-rose-50 text-rose-600" />
+                </Card>
+              </TabsContent>
 
-            <TabsContent value="household" className="m-0">
-              <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
-                <CardHeader className="bg-[#e11d48] text-white p-10 py-12">
-                  <div className="flex justify-between items-center">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-3">
-                        <ShoppingBag className="h-6 w-6" />
-                        <CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Household Audit</CardTitle>
+              <TabsContent value="household" className="m-0">
+                <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
+                  <CardHeader className="bg-[#e11d48] text-white p-10 py-12">
+                    <div className="flex justify-between items-center">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-3">
+                          <ShoppingBag className="h-6 w-6" />
+                          <CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Household Audit</CardTitle>
+                        </div>
+                        <CardDescription className="text-rose-100/60 text-xs font-black uppercase tracking-[0.2em]">Temporal Stream Audit</CardDescription>
                       </div>
-                      <CardDescription className="text-rose-100/60 text-xs font-black uppercase tracking-[0.2em]">Temporal Stream Audit</CardDescription>
+                      <p className="text-4xl font-black tracking-tighter">₹{filteredHousehold.reduce((s, e) => s + Number(e.amount || 0), 0).toLocaleString()}</p>
                     </div>
-                    <p className="text-4xl font-black tracking-tighter">₹{totalHousehold.toLocaleString()}</p>
-                  </div>
-                </CardHeader>
-                <LedgerTable data={filteredHousehold} emptyMsg="No household spends recorded" badgeLabel="HOUSEHOLD" badgeClass="bg-rose-50 text-rose-600" />
-              </Card>
-            </TabsContent>
-          </Tabs>
+                  </CardHeader>
+                  <LedgerTable data={filteredHousehold} emptyMsg="No household spends recorded" badgeLabel="HOUSEHOLD" badgeClass="bg-rose-50 text-rose-600" />
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </div>
         </div>
 
         <div className="lg:col-span-4">
