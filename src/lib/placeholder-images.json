@@ -28,7 +28,7 @@
       "id": "dash-flock",
       "description": "Flock",
       "imageUrl": "https://picsum.photos/seed/dash-flock/400/400",
-      "imageHint": "teal sheep profile icon"
+      "imageHint": "shepherd sheep dog landscape illustration"
     },
     {
       "id": "dash-sales",
@@ -40,13 +40,13 @@
       "id": "dash-health",
       "description": "Health",
       "imageUrl": "https://picsum.photos/seed/dash-health/400/400",
-      "imageHint": "red dna syringe icon"
+      "imageHint": "caduceus microscope dna medical illustration"
     },
     {
       "id": "dash-feed",
       "description": "Feed",
       "imageUrl": "https://picsum.photos/seed/dash-feed/400/400",
-      "imageHint": "green plant flask icon"
+      "imageHint": "grain sack wheat silos agriculture illustration"
     },
     {
       "id": "dash-labor",

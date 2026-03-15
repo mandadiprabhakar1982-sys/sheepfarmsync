@@ -29,7 +29,7 @@
       "id": "dash-flock",
       "description": "Flock",
       "imageUrl": "https://picsum.photos/seed/dash-flock/400/400",
-      "imageHint": "sheep farm"
+      "imageHint": "shepherd sheep dog landscape illustration"
     },
     {
       "id": "dash-sales",
@@ -41,13 +41,13 @@
       "id": "dash-health",
       "description": "Health",
       "imageUrl": "https://picsum.photos/seed/dash-health/400/400",
-      "imageHint": "medical Caduceus"
+      "imageHint": "caduceus microscope dna medical illustration"
     },
     {
       "id": "dash-feed",
       "description": "Feed",
       "imageUrl": "https://picsum.photos/seed/dash-feed/400/400",
-      "imageHint": "grain sack"
+      "imageHint": "grain sack wheat silos agriculture illustration"
     },
     {
       "id": "dash-labor",
