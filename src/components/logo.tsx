@@ -3,11 +3,11 @@ import { Sparkles, LayoutGrid, Database, Layers, Dna, FlaskConical, Users, Walle
 
 /**
  * HIGH-FIDELITY ICONOGRAPHY SUITE
- * Re-engineered to match premium AgTech visual standards from reference GIF.
+ * Re-engineered to match Daylight Organic Forest Green theme.
  */
 
 export const SyncProIcon = ({ className }: { className?: string }) => (
-  <div className={cn("bg-[#14532d] p-2 rounded-xl shadow-lg", className)}>
+  <div className={cn("bg-[#2D5A27] p-2 rounded-xl shadow-lg", className)}>
     <Sparkles className="h-full w-full text-[#4caf50]" />
   </div>
 );
@@ -19,7 +19,7 @@ export const HighFidelityOverview = ({ className }: { className?: string }) => (
 export const HighFidelityLedger = ({ className }: { className?: string }) => (
   <div className="relative">
     <Database className={className} strokeWidth={1.5} />
-    <Lock className="absolute -bottom-1 -right-1 h-4 w-4 text-[#14532d] bg-white rounded-full p-0.5" />
+    <Lock className="absolute -bottom-1 -right-1 h-4 w-4 text-[#2D5A27] bg-white rounded-full p-0.5" />
   </div>
 );
 
@@ -59,7 +59,7 @@ export const HighFidelityHealth = ({ className }: { className?: string }) => (
 export const HighFidelityFeed = ({ className }: { className?: string }) => (
   <div className="relative">
     <FlaskConical className={className} strokeWidth={1.5} />
-    <Leaf className="absolute -top-1 -right-1 h-5 w-5 text-[#4caf50]" />
+    <Leaf className="absolute -top-1 -right-1 h-5 w-5 text-[#2D5A27]" />
   </div>
 );
 
@@ -73,7 +73,7 @@ export const HighFidelityExpenses = ({ className }: { className?: string }) => (
 
 export function DashboardSparkleIcon({ className }: { className?: string }) {
   return (
-    <div className={cn("flex items-center justify-center bg-[#14532d] rounded-2xl shadow-2xl", className)}>
+    <div className={cn("flex items-center justify-center bg-[#2D5A27] rounded-2xl shadow-2xl", className)}>
       <Sparkles className="h-8 w-8 text-[#4caf50]" />
     </div>
   );
@@ -84,8 +84,8 @@ export function Logo({ className }: { className?: string }) {
     <div className={cn('flex items-center gap-3 select-none group', className)}>
       <SyncProIcon className="h-9 w-9" />
       <div className="flex items-center">
-        <h1 className="text-lg font-black leading-none uppercase tracking-tight text-neutral-900">
-          SYNC <span className="text-[#16a34a]">PRO</span>
+        <h1 className="text-lg font-black leading-none uppercase tracking-tight text-[#1A1A1A]">
+          SYNC <span className="text-[#2D5A27]">PRO</span>
         </h1>
       </div>
     </div>

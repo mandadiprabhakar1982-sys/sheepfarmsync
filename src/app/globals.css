@@ -4,25 +4,25 @@
 
 @layer base {
   :root {
-    --background: 98 38% 96%; /* #f4f9f1 */
-    --foreground: 222 47% 11%;
+    --background: 165 10% 96%; /* #F4F7F6 */
+    --foreground: 0 0% 10%;    /* #1A1A1A */
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 0 0% 10%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --primary: 144 61% 20%;
+    --popover-foreground: 0 0% 10%;
+    --primary: 113 39% 25%;    /* #2D5A27 */
     --primary-foreground: 0 0% 100%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222 47% 11.2%;
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 144 61% 20%;
+    --accent: 113 39% 25%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 144 61% 20%;
+    --ring: 113 39% 25%;
     --radius: 24px;
   }
 }
@@ -30,21 +30,21 @@
 @layer base {
   body {
     font-family: 'Inter', sans-serif;
-    @apply bg-[#f4f9f1] text-[#1e293b];
+    @apply bg-[#F4F7F6] text-[#1A1A1A];
     margin: 0;
   }
 }
 
 /* --- MAIN CONTENT GLASS PANEL --- */
 .dashboard-panel {
-  background: rgba(255, 255, 255, 0.82);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(10px);
   border-radius: 28px;
   padding: 30px;
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.06);
 }
 
-/* --- MODULE CARD ARCHITECTURE (SYNC PRO GIF STYLE) --- */
+/* --- MODULE CARD ARCHITECTURE (DAYLIGHT ORGANIC) --- */
 .module-card {
   width: 240px;
   height: 240px;
@@ -61,27 +61,27 @@
 
 .module-card:hover {
   transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 20px 40px rgba(22, 163, 74, 0.1);
+  box-shadow: 0 20px 40px rgba(45, 90, 39, 0.15);
   background: #d9ead3;
 }
 
 .card-title {
   font-size: 24px;
   font-weight: 800;
-  color: #14532d;
+  color: #2D5A27;
   line-height: 1;
   text-transform: uppercase;
   letter-spacing: -0.02em;
 }
 
 .card-subtitle {
-  font-size: 13px;
-  color: #64748b;
-  letter-spacing: 2px;
+  font-size: 12px;
+  color: #94a3b8;
+  letter-spacing: 3px;
   font-weight: 700;
   text-transform: uppercase;
   text-align: center;
-  margin-top: 4px;
+  margin-top: 8px;
 }
 
 /* --- HEADER ARCHITECTURE --- */
@@ -95,8 +95,8 @@
 /* --- SIDEBAR ELITE STYLING --- */
 .sidebar-active-menu {
   background: #dcfce7 !important;
-  border-left: 4px solid #16a34a !important;
-  color: #166534 !important;
+  border-left: 4px solid #2D5A27 !important;
+  color: #2D5A27 !important;
   border-radius: 0 14px 14px 0 !important;
 }
 
@@ -104,37 +104,37 @@
 .page-title {
   font-size: 34px;
   font-weight: 700;
-  color: #1e293b;
+  color: #1A1A1A;
   text-transform: uppercase;
 }
 
 .subtitle {
-  font-size: 11px;
-  letter-spacing: 3px;
+  font-size: 13px;
+  letter-spacing: 4px;
   color: #94a3b8;
   font-weight: 800;
   text-transform: uppercase;
 }
 
 .form-card {
-  background: rgba(255, 255, 255, 0.92);
+  background: #FFFFFF;
   border-radius: 24px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
   @apply border-none;
 }
 
 .primary-btn {
-  @apply bg-[#166534] text-white font-bold uppercase tracking-widest rounded-[16px] h-14 px-8 shadow-lg transition-all active:scale-95 border-none;
+  @apply bg-[#2D5A27] text-white font-bold uppercase tracking-widest rounded-[16px] h-14 px-8 shadow-lg transition-all active:scale-95 border-none;
 }
 
 input, select, textarea {
   height: 56px !important;
-  @apply rounded-[14px] border border-[#d9e4cf] bg-[#f8fafc] px-4 font-semibold focus:outline-none focus:ring-2 focus:ring-[#16a34a]/20 !important;
+  @apply rounded-[14px] border border-[#d9e4cf] bg-[#F8FAFC] px-4 font-semibold focus:outline-none focus:ring-2 focus:ring-[#2D5A27]/20 !important;
 }
 
 /* --- TABLE UNIFICATION --- */
 .sync-table-header {
-  @apply bg-[#e2e8f0] border-none;
+  @apply bg-[#E2E8F0] border-none;
 }
 
 .sync-table-row {
@@ -143,7 +143,7 @@ input, select, textarea {
 
 /* --- TAB UNIFICATION --- */
 .tab-active {
-  background: #65a30d !important;
+  background: #2D5A27 !important;
   color: white !important;
   border-radius: 14px !important;
 }

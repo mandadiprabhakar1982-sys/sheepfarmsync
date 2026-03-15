@@ -21,51 +21,51 @@ export default function DashboardPage() {
   const cards = [
     { 
       title: "OVERVIEW", 
-      subtitle: "... ANALYTICS ...", 
+      subtitle: "ANALYTICS ENGINE", 
       icon: HighFidelityOverview, 
       href: '/dashboard/overview' 
     },
     { 
       title: "LEDGER", 
-      subtitle: "PRIVATE PROJECT ASSETS", 
+      subtitle: "PRIVATE ASSETS", 
       icon: HighFidelityLedger, 
       href: '/dashboard/monthly-ledger', 
       adminOnly: true 
     },
     { 
       title: "DEBT", 
-      subtitle: "PRIVATE PROJECT ASSETS", 
+      subtitle: "LIABILITY PORTFOLIO", 
       icon: HighFidelityLiabilities, 
       href: '/dashboard/balance-sheet', 
       adminOnly: true 
     },
     { 
       title: "FLOCK", 
-      subtitle: "PUBLIC PROJECT ASSETS", 
+      subtitle: "PUBLIC ASSETS", 
       icon: SheepIcon, 
       href: '/dashboard/livestock' 
     },
     { 
       title: "HEALTH", 
-      subtitle: "... OPERATIONS & STAFF ...", 
+      subtitle: "CLINICAL TRACKING", 
       icon: HighFidelityHealth, 
       href: '/dashboard/medicine' 
     },
     { 
       title: "FEED", 
-      subtitle: "... OPERATIONS & STAFF ...", 
+      subtitle: "NUTRITION ENGINE", 
       icon: HighFidelityFeed, 
       href: '/dashboard/feed' 
     },
     { 
       title: "LABOR", 
-      subtitle: "... OPERATIONS & STAFF ...", 
+      subtitle: "STAFF MANAGEMENT", 
       icon: HighFidelityLabor, 
       href: '/dashboard/labor' 
     },
     { 
       title: "EXPENSES", 
-      subtitle: "PUBLIC PROJECT ASSETS", 
+      subtitle: "PUBLIC DISBURSEMENTS", 
       icon: HighFidelityExpenses, 
       href: '/dashboard/expenses' 
     },
@@ -76,14 +76,14 @@ export default function DashboardPage() {
     const Icon = item.icon;
 
     return (
-      <div className="flex flex-col items-center gap-6 group">
+      <div className="flex flex-col items-center gap-4 group">
         <Link href={item.href} className="module-card">
-          <div className="flex flex-col items-center gap-4">
-            <Icon className="w-24 h-24 text-[#14532d] transition-transform group-hover:scale-110 duration-500" />
+          <div className="flex flex-col items-center gap-6">
+            <Icon className="w-24 h-24 text-[#2D5A27] transition-transform group-hover:scale-110 duration-500" />
             <h3 className="card-title">{item.title}</h3>
           </div>
         </Link>
-        <p className="card-subtitle opacity-40">{item.subtitle}</p>
+        <p className="card-subtitle">{item.subtitle}</p>
       </div>
     );
   };
@@ -95,8 +95,8 @@ export default function DashboardPage() {
         <div className="flex items-center gap-6 mb-16 pl-4">
           <DashboardSparkleIcon className="h-16 w-16" />
           <div>
-            <h1 className="text-4xl font-black tracking-tight text-neutral-900 leading-none uppercase">System Command Hub</h1>
-            <p className="text-[12px] font-bold text-neutral-400 uppercase tracking-[0.3em] mt-3">Synchronized Operational Environment</p>
+            <h1 className="text-4xl font-black tracking-tight text-[#1A1A1A] leading-none uppercase">System Command Hub</h1>
+            <p className="text-[12px] font-bold text-[#94a3b8] uppercase tracking-[0.3em] mt-3">Synchronized Operational Environment</p>
           </div>
         </div>
 

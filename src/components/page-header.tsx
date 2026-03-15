@@ -8,7 +8,7 @@ interface PageHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
 export function PageHeader({ title, description, className, children }: PageHeaderProps) {
   return (
     <div className={cn('mb-10', className)}>
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-2">
         <h1 className="page-title">{title}</h1>
         {description && (
           <p className="subtitle">
