@@ -187,7 +187,7 @@ export default function MonthlyLedgerPage() {
     <div className="container mx-auto py-8 px-4 md:px-10 max-w-7xl animate-in fade-in duration-700">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
         <PageHeader
-          title="Operational Inflow"
+          title="Monthly Balance Sheet"
           description="TEMPORAL STREAM AUDIT"
           className="mb-0"
         />
@@ -350,7 +350,7 @@ export default function MonthlyLedgerPage() {
                   <div className="space-y-1">
                     <div className="flex items-center gap-3">
                       <ArrowUpCircle className="h-6 w-6" />
-                      <CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Operational Inflow</CardTitle>
+                      <CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Monthly Balance Sheet</CardTitle>
                     </div>
                     <CardDescription className="text-emerald-100/60 text-xs font-black uppercase tracking-[0.2em]">Temporal Stream Audit</CardDescription>
                   </div>
