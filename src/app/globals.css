@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -94,7 +93,7 @@
 }
 
 .dashboard-backdrop {
-  background-image: linear-gradient(to bottom, rgba(248, 250, 242, 0.4), rgba(248, 250, 242, 0.85)), url('https://images.unsplash.com/photo-1516467508483-a7212febe31a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1920');
+  background-image: linear-gradient(to bottom, rgba(248, 250, 242, 0.4), rgba(248, 250, 242, 0.85)), url('https://images.unsplash.com/photo-1511117835895-4b902c0b6348?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1920');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
