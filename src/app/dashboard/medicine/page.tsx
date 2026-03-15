@@ -15,7 +15,8 @@ import {
   Search,
   ShoppingCart,
   Zap,
-  Loader2
+  PlusCircle,
+  ShieldCheck
 } from 'lucide-react';
 import { format, addMonths } from 'date-fns';
 
@@ -32,6 +33,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { PageHeader } from '@/components/page-header';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 
 const animalGroups = ['Lamb', 'Adult', 'Pregnant', 'Ram'] as const;
 const healthTypes = ['Vaccination', 'Deworming', 'Supplement', 'Treatment'] as const;
@@ -78,6 +88,8 @@ export default function MedicinePage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isTaskDateOpen, setIsTaskDateOpen] = useState(false);
   const [isExpenseDateOpen, setIsExpenseDateOpen] = useState(false);
+  const [isClinicalDialogOpen, setIsClinicalDialogOpen] = useState(false);
+  const [isProcurementDialogOpen, setIsProcurementDialogOpen] = useState(false);
 
   const healthTaskForm = useForm<HealthTaskFormData>({
     resolver: zodResolver(healthTaskFormSchema),
@@ -118,6 +130,7 @@ export default function MedicinePage() {
       nextDueDate: data.nextDueDate ? format(data.nextDueDate, 'yyyy-MM-dd') : format(addMonths(data.date, 3), 'yyyy-MM-dd'),
     });
     healthTaskForm.reset();
+    setIsClinicalDialogOpen(false);
     toast({ title: 'Success!', description: 'Clinical record committed.' });
   };
 
@@ -127,6 +140,7 @@ export default function MedicinePage() {
       date: format(data.date, 'yyyy-MM-dd'),
     });
     medicineExpenseForm.reset();
+    setIsProcurementDialogOpen(false);
     toast({ title: 'Success!', description: 'Procurement cost recorded.' });
   };
 
@@ -144,7 +158,7 @@ export default function MedicinePage() {
     return (
       <div className="flex h-[calc(100vh-120px)] w-full items-center justify-center">
         <div className="flex flex-col items-center gap-6">
-          <div className="w-12 h-12 border-4 border-slate-100 rounded-full border-t-primary animate-spin" />
+          <div className="w-12 h-12 border-4 border-slate-100 rounded-full border-t-emerald-500 animate-spin" />
           <p className="text-[12px] font-black text-slate-400 uppercase tracking-[0.3em]">SYNCHRONIZING CLINICAL DATA...</p>
         </div>
       </div>
@@ -152,121 +166,34 @@ export default function MedicinePage() {
   }
 
   return (
-    <div className="animate-in fade-in duration-700 max-w-[1400px] mx-auto py-8 px-4 md:px-10">
-      <div className="mb-10">
-        <h1 className="text-xl font-medium text-slate-900">Medicines & Health</h1>
-        <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-slate-400 mt-1">SYNCHRONIZED CLINICAL ENVIRONMENT</p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-        <div className="glass-card glow-gold rounded-[32px] p-8 h-[180px] flex flex-col justify-between bg-white shadow-xl">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Health Investment</p>
-              <p className="text-5xl font-black tracking-tighter text-slate-900">₹{totalMedicineCost.toLocaleString()}</p>
-            </div>
-            <div className="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center">
-              <Zap className="h-5 w-5 text-amber-600" />
-            </div>
-          </div>
-          <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest">TOTAL PHARMA SPEND</p>
-        </div>
-
-        <div className="glass-card glow-purple rounded-[32px] p-8 h-[180px] flex flex-col justify-between bg-white shadow-xl">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Clinical Events</p>
-              <p className="text-5xl font-black tracking-tighter text-slate-900">{healthTasks?.length || 0}</p>
-            </div>
-            <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
-              <Heart className="h-5 w-5 text-purple-600" />
-            </div>
-          </div>
-          <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest">TREATMENTS LOGGED</p>
-        </div>
-
-        <div className="glass-card glow-coral rounded-[32px] p-8 h-[180px] flex flex-col justify-between bg-white shadow-xl">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Outstanding Dues</p>
-              <p className="text-5xl font-black tracking-tighter text-rose-600">₹{(medicineExpenses || []).reduce((s, e) => s + (e.outstandingDues || 0), 0).toLocaleString()}</p>
-            </div>
-            <div className="h-10 w-10 rounded-full bg-rose-100 flex items-center justify-center">
-              <ShoppingCart className="h-5 w-5 text-rose-600" />
-            </div>
-          </div>
-          <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest">PHARMACY LIABILITIES</p>
-        </div>
-      </div>
-
-      <Tabs defaultValue="health" className="w-full">
-        <div className="flex justify-center mb-10">
-          <TabsList className="bg-[#e7eddc] p-1 rounded-2xl h-14 w-fit shadow-inner">
-            <TabsTrigger value="health" className="tab-inactive data-[state=active]:tab-active font-black text-[10px] uppercase tracking-widest px-10">Health Track</TabsTrigger>
-            <TabsTrigger value="cost" className="tab-inactive data-[state=active]:tab-active font-black text-[10px] uppercase tracking-widest px-10">Cost Track</TabsTrigger>
-          </TabsList>
-        </div>
-
-        <TabsContent value="health" className="m-0 animate-in fade-in slide-in-from-bottom-2 duration-500">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-            <div className="lg:col-span-8 space-y-8">
-              <div className="relative">
-                <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
-                <Input 
-                  placeholder="Filter by Asset ID or Medicine..." 
-                  value={searchTerm} 
-                  onChange={(e) => setSearchTerm(e.target.value)} 
-                  className="h-16 pl-16 rounded-full bg-white border-slate-200 text-slate-900 placeholder:text-slate-300 font-bold shadow-sm" 
-                />
-              </div>
-
-              <div className="glass-card rounded-[40px] overflow-hidden border-slate-100 bg-white">
-                <ScrollArea className="h-[600px] w-full">
-                  <Table>
-                    <TableHeader className="bg-slate-50 border-none">
-                      <TableRow className="border-none hover:bg-transparent">
-                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-slate-400">Event Date</TableHead>
-                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-slate-400">Asset ID</TableHead>
-                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-slate-400">Treatment</TableHead>
-                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-slate-400">Impact</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {sortedHealthTasks.length > 0 ? sortedHealthTasks.map((task) => (
-                        <TableRow key={task.id} className="hover:bg-slate-50 transition-colors border-b border-slate-100 group">
-                          <TableCell className="py-6 pl-10 text-[11px] font-black text-slate-400 uppercase tracking-widest">{task.date}</TableCell>
-                          <TableCell>
-                            <Badge className="bg-emerald-500/10 text-emerald-600 border-none font-black text-[10px] px-3">{task.sheepId}</Badge>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex flex-col">
-                              <span className="text-[14px] font-black text-slate-900">{task.medicineName}</span>
-                              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{task.healthType} • {task.dose}{task.unit}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-right pr-10">
-                            <div className="flex items-center justify-end gap-4">
-                              <span className="text-[16px] font-black text-slate-900">₹{task.cost.toLocaleString()}</span>
-                              <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-rose-50 text-rose-600 opacity-0 group-hover:opacity-100 transition-all" onClick={() => handleDeleteTask(task.id, task._path)}><Trash2 className="h-4 w-4" /></Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      )) : (
-                        <TableRow><TableCell colSpan={4} className="text-center py-32 opacity-20 font-black uppercase text-xs">No clinical events recorded</TableCell></TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </ScrollArea>
-              </div>
-            </div>
-
-            <div className="lg:col-span-4">
-              <div className="glass-card rounded-[40px] p-10 h-full border-slate-100 bg-white shadow-2xl">
-                <div className="flex items-center gap-3 mb-10 text-emerald-600">
-                  <Syringe className="h-6 w-6" />
-                  <h3 className="text-lg font-black uppercase tracking-widest">Clinical Event</h3>
+    <div className="container mx-auto py-8 px-4 md:px-10 max-w-7xl animate-in fade-in duration-700">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+        <PageHeader
+          title="Medicines & Health"
+          description="OPERATIONAL STAFF & CLINICAL DISBURSEMENTS"
+          className="mb-0"
+        />
+        
+        <div className="flex items-center gap-4">
+          <Dialog open={isClinicalDialogOpen} onOpenChange={setIsClinicalDialogOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={() => { healthTaskForm.reset(); setIsClinicalDialogOpen(true); }} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-xl border-none">
+                <Syringe className="h-5 w-5" />
+                Clinical Event
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
+              <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400">
+                    <Plus className="h-5 w-5" />
+                  </div>
+                  <DialogTitle className="text-xl font-black tracking-tight uppercase">Clinical Event</DialogTitle>
                 </div>
-                
+                <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Commit new health protocol to ledger</DialogDescription>
+              </DialogHeader>
+              
+              <div className="p-8">
                 <Form {...healthTaskForm}>
                   <form onSubmit={healthTaskForm.handleSubmit(onHealthTaskSubmit)} className="space-y-8">
                     <div className="space-y-6">
@@ -335,64 +262,33 @@ export default function MedicinePage() {
                     </div>
 
                     <Button type="submit" className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm uppercase tracking-[0.25em] transition-all active:scale-95 shadow-xl">
-                      Commit Record
+                      Commit Clinical Record
                     </Button>
                   </form>
                 </Form>
               </div>
-            </div>
-          </div>
-        </TabsContent>
+            </DialogContent>
+          </Dialog>
 
-        <TabsContent value="cost" className="m-0 animate-in fade-in slide-in-from-bottom-2 duration-500">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-            <div className="lg:col-span-8">
-              <div className="glass-card rounded-[40px] overflow-hidden border-slate-100 bg-white">
-                <ScrollArea className="h-[600px] w-full">
-                  <Table>
-                    <TableHeader className="bg-slate-50 border-none">
-                      <TableRow className="border-none hover:bg-transparent">
-                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-slate-400">Temporal Node</TableHead>
-                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-slate-400">Supplier / Entity</TableHead>
-                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right text-slate-400">Outstanding</TableHead>
-                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-slate-400">Value Payload</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {sortedMedicineExpenses.length > 0 ? sortedMedicineExpenses.map((exp) => (
-                        <TableRow key={exp.id} className="hover:bg-slate-50 transition-colors border-b border-slate-100 group">
-                          <TableCell className="py-6 pl-10 text-[11px] font-black text-slate-400 uppercase tracking-widest">{exp.date}</TableCell>
-                          <TableCell><span className="text-[14px] font-black text-slate-900">{exp.shopName}</span></TableCell>
-                          <TableCell className="text-right">
-                            {exp.outstandingDues > 0 ? (
-                              <Badge className="bg-rose-500/10 text-rose-600 border-none font-black text-[10px] px-3">₹{exp.outstandingDues.toLocaleString()} DUE</Badge>
-                            ) : (
-                              <span className="text-[9px] font-black text-emerald-600 uppercase tracking-widest">CLEARED</span>
-                            )}
-                          </TableCell>
-                          <TableCell className="text-right pr-10">
-                            <div className="flex items-center justify-end gap-4">
-                              <span className="text-[16px] font-black text-slate-900">₹{exp.totalAmountSpent.toLocaleString()}</span>
-                              <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-rose-50 text-rose-600 opacity-0 group-hover:opacity-100 transition-all" onClick={() => handleDeleteExpense(exp.id, exp._path)}><Trash2 className="h-4 w-4" /></Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      )) : (
-                        <TableRow><TableCell colSpan={4} className="text-center py-32 opacity-20 font-black uppercase text-xs">No procurement records discovered</TableCell></TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </ScrollArea>
-              </div>
-            </div>
-
-            <div className="lg:col-span-4">
-              <div className="glass-card rounded-[40px] p-10 h-full border-slate-100 bg-white shadow-2xl">
-                <div className="flex items-center gap-3 mb-10 text-blue-600">
-                  <Pill className="h-6 w-6" />
-                  <h3 className="text-lg font-black uppercase tracking-widest">Procurement Entry</h3>
+          <Dialog open={isProcurementDialogOpen} onOpenChange={setIsProcurementDialogOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={() => { medicineExpenseForm.reset(); setIsProcurementDialogOpen(true); }} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-blue-600 hover:bg-blue-700 text-white gap-2 shadow-xl border-none">
+                <Pill className="h-5 w-5" />
+                Procurement Entry
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
+              <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2.5 rounded-xl bg-blue-500/20 text-blue-400">
+                    <Plus className="h-5 w-5" />
+                  </div>
+                  <DialogTitle className="text-xl font-black tracking-tight uppercase">Procurement Entry</DialogTitle>
                 </div>
-                
+                <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Commit new pharmacy expense to ledger</DialogDescription>
+              </DialogHeader>
+              
+              <div className="p-8">
                 <Form {...medicineExpenseForm}>
                   <form onSubmit={medicineExpenseForm.handleSubmit(onMedicineExpenseSubmit)} className="space-y-8">
                     <div className="space-y-6">
@@ -433,7 +329,158 @@ export default function MedicinePage() {
                   </form>
                 </Form>
               </div>
+            </DialogContent>
+          </Dialog>
+
+          <div className="px-6 py-3 bg-neutral-900 rounded-2xl text-white flex items-center gap-4 shadow-xl">
+            <ShieldCheck className="h-5 w-5 text-emerald-400" />
+            <div>
+              <p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Net Pharma</p>
+              <p className="text-xl font-black tracking-tight text-white">₹{totalMedicineCost.toLocaleString()}</p>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+        <div className="glass-card glow-gold rounded-[32px] p-8 h-[180px] flex flex-col justify-between bg-white shadow-xl">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Health Investment</p>
+              <p className="text-5xl font-black tracking-tighter text-slate-900">₹{totalMedicineCost.toLocaleString()}</p>
+            </div>
+            <div className="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center">
+              <Zap className="h-5 w-5 text-amber-600" />
+            </div>
+          </div>
+          <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest">TOTAL PHARMA SPEND</p>
+        </div>
+
+        <div className="glass-card glow-purple rounded-[32px] p-8 h-[180px] flex flex-col justify-between bg-white shadow-xl">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Clinical Events</p>
+              <p className="text-5xl font-black tracking-tighter text-slate-900">{healthTasks?.length || 0}</p>
+            </div>
+            <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
+              <Heart className="h-5 w-5 text-purple-600" />
+            </div>
+          </div>
+          <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest">TREATMENTS LOGGED</p>
+        </div>
+
+        <div className="glass-card glow-coral rounded-[32px] p-8 h-[180px] flex flex-col justify-between bg-white shadow-xl">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Outstanding Dues</p>
+              <p className="text-5xl font-black tracking-tighter text-rose-600">₹{(medicineExpenses || []).reduce((s, e) => s + (e.outstandingDues || 0), 0).toLocaleString()}</p>
+            </div>
+            <div className="h-10 w-10 rounded-full bg-rose-100 flex items-center justify-center">
+              <ShoppingCart className="h-5 w-5 text-rose-600" />
+            </div>
+          </div>
+          <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest">PHARMACY LIABILITIES</p>
+        </div>
+      </div>
+
+      <Tabs defaultValue="health" className="w-full">
+        <div className="flex justify-center mb-10">
+          <TabsList className="bg-[#e7eddc] p-1 rounded-2xl h-14 w-fit shadow-inner">
+            <TabsTrigger value="health" className="tab-inactive data-[state=active]:tab-active font-black text-[10px] uppercase tracking-widest px-10">Health Track</TabsTrigger>
+            <TabsTrigger value="cost" className="tab-inactive data-[state=active]:tab-active font-black text-[10px] uppercase tracking-widest px-10">Cost Track</TabsTrigger>
+          </TabsList>
+        </div>
+
+        <TabsContent value="health" className="m-0 animate-in fade-in slide-in-from-bottom-2 duration-500">
+          <div className="space-y-8">
+            <div className="relative">
+              <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
+              <Input 
+                placeholder="Filter by Asset ID or Medicine..." 
+                value={searchTerm} 
+                onChange={(e) => setSearchTerm(e.target.value)} 
+                className="h-16 pl-16 rounded-full bg-white border-slate-200 text-slate-900 placeholder:text-slate-300 font-bold shadow-sm" 
+              />
+            </div>
+
+            <div className="glass-card rounded-[40px] overflow-hidden border-slate-100 bg-white">
+              <ScrollArea className="h-[600px] w-full">
+                <Table>
+                  <TableHeader className="bg-slate-50 border-none">
+                    <TableRow className="border-none hover:bg-transparent">
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-slate-400">Event Date</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-slate-400">Asset ID</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-slate-400">Treatment</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-slate-400">Impact</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {sortedHealthTasks.length > 0 ? sortedHealthTasks.map((task) => (
+                      <TableRow key={task.id} className="hover:bg-slate-50 transition-colors border-b border-slate-100 group">
+                        <TableCell className="py-6 pl-10 text-[11px] font-black text-slate-400 uppercase tracking-widest">{task.date}</TableCell>
+                        <TableCell>
+                          <Badge className="bg-emerald-500/10 text-emerald-600 border-none font-black text-[10px] px-3">{task.sheepId}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <span className="text-[14px] font-black text-slate-900">{task.medicineName}</span>
+                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{task.healthType} • {task.dose}{task.unit}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right pr-10">
+                          <div className="flex items-center justify-end gap-4">
+                            <span className="text-[16px] font-black text-slate-900">₹{task.cost.toLocaleString()}</span>
+                            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-rose-50 text-rose-600 opacity-0 group-hover:opacity-100 transition-all" onClick={() => handleDeleteTask(task.id, task._path)}><Trash2 className="h-4 w-4" /></Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )) : (
+                      <TableRow><TableCell colSpan={4} className="text-center py-32 opacity-20 font-black uppercase text-xs">No clinical events recorded</TableCell></TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </ScrollArea>
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="cost" className="m-0 animate-in fade-in slide-in-from-bottom-2 duration-500">
+          <div className="glass-card rounded-[40px] overflow-hidden border-slate-100 bg-white">
+            <ScrollArea className="h-[600px] w-full">
+              <Table>
+                <TableHeader className="bg-slate-50 border-none">
+                  <TableRow className="border-none hover:bg-transparent">
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-slate-400">Temporal Node</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-slate-400">Supplier / Entity</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right text-slate-400">Outstanding</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-slate-400">Value Payload</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {sortedMedicineExpenses.length > 0 ? sortedMedicineExpenses.map((exp) => (
+                    <TableRow key={exp.id} className="hover:bg-slate-50 transition-colors border-b border-slate-100 group">
+                      <TableCell className="py-6 pl-10 text-[11px] font-black text-slate-400 uppercase tracking-widest">{exp.date}</TableCell>
+                      <TableCell><span className="text-[14px] font-black text-slate-900">{exp.shopName}</span></TableCell>
+                      <TableCell className="text-right">
+                        {exp.outstandingDues > 0 ? (
+                          <Badge className="bg-rose-500/10 text-rose-600 border-none font-black text-[10px] px-3">₹{exp.outstandingDues.toLocaleString()} DUE</Badge>
+                        ) : (
+                          <span className="text-[9px] font-black text-emerald-600 uppercase tracking-widest">CLEARED</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right pr-10">
+                        <div className="flex items-center justify-end gap-4">
+                          <span className="text-[16px] font-black text-slate-900">₹{exp.totalAmountSpent.toLocaleString()}</span>
+                          <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-rose-50 text-rose-600 opacity-0 group-hover:opacity-100 transition-all" onClick={() => handleDeleteExpense(exp.id, exp._path)}><Trash2 className="h-4 w-4" /></Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )) : (
+                    <TableRow><TableCell colSpan={4} className="text-center py-32 opacity-20 font-black uppercase text-xs">No procurement records discovered</TableCell></TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </ScrollArea>
           </div>
         </TabsContent>
       </Tabs>
