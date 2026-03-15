@@ -8,21 +8,18 @@ import {
   Calendar as CalendarIcon, 
   Trash2,
   Plus,
-  History,
-  Activity,
   Heart,
   Syringe,
   Pill,
   Search,
   ShoppingCart,
-  Zap,
-  ChevronDown
+  Zap
 } from 'lucide-react';
 import { format, addMonths } from 'date-fns';
 
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
-import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -32,7 +29,6 @@ import { useFarm } from '@/context/FarmContext';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
-import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 const animalGroups = ['Lamb', 'Adult', 'Pregnant', 'Ram'] as const;
@@ -425,12 +421,6 @@ export default function MedicinePage() {
           </div>
         </TabsContent>
       </Tabs>
-
-      <div className="fixed bottom-12 right-12 opacity-40 pointer-events-none">
-        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="white" />
-        </svg>
-      </div>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useRef, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -13,13 +13,12 @@ import {
   Scale,
   Users,
   ClipboardList,
-  Camera,
-  ChevronDown
+  Camera
 } from 'lucide-react';
 import { format } from 'date-fns';
 
 import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
@@ -123,7 +122,6 @@ export default function LivestockPage() {
         <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-white/40 mt-1">PRECISION ASSET TRACKING & BIO-DATA</p>
       </div>
 
-      {/* TACTICAL STAT GRID */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
         <div className="glass-card glass-sheen glow-gold rounded-[32px] p-8 h-[180px] flex flex-col justify-between">
           <div className="flex justify-between items-start">
@@ -166,7 +164,6 @@ export default function LivestockPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-        {/* MAIN LEDGER AREA */}
         <div className="lg:col-span-8 space-y-8">
           <div className="relative">
             <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-white/20" />
@@ -234,7 +231,6 @@ export default function LivestockPage() {
           </div>
         </div>
 
-        {/* REGISTRATION PANEL */}
         <div className="lg:col-span-4">
           <div className="glass-card glass-sheen rounded-[40px] p-10 h-full border-t-2 border-white/10">
             <div className="flex items-center gap-3 mb-10 text-emerald-400">
@@ -336,13 +332,6 @@ export default function LivestockPage() {
           </Form>
         </DialogContent>
       </Dialog>
-
-      {/* FOOTER ACCENT */}
-      <div className="fixed bottom-12 right-12 opacity-40 pointer-events-none">
-        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="white" />
-        </svg>
-      </div>
     </div>
   );
 }

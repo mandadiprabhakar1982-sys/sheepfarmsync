@@ -4,31 +4,19 @@ import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { 
-  PlusCircle, 
   Calendar as CalendarIcon, 
   Trash2, 
   Pencil, 
   Skull, 
   History, 
-  AlertTriangle, 
-  ArrowDownCircle,
   Plus
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useState, useEffect, useMemo } from 'react';
 
-import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
@@ -43,12 +31,10 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
 import { useFarm } from '@/context/FarmContext';
 import { Textarea } from '@/components/ui/textarea';
 import type { DeadAnimal } from '@/lib/types';
@@ -300,12 +286,6 @@ export default function MortalityPage() {
           </Form>
         </DialogContent>
       </Dialog>
-
-      <div className="fixed bottom-12 right-12 opacity-40 pointer-events-none">
-        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="white" />
-        </svg>
-      </div>
     </div>
   );
 }

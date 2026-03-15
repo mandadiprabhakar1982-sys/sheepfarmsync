@@ -160,14 +160,6 @@ export default function OverviewPage() {
         </section>
 
       </div>
-
-      {/* Decorative Elements */}
-      <div className="fixed bottom-12 right-12 text-white/20 pointer-events-none group">
-        <div className="relative">
-          <Sparkles className="h-10 w-10 animate-pulse" />
-          <div className="absolute inset-0 bg-emerald-500/20 blur-xl rounded-full scale-150" />
-        </div>
-      </div>
     </div>
   );
 }
