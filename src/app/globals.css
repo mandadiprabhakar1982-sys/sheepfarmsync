@@ -38,15 +38,16 @@
 
 .top-header {
   height: 72px;
-  @apply bg-[#DDE2E5]/50 backdrop-blur-md border-b border-white/20 flex items-center justify-between px-8 z-50;
+  @apply bg-white border-b border-neutral-200 flex items-center justify-between px-8 z-50;
 }
 
 .sidebar {
   @apply bg-[#DDE2E5] border-r border-white/20;
 }
 
+/* HUB CARD SYSTEM */
 .hub-card {
-  @apply bg-[#C9D1D6] rounded-[40px] p-8 flex flex-col items-center justify-center transition-all duration-300 shadow-sm relative overflow-hidden;
+  @apply bg-[#C9D1D6] rounded-[40px] p-8 flex flex-col items-center justify-center transition-all duration-300 shadow-sm relative overflow-hidden h-[240px] w-[220px];
 }
 
 .hub-card:hover {
@@ -54,7 +55,7 @@
 }
 
 .blob-shape {
-  @apply w-24 h-20 mb-4 flex items-center justify-center relative;
+  @apply w-24 h-20 mb-2 flex items-center justify-center relative shadow-lg;
   border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
 }
 
@@ -63,11 +64,11 @@
 }
 
 .subtitle-precise {
-  @apply text-[10px] font-bold uppercase tracking-[0.15em] text-[#1A1A1A]/60 mt-0.5;
+  @apply text-[9px] font-bold uppercase tracking-[0.15em] text-[#1A1A1A]/60 mt-1;
 }
 
 .value-precise {
-  @apply text-3xl font-medium tracking-tighter text-white mt-4;
+  @apply text-3xl font-black tracking-tighter text-white mt-auto drop-shadow-md;
 }
 
 @layer utilities {

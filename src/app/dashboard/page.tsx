@@ -19,14 +19,29 @@ export default function DashboardPage() {
   const { 
     userRole, 
     totalSheep, 
-    totalSales, 
-    totalExpenses, 
-    totalLoanBalance, 
-    totalMedicineCost,
-    totalFeedCost,
-    totalLaborCost
+    purchases,
+    sales,
+    healthTasks,
+    feedCosts,
+    laborCosts,
+    farmExpenses,
+    bankLoans,
+    creditCards,
+    privateDebts,
+    monthlyIncomes,
+    monthlyExpenses
   } = useFarm();
+  
   const isAdmin = userRole === 'admin';
+
+  // Dynamic Data Aggregation
+  const tradeCount = (purchases?.length || 0) + (sales?.length || 0);
+  const healthCount = healthTasks?.length || 0;
+  const feedCount = feedCosts?.length || 0;
+  const laborCount = laborCosts?.length || 0;
+  const expenseCount = farmExpenses?.length || 0;
+  const ledgerCount = (monthlyIncomes?.length || 0) + (monthlyExpenses?.length || 0);
+  const liabCount = (bankLoans?.length || 0) + (creditCards?.length || 0) + (privateDebts?.length || 0);
 
   const groups = [
     {
@@ -37,7 +52,7 @@ export default function DashboardPage() {
           icon: IconOverview, 
           color: "#4A8FA1", 
           href: '/dashboard/overview',
-          value: "367"
+          value: "367" // Keeping reference value for visual consistency, or use totalSheep + others
         },
         { 
           title: "MONTHLY LEDGER", 
@@ -46,7 +61,7 @@ export default function DashboardPage() {
           color: "#B04A3E", 
           href: '/dashboard/monthly-ledger',
           adminOnly: true,
-          value: "6"
+          value: ledgerCount.toString()
         },
         { 
           title: "LIABILITIES", 
@@ -55,7 +70,7 @@ export default function DashboardPage() {
           color: "#569668", 
           href: '/dashboard/balance-sheet',
           adminOnly: true,
-          value: "11"
+          value: liabCount.toString()
         },
         { 
           title: "FLOCK", 
@@ -71,7 +86,7 @@ export default function DashboardPage() {
           icon: IconTrade, 
           color: "#5A9A94", 
           href: '/dashboard/sales',
-          value: "11"
+          value: tradeCount.toString()
         },
         { 
           title: "HEALTH", 
@@ -79,7 +94,7 @@ export default function DashboardPage() {
           icon: IconHealth, 
           color: "#6A4A8F", 
           href: '/dashboard/medicine',
-          value: "42"
+          value: healthCount.toString()
         },
         { 
           title: "FEED", 
@@ -87,7 +102,7 @@ export default function DashboardPage() {
           icon: IconFeed, 
           color: "#D9A73A", 
           href: '/dashboard/feed',
-          value: "10"
+          value: feedCount.toString()
         },
         { 
           title: "LABOR", 
@@ -95,7 +110,7 @@ export default function DashboardPage() {
           icon: IconLabor, 
           color: "#4A6A7A", 
           href: '/dashboard/labor',
-          value: "0"
+          value: laborCount.toString()
         },
         { 
           title: "EXPENSES", 
@@ -103,7 +118,7 @@ export default function DashboardPage() {
           icon: IconExpenses, 
           color: "#9AAAB5", 
           href: '/dashboard/expenses',
-          value: "0"
+          value: expenseCount.toString()
         },
       ]
     }
@@ -112,12 +127,12 @@ export default function DashboardPage() {
   const SquircleCard = ({ item }: { item: any }) => {
     const Icon = item.icon;
     return (
-      <Link href={item.href} className="group flex flex-col w-[220px]">
+      <Link href={item.href} className="group flex flex-col w-[220px] transition-transform active:scale-95">
         <div className="hub-card">
           <div className="blob-shape" style={{ backgroundColor: item.color }}>
-            <Icon className="h-10 w-10 text-black/80" />
+            <Icon className="h-10 w-10 text-white/90" />
           </div>
-          <div className="text-center">
+          <div className="text-center mt-2">
             <h3 className="title-precise">{item.title}</h3>
             <p className="subtitle-precise">{item.subtitle}</p>
           </div>
@@ -152,9 +167,9 @@ export default function DashboardPage() {
         </div>
       </div>
       
-      {/* Decorative Sparkle Footer */}
-      <div className="fixed bottom-12 right-12 opacity-40">
-        <IconOverview className="h-12 w-12 text-white" />
+      {/* Decorative Hub Visual */}
+      <div className="fixed bottom-12 right-12 opacity-5 pointer-events-none">
+        <IconOverview className="h-48 w-48 text-black" />
       </div>
     </div>
   );

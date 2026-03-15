@@ -17,6 +17,8 @@ export const Logo = ({ className }: { className?: string }) => (
   </div>
 );
 
+export const SyncProIcon = ({ className }: { className?: string }) => <Sparkles className={className} />;
+
 export const HubSparkle = ({ className }: { className?: string }) => (
   <div className={cn("bg-[#16242F] p-5 rounded-[2rem] shadow-2xl", className)}>
     <Sparkles className="h-8 w-8 text-white" />
