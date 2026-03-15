@@ -4,26 +4,25 @@
 
 @layer base {
   :root {
-    --background: 210 20% 94%;    /* #F4F7F6 - Main Content Area */
-    --sidebar-bg: 210 15% 88%;   /* #DDE2E5 - Cooler Sidebar */
-    --foreground: 0 0% 10%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 10%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 10%;
-    --primary: 210 40% 15%;      /* #16242F - Dark Command Blue */
+    --background: 222 24% 7%;    /* #0F1115 - Deep Onyx */
+    --foreground: 0 0% 100%;
+    --card: 222 24% 9%;          /* #16191E - Glass Base */
+    --card-foreground: 0 0% 100%;
+    --popover: 222 24% 9%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 142 71% 45%;      /* #10B981 - Tactical Emerald */
     --primary-foreground: 0 0% 100%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222 47% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 15%;
+    --secondary: 222 24% 12%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 222 24% 15%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 142 71% 45%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 210 40% 15%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 222 24% 18%;
+    --input: 222 24% 18%;
+    --ring: 142 71% 45%;
     --radius: 24px;
   }
 }
@@ -31,36 +30,79 @@
 @layer base {
   body {
     font-family: 'Inter', sans-serif;
-    @apply bg-[#E9ECEF] text-[#1A1A1A];
+    @apply bg-[#0F1115] text-white;
     margin: 0;
   }
 }
 
 .top-header {
   height: 78px;
-  @apply bg-white border-b border-neutral-200 flex items-center justify-between px-10 z-50;
+  @apply bg-transparent border-b border-white/5 flex items-center justify-between px-10 z-50 backdrop-blur-md;
 }
 
 .sidebar {
-  @apply bg-[#DDE2E5] border-r border-black/5;
+  @apply bg-[#16191E] border-r border-white/5;
+}
+
+/* HIGH-FIDELITY GLASSMORPHISM */
+.glass-card {
+  @apply bg-white/[0.03] border border-white/10 backdrop-blur-xl shadow-2xl;
+  position: relative;
+}
+
+.glass-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  pointer-events: none;
+}
+
+.glass-glow-green {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
+  box-shadow: 0 0 40px -10px rgba(16, 185, 129, 0.2), inset 0 0 20px rgba(16, 185, 129, 0.05);
+  border: 1px solid rgba(16, 185, 129, 0.2) !important;
+}
+
+.glass-glow-blue {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);
+  box-shadow: 0 0 40px -10px rgba(59, 130, 246, 0.2), inset 0 0 20px rgba(59, 130, 246, 0.05);
+  border: 1px solid rgba(59, 130, 246, 0.2) !important;
+}
+
+.glass-glow-red {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%);
+  box-shadow: 0 0 40px -10px rgba(239, 68, 68, 0.2), inset 0 0 20px rgba(239, 68, 68, 0.05);
+  border: 1px solid rgba(239, 68, 68, 0.2) !important;
+}
+
+.page-title {
+  @apply text-2xl font-black tracking-tight text-white;
+}
+
+.subtitle {
+  @apply text-[11px] font-black uppercase tracking-[0.3em] text-muted-foreground opacity-60;
 }
 
 /* TACTICAL HUB CARDS */
 .hub-card {
-  @apply w-[240px] h-[240px] bg-[#C9D1D6] rounded-[40px] p-6 flex flex-col items-center justify-between shadow-xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl relative overflow-hidden;
+  @apply w-[240px] h-[240px] glass-card rounded-[48px] p-8 flex flex-col items-center justify-between transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative overflow-hidden;
 }
 
 .blob-shape {
-  @apply w-24 h-24 flex items-center justify-center relative shadow-inner;
+  @apply w-24 h-24 flex items-center justify-center relative shadow-inner transition-transform duration-500;
   border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
 }
 
 .title-precise {
-  @apply text-[14px] font-black uppercase tracking-tight text-neutral-900 leading-none;
+  @apply text-[14px] font-black uppercase tracking-tight text-white leading-none;
 }
 
 .subtitle-precise {
-  @apply text-[10px] font-bold uppercase tracking-[0.1em] text-neutral-600 mt-1;
+  @apply text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground/60 mt-1;
 }
 
 .value-precise {

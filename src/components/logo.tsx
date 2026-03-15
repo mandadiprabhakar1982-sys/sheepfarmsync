@@ -5,16 +5,17 @@ import {
   LogOut,
   ChevronDown,
   Lock,
-  Globe
+  Globe,
+  Circle
 } from 'lucide-react';
 
 export const Logo = ({ className }: { className?: string }) => (
   <div className={cn('flex items-center gap-3 select-none group', className)}>
-    <div className="bg-[#1e293b] p-2.5 rounded-xl shadow-lg">
-      <Sparkles className="h-5 w-5 text-[#F8CF40]" />
+    <div className="bg-[#10B981] p-2.5 rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.4)]">
+      <Sparkles className="h-5 w-5 text-white" />
     </div>
-    <h1 className="text-xl font-black leading-none uppercase tracking-tight text-[#1e293b]">
-      SYNC <span className="opacity-40 text-neutral-500">PRO</span>
+    <h1 className="text-xl font-black leading-none uppercase tracking-tight text-white">
+      SYNC <span className="text-[#10B981]">PRO</span>
     </h1>
   </div>
 );
@@ -22,12 +23,12 @@ export const Logo = ({ className }: { className?: string }) => (
 export const SyncProIcon = ({ className }: { className?: string }) => <Sparkles className={className} />;
 
 export const HubSparkle = ({ className }: { className?: string }) => (
-  <div className={cn("bg-[#1e293b] p-5 rounded-[20px] shadow-2xl", className)}>
-    <Sparkles className="h-7 w-7 text-white" />
+  <div className={cn("bg-[#16191E] p-5 rounded-[20px] shadow-2xl border border-white/5", className)}>
+    <Sparkles className="h-7 w-7 text-[#10B981]" />
   </div>
 );
 
-// High-Fidelity Tactical Icons from Image
+// High-Fidelity Tactical Icons
 export const IconOverview = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
     <circle cx="12" cy="12" r="3" />
@@ -110,7 +111,6 @@ export const IconExpenses = ({ className }: { className?: string }) => (
   </svg>
 );
 
-// Functional Aliases
 export const IconInventory = IconFlock;
 export const IconMortality = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
