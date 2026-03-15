@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -16,6 +17,7 @@ import {
   IconExpenses
 } from '@/components/logo';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { cn } from '@/lib/utils';
 
 export default function DashboardPage() {
   const { 
@@ -30,68 +32,77 @@ export default function DashboardPage() {
       items: [
         { 
           title: "OVERVIEW", 
-          subtitle: "ANALYTICS ENGINE", 
+          subtitle: "ANALYTICS", 
           icon: IconOverview, 
           imageId: "dash-analytics",
-          href: '/dashboard/overview'
+          href: '/dashboard/overview',
+          color: "from-blue-500/20 to-indigo-500/20"
         },
         { 
-          title: "MONTHLY LEDGER", 
-          subtitle: "PRIVATE PROJECT", 
+          title: "LEDGER", 
+          subtitle: "BALANCE SHEET", 
           icon: IconLedger, 
           imageId: "dash-ledger",
           href: '/dashboard/monthly-ledger',
-          adminOnly: true
+          adminOnly: true,
+          color: "from-emerald-500/20 to-teal-500/20"
         },
         { 
-          title: "LIABILITIES", 
-          subtitle: "PRIVATE PROJECT", 
+          title: "DEBT", 
+          subtitle: "PORTFOLIO", 
           icon: IconLiabilities, 
           imageId: "dash-liabilities",
           href: '/dashboard/balance-sheet',
-          adminOnly: true
+          adminOnly: true,
+          color: "from-rose-500/20 to-orange-500/20"
         },
         { 
           title: "FLOCK", 
-          subtitle: "LIVESTOCK ASSETS", 
+          subtitle: "LIVESTOCK", 
           icon: IconFlock, 
           imageId: "dash-flock",
-          href: '/dashboard/livestock'
+          href: '/dashboard/livestock',
+          color: "from-amber-500/20 to-yellow-500/20"
         },
         { 
-          title: "TRADE LEDGER", 
-          subtitle: "BUY & DISPOSAL", 
+          title: "TRADE", 
+          subtitle: "BUY & SELL", 
           icon: IconTrade, 
           imageId: "dash-sales",
-          href: '/dashboard/sales'
+          href: '/dashboard/sales',
+          color: "from-sky-500/20 to-blue-500/20"
         },
         { 
-          title: "MEDICINES", 
-          subtitle: "HEALTH & CLINICAL", 
+          title: "HEALTH", 
+          subtitle: "CLINICAL", 
           icon: IconHealth, 
           imageId: "dash-health",
-          href: '/dashboard/medicine'
+          href: '/dashboard/medicine',
+          color: "from-red-500/20 to-rose-500/20"
         },
         { 
           title: "FEED", 
-          subtitle: "GRAIN INVENTORY", 
+          subtitle: "INVENTORY", 
           icon: IconFeed, 
           imageId: "dash-feed",
-          href: '/dashboard/feed'
+          href: '/dashboard/feed',
+          color: "from-lime-500/20 to-green-500/20"
         },
         { 
           title: "LABOR", 
-          subtitle: "STAFF OPERATIONS", 
+          subtitle: "STAFF", 
           icon: IconLabor, 
           imageId: "dash-labor",
-          href: '/dashboard/labor'
+          href: '/dashboard/labor',
+          color: "from-orange-500/20 to-amber-500/20"
         },
         { 
           title: "EXPENSES", 
-          subtitle: "OVERHEAD AUDIT", 
+          subtitle: "OVERHEAD", 
           icon: IconExpenses, 
           imageId: "dash-expenses",
-          href: '/dashboard/expenses'
+          href: '/dashboard/expenses',
+          color: "from-slate-500/20 to-gray-500/20"
         },
       ]
     }
@@ -113,24 +124,27 @@ export default function DashboardPage() {
     
     return (
       <Link href={item.href} className="group transition-all active:scale-95">
-        <div className="w-full h-[280px] bg-white/80 backdrop-blur-xl rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-6 shadow-[0_20px_50px_rgba(0,0,0,0.05)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.1)] transition-all hover:-translate-y-2 border border-white/40 relative">
+        <div className="w-full h-[180px] sm:h-[240px] md:h-[280px] bg-white/70 backdrop-blur-xl rounded-[2rem] sm:rounded-[2.5rem] p-4 sm:p-8 flex flex-col items-center justify-center gap-3 sm:gap-6 shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all hover:-translate-y-1.5 border border-white/60 relative overflow-hidden glass-sheen">
+          
+          {/* Vibrant Glow Background */}
+          <div className={cn("absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-500", item.color)} />
           
           {/* Illustration Container */}
-          <div className="relative w-32 h-32 mb-2 transition-transform group-hover:scale-110 duration-500">
+          <div className="relative w-16 h-16 sm:w-24 sm:h-24 md:w-32 md:h-32 transition-transform group-hover:scale-110 duration-500 z-10">
             {imageData && (
               <Image 
                 src={imageData.imageUrl} 
                 alt={imageData.description}
                 fill
-                className="object-contain"
+                className="object-contain drop-shadow-2xl"
                 data-ai-hint={imageData.imageHint}
               />
             )}
           </div>
           
-          <div className="text-center">
-            <h3 className="text-[15px] font-black text-slate-900 tracking-wider leading-none mb-2 uppercase">{item.title}</h3>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em]">{item.subtitle}</p>
+          <div className="text-center relative z-10">
+            <h3 className="text-[11px] sm:text-[13px] md:text-[15px] font-black text-slate-900 tracking-wider leading-none mb-1 uppercase">{item.title}</h3>
+            <p className="hidden sm:block text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em]">{item.subtitle}</p>
           </div>
         </div>
       </Link>
@@ -138,35 +152,35 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="animate-in fade-in duration-1000 max-w-7xl mx-auto py-8 px-4">
-      <div className="flex items-center gap-6 mb-16">
-        <HubSparkle />
-        <div className="space-y-1.5">
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight uppercase leading-none">
+    <div className="animate-in fade-in duration-1000 max-w-7xl mx-auto py-4 sm:py-8 px-4">
+      <div className="flex items-center gap-4 sm:gap-6 mb-8 sm:mb-16">
+        <HubSparkle className="h-12 w-12 sm:h-16 sm:w-16" />
+        <div className="space-y-1 sm:space-y-1.5">
+          <h1 className="text-xl sm:text-3xl font-black text-slate-900 tracking-tight uppercase leading-none">
             MPR SHEEP FARMS
           </h1>
-          <p className="text-[10px] font-black text-primary/60 uppercase tracking-[0.4em]">
+          <p className="text-[8px] sm:text-[10px] font-black text-primary/60 uppercase tracking-[0.3em] sm:tracking-[0.4em]">
             SYNCHRONIZED OPERATIONAL ENVIRONMENT
           </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-8">
         {groups[0].items.map((item, idx) => {
           if (item.adminOnly && !isAdmin) return null;
           return <HubCard key={idx} item={item} />;
         })}
       </div>
       
-      <div className="mt-24 border-t border-slate-200/60 pt-10 opacity-30">
+      <div className="mt-16 sm:mt-24 border-t border-slate-200/60 pt-8 sm:pt-10 opacity-30">
         <div className="flex justify-between items-center">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">SYNC PRO ENTERPRISE</p>
-            <p className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter mt-1">Tactical v4.5.0 Deployment</p>
+            <p className="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-500">SYNC PRO ENTERPRISE</p>
+            <p className="text-[7px] sm:text-[8px] font-bold text-slate-400 uppercase tracking-tighter mt-1">Tactical v4.5.0 Deployment</p>
           </div>
-          <div className="h-10 w-10 flex items-center justify-center relative">
+          <div className="h-8 w-8 sm:h-10 sm:w-10 flex items-center justify-center relative">
              <div className="absolute inset-0 bg-primary/10 rounded-full animate-ping opacity-20" />
-             <div className="h-2 w-2 rounded-full bg-primary" />
+             <div className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-primary" />
           </div>
         </div>
       </div>
