@@ -1,82 +1,65 @@
+
 {
   "placeholderImages": [
     {
       "id": "user-avatar",
-      "description": "Professional user profile portrait",
-      "imageUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
-      "imageHint": "professional portrait"
+      "description": "User avatar placeholder",
+      "imageUrl": "https://images.unsplash.com/photo-1521119989659-a83eee488004?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxwZXJzb24lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NzE0ODAxMDF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "person portrait"
     },
     {
       "id": "dash-analytics",
-      "description": "High-precision data analytics dashboard",
-      "imageUrl": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=400&q=80",
-      "imageHint": "data visualization"
+      "description": "Overview Analytics",
+      "imageUrl": "https://picsum.photos/seed/dash-analytics/400/400",
+      "imageHint": "high-fidelity blue atom icon"
     },
     {
       "id": "dash-ledger",
-      "description": "Financial ledger and accounting suite",
-      "imageUrl": "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=400&q=80",
-      "imageHint": "accounting ledger"
+      "description": "Monthly Ledger",
+      "imageUrl": "https://picsum.photos/seed/dash-ledger/400/400",
+      "imageHint": "purple database lock icon"
     },
     {
       "id": "dash-liabilities",
-      "description": "Institutional debt and finance portfolio",
-      "imageUrl": "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?auto=format&fit=crop&w=400&q=80",
-      "imageHint": "finance growth"
+      "description": "Liabilities",
+      "imageUrl": "https://picsum.photos/seed/dash-liabilities/400/400",
+      "imageHint": "geometric gray crystal icon"
     },
     {
       "id": "dash-flock",
-      "description": "Large scale sheep farm grazing",
-      "imageUrl": "https://images.unsplash.com/photo-1484557985045-edf25e08da73?auto=format&fit=crop&w=400&q=80",
-      "imageHint": "sheep farm"
+      "description": "Flock Registry Identity",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-7371766246-d12c8.firebasestorage.app/o/sheep.png?alt=media&token=57f16775-67a5-443a-8e6b-4e961f956aa9",
+      "imageHint": "3d sheep illustration"
     },
     {
       "id": "dash-sales",
-      "description": "Livestock trade and marketplace transactions",
-      "imageUrl": "https://images.unsplash.com/photo-1511112181181-02e93a0a6848?auto=format&fit=crop&w=400&q=80",
-      "imageHint": "agriculture market"
+      "description": "Purchases & Sales",
+      "imageUrl": "https://picsum.photos/seed/dash-sales/400/400",
+      "imageHint": "green warehouse conveyor icon"
     },
     {
       "id": "dash-health",
-      "description": "Clinical veterinary health services",
-      "imageUrl": "https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?auto=format&fit=crop&w=400&q=80",
-      "imageHint": "veterinary medical"
+      "description": "Health",
+      "imageUrl": "https://picsum.photos/seed/dash-health/400/400",
+      "imageHint": "caduseus microscope dna medical illustration"
     },
     {
       "id": "dash-feed",
-      "description": "Agricultural grain and feed inventory",
-      "imageUrl": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=400&q=80",
-      "imageHint": "grain agriculture"
+      "description": "Feed",
+      "imageUrl": "https://picsum.photos/seed/dash-feed/400/400",
+      "imageHint": "grain sack wheat silos agriculture illustration"
     },
     {
       "id": "dash-labor",
-      "description": "Cooperative farm staff and labor group",
-      "imageUrl": "https://images.unsplash.com/photo-1595981267035-21004b65f392?auto=format&fit=crop&w=400&q=80",
-      "imageHint": "farm workers"
+      "description": "Labor",
+      "imageUrl": "https://picsum.photos/seed/dash-labor/400/400",
+      "imageHint": "orange people group icon"
     },
     {
       "id": "dash-expenses",
-      "description": "Operational receipts and procurement",
-      "imageUrl": "https://images.unsplash.com/photo-1554224154-26032ffc0d07?auto=format&fit=crop&w=400&q=80",
-      "imageHint": "receipts money"
-    },
-    {
-      "id": "telangana-backdrop",
-      "description": "High-fidelity sheep farm sunset landscape",
-      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-7371766246-d12c8.firebasestorage.app/o/ChatGPT%20Image%20Mar%2015%2C%202026%2C%2007_48_46%20PM.png?alt=media&token=bfab8b76-54b7-47ff-beeb-afd82a03b28e",
-      "imageHint": "telangana sheep farm"
-    },
-    {
-      "id": "app-icon-192",
-      "description": "SheepSync Pro PWA Icon Small",
-      "imageUrl": "https://images.unsplash.com/photo-1516467508483-a7212febe31a?auto=format&fit=crop&w=192&q=80",
-      "imageHint": "sheep icon"
-    },
-    {
-      "id": "app-icon-512",
-      "description": "SheepSync Pro PWA Icon Large",
-      "imageUrl": "https://images.unsplash.com/photo-1516467508483-a7212febe31a?auto=format&fit=crop&w=512&q=80",
-      "imageHint": "sheep icon"
+      "description": "Expenses",
+      "imageUrl": "https://picsum.photos/seed/dash-expenses/400/400",
+      "imageHint": "blue dollar box icon"
     }
   ]
 }
