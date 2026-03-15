@@ -14,7 +14,11 @@ import {
   Plus,
   Home as HomeIcon,
   Pencil,
-  History
+  History,
+  ShieldAlert,
+  ShoppingBag,
+  CreditCard,
+  Landmark
 } from 'lucide-react';
 import { useFarm } from '@/context/FarmContext';
 import { useToast } from '@/hooks/use-toast';
@@ -55,15 +59,14 @@ export default function MonthlyLedgerPage() {
   }, [monthlyIncomes, monthlyExpenses, selectedMonth, selectedYear]);
 
   const filteredIncomes = useMemo(() => combinedData.filter(i => i.type === 'income'), [combinedData]);
-  const filteredExpenses = useMemo(() => combinedData.filter(e => e.type === 'expense'), [combinedData]);
+  const filteredInstitutional = useMemo(() => combinedData.filter(e => e.type === 'expense' && (e.category === 'loan' || e.category === 'card')), [combinedData]);
+  const filteredPrivate = useMemo(() => combinedData.filter(e => e.type === 'expense' && e.category === 'private'), [combinedData]);
+  const filteredHousehold = useMemo(() => combinedData.filter(e => e.type === 'expense' && e.category === 'household'), [combinedData]);
 
-  const currentTotalInflow = useMemo(() => {
-    return filteredIncomes.reduce((s, i) => s + Number(i.amount || 0), 0);
-  }, [filteredIncomes]);
-
-  const currentTotalOutflow = useMemo(() => {
-    return filteredExpenses.reduce((s, e) => s + Number(e.amount || 0), 0);
-  }, [filteredExpenses]);
+  const totalInflow = useMemo(() => filteredIncomes.reduce((s, i) => s + Number(i.amount || 0), 0), [filteredIncomes]);
+  const totalInstitutional = useMemo(() => filteredInstitutional.reduce((s, e) => s + Number(e.amount || 0), 0), [filteredInstitutional]);
+  const totalPrivate = useMemo(() => filteredPrivate.reduce((s, e) => s + Number(e.amount || 0), 0), [filteredPrivate]);
+  const totalHousehold = useMemo(() => filteredHousehold.reduce((s, e) => s + Number(e.amount || 0), 0), [filteredHousehold]);
 
   const handleAdd = () => {
     if (!source || !amount || !date) {
@@ -81,8 +84,62 @@ export default function MonthlyLedgerPage() {
     setSource(''); setAmount('');
   };
 
+  const LedgerTable = ({ data, emptyMsg, badgeLabel, badgeClass }: { data: any[], emptyMsg: string, badgeLabel?: string, badgeClass?: string }) => (
+    <CardContent className="p-0 overflow-x-auto">
+      <Table>
+        <TableHeader className="bg-white border-b">
+          <TableRow className="hover:bg-transparent">
+            <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-slate-400">Date</TableHead>
+            <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-slate-400">Origin</TableHead>
+            <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-slate-400">Value</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {data.length > 0 ? (
+            data.map(item => (
+              <TableRow key={item.id} className="group hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-0">
+                <TableCell className="pl-10 py-10">
+                  <span className="text-sm font-black text-slate-300 tracking-tight leading-none whitespace-nowrap">{item.date}</span>
+                </TableCell>
+                <TableCell>
+                  <div className="flex flex-col gap-1.5">
+                    <span className="text-[16px] font-black text-slate-900 leading-tight">{item.source}</span>
+                    <div className="flex items-center">
+                      <Badge className={cn("border-none font-black text-[8px] uppercase tracking-wider px-2 py-0.5 rounded-md", badgeClass || "bg-slate-100 text-slate-600")}>
+                        {badgeLabel || (item.category || 'Loan').toUpperCase()}
+                      </Badge>
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell className="text-right pr-10">
+                  <div className="flex items-center justify-end gap-6">
+                    <span className="text-xl font-black text-slate-900 tracking-tight">₹{item.amount.toLocaleString()}</span>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-8 w-8 text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity" 
+                      onClick={() => item.type === 'income' ? deleteMonthlyIncome(item.id, item._path) : deleteMonthlyExpense(item.id, item._path)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={3} className="text-center py-32 opacity-40 italic uppercase text-[12px] font-black tracking-widest bg-slate-50/50">
+                {emptyMsg}
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </CardContent>
+  );
+
   return (
-    <div className="container mx-auto py-8 px-4 animate-in fade-in duration-700 max-w-6xl">
+    <div className="container mx-auto py-8 px-4 animate-in fade-in duration-700 max-w-7xl">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
         <PageHeader
           title="Operational Inflow"
@@ -117,9 +174,11 @@ export default function MonthlyLedgerPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         <div className="lg:col-span-8">
           <Tabs defaultValue="income" className="w-full" onValueChange={setActiveTab}>
-            <TabsList className="mb-8 p-1 bg-white rounded-2xl flex justify-start items-center h-14 w-fit shadow-md border border-slate-100">
-              <TabsTrigger value="income" className="rounded-xl font-black text-[10px] tracking-widest uppercase data-[state=active]:bg-primary data-[state=active]:text-white">Inflow Ledger</TabsTrigger>
-              <TabsTrigger value="expense" className="rounded-xl font-black text-[10px] tracking-widest uppercase data-[state=active]:bg-primary data-[state=active]:text-white">Outflow Ledger</TabsTrigger>
+            <TabsList className="mb-8 p-1 bg-white rounded-2xl flex flex-wrap justify-start items-center h-auto w-full shadow-md border border-slate-100 gap-1">
+              <TabsTrigger value="income" className="rounded-xl font-black text-[9px] tracking-widest uppercase data-[state=active]:bg-emerald-600 data-[state=active]:text-white">Inflow</TabsTrigger>
+              <TabsTrigger value="institutional" className="rounded-xl font-black text-[9px] tracking-widest uppercase data-[state=active]:bg-primary data-[state=active]:text-white">Institutional</TabsTrigger>
+              <TabsTrigger value="private" className="rounded-xl font-black text-[9px] tracking-widest uppercase data-[state=active]:bg-slate-700 data-[state=active]:text-white">Private Debt</TabsTrigger>
+              <TabsTrigger value="household" className="rounded-xl font-black text-[9px] tracking-widest uppercase data-[state=active]:bg-rose-600 data-[state=active]:text-white">Household</TabsTrigger>
             </TabsList>
 
             <TabsContent value="income" className="m-0">
@@ -133,137 +192,64 @@ export default function MonthlyLedgerPage() {
                       </div>
                       <CardDescription className="text-emerald-100/60 text-xs font-black uppercase tracking-[0.2em]">Temporal Stream Audit</CardDescription>
                     </div>
-                    <div className="text-right">
-                      <p className="text-4xl font-black tracking-tighter">₹{currentTotalInflow.toLocaleString()}</p>
-                    </div>
+                    <p className="text-4xl font-black tracking-tighter">₹{totalInflow.toLocaleString()}</p>
                   </div>
                 </CardHeader>
-                <CardContent className="p-0">
-                  <Table>
-                    <TableHeader className="bg-white border-b">
-                      <TableRow className="hover:bg-transparent">
-                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-slate-400">Date</TableHead>
-                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-slate-400">Origin</TableHead>
-                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-slate-400">Value</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredIncomes.length > 0 ? (
-                        filteredIncomes.map(item => (
-                          <TableRow key={item.id} className="group hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-0">
-                            <TableCell className="pl-10 py-10">
-                              <span className="text-sm font-black text-slate-300 tracking-tight">{item.date}</span>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex flex-col gap-1.5">
-                                <span className="text-[16px] font-black text-slate-900 leading-none">{item.source}</span>
-                                <div className="flex items-center">
-                                  <Badge className="bg-[#ecfdf5] text-[#059669] border-none font-black text-[8px] uppercase tracking-wider px-2 py-0.5 rounded-md">
-                                    Operational Inflow
-                                  </Badge>
-                                </div>
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-right pr-10">
-                              <div className="flex items-center justify-end gap-6">
-                                <span className="text-xl font-black text-slate-900">₹{item.amount.toLocaleString()}</span>
-                                <Button 
-                                  variant="ghost" 
-                                  size="icon" 
-                                  className="h-8 w-8 text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity" 
-                                  onClick={() => deleteMonthlyIncome(item.id, item._path)}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))
-                      ) : (
-                        <TableRow>
-                          <TableCell colSpan={3} className="text-center py-32 opacity-40 italic uppercase text-[12px] font-black tracking-widest bg-slate-50/50">
-                            No transactions logged for this cycle
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </CardContent>
+                <LedgerTable data={filteredIncomes} emptyMsg="No inflow transactions logged" badgeLabel="OPERATIONAL INFLOW" badgeClass="bg-[#ecfdf5] text-[#059669]" />
               </Card>
             </TabsContent>
 
-            <TabsContent value="expense" className="m-0">
+            <TabsContent value="institutional" className="m-0">
               <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
                 <CardHeader className="bg-primary text-white p-10 py-12">
                   <div className="flex justify-between items-center">
                     <div className="space-y-1">
                       <div className="flex items-center gap-3">
-                        <HomeIcon className="h-6 w-6" />
+                        <Landmark className="h-6 w-6" />
                         <CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Institutional EMI</CardTitle>
                       </div>
                       <CardDescription className="text-blue-100/60 text-xs font-black uppercase tracking-[0.2em]">Temporal Stream Audit</CardDescription>
                     </div>
-                    <div className="text-right">
-                      <p className="text-4xl font-black tracking-tighter">₹{currentTotalOutflow.toLocaleString()}</p>
-                    </div>
+                    <p className="text-4xl font-black tracking-tighter">₹{totalInstitutional.toLocaleString()}</p>
                   </div>
                 </CardHeader>
-                <CardContent className="p-0">
-                  <Table>
-                    <TableHeader className="bg-white border-b">
-                      <TableRow className="hover:bg-transparent">
-                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-slate-400">Date</TableHead>
-                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-slate-400">Origin</TableHead>
-                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-slate-400">Value</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredExpenses.length > 0 ? (
-                        filteredExpenses.map(item => (
-                          <TableRow key={item.id} className="group hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-0">
-                            <TableCell className="pl-10 py-10">
-                              <span className="text-sm font-black text-slate-300 tracking-tight leading-relaxed">{item.date}</span>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex flex-col gap-1.5">
-                                <span className="text-[16px] font-black text-slate-900 leading-tight max-w-[180px]">{item.source}</span>
-                                <div className="flex items-center">
-                                  <Badge className="bg-rose-50 text-rose-600 border-none font-black text-[8px] uppercase tracking-wider px-2 py-0.5 rounded-md">
-                                    {(item.category || 'Loan').toUpperCase()}
-                                  </Badge>
-                                </div>
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-right pr-10">
-                              <div className="flex items-center justify-end gap-6">
-                                <span className="text-xl font-black text-slate-900 tracking-tight">₹{item.amount.toLocaleString()}</span>
-                                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
-                                  <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-slate-100 text-slate-600">
-                                    <Pencil className="h-4 w-4" />
-                                  </Button>
-                                  <Button 
-                                    variant="ghost" 
-                                    size="icon" 
-                                    className="h-10 w-10 rounded-full bg-rose-50 text-rose-600" 
-                                    onClick={() => deleteMonthlyExpense(item.id, item._path)}
-                                  >
-                                    <Trash2 className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))
-                      ) : (
-                        <TableRow>
-                          <TableCell colSpan={3} className="text-center py-32 opacity-40 italic uppercase text-[12px] font-black tracking-widest bg-slate-50/50">
-                            No disbursement records discovered
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </CardContent>
+                <LedgerTable data={filteredInstitutional} emptyMsg="No institutional records discovered" badgeClass="bg-blue-50 text-primary" />
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="private" className="m-0">
+              <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
+                <CardHeader className="bg-[#334155] text-white p-10 py-12">
+                  <div className="flex justify-between items-center">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-3">
+                        <ShieldAlert className="h-6 w-6" />
+                        <CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Unsecured Debt</CardTitle>
+                      </div>
+                      <CardDescription className="text-slate-100/60 text-xs font-black uppercase tracking-[0.2em]">Temporal Stream Audit</CardDescription>
+                    </div>
+                    <p className="text-4xl font-black tracking-tighter">₹{totalPrivate.toLocaleString()}</p>
+                  </div>
+                </CardHeader>
+                <LedgerTable data={filteredPrivate} emptyMsg="No private debt entries discovered" badgeLabel="PRIVATE" badgeClass="bg-rose-50 text-rose-600" />
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="household" className="m-0">
+              <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
+                <CardHeader className="bg-[#e11d48] text-white p-10 py-12">
+                  <div className="flex justify-between items-center">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-3">
+                        <ShoppingBag className="h-6 w-6" />
+                        <CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Household Audit</CardTitle>
+                      </div>
+                      <CardDescription className="text-rose-100/60 text-xs font-black uppercase tracking-[0.2em]">Temporal Stream Audit</CardDescription>
+                    </div>
+                    <p className="text-4xl font-black tracking-tighter">₹{totalHousehold.toLocaleString()}</p>
+                  </div>
+                </CardHeader>
+                <LedgerTable data={filteredHousehold} emptyMsg="No household spends recorded" badgeLabel="HOUSEHOLD" badgeClass="bg-rose-50 text-rose-600" />
               </Card>
             </TabsContent>
           </Tabs>
@@ -304,7 +290,7 @@ export default function MonthlyLedgerPage() {
                   <Input 
                     value={source} 
                     onChange={(e) => setSource(e.target.value)} 
-                    placeholder="e.g. Salary, Axis Bank, HDFC" 
+                    placeholder="e.g. Salary, HDFC Bank, Personal" 
                     className="h-14 rounded-2xl bg-white/5 border-none text-white font-bold px-6"
                   />
                 </div>
@@ -326,9 +312,9 @@ export default function MonthlyLedgerPage() {
                     <Select value={category} onValueChange={(v: any) => setCategory(v)}>
                       <SelectTrigger className="h-14 rounded-2xl bg-white/5 border-none text-white font-bold"><SelectValue /></SelectTrigger>
                       <SelectContent className="rounded-2xl shadow-2xl border-none">
-                        <SelectItem value="loan" className="font-bold">Institutional EMI</SelectItem>
+                        <SelectItem value="loan" className="font-bold">Institutional Loan</SelectItem>
                         <SelectItem value="card" className="font-bold">Credit Card</SelectItem>
-                        <SelectItem value="private" className="font-bold">Personal Debt</SelectItem>
+                        <SelectItem value="private" className="font-bold">Unsecured Debt</SelectItem>
                         <SelectItem value="household" className="font-bold">Household Spends</SelectItem>
                       </SelectContent>
                     </Select>
