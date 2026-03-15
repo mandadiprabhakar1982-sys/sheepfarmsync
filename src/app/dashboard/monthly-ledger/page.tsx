@@ -154,13 +154,13 @@ export default function MonthlyLedgerPage() {
     <div className="container mx-auto animate-in fade-in duration-700">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
         <PageHeader
-          title="Monthly Ledger"
-          description="PRECISION FINANCIAL SYNCHRONIZATION"
+          title="Operational Inflow"
+          description="TEMPORAL STREAM AUDIT"
           className="mb-0"
         />
         <div className="flex gap-4">
           <div className="bg-white/90 p-5 px-8 rounded-[24px] shadow-xl border-l-4 border-[#15803d]">
-            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Total Inflow</p>
+            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Operational Inflow</p>
             <p className="text-2xl font-black text-[#15803d]">₹{categoryTotals.totalIncome.toLocaleString()}</p>
           </div>
           <div className="bg-white/90 p-5 px-8 rounded-[24px] shadow-xl border-l-4 border-rose-600">
@@ -179,7 +179,7 @@ export default function MonthlyLedgerPage() {
 
       <Tabs defaultValue="all" className="w-full" onValueChange={setActiveTab}>
         <div className="flex justify-center mb-10">
-          <TabsList className="p-1 bg-[#e7eddc] rounded-[14px] flex justify-start items-center h-16 w-fit shadow-inner">
+          <TabsList className="p-1 bg-[#e7eddc] rounded-2xl flex justify-start items-center h-16 w-fit shadow-inner">
             <TabsTrigger value="all" className="tab-inactive data-[state=active]:tab-active h-14 px-8 font-black text-[10px] tracking-widest uppercase">Overview Stream</TabsTrigger>
             <TabsTrigger value="income" className="tab-inactive data-[state=active]:tab-active h-14 px-8 font-black text-[10px] tracking-widest uppercase">Inflow Ledger</TabsTrigger>
             <TabsTrigger value="expense" className="tab-inactive data-[state=active]:tab-active h-14 px-8 font-black text-[10px] tracking-widest uppercase">Outflow Ledger</TabsTrigger>
