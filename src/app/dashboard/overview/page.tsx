@@ -20,10 +20,10 @@ export default function OverviewPage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-[#020617]">
+      <div className="flex h-screen w-full items-center justify-center bg-slate-50">
         <div className="flex flex-col items-center gap-6">
-          <div className="w-12 h-12 border-4 border-white/5 rounded-full border-t-emerald-500 animate-spin" />
-          <p className="text-[10px] font-black text-emerald-500/40 uppercase tracking-[0.4em]">Linking Command Hub</p>
+          <div className="w-12 h-12 border-4 border-slate-200 rounded-full border-t-emerald-500 animate-spin" />
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">Linking Command Hub</p>
         </div>
       </div>
     );
@@ -31,9 +31,9 @@ export default function OverviewPage() {
 
   const SectionHeader = ({ title }: { title: string }) => (
     <div className="flex items-center gap-6 mb-8">
-      <div className="h-px flex-1 bg-white/5" />
-      <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-white/30 whitespace-nowrap">{title}</h2>
-      <div className="h-px flex-1 bg-white/5" />
+      <div className="h-px flex-1 bg-slate-200" />
+      <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 whitespace-nowrap">{title}</h2>
+      <div className="h-px flex-1 bg-slate-200" />
     </div>
   );
 
@@ -53,23 +53,22 @@ export default function OverviewPage() {
     className?: string
   }) => (
     <div className={cn(
-      "rounded-[2rem] p-8 flex items-center gap-6 shadow-xl transition-all hover:scale-[1.01] border border-white/5",
-      color,
+      "rounded-[2rem] p-8 flex items-center gap-6 shadow-lg transition-all hover:scale-[1.01] border border-slate-100 bg-white group",
       className
     )}>
-      <div className="h-12 w-12 shrink-0 rounded-2xl bg-black/20 flex items-center justify-center text-white">
-        <Icon className="h-6 w-6 opacity-80" />
+      <div className={cn("h-14 w-14 shrink-0 rounded-2xl flex items-center justify-center text-white shadow-xl", color)}>
+        <Icon className="h-6 w-6" />
       </div>
       <div className="flex flex-col min-w-0">
-        <p className="text-[9px] font-black uppercase tracking-[0.2em] text-white/50 mb-1">{title}</p>
-        <p className="text-3xl font-black tracking-tighter text-white leading-none mb-2">{value}</p>
-        <p className="text-[8px] font-bold uppercase tracking-widest text-white/20 truncate">{subtitle}</p>
+        <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">{title}</p>
+        <p className="text-3xl font-black tracking-tighter text-slate-900 leading-none mb-2">{value}</p>
+        <p className="text-[8px] font-bold uppercase tracking-widest text-slate-300 truncate">{subtitle}</p>
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-full py-4 animate-in fade-in duration-1000 relative bg-[#020617]">
+    <div className="min-h-full py-4 animate-in fade-in duration-1000 relative">
       <div className="max-w-[1400px] mx-auto space-y-12 relative z-10">
         
         {/* Tier 1: Inventory & Flock Status */}
@@ -81,14 +80,14 @@ export default function OverviewPage() {
               value={totalSheep}
               subtitle="ACTIVE FLOCK : AS OF TODAY"
               icon={Sparkles}
-              color="bg-emerald-900/40"
+              color="bg-emerald-600"
             />
             <TacticalCard 
               title="TOTAL MORTALITIES"
               value={totalDead}
               subtitle="LOSS RECORD : CURRENT CYCLE"
               icon={Skull}
-              color="bg-rose-950/40"
+              color="bg-rose-600"
             />
           </div>
         </section>
@@ -102,21 +101,21 @@ export default function OverviewPage() {
               value={`₹${totalReceivables.toLocaleString()}`}
               subtitle={totalReceivables > 0 ? "OUTSTANDING INVOICES" : "NO PENDING COLLECTIONS"}
               icon={TrendingUp}
-              color="bg-sky-900/40"
+              color="bg-sky-600"
             />
             <TacticalCard 
               title="PAYABLES DUE"
               value={`₹${totalPayables.toLocaleString()}`}
               subtitle={totalPayables > 0 ? "ACTIVE DEBT COMMITMENTS" : "ACTIVE COMMITMENTS"}
               icon={TrendingDown}
-              color="bg-orange-950/40"
+              color="bg-orange-600"
             />
             <TacticalCard 
               title="TOTAL COST SUMMARY"
               value={`₹${totalExpenses.toLocaleString()}`}
               subtitle="TOTAL OPERATIONAL SPEND: YTD"
               icon={ReceiptIndianRupee}
-              color="bg-white/5"
+              color="bg-slate-900"
             />
           </div>
         </section>
@@ -130,28 +129,28 @@ export default function OverviewPage() {
               value={`₹${totalFeedCost.toLocaleString()}`}
               subtitle="GRAIN & INVENTORY"
               icon={Wheat}
-              color="bg-amber-900/20"
+              color="bg-amber-500"
             />
             <TacticalCard 
               title="LABOR COST"
               value={`₹${totalLaborCost.toLocaleString()}`}
               subtitle="TOTAL STAFF HOURS"
               icon={Users}
-              color="bg-amber-900/20"
+              color="bg-amber-500"
             />
             <TacticalCard 
               title="MEDICAL"
               value={`₹${totalMedicineCost.toLocaleString()}`}
               subtitle="CLINICAL CHECKUPS"
               icon={Heart}
-              color="bg-amber-900/20"
+              color="bg-amber-500"
             />
             <TacticalCard 
               title="MISC. EXPENSES"
               value={`₹${totalFarmExpenses.toLocaleString()}`}
               subtitle="GENERAL OVERHEADS"
               icon={Wallet}
-              color="bg-amber-900/20"
+              color="bg-amber-500"
             />
           </div>
         </section>

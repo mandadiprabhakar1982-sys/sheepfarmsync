@@ -17,10 +17,10 @@ export default function DashboardLayout({
 
   if (isLoadingProfile) {
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-[#020617] fixed inset-0 z-[9999]">
+      <div className="flex h-screen w-full items-center justify-center bg-white fixed inset-0 z-[9999]">
         <div className="flex flex-col items-center gap-6">
-          <div className="w-12 h-12 border-4 border-white/5 rounded-full border-t-emerald-500 animate-spin" />
-          <p className="text-[12px] font-black text-emerald-500/40 uppercase tracking-[0.4em]">AUTHENTICATING</p>
+          <div className="w-12 h-12 border-4 border-slate-100 rounded-full border-t-emerald-500 animate-spin" />
+          <p className="text-[12px] font-black text-slate-400 uppercase tracking-[0.4em]">AUTHENTICATING</p>
         </div>
       </div>
     );
@@ -28,23 +28,23 @@ export default function DashboardLayout({
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-[#020617] overflow-hidden font-sans">
+      <div className="flex min-h-screen w-full bg-slate-50 overflow-hidden font-sans">
         <AppSidebar />
 
         <SidebarInset className="flex flex-col relative z-10 bg-transparent">
           <header className="top-header">
             <div className="flex items-center gap-6">
-              <div className="flex items-center gap-2 text-white/40">
-                <PanelLeft className="h-4 w-4 cursor-pointer hover:text-white transition-colors" />
+              <div className="flex items-center gap-2 text-slate-400">
+                <PanelLeft className="h-4 w-4 cursor-pointer hover:text-slate-900 transition-colors" />
                 <MoreVertical className="h-4 w-4 opacity-20" />
               </div>
-              <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-white/80 whitespace-nowrap">
+              <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-500 whitespace-nowrap">
                 FARM MANAGEMENT SYSTEM
               </h2>
             </div>
             
             <div className="flex items-center gap-8">
-              <div className="flex items-center gap-2 text-white/40 hover:text-white transition-colors cursor-pointer">
+              <div className="flex items-center gap-2 text-slate-400 hover:text-emerald-600 transition-colors cursor-pointer">
                 <Globe className="h-4 w-4" />
                 <span className="text-[10px] font-black uppercase tracking-widest">EN</span>
               </div>

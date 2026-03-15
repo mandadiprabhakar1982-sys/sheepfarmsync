@@ -30,14 +30,14 @@ export default function DashboardPage() {
           title: "OVERVIEW", 
           subtitle: "ANALYTICS ENGINE", 
           icon: IconOverview, 
-          color: "#4ADE80", 
+          color: "#10B981", 
           href: '/dashboard/overview'
         },
         { 
           title: "MONTHLY LEDGER", 
           subtitle: "PRIVATE PROJECT", 
           icon: IconLedger, 
-          color: "#F87171", 
+          color: "#EF4444", 
           href: '/dashboard/monthly-ledger',
           adminOnly: true
         },
@@ -45,7 +45,7 @@ export default function DashboardPage() {
           title: "LIABILITIES", 
           subtitle: "PRIVATE PROJECT", 
           icon: IconLiabilities, 
-          color: "#60A5FA", 
+          color: "#3B82F6", 
           href: '/dashboard/balance-sheet',
           adminOnly: true
         },
@@ -53,42 +53,42 @@ export default function DashboardPage() {
           title: "FLOCK", 
           subtitle: "LIVESTOCK ASSETS", 
           icon: IconFlock, 
-          color: "#FB923C", 
+          color: "#F59E0B", 
           href: '/dashboard/livestock'
         },
         { 
           title: "TRADE LEDGER", 
           subtitle: "BUY & DISPOSAL", 
           icon: IconTrade, 
-          color: "#2DD4BF", 
+          color: "#06B6D4", 
           href: '/dashboard/sales'
         },
         { 
           title: "MEDICINES", 
           subtitle: "HEALTH & CLINICAL", 
           icon: IconHealth, 
-          color: "#A78BFA", 
+          color: "#8B5CF6", 
           href: '/dashboard/medicine'
         },
         { 
           title: "FEED", 
           subtitle: "GRAIN INVENTORY", 
           icon: IconFeed, 
-          color: "#FACC15", 
+          color: "#EAB308", 
           href: '/dashboard/feed'
         },
         { 
           title: "LABOR", 
           subtitle: "STAFF OPERATIONS", 
           icon: IconLabor, 
-          color: "#38BDF8", 
+          color: "#0EA5E9", 
           href: '/dashboard/labor'
         },
         { 
           title: "EXPENSES", 
           subtitle: "OVERHEAD AUDIT", 
           icon: IconExpenses, 
-          color: "#94A3B8", 
+          color: "#64748B", 
           href: '/dashboard/expenses'
         },
       ]
@@ -99,8 +99,8 @@ export default function DashboardPage() {
     return (
       <div className="flex h-[calc(100vh-120px)] w-full items-center justify-center">
         <div className="flex flex-col items-center gap-6">
-          <div className="w-12 h-12 border-4 border-white/5 rounded-full border-t-emerald-500 animate-spin" />
-          <p className="text-[12px] font-black text-emerald-500/40 uppercase tracking-[0.4em]">SYNCING COMMAND HUB...</p>
+          <div className="w-12 h-12 border-4 border-slate-100 rounded-full border-t-emerald-500 animate-spin" />
+          <p className="text-[12px] font-black text-slate-400 uppercase tracking-[0.4em]">SYNCING COMMAND HUB...</p>
         </div>
       </div>
     );
@@ -110,15 +110,15 @@ export default function DashboardPage() {
     const Icon = item.icon;
     return (
       <Link href={item.href} className="group transition-all active:scale-95">
-        <div className="hub-card w-full h-[220px] bg-white/[0.03] rounded-[2rem] p-8 flex flex-col items-center justify-center gap-6 border border-white/5 hover:border-emerald-500/40 hover:-translate-y-1 transition-all shadow-2xl relative overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+        <div className="hub-card w-full h-[220px] bg-white rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-6 border border-slate-100 hover:border-emerald-500/40 hover:-translate-y-1 transition-all shadow-xl hover:shadow-2xl relative overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
           
-          <div className="p-4 rounded-2xl flex items-center justify-center relative z-10 transition-transform group-hover:scale-110 duration-500" style={{ backgroundColor: `${item.color}10` }}>
+          <div className="p-4 rounded-3xl flex items-center justify-center relative z-10 transition-transform group-hover:scale-110 duration-500" style={{ backgroundColor: `${item.color}10` }}>
             <Icon className="h-16 w-16" style={{ color: item.color }} />
           </div>
           <div className="text-center relative z-10">
-            <h3 className="text-[13px] font-black text-white tracking-wider leading-none mb-1 uppercase">{item.title}</h3>
-            <p className="text-[8px] font-bold text-white/20 uppercase tracking-widest">{item.subtitle}</p>
+            <h3 className="text-[13px] font-black text-slate-900 tracking-wider leading-none mb-1 uppercase">{item.title}</h3>
+            <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{item.subtitle}</p>
           </div>
         </div>
       </Link>
@@ -130,10 +130,10 @@ export default function DashboardPage() {
       <div className="flex items-center gap-8 mb-12">
         <HubSparkle />
         <div className="space-y-1">
-          <h1 className="text-3xl font-black text-white tracking-tight uppercase">
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight uppercase">
             SYSTEM COMMAND HUB
           </h1>
-          <p className="text-[11px] font-black text-emerald-500/40 uppercase tracking-[0.4em]">
+          <p className="text-[11px] font-black text-emerald-600/60 uppercase tracking-[0.4em]">
             SYNCHRONIZED OPERATIONAL ENVIRONMENT
           </p>
         </div>
@@ -146,9 +146,9 @@ export default function DashboardPage() {
         })}
       </div>
       
-      <div className="mt-20 border-t border-white/5 pt-8 opacity-20">
-        <p className="text-[9px] font-black uppercase tracking-widest text-white">SYNC PRO ELITE</p>
-        <p className="text-[8px] font-bold text-white uppercase tracking-tighter">Tactical v4.2.0</p>
+      <div className="mt-20 border-t border-slate-100 pt-8 opacity-40">
+        <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">SYNC PRO ELITE</p>
+        <p className="text-[8px] font-bold text-slate-300 uppercase tracking-tighter">Tactical v4.2.0</p>
       </div>
     </div>
   );

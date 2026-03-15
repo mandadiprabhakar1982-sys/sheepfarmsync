@@ -4,24 +4,24 @@
 
 @layer base {
   :root {
-    --background: 222 47% 1%;    /* Midnight Black */
-    --foreground: 210 40% 98%;
-    --card: 222 47% 4%;          /* Deep Slate */
-    --card-foreground: 210 40% 98%;
-    --popover: 222 47% 4%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 142 71% 45%;      /* Emerald */
+    --background: 210 40% 98%;    /* Very Light Grey */
+    --foreground: 222 47% 11%;    /* Dark Slate */
+    --card: 0 0% 100%;            /* Pure White */
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 142 71% 45%;      /* Emerald Primary */
     --primary-foreground: 0 0% 100%;
-    --secondary: 217 32% 17%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217 32% 17%;
-    --muted-foreground: 215 20% 65%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222 47% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
     --accent: 142 71% 45%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 84% 60%;
+    --accent-foreground: 222 47% 11.2%;
+    --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-    --border: 217 32% 17%;
-    --input: 217 32% 17%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
     --ring: 142 71% 45%;
     --radius: 1.5rem;
   }
@@ -30,23 +30,23 @@
 @layer base {
   body {
     font-family: 'Inter', sans-serif;
-    @apply bg-[#020617] text-white selection:bg-emerald-500/30;
+    @apply bg-background text-foreground selection:bg-emerald-500/20;
     margin: 0;
   }
 }
 
 .top-header {
   height: 72px;
-  @apply bg-[#020617] border-b border-white/5 flex items-center justify-between px-10 z-50;
+  @apply bg-white border-b border-slate-100 flex items-center justify-between px-10 z-50 shadow-sm;
 }
 
 .sidebar {
-  @apply bg-[#020617] border-r border-white/5;
+  @apply bg-slate-50 border-r border-slate-200;
 }
 
-/* CLEAN MODERN GLASS */
+/* CLEAN MODERN SURFACES */
 .glass-card {
-  @apply bg-white/[0.02] border border-white/10 backdrop-blur-md shadow-xl overflow-hidden relative;
+  @apply bg-white border border-slate-200 shadow-xl overflow-hidden relative transition-all;
 }
 
 .glass-sheen {
@@ -60,25 +60,26 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 100%);
+  background: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, transparent 100%);
   pointer-events: none;
+  opacity: 0.1;
 }
 
 /* TACTICAL FORM ELEMENTS */
 .form-input-tactical {
-  @apply h-14 rounded-2xl bg-white/5 border border-white/10 shadow-sm font-bold text-white px-6 focus-visible:ring-emerald-500/20 transition-all;
+  @apply h-14 rounded-2xl bg-slate-50 border border-slate-200 shadow-sm font-bold text-slate-900 px-6 focus-visible:ring-emerald-500/20 transition-all;
 }
 
 .form-label-tactical {
-  @apply text-[10px] font-black uppercase tracking-[0.2em] text-white/40 ml-2 mb-2 block;
+  @apply text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-2 mb-2 block;
 }
 
 .page-title {
-  @apply text-2xl font-black tracking-tight text-white;
+  @apply text-2xl font-black tracking-tight text-slate-900;
 }
 
 .subtitle {
-  @apply text-[11px] font-black uppercase tracking-[0.3em] text-white/40;
+  @apply text-[11px] font-black uppercase tracking-[0.3em] text-slate-400;
 }
 
 @layer utilities {
@@ -86,10 +87,14 @@
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   
   .tab-active {
-    @apply bg-white text-[#020617] shadow-lg scale-[1.02];
+    @apply bg-white text-emerald-600 shadow-lg scale-[1.02] border border-emerald-100;
   }
   
   .tab-inactive {
-    @apply text-white/40 hover:text-white/60;
+    @apply text-slate-400 hover:text-slate-600;
   }
+
+  .glow-gold { border-bottom: 4px solid #EAB308; }
+  .glow-purple { border-bottom: 4px solid #A855F7; }
+  .glow-coral { border-bottom: 4px solid #F43F5E; }
 }

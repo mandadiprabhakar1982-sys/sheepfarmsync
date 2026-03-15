@@ -74,13 +74,13 @@ export function AppSidebar() {
         <Logo />
       </SidebarHeader>
 
-      <SidebarContent className="px-6 no-scrollbar">
+      <SidebarContent className="px-6 no-scrollbar bg-slate-50">
         {groups.map((group, gIdx) => {
           if (group.adminOnly && !isAdmin) return null;
 
           return (
             <SidebarGroup key={gIdx} className="mb-6">
-              <SidebarGroupLabel className="text-[9px] font-black uppercase tracking-[0.3em] text-white/20 mb-4 px-4">
+              <SidebarGroupLabel className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 mb-4 px-4">
                 {group.label}
               </SidebarGroupLabel>
               <SidebarGroupContent>
@@ -95,16 +95,16 @@ export function AppSidebar() {
                           className={cn(
                             "h-12 px-4 rounded-xl transition-all duration-300",
                             isActive 
-                              ? "bg-white/5 text-white border border-white/10 shadow-lg" 
-                              : "text-white/30 hover:bg-white/[0.03] hover:text-white"
+                              ? "bg-white text-emerald-600 border border-slate-200 shadow-md scale-[1.02]" 
+                              : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
                           )}
                         >
                           <Link href={link.href} className="flex items-center justify-between w-full">
                             <div className="flex items-center">
-                              <link.icon className={cn("h-4 w-4", isActive ? "text-emerald-400" : "opacity-30")} />
+                              <link.icon className={cn("h-4 w-4", isActive ? "text-emerald-500" : "opacity-40")} />
                               <span className="ml-3 text-[12px] font-bold tracking-tight">{link.label}</span>
                             </div>
-                            {isActive && <ChevronRight className="h-3 w-3 text-emerald-400" />}
+                            {isActive && <ChevronRight className="h-3 w-3 text-emerald-500" />}
                           </Link>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
@@ -117,8 +117,8 @@ export function AppSidebar() {
         })}
       </SidebarContent>
 
-      <SidebarFooter className="p-10 opacity-10">
-        <p className="text-[14px] font-black tracking-tighter text-white">N</p>
+      <SidebarFooter className="p-10 opacity-20 bg-slate-50">
+        <p className="text-[14px] font-black tracking-tighter text-slate-900 uppercase">SYNC PRO</p>
       </SidebarFooter>
     </Sidebar>
   );
