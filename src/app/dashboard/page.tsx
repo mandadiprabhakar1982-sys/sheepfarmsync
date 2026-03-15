@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -144,7 +143,7 @@ export default function DashboardPage() {
         <HubSparkle />
         <div className="space-y-1.5">
           <h1 className="text-3xl font-black text-slate-900 tracking-tight uppercase leading-none">
-            SYSTEM COMMAND HUB
+            MPR SHEEP FARMS
           </h1>
           <p className="text-[10px] font-black text-primary/60 uppercase tracking-[0.4em]">
             SYNCHRONIZED OPERATIONAL ENVIRONMENT
