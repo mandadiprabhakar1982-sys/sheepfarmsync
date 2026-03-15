@@ -165,10 +165,12 @@ export default function ExpensesPage() {
     setIsUploading(true);
     try {
       let finalUrl = data.imageUrl;
+      // Step 1: Upload to Storage if a new photo was captured
       if (storage && data.imageUrl?.startsWith('data:')) {
         finalUrl = await uploadToStorage(storage, data.imageUrl, 'expense_receipts');
       }
 
+      // Step 2: Save to Firestore
       const newExpense = { 
         ...data, 
         imageUrl: finalUrl,

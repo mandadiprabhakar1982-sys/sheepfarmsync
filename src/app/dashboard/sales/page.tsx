@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState, useMemo, useRef } from 'react';
@@ -198,10 +199,12 @@ export default function TradeLedgerPage() {
     setIsUploading(true);
     try {
       let finalUrl = data.imageUrl;
+      // Step 1: Upload to Storage
       if (storage && data.imageUrl?.startsWith('data:')) {
         finalUrl = await uploadToStorage(storage, data.imageUrl, 'disposals');
       }
 
+      // Step 2: Save to Firestore
       const payload = { 
         ...data, 
         imageUrl: finalUrl,
@@ -229,10 +232,12 @@ export default function TradeLedgerPage() {
     setIsUploading(true);
     try {
       let finalUrl = data.imageUrl;
+      // Step 1: Upload to Storage
       if (storage && data.imageUrl?.startsWith('data:')) {
         finalUrl = await uploadToStorage(storage, data.imageUrl, 'acquisitions');
       }
 
+      // Step 2: Save to Firestore
       addPurchase({ 
         ...data, 
         imageUrl: finalUrl,

@@ -189,10 +189,12 @@ export default function LivestockPage() {
     setIsUploading(true);
     try {
       let finalUrl = data.imageUrl;
+      // 1. If it's a data URL, upload to Firebase Storage
       if (storage && data.imageUrl?.startsWith('data:')) {
         finalUrl = await uploadToStorage(storage, data.imageUrl, 'sheep_profiles');
       }
 
+      // 2. Save the final cloud URL to Firestore
       addTrackedSheep({ 
         ...data, 
         imageUrl: finalUrl,

@@ -23,6 +23,6 @@ export async function uploadToStorage(storage: FirebaseStorage, dataUrl: string 
     return downloadUrl;
   } catch (error) {
     console.error(`[STORAGE] Upload failed for ${folder}:`, error);
-    return dataUrl; // Fallback to dataUrl if upload fails, though not ideal
+    throw new Error('Failed to synchronize visual asset with cloud storage.');
   }
 }
