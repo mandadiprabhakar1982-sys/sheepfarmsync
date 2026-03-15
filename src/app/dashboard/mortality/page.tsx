@@ -54,6 +54,7 @@ import { Textarea } from '@/components/ui/textarea';
 import type { DeadAnimal } from '@/lib/types';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 
 
 const formSchema = z.object({

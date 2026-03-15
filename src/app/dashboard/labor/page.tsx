@@ -30,6 +30,7 @@ import { cn } from '@/lib/utils';
 import { useFarm } from '@/context/FarmContext';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 
 const formSchema = z.object({
   employeeName: z.string().min(1, "Employee name is required"),
@@ -106,7 +107,6 @@ export default function LaborPage() {
         <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-white/40 mt-1">OPERATIONAL STAFF & DISBURSEMENTS</p>
       </div>
 
-      {/* TACTICAL STAT GRID */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
         <div className="glass-card glass-sheen glow-gold rounded-[32px] p-8 h-[180px] flex flex-col justify-between">
           <div className="flex justify-between items-start">
@@ -149,7 +149,6 @@ export default function LaborPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-        {/* MAIN LEDGER AREA */}
         <div className="lg:col-span-8 space-y-8">
           <div className="relative">
             <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-white/20" />
@@ -201,7 +200,6 @@ export default function LaborPage() {
           </div>
         </div>
 
-        {/* ENTRY PANEL */}
         <div className="lg:col-span-4">
           <div className="glass-card glass-sheen rounded-[40px] p-10 h-full border-t-2 border-white/10">
             <div className="flex items-center gap-3 mb-10 text-emerald-400">
@@ -271,7 +269,6 @@ export default function LaborPage() {
         </div>
       </div>
 
-      {/* FOOTER ACCENT */}
       <div className="fixed bottom-12 right-12 opacity-40 pointer-events-none">
         <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="white" />
