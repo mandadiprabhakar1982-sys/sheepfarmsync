@@ -4,24 +4,24 @@
 
 @layer base {
   :root {
-    --background: 222 24% 7%;    /* #0F1115 - Deep Onyx */
+    --background: 155 60% 6%;    /* #05140a - Deepest Emerald */
     --foreground: 0 0% 100%;
-    --card: 222 24% 9%;          /* #16191E - Glass Base */
+    --card: 155 60% 8%;          /* #0a2e1a - Forest Base */
     --card-foreground: 0 0% 100%;
-    --popover: 222 24% 9%;
+    --popover: 155 60% 8%;
     --popover-foreground: 0 0% 100%;
-    --primary: 142 71% 45%;      /* #10B981 - Tactical Emerald */
+    --primary: 142 71% 45%;      /* Tactical Emerald */
     --primary-foreground: 0 0% 100%;
-    --secondary: 222 24% 12%;
+    --secondary: 155 60% 12%;
     --secondary-foreground: 0 0% 100%;
-    --muted: 222 24% 15%;
+    --muted: 155 20% 15%;
     --muted-foreground: 215 20% 65%;
     --accent: 142 71% 45%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 222 24% 18%;
-    --input: 222 24% 18%;
+    --border: 155 60% 15%;
+    --input: 155 60% 15%;
     --ring: 142 71% 45%;
     --radius: 24px;
   }
@@ -30,53 +30,71 @@
 @layer base {
   body {
     font-family: 'Inter', sans-serif;
-    @apply bg-[#0F1115] text-white;
+    @apply bg-[#0a2e1a] text-white selection:bg-emerald-500/30;
     margin: 0;
+    background-image: radial-gradient(circle at 50% -20%, #1a4d2e 0%, #0a2e1a 100%);
   }
 }
 
 .top-header {
   height: 78px;
-  @apply bg-transparent border-b border-white/5 flex items-center justify-between px-10 z-50 backdrop-blur-md;
+  @apply bg-transparent border-b border-white/5 flex items-center justify-between px-10 z-50;
 }
 
 .sidebar {
-  @apply bg-[#16191E] border-r border-white/5;
+  @apply bg-[#05140a]/80 backdrop-blur-2xl border-r border-white/5;
 }
 
 /* HIGH-FIDELITY GLASSMORPHISM */
 .glass-card {
-  @apply bg-white/[0.03] border border-white/10 backdrop-blur-xl shadow-2xl;
+  @apply bg-white/[0.03] border border-white/10 backdrop-blur-xl shadow-2xl overflow-hidden relative;
+}
+
+.glass-sheen {
   position: relative;
 }
 
-.glass-card::before {
+.glass-sheen::after {
   content: "";
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent 45%,
+    rgba(255, 255, 255, 0.08) 50%,
+    transparent 55%
+  );
+  transform: rotate(30deg);
   pointer-events: none;
+  z-index: 1;
 }
 
-.glass-glow-green {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
-  box-shadow: 0 0 40px -10px rgba(16, 185, 129, 0.2), inset 0 0 20px rgba(16, 185, 129, 0.05);
-  border: 1px solid rgba(16, 185, 129, 0.2) !important;
+/* BASE GLOWS */
+.glow-gold {
+  box-shadow: 0 15px 40px -10px rgba(255, 200, 87, 0.2);
+  border-bottom: 2px solid rgba(255, 200, 87, 0.3) !important;
 }
 
-.glass-glow-blue {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);
-  box-shadow: 0 0 40px -10px rgba(59, 130, 246, 0.2), inset 0 0 20px rgba(59, 130, 246, 0.05);
-  border: 1px solid rgba(59, 130, 246, 0.2) !important;
+.glow-purple {
+  box-shadow: 0 15px 40px -10px rgba(167, 139, 250, 0.2);
+  border-bottom: 2px solid rgba(167, 139, 250, 0.3) !important;
 }
 
-.glass-glow-red {
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%);
-  box-shadow: 0 0 40px -10px rgba(239, 68, 68, 0.2), inset 0 0 20px rgba(239, 68, 68, 0.05);
-  border: 1px solid rgba(239, 68, 68, 0.2) !important;
+.glow-coral {
+  box-shadow: 0 15px 40px -10px rgba(239, 68, 68, 0.2);
+  border-bottom: 2px solid rgba(239, 68, 68, 0.3) !important;
+}
+
+/* TACTICAL FORM ELEMENTS */
+.form-input-tactical {
+  @apply h-14 rounded-2xl bg-[#162a1e] border-none shadow-inner font-bold text-white px-6 focus-visible:ring-emerald-500/20;
+}
+
+.form-label-tactical {
+  @apply text-[10px] font-black uppercase tracking-[0.2em] text-white/40 ml-2 mb-2 block;
 }
 
 .page-title {
@@ -84,29 +102,7 @@
 }
 
 .subtitle {
-  @apply text-[11px] font-black uppercase tracking-[0.3em] text-muted-foreground opacity-60;
-}
-
-/* TACTICAL HUB CARDS */
-.hub-card {
-  @apply w-[240px] h-[240px] glass-card rounded-[48px] p-8 flex flex-col items-center justify-between transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative overflow-hidden;
-}
-
-.blob-shape {
-  @apply w-24 h-24 flex items-center justify-center relative shadow-inner transition-transform duration-500;
-  border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
-}
-
-.title-precise {
-  @apply text-[14px] font-black uppercase tracking-tight text-white leading-none;
-}
-
-.subtitle-precise {
-  @apply text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground/60 mt-1;
-}
-
-.value-precise {
-  @apply text-3xl font-black tracking-tighter text-white drop-shadow-sm;
+  @apply text-[11px] font-black uppercase tracking-[0.3em] text-white/40;
 }
 
 @layer utilities {

@@ -14,7 +14,8 @@ import {
   Skull,
   Receipt,
   Users,
-  ChevronRight
+  ChevronRight,
+  Calculator
 } from 'lucide-react';
 
 import {
@@ -78,8 +79,8 @@ export function AppSidebar() {
           if (group.adminOnly && !isAdmin) return null;
 
           return (
-            <SidebarGroup key={gIdx} className="mb-10">
-              <SidebarGroupLabel className="text-[10px] font-black uppercase tracking-[0.25em] text-white/40 mb-4 px-4">
+            <SidebarGroup key={gIdx} className="mb-8">
+              <SidebarGroupLabel className="text-[9px] font-black uppercase tracking-[0.3em] text-white/30 mb-4 px-4">
                 {group.label}
               </SidebarGroupLabel>
               <SidebarGroupContent>
@@ -92,18 +93,18 @@ export function AppSidebar() {
                           asChild
                           isActive={isActive}
                           className={cn(
-                            "h-11 px-4 rounded-xl transition-all duration-300",
+                            "h-12 px-4 rounded-xl transition-all duration-300",
                             isActive 
-                              ? "bg-white/5 text-white shadow-xl translate-x-1" 
+                              ? "bg-white/5 text-white border border-white/10 shadow-2xl" 
                               : "text-white/40 hover:bg-white/[0.03] hover:text-white"
                           )}
                         >
                           <Link href={link.href} className="flex items-center justify-between w-full">
                             <div className="flex items-center">
-                              <link.icon className={cn("h-4 w-4", isActive ? "text-[#10B981]" : "opacity-40")} />
+                              <link.icon className={cn("h-4 w-4", isActive ? "text-emerald-400" : "opacity-40")} />
                               <span className="ml-3 text-[12px] font-bold tracking-tight">{link.label}</span>
                             </div>
-                            {isActive && <ChevronRight className="h-3 w-3 text-[#10B981]" />}
+                            {isActive && <ChevronRight className="h-3 w-3 text-emerald-400" />}
                           </Link>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
@@ -118,8 +119,7 @@ export function AppSidebar() {
 
       <SidebarFooter className="p-10 border-t border-white/5">
         <div className="flex flex-col gap-1 opacity-20">
-          <p className="text-[9px] font-black uppercase tracking-widest text-white">SYNC PRO</p>
-          <p className="text-[8px] font-bold text-white uppercase tracking-tighter">Prefageur v3.0.0</p>
+          <p className="text-[14px] font-black tracking-tighter text-white">N</p>
         </div>
       </SidebarFooter>
     </Sidebar>

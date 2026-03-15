@@ -17,10 +17,10 @@ export default function DashboardLayout({
 
   if (isLoadingProfile) {
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-[#0F1115] fixed inset-0 z-[9999]">
+      <div className="flex h-screen w-full items-center justify-center bg-[#05140a] fixed inset-0 z-[9999]">
         <div className="flex flex-col items-center gap-6">
-          <div className="w-12 h-12 border-4 border-white/5 rounded-full border-t-[#10B981] animate-spin" />
-          <p className="text-[12px] font-black text-[#10B981]/40 uppercase tracking-[0.4em]">AUTHENTICATING</p>
+          <div className="w-12 h-12 border-4 border-white/5 rounded-full border-t-emerald-500 animate-spin" />
+          <p className="text-[12px] font-black text-emerald-500/40 uppercase tracking-[0.4em]">AUTHENTICATING</p>
         </div>
       </div>
     );
@@ -28,7 +28,7 @@ export default function DashboardLayout({
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-[#0F1115] overflow-hidden font-sans">
+      <div className="flex min-h-screen w-full bg-[#0a2e1a] overflow-hidden font-sans">
         <AppSidebar />
 
         <SidebarInset className="flex flex-col relative z-10 bg-transparent">
@@ -52,16 +52,8 @@ export default function DashboardLayout({
             </div>
           </header>
           
-          <main className="flex-1 overflow-y-auto no-scrollbar relative p-8">
-            <div className="max-w-[1600px] mx-auto">
-              {children}
-            </div>
-            {/* Decorative Hub Visual (Sparkle) */}
-            <div className="fixed bottom-12 right-12 opacity-10 pointer-events-none">
-              <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="white" />
-              </svg>
-            </div>
+          <main className="flex-1 overflow-y-auto no-scrollbar relative p-12">
+            {children}
           </main>
         </SidebarInset>
       </div>
