@@ -4,25 +4,26 @@
 
 @layer base {
   :root {
-    --background: 165 10% 96.5%; /* #F4F7F6 - Cool Bone White */
-    --foreground: 0 0% 10%;      /* #1A1A1A - Jet Black */
+    --background: 210 20% 92%;    /* #E9ECEF - Light Grey Content */
+    --sidebar-bg: 210 15% 88%;   /* #DDE2E5 - Cooler Sidebar */
+    --foreground: 0 0% 10%;
     --card: 0 0% 100%;
     --card-foreground: 0 0% 10%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 10%;
-    --primary: 108 39% 25%;      /* #2D5A27 - Forest Green */
+    --primary: 210 40% 15%;      /* #16242F - Dark Command Blue */
     --primary-foreground: 0 0% 100%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222 47% 11.2%;
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 108 39% 25%;
+    --accent: 210 40% 15%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 108 39% 25%;
+    --ring: 210 40% 15%;
     --radius: 24px;
   }
 }
@@ -30,54 +31,43 @@
 @layer base {
   body {
     font-family: 'Inter', sans-serif;
-    @apply bg-[#F4F7F6] text-[#1A1A1A];
+    @apply bg-[#E9ECEF] text-[#1A1A1A];
     margin: 0;
   }
 }
 
-/* --- DAYLIGHT ORGANIC DASHBOARD --- */
-.dashboard-panel {
-  background: rgba(255, 255, 255, 0.82);
-  backdrop-filter: blur(10px);
-  border-radius: 28px;
-  padding: 30px;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.06);
-}
-
-.squircle-card {
-  @apply aspect-square w-full rounded-[48px] flex flex-col items-center justify-center gap-4 transition-all duration-500 shadow-sm relative overflow-hidden;
-}
-
-.squircle-card:hover {
-  @apply -translate-y-2 shadow-2xl scale-[1.02];
-}
-
-/* --- UNIVERSAL HEADER --- */
 .top-header {
-  height: 78px;
-  @apply bg-white border-b border-[#EDEDED] flex items-center justify-between px-8 z-50;
+  height: 72px;
+  @apply bg-[#DDE2E5]/50 backdrop-blur-md border-b border-white/20 flex items-center justify-between px-8 z-50;
 }
 
-/* --- UNIFIED PAGE ELEMENTS --- */
-.page-title {
-  @apply text-[34px] font-black text-[#1A1A1A] uppercase tracking-tight;
+.sidebar {
+  @apply bg-[#DDE2E5] border-r border-white/20;
 }
 
-.subtitle {
-  @apply text-[13px] font-bold uppercase tracking-[0.3em] text-[#9E9E9E];
+.hub-card {
+  @apply bg-[#C9D1D6] rounded-[40px] p-8 flex flex-col items-center justify-center transition-all duration-300 shadow-sm relative overflow-hidden;
 }
 
-.form-card {
-  @apply bg-white rounded-[24px] shadow-[0_8px_20px_rgba(0,0,0,0.06)] border-none;
+.hub-card:hover {
+  @apply -translate-y-1 shadow-xl brightness-105;
 }
 
-.primary-btn {
-  @apply bg-[#2D5A27] text-white font-bold uppercase tracking-widest rounded-[16px] h-14 px-8 shadow-lg transition-all active:scale-95 border-none;
+.blob-shape {
+  @apply w-24 h-20 mb-4 flex items-center justify-center relative;
+  border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
 }
 
-input, select, textarea {
-  height: 56px !important;
-  @apply rounded-[14px] border border-[#d9e4cf] bg-[#F8FAFC] px-4 font-semibold focus:outline-none focus:ring-2 focus:ring-[#2D5A27]/20 !important;
+.title-precise {
+  @apply text-[13px] font-black uppercase tracking-[0.1em] text-[#1A1A1A] leading-tight;
+}
+
+.subtitle-precise {
+  @apply text-[10px] font-bold uppercase tracking-[0.15em] text-[#1A1A1A]/60 mt-0.5;
+}
+
+.value-precise {
+  @apply text-3xl font-medium tracking-tighter text-white mt-4;
 }
 
 @layer utilities {

@@ -2,151 +2,159 @@
 
 import Link from 'next/link';
 import { useFarm } from '@/context/FarmContext';
-import { cn } from '@/lib/utils';
 import { 
-  SheepIcon, 
-  HighFidelityHealth, 
-  HighFidelityFeed, 
-  HighFidelityLabor, 
-  HighFidelityOverview,
-  HighFidelityLedger,
-  HighFidelityLiabilities
+  HubSparkle,
+  IconOverview,
+  IconLedger,
+  IconLiabilities,
+  IconFlock,
+  IconTrade,
+  IconHealth,
+  IconFeed,
+  IconLabor,
+  IconExpenses
 } from '@/components/logo';
-import { TrendingUp, Skull, ShoppingBag } from 'lucide-react';
 
 export default function DashboardPage() {
-  const { userRole } = useFarm();
+  const { 
+    userRole, 
+    totalSheep, 
+    totalSales, 
+    totalExpenses, 
+    totalLoanBalance, 
+    totalMedicineCost,
+    totalFeedCost,
+    totalLaborCost
+  } = useFarm();
   const isAdmin = userRole === 'admin';
 
   const groups = [
     {
-      label: "PUBLIC PROJECT ASSETS",
       items: [
         { 
-          title: "FLOCK", 
-          subtitle: "Livestock Tracking", 
-          icon: SheepIcon, 
-          color: "#2D5A27", 
-          href: '/dashboard/livestock' 
+          title: "OVERVIEW", 
+          subtitle: "ANALYTICS", 
+          icon: IconOverview, 
+          color: "#4A8FA1", 
+          href: '/dashboard/overview',
+          value: "367"
         },
         { 
-          title: "MEDICINE", 
-          subtitle: "Expense Logs", 
-          icon: HighFidelityHealth, 
-          color: "#D32F2F", 
-          href: '/dashboard/medicine' 
+          title: "MONTHLY LEDGER", 
+          subtitle: "PRIVATE LABELS", 
+          icon: IconLedger, 
+          color: "#B04A3E", 
+          href: '/dashboard/monthly-ledger',
+          adminOnly: true,
+          value: "6"
+        },
+        { 
+          title: "LIABILITIES", 
+          subtitle: "PRIVATE PROJECT", 
+          icon: IconLiabilities, 
+          color: "#569668", 
+          href: '/dashboard/balance-sheet',
+          adminOnly: true,
+          value: "11"
+        },
+        { 
+          title: "FLOCK", 
+          subtitle: "PUBLIC PROJECT", 
+          icon: IconFlock, 
+          color: "#D97D3A", 
+          href: '/dashboard/livestock',
+          value: totalSheep.toString()
+        },
+        { 
+          title: "PURCHASES & SALES", 
+          subtitle: "PUBLIC PROJECT", 
+          icon: IconTrade, 
+          color: "#5A9A94", 
+          href: '/dashboard/sales',
+          value: "11"
+        },
+        { 
+          title: "HEALTH", 
+          subtitle: "OPERATIONS & STAFF", 
+          icon: IconHealth, 
+          color: "#6A4A8F", 
+          href: '/dashboard/medicine',
+          value: "42"
         },
         { 
           title: "FEED", 
-          subtitle: "Inventory", 
-          icon: HighFidelityFeed, 
-          color: "#795548", 
-          href: '/dashboard/feed' 
+          subtitle: "GRAIN", 
+          icon: IconFeed, 
+          color: "#D9A73A", 
+          href: '/dashboard/feed',
+          value: "10"
         },
         { 
           title: "LABOR", 
-          subtitle: "Staff Management", 
-          icon: HighFidelityLabor, 
-          color: "#F57C00", 
-          href: '/dashboard/labor' 
+          subtitle: "OPERATIONS & STAFF", 
+          icon: IconLabor, 
+          color: "#4A6A7A", 
+          href: '/dashboard/labor',
+          value: "0"
         },
         { 
-          title: "SALES", 
-          subtitle: "Market Data", 
-          icon: TrendingUp, 
-          color: "#1976D2", 
-          href: '/dashboard/sales' 
-        },
-        { 
-          title: "LOSS LOG", 
-          subtitle: "Mortality Tracker", 
-          icon: Skull, 
-          color: "#455A64", 
-          href: '/dashboard/mortality' 
-        },
-      ]
-    },
-    {
-      label: "PRIVATE PROJECT ASSETS",
-      adminOnly: true,
-      items: [
-        { 
-          title: "LEDGER", 
-          subtitle: "Private Assets", 
-          icon: HighFidelityLedger, 
-          color: "#15803d", 
-          href: '/dashboard/monthly-ledger' 
-        },
-        { 
-          title: "DEBT", 
-          subtitle: "Liability Portfolio", 
-          icon: HighFidelityLiabilities, 
-          color: "#166534", 
-          href: '/dashboard/balance-sheet' 
+          title: "EXPENSES", 
+          subtitle: "PUBLIC PROJECT", 
+          icon: IconExpenses, 
+          color: "#9AAAB5", 
+          href: '/dashboard/expenses',
+          value: "0"
         },
       ]
     }
   ];
 
-  const BentoCard = ({ item }: { item: any }) => {
+  const SquircleCard = ({ item }: { item: any }) => {
     const Icon = item.icon;
     return (
-      <Link href={item.href} className="group flex flex-col items-center w-full sm:w-[48%] lg:w-[31%] xl:w-[23%] gap-6">
-        {/* The GIF Squircle Card */}
-        <div 
-          className="squircle-card"
-          style={{ backgroundColor: `${item.color}15` }}
-        >
-          <div className="p-6 rounded-[32px] bg-white shadow-xl mb-2 transition-transform duration-500 group-hover:scale-110">
-            <Icon className="h-16 w-16" style={{ color: item.color }} />
+      <Link href={item.href} className="group flex flex-col w-[220px]">
+        <div className="hub-card">
+          <div className="blob-shape" style={{ backgroundColor: item.color }}>
+            <Icon className="h-10 w-10 text-black/80" />
           </div>
-          <h3 className="text-2xl font-black tracking-[0.1em] uppercase" style={{ color: item.color }}>
-            {item.title}
-          </h3>
+          <div className="text-center">
+            <h3 className="title-precise">{item.title}</h3>
+            <p className="subtitle-precise">{item.subtitle}</p>
+          </div>
+          <div className="value-precise">{item.value}</div>
         </div>
-        
-        {/* External Label Label */}
-        <p className="text-[11px] font-black text-[#9E9E9E] uppercase tracking-[0.3em] text-center px-4">
-          {item.subtitle}
-        </p>
       </Link>
     );
   };
 
   return (
-    <div className="flex flex-col min-h-full py-12 px-6 sm:px-12 animate-in fade-in duration-700">
-      <div className="w-full max-w-[1600px] mx-auto space-y-20">
-        {/* Header Section */}
-        <div className="flex flex-col gap-2 pl-4 border-l-8 border-[#2D5A27]">
-          <h1 className="text-4xl font-black text-[#2D5A27] tracking-tighter uppercase">
-            SHEEPSYNC PRO
-          </h1>
-          <p className="text-[14px] font-bold text-[#9E9E9E] uppercase tracking-[0.4em] leading-none">
-            Management Hub
-          </p>
+    <div className="flex flex-col min-h-full py-16 px-12 animate-in fade-in duration-1000">
+      <div className="max-w-[1400px] mx-auto w-full">
+        {/* Hub Header */}
+        <div className="flex items-center gap-8 mb-16">
+          <HubSparkle />
+          <div className="space-y-1">
+            <h1 className="text-3xl font-black text-[#1A1A1A] tracking-tight uppercase">
+              SYSTEM COMMAND HUB
+            </h1>
+            <p className="text-[13px] font-bold text-[#1A1A1A]/40 uppercase tracking-[0.3em]">
+              SYNCHRONIZED OPERATIONAL ENVIRONMENT
+            </p>
+          </div>
         </div>
 
-        {/* Dynamic Groups */}
-        {groups.map((group, gIdx) => {
-          if (group.adminOnly && !isAdmin) return null;
-          
-          return (
-            <div key={gIdx} className="space-y-10">
-              <div className="flex items-center gap-6">
-                <h2 className="text-[12px] font-black uppercase tracking-[0.5em] text-[#9E9E9E] whitespace-nowrap">
-                  {group.label}
-                </h2>
-                <div className="h-px w-full bg-[#EDEDED]" />
-              </div>
-              
-              <div className="flex flex-wrap gap-x-8 gap-y-16 justify-start items-start">
-                {group.items.map((item, idx) => (
-                  <BentoCard key={idx} item={item} />
-                ))}
-              </div>
-            </div>
-          );
-        })}
+        {/* Tactical Grid */}
+        <div className="flex flex-wrap gap-8 justify-start">
+          {groups[0].items.map((item, idx) => {
+            if (item.adminOnly && !isAdmin) return null;
+            return <SquircleCard key={idx} item={item} />;
+          })}
+        </div>
+      </div>
+      
+      {/* Decorative Sparkle Footer */}
+      <div className="fixed bottom-12 right-12 opacity-40">
+        <IconOverview className="h-12 w-12 text-white" />
       </div>
     </div>
   );
