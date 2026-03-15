@@ -28,111 +28,97 @@ export const HubSparkle = ({ className }: { className?: string }) => (
   </div>
 );
 
-// High-Fidelity Tactical Icons
+// --- HIGH-FIDELITY TACTICAL ICON SUITE ---
+
 export const IconOverview = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <circle cx="12" cy="12" r="3" />
-    <path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z" />
-    <path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z" />
-    <path d="M12 2v2M12 20v2M2 12h2M20 12h2" />
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <circle cx="12" cy="12" r="9" opacity="0.2" />
+    <circle cx="12" cy="12" r="5" />
+    <path d="M12 3v2M12 19v2M3 12h2M19 12h2" />
+    <path d="m16 8-1.5 1.5M9.5 14.5 8 16" />
+    <circle cx="12" cy="12" r="1" fill="currentColor" />
   </svg>
 );
 
 export const IconLedger = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M4 22V4c0-1.1.9-2 2-2h12a2 2 0 0 1 2 2v18" />
+    <path d="M8 18h8M8 14h8M8 10h4" />
+    <path d="M18 22H6a2 2 0 0 1-2-2" />
+    <rect x="14" y="2" width="4" height="6" rx="1" opacity="0.3" />
   </svg>
 );
 
 export const IconLiabilities = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
     <circle cx="12" cy="12" r="3" />
-    <circle cx="19" cy="5" r="2" />
-    <circle cx="5" cy="19" r="2" />
-    <circle cx="19" cy="19" r="2" />
-    <circle cx="5" cy="5" r="2" />
-    <line x1="12" y1="9" x2="17.5" y2="6" />
-    <line x1="12" y1="15" x2="6.5" y2="18" />
-    <line x1="9" y1="12" x2="6.5" y2="6" />
-    <line x1="15" y1="12" x2="17.5" y2="18" />
+    <path d="M12 9a3 3 0 0 1 3 3" opacity="0.5" />
   </svg>
 );
 
 export const IconFlock = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M7 10c0-1.657 1.343-3 3-3s3 1.343 3 3c0 1.657-1.343 3-3 3s-3-1.343-3-3z" />
-    <path d="M4 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" />
-    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-    <path d="M21 21v-2a4 4 0 0 0-3-3.85" />
-    <path d="M7 3h1" />
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M9 7a3 3 0 1 0 6 0 3 3 0 0 0-6 0z" />
+    <path d="M5 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2" />
+    <path d="M12 11v2M9 12h6" opacity="0.4" />
+    <circle cx="12" cy="7" r="1" fill="currentColor" />
   </svg>
 );
 
 export const IconTrade = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <rect x="2" y="6" width="20" height="12" rx="2" />
-    <circle cx="12" cy="12" r="2" />
-    <path d="M6 12h.01M18 12h.01" />
-    <path d="M10 4h4M10 20h4" />
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="m16 3 4 4-4 4" />
+    <path d="M4 7h16" />
+    <path d="m8 21-4-4 4-4" />
+    <path d="M20 17H4" />
+    <circle cx="12" cy="12" r="2" opacity="0.3" />
   </svg>
 );
 
 export const IconHealth = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M20.42 4.58a5 5 0 0 0-7.07 0l-.35.35-.35-.35a5 5 0 0 0-7.07 7.07l.35.35L12 19l6.01-6.01.35-.35a5 5 0 0 0 0-7.06z" />
-    <path d="M9 12h6M12 9v6" />
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+    <path d="M12 7v6M10 10h4" opacity="0.6" />
   </svg>
 );
 
 export const IconFeed = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className={className}>
     <path d="M6 3h12l2 4v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7l2-4z" />
-    <path d="M12 12v4" />
-    <path d="M10 14h4" />
-    <circle cx="12" cy="14" r="3" />
+    <path d="M12 12v4M10 14h4" />
+    <circle cx="12" cy="14" r="3" opacity="0.2" />
   </svg>
 );
 
 export const IconLabor = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className={className}>
     <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
     <circle cx="9" cy="7" r="4" />
-    <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    <path d="M22 21v-2a4 4 0 0 0-3-3.87" opacity="0.4" />
+    <path d="M16 3.13a4 4 0 0 1 0 7.75" opacity="0.4" />
   </svg>
 );
 
 export const IconExpenses = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M4 19h16" />
-    <rect x="6" y="5" width="12" height="14" rx="2" />
-    <path d="M9 9h6M9 13h6" />
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <rect x="2" y="4" width="20" height="16" rx="2" />
+    <path d="M7 15h0M2 9.5h20" />
+    <circle cx="12" cy="12" r="2" opacity="0.4" />
   </svg>
 );
 
+// --- COMPATIBILITY ALIASES ---
 export const IconInventory = IconFlock;
 export const IconMortality = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <circle cx="9" cy="12" r="1" />
-    <circle cx="15" cy="12" r="1" />
-    <path d="M8 20v2h8v-2" />
-    <path d="M12 2v2" />
-    <path d="M12 4a8 8 0 0 0-8 8v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4a8 8 0 0 0-8-8z" />
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M9 12h6M12 9v6" className="rotate-45 origin-center" />
+    <circle cx="12" cy="12" r="9" />
+    <path d="M8 12a4 4 0 0 1 8 0" opacity="0.3" />
   </svg>
 );
-export const IconReceivables = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="m22 7-8.5 8.5-5-5L2 17" />
-    <path d="M16 7h6v6" />
-  </svg>
-);
-export const IconPayables = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="m22 17-8.5-8.5-5 5L2 7" />
-    <path d="M16 17h6v-6" />
-  </svg>
-);
+export const IconReceivables = IconTrade;
+export const IconPayables = IconLiabilities;
 export const IconDisbursed = ({ className }: { className?: string }) => (
   <span className={cn("text-2xl font-black", className)}>₹</span>
 );
