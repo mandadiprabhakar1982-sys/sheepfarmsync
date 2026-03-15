@@ -17,7 +17,10 @@ import {
   TrendingUp, 
   HandCoins,
   ArrowRightLeft,
-  Save
+  Save,
+  Plus,
+  ShieldCheck,
+  ArrowDownRight
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -31,7 +34,6 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -51,6 +53,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
@@ -58,6 +61,7 @@ import { cn } from '@/lib/utils';
 import { useFarm } from '@/context/FarmContext';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import type { AnimalSale, LivestockPurchase } from '@/lib/types';
 
 // --- SCHEMAS ---
@@ -94,12 +98,12 @@ export default function TradeLedgerPage() {
   const { 
     sales, addSale, deleteSale, updateSale, postToMarketplace,
     purchases, addPurchase, deletePurchase, updatePurchase,
-    totalReceivables, totalPayables, totalPurchaseCost, totalSales
+    totalReceivables, totalPayables, totalPurchaseCost, totalSales, isLoading
   } = useFarm();
 
-  const [activeTab, setActiveTab] = useState('sales');
-  
-  // Dialog States
+  const [activeTab, setActiveTab] = useState('master');
+  const [isDisposalOpen, setIsDisposalOpen] = useState(false);
+  const [isAcquisitionOpen, setIsAcquisitionOpen] = useState(false);
   const [isEditSaleOpen, setIsEditSaleOpen] = useState(false);
   const [isEditPurchaseOpen, setIsEditPurchaseOpen] = useState(false);
   const [editingSale, setEditingSale] = useState<AnimalSale | null>(null);
@@ -128,25 +132,11 @@ export default function TradeLedgerPage() {
     salesForm.setValue('outstandingDuesFromBuyer', Math.max(0, (price || 0) - (received || 0)));
   }, [watchedSalesFields, salesForm]);
 
-  const watchedEditSalesFields = editSalesForm.watch(['salePrice', 'amountReceived']);
-  useEffect(() => {
-    if (!isEditSaleOpen) return;
-    const [price, received] = watchedEditSalesFields;
-    editSalesForm.setValue('outstandingDuesFromBuyer', Math.max(0, (price || 0) - (received || 0)));
-  }, [watchedEditSalesFields, editSalesForm, isEditSaleOpen]);
-
   const watchedPurchaseFields = purchaseForm.watch(['purchasePrice', 'amountPaid']);
   useEffect(() => {
     const [price, paid] = watchedPurchaseFields;
     purchaseForm.setValue('dueAmount', Math.max(0, (price || 0) - (paid || 0)));
   }, [watchedPurchaseFields, purchaseForm]);
-
-  const watchedEditPurchaseFields = editPurchaseForm.watch(['purchasePrice', 'amountPaid']);
-  useEffect(() => {
-    if (!isEditPurchaseOpen) return;
-    const [price, paid] = watchedEditPurchaseFields;
-    editPurchaseForm.setValue('dueAmount', Math.max(0, (price || 0) - (paid || 0)));
-  }, [watchedEditPurchaseFields, editPurchaseForm, isEditPurchaseOpen]);
 
   // --- HANDLERS ---
 
@@ -160,49 +150,61 @@ export default function TradeLedgerPage() {
       });
     }
     salesForm.reset();
-    toast({ title: 'Sale Logged', description: 'Transaction recorded in trade ledger.' });
+    setIsDisposalOpen(false);
+    toast({ title: 'Sale Logged', description: 'Transaction recorded in master ledger.' });
   };
 
   const onPurchaseSubmit: SubmitHandler<PurchaseFormData> = (data) => {
     addPurchase({ ...data, purchaseDate: format(data.purchaseDate, 'yyyy-MM-dd') });
     purchaseForm.reset();
-    toast({ title: 'Purchase Logged', description: 'Acquisition recorded in trade ledger.' });
+    setIsAcquisitionOpen(false);
+    toast({ title: 'Purchase Logged', description: 'Acquisition recorded in master ledger.' });
   };
 
   const onEditSaleSubmit: SubmitHandler<SalesFormData> = (data) => {
     if (!editingSale) return;
     updateSale(editingSale.id, { ...data, saleDate: format(data.saleDate, 'yyyy-MM-dd') }, editingSale._path);
     setIsEditSaleOpen(false);
-    toast({ title: 'Sale Updated', description: 'Ledger record has been adjusted.' });
+    toast({ title: 'Sale Updated', description: 'Ledger record adjusted.' });
   };
 
   const onEditPurchaseSubmit: SubmitHandler<PurchaseFormData> = (data) => {
     if (!editingPurchase) return;
     updatePurchase(editingPurchase.id, { ...data, purchaseDate: format(data.purchaseDate, 'yyyy-MM-dd') }, editingPurchase._path);
     setIsEditPurchaseOpen(false);
-    toast({ title: 'Acquisition Updated', description: 'Ledger record has been adjusted.' });
+    toast({ title: 'Acquisition Updated', description: 'Ledger record adjusted.' });
   };
 
   const handleEditSale = (sale: AnimalSale) => {
     setEditingSale(sale);
-    editSalesForm.reset({
-      ...sale,
-      saleDate: new Date(sale.saleDate),
-    });
+    editSalesForm.reset({ ...sale, saleDate: new Date(sale.saleDate) });
     setIsEditSaleOpen(true);
   };
 
   const handleEditPurchase = (purchase: LivestockPurchase) => {
     setEditingPurchase(purchase);
-    editPurchaseForm.reset({
-      ...purchase,
-      purchaseDate: new Date(purchase.purchaseDate),
-    });
+    editPurchaseForm.reset({ ...purchase, purchaseDate: new Date(purchase.purchaseDate) });
     setIsEditPurchaseOpen(true);
   };
 
-  const sortedSales = useMemo(() => sales ? [...sales].sort((a, b) => new Date(b.saleDate).getTime() - new Date(a.saleDate).getTime()) : [], [sales]);
-  const sortedPurchases = useMemo(() => purchases ? [...purchases].sort((a, b) => new Date(b.purchaseDate).getTime() - new Date(a.purchaseDate).getTime()) : [], [purchases]);
+  // --- COMBINED DATA LOGIC ---
+
+  const combinedLedger = useMemo(() => {
+    const s = (sales || []).map(item => ({ ...item, _type: 'sale' as const, date: item.saleDate, entity: item.buyerName, value: item.salePrice, dues: item.outstandingDuesFromBuyer }));
+    const p = (purchases || []).map(item => ({ ...item, _type: 'purchase' as const, date: item.purchaseDate, entity: item.farmerName, value: item.purchasePrice, dues: item.dueAmount }));
+    return [...s, ...p].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }, [sales, purchases]);
+
+  if (isLoading) {
+    return (
+      <div className="flex h-[calc(100vh-120px)] w-full items-center justify-center">
+        <div className="flex flex-col items-center gap-6">
+          <div className="w-12 h-12 border-4 border-slate-100 rounded-full border-t-emerald-500 animate-spin" />
+          <p className="text-[12px] font-black text-slate-400 uppercase tracking-[0.3em]">SYNCHRONIZING TRADE DATA...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto py-8 px-4 md:px-10 max-w-7xl animate-in fade-in duration-500">
@@ -212,329 +214,286 @@ export default function TradeLedgerPage() {
           description="INTEGRATED PURCHASE & DISPOSAL SUITE"
           className="mb-0"
         />
-        <div className="flex flex-wrap gap-4 justify-end">
-          <div className="px-5 py-2.5 bg-neutral-900 rounded-xl text-white flex items-center gap-4 shadow-xl">
-            <ShoppingBag className="h-4 w-4 text-blue-400" />
+        
+        <div className="flex flex-wrap items-center gap-4">
+          <Dialog open={isDisposalOpen} onOpenChange={setIsDisposalOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={() => { salesForm.reset(); setIsDisposalOpen(true); }} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-xl border-none">
+                <ArrowUpRight className="h-5 w-5" />
+                Disposal Event
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
+              <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400">
+                    <TrendingUp className="h-5 w-5" />
+                  </div>
+                  <DialogTitle className="text-xl font-black tracking-tight uppercase">Disposal Entry</DialogTitle>
+                </div>
+                <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Commit livestock outflow to master ledger</DialogDescription>
+              </DialogHeader>
+              <div className="p-8">
+                <Form {...salesForm}>
+                  <form onSubmit={salesForm.handleSubmit(onSalesSubmit)} className="space-y-6">
+                    <FormField control={salesForm.control} name="saleDate" render={({ field }) => (
+                      <FormItem className="flex flex-col"><Label className="form-label-tactical text-slate-400">Date of Sale</Label><Popover><PopoverTrigger asChild><Button variant="outline" className="form-input-tactical w-full text-left bg-slate-50 border-slate-200">{field.value ? format(field.value, "MMM dd, yyyy") : "Select"}</Button></PopoverTrigger><PopoverContent className="w-auto p-0 border-none shadow-2xl"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover></FormItem>
+                    )} />
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField control={salesForm.control} name="buyerName" render={({ field }) => (<FormItem><Label className="form-label-tactical text-slate-400">Buyer</Label><FormControl><Input className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>)} />
+                      <FormField control={salesForm.control} name="buyerVillage" render={({ field }) => (<FormItem><Label className="form-label-tactical text-slate-400">Village</Label><FormControl><Input className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>)} />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField control={salesForm.control} name="animalCount" render={({ field }) => (<FormItem><Label className="form-label-tactical text-slate-400">Count</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>)} />
+                      <FormField control={salesForm.control} name="animalWeightKg" render={({ field }) => (<FormItem><Label className="form-label-tactical text-slate-400">Total KG</Label><FormControl><Input type="number" step="0.1" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>)} />
+                    </div>
+                    <FormField control={salesForm.control} name="salePrice" render={({ field }) => (<FormItem><Label className="form-label-tactical text-slate-400">Price (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200 font-black text-emerald-600" {...field} /></FormControl></FormItem>)} />
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField control={salesForm.control} name="amountReceived" render={({ field }) => (<FormItem><Label className="form-label-tactical text-slate-400">Received (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>)} />
+                      <FormField control={salesForm.control} name="outstandingDuesFromBuyer" render={({ field }) => (<FormItem><Label className="form-label-tactical text-slate-400">Due (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-rose-50 border-rose-100 text-rose-600 font-black" {...field} readOnly /></FormControl></FormItem>)} />
+                    </div>
+                    <FormField control={salesForm.control} name="isPublic" render={({ field }) => (
+                      <FormItem className="flex items-center space-x-3 space-y-0 rounded-2xl border border-slate-100 p-4 bg-slate-50">
+                        <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                        <div className="leading-none"><Label className="text-[10px] font-black uppercase tracking-wider flex items-center gap-2 text-slate-600">Post to Marketplace <Globe className="h-3 w-3 text-primary" /></Label></div>
+                      </FormItem>
+                    )} />
+                    <Button type="submit" className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm uppercase tracking-[0.25em] transition-all active:scale-95 shadow-xl">Commit Sale</Button>
+                  </form>
+                </Form>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          <Dialog open={isAcquisitionOpen} onOpenChange={setIsAcquisitionOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={() => { purchaseForm.reset(); setIsAcquisitionOpen(true); }} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-blue-600 hover:bg-blue-700 text-white gap-2 shadow-xl border-none">
+                <ArrowDownRight className="h-5 w-5" />
+                Acquisition Event
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
+              <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2.5 rounded-xl bg-blue-500/20 text-blue-400">
+                    <ShoppingBag className="h-5 w-5" />
+                  </div>
+                  <DialogTitle className="text-xl font-black tracking-tight uppercase">Acquisition Entry</DialogTitle>
+                </div>
+                <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Document livestock inflow into master ledger</DialogDescription>
+              </DialogHeader>
+              <div className="p-8">
+                <Form {...purchaseForm}>
+                  <form onSubmit={purchaseForm.handleSubmit(onPurchaseSubmit)} className="space-y-6">
+                    <FormField control={purchaseForm.control} name="purchaseDate" render={({ field }) => (
+                      <FormItem className="flex flex-col"><Label className="form-label-tactical text-slate-400">Date of Entry</Label><Popover><PopoverTrigger asChild><Button variant="outline" className="form-input-tactical w-full text-left bg-slate-50 border-slate-200">{field.value ? format(field.value, "MMM dd, yyyy") : "Select"}</Button></PopoverTrigger><PopoverContent className="w-auto p-0 border-none shadow-2xl"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover></FormItem>
+                    )} />
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField control={purchaseForm.control} name="farmerName" render={({ field }) => (<FormItem><Label className="form-label-tactical text-slate-400">Origin Farmer</Label><FormControl><Input className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>)} />
+                      <FormField control={purchaseForm.control} name="villageName" render={({ field }) => (<FormItem><Label className="form-label-tactical text-slate-400">Village</Label><FormControl><Input className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>)} />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField control={purchaseForm.control} name="animalCount" render={({ field }) => (<FormItem><Label className="form-label-tactical text-slate-400">Count</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>)} />
+                      <FormField control={purchaseForm.control} name="purchasePrice" render={({ field }) => (<FormItem><Label className="form-label-tactical text-slate-400">Cost (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200 font-black text-blue-600" {...field} /></FormControl></FormItem>)} />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField control={purchaseForm.control} name="amountPaid" render={({ field }) => (<FormItem><Label className="form-label-tactical text-slate-400">Paid (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>)} />
+                      <FormField control={purchaseForm.control} name="dueAmount" render={({ field }) => (<FormItem><Label className="form-label-tactical text-slate-400">Due (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-rose-50 border-rose-100 text-rose-600 font-black" {...field} readOnly /></FormControl></FormItem>)} />
+                    </div>
+                    <Button type="submit" className="w-full h-16 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black text-sm uppercase tracking-[0.25em] transition-all active:scale-95 shadow-xl">Commit Acquisition</Button>
+                  </form>
+                </Form>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          <div className="px-6 py-3 bg-neutral-900 rounded-2xl text-white flex items-center gap-4 shadow-xl">
+            <ShieldCheck className="h-5 w-5 text-emerald-400" />
             <div>
-              <p className="text-[7px] font-black uppercase tracking-widest opacity-40 leading-none">Total Purchases</p>
-              <p className="text-lg font-black tracking-tight">₹{totalPurchaseCost.toLocaleString()}</p>
-            </div>
-          </div>
-          <div className="px-5 py-2.5 bg-neutral-900 rounded-xl text-white flex items-center gap-4 shadow-xl">
-            <BadgeIndianRupee className="h-4 w-4 text-emerald-400" />
-            <div>
-              <p className="text-[7px] font-black uppercase tracking-widest opacity-40 leading-none">Total Sales</p>
-              <p className="text-lg font-black tracking-tight">₹{totalSales.toLocaleString()}</p>
-            </div>
-          </div>
-          <div className="px-5 py-2.5 bg-neutral-900 rounded-xl text-white flex items-center gap-4 shadow-xl">
-            <HandCoins className="h-4 w-4 text-amber-400" />
-            <div>
-              <p className="text-[7px] font-black uppercase tracking-widest opacity-40 leading-none">Receivables</p>
-              <p className="text-lg font-black tracking-tight">₹{totalReceivables.toLocaleString()}</p>
-            </div>
-          </div>
-          <div className="px-5 py-2.5 bg-neutral-900 rounded-xl text-white flex items-center gap-4 shadow-xl">
-            <ArrowRightLeft className="h-4 w-4 text-rose-400" />
-            <div>
-              <p className="text-[7px] font-black uppercase tracking-widest opacity-40 leading-none">Payables</p>
-              <p className="text-lg font-black tracking-tight">₹{totalPayables.toLocaleString()}</p>
+              <p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Net Balance</p>
+              <p className="text-xl font-black tracking-tight">₹{(totalSales - totalPurchaseCost).toLocaleString()}</p>
             </div>
           </div>
         </div>
       </div>
 
-      <Tabs defaultValue="sales" onValueChange={setActiveTab} className="w-full">
-        <TabsList className="mb-10 p-1 bg-[#e7eddc] rounded-2xl grid grid-cols-2 h-14 max-w-md mx-auto shadow-inner">
-          <TabsTrigger value="sales" className="tab-inactive tab-active font-black text-xs uppercase tracking-widest">
-            <BadgeIndianRupee className="h-4 w-4 mr-2" /> Sales History
-          </TabsTrigger>
-          <TabsTrigger value="purchases" className="tab-inactive tab-active font-black text-xs uppercase tracking-widest">
-            <ShoppingBag className="h-4 w-4 mr-2" /> Purchases
-          </TabsTrigger>
-        </TabsList>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <div className="glass-card glow-blue rounded-3xl p-6 flex items-center gap-4">
+          <div className="h-12 w-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shadow-inner"><ShoppingBag className="h-6 w-6" /></div>
+          <div><p className="text-[9px] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">Purchases</p><p className="text-2xl font-black">₹{totalPurchaseCost.toLocaleString()}</p></div>
+        </div>
+        <div className="glass-card glow-emerald rounded-3xl p-6 flex items-center gap-4">
+          <div className="h-12 w-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-inner"><BadgeIndianRupee className="h-6 w-6" /></div>
+          <div><p className="text-[9px] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">Sales</p><p className="text-2xl font-black">₹{totalSales.toLocaleString()}</p></div>
+        </div>
+        <div className="glass-card glow-gold rounded-3xl p-6 flex items-center gap-4">
+          <div className="h-12 w-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shadow-inner"><HandCoins className="h-6 w-6" /></div>
+          <div><p className="text-[9px] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">Receivables</p><p className="text-2xl font-black text-amber-600">₹{totalReceivables.toLocaleString()}</p></div>
+        </div>
+        <div className="glass-card glow-coral rounded-3xl p-6 flex items-center gap-4">
+          <div className="h-12 w-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center shadow-inner"><ArrowRightLeft className="h-6 w-6" /></div>
+          <div><p className="text-[9px] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">Payables</p><p className="text-2xl font-black text-rose-600">₹{totalPayables.toLocaleString()}</p></div>
+        </div>
+      </div>
 
-        <TabsContent value="sales" className="animate-in fade-in slide-in-from-bottom-2 duration-500">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-            <div className="lg:col-span-4">
-              <Card className="form-card sticky top-24 border-t-4 border-emerald-800">
-                <CardHeader className="p-0 mb-8">
-                  <CardTitle className="text-xl font-black tracking-tight flex items-center gap-3 text-neutral-900 uppercase">
-                    <TrendingUp className="h-5 w-5 text-emerald-600" />
-                    Disposal Entry
-                  </CardTitle>
-                  <CardDescription className="text-neutral-400 text-[8px] font-bold uppercase tracking-widest">Record high-value livestock outflow</CardDescription>
-                </CardHeader>
-                <CardContent className="p-0">
-                  <Form {...salesForm}>
-                    <form onSubmit={salesForm.handleSubmit(onSalesSubmit)} className="space-y-6">
-                      <FormField control={salesForm.control} name="saleDate" render={({ field }) => (
-                        <FormItem className="flex flex-col"><Label className="text-xs font-black uppercase opacity-40 ml-2">Date of Sale</Label><Popover><PopoverTrigger asChild><Button variant="outline" className="h-12 rounded-xl bg-[#f8fafc] border-[#d9e4cf] font-bold text-left px-4">{field.value ? format(field.value, "MMM dd, yy") : "Select"}<CalendarIcon className="ml-auto h-4 w-4 opacity-20" /></Button></PopoverTrigger><PopoverContent className="w-auto p-0 border-none"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover></FormItem>
-                      )} />
-                      <FormField control={salesForm.control} name="buyerName" render={({ field }) => (
-                        <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2">Buyer Name</Label><FormControl><Input className="h-12 rounded-xl bg-[#f8fafc] border-[#d9e4cf] font-bold" placeholder="Identity" {...field} /></FormControl></FormItem>
-                      )} />
-                      <FormField control={salesForm.control} name="buyerVillage" render={({ field }) => (
-                        <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2">Village</Label><FormControl><Input className="h-12 rounded-xl bg-[#f8fafc] border-[#d9e4cf] font-bold" placeholder="Location" {...field} /></FormControl></FormItem>
-                      )} />
-                      <div className="grid grid-cols-2 gap-4">
-                        <FormField control={salesForm.control} name="animalCount" render={({ field }) => (
-                          <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2">Count</Label><FormControl><Input type="number" className="h-12 rounded-xl bg-[#f8fafc] border-[#d9e4cf] font-black" {...field} /></FormControl></FormItem>
-                        )} />
-                        <FormField control={salesForm.control} name="animalWeightKg" render={({ field }) => (
-                          <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2">Total Weight (kg)</Label><FormControl><Input type="number" step="0.1" className="h-12 rounded-xl bg-[#f8fafc] border-[#d9e4cf] font-black" {...field} /></FormControl></FormItem>
-                        )} />
-                      </div>
-                      <FormField control={salesForm.control} name="salePrice" render={({ field }) => (
-                        <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2">Total Value (₹)</Label><FormControl><Input type="number" className="h-12 rounded-xl bg-[#f8fafc] border-[#d9e4cf] font-black" {...field} /></FormControl></FormItem>
-                      )} />
-                      <div className="grid grid-cols-2 gap-4">
-                        <FormField control={salesForm.control} name="amountReceived" render={({ field }) => (
-                          <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2">Received (₹)</Label><FormControl><Input type="number" className="h-12 rounded-xl bg-[#f8fafc] border-[#d9e4cf] font-bold text-emerald-600" {...field} /></FormControl></FormItem>
-                        )} />
-                        <FormField control={salesForm.control} name="outstandingDuesFromBuyer" render={({ field }) => (
-                          <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2 text-rose-400">Due (₹)</Label><FormControl><Input type="number" className="h-12 rounded-xl bg-rose-50 border-none text-rose-400 font-black" {...field} readOnly /></FormControl></FormItem>
-                        )} />
-                      </div>
-                      <FormField control={salesForm.control} name="isPublic" render={({ field }) => (
-                        <FormItem className="flex items-center space-x-3 space-y-0 rounded-2xl border border-neutral-100 p-4 bg-white/50">
-                          <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
-                          <div className="leading-none"><FormLabel className="text-[10px] font-black uppercase tracking-wider flex items-center gap-2">Post to Marketplace <Globe className="h-3 w-3 text-primary" /></FormLabel></div>
-                        </FormItem>
-                      )} />
-                      <Button type="submit" className="primary-btn w-full !bg-neutral-900 hover:!bg-black">Commit Sale</Button>
-                    </form>
-                  </Form>
-                </CardContent>
-              </Card>
-            </div>
+      <Tabs defaultValue="master" onValueChange={setActiveTab} className="w-full">
+        <div className="flex justify-center mb-10">
+          <TabsList className="bg-[#e7eddc] p-1 rounded-2xl h-14 w-fit shadow-inner">
+            <TabsTrigger value="master" className="tab-inactive data-[state=active]:tab-active font-black text-[10px] uppercase tracking-widest px-10">Master Ledger</TabsTrigger>
+            <TabsTrigger value="sales" className="tab-inactive data-[state=active]:tab-active font-black text-[10px] uppercase tracking-widest px-10">Disposals</TabsTrigger>
+            <TabsTrigger value="purchases" className="tab-inactive data-[state=active]:tab-active font-black text-[10px] uppercase tracking-widest px-10">Acquisitions</TabsTrigger>
+          </TabsList>
+        </div>
 
-            <div className="lg:col-span-8">
-              <Card className="form-card p-0 overflow-hidden">
-                <CardHeader className="p-8 pb-4">
-                  <div className="flex justify-between items-end">
-                    <div>
-                      <CardTitle className="text-xl font-black tracking-tight leading-none mb-2 uppercase">Disposal Ledger</CardTitle>
-                      <CardDescription className="text-neutral-400 text-xs font-black uppercase tracking-widest">Audit-grade historical records of livestock sales</CardDescription>
-                    </div>
-                    <History className="h-7 w-7 text-neutral-100" />
-                  </div>
-                </CardHeader>
-                <CardContent className="p-0 overflow-x-auto">
-                  <Table>
-                    <TableHeader className="bg-neutral-50">
-                      <TableRow className="border-b border-neutral-100">
-                        <TableHead className="text-[10px] font-black uppercase pl-8 py-5">Date</TableHead>
-                        <TableHead className="text-[10px] font-black uppercase">Buyer / Destination</TableHead>
-                        <TableHead className="text-[10px] font-black uppercase">Qty</TableHead>
-                        <TableHead className="text-[10px] font-black uppercase text-right">Value</TableHead>
-                        <TableHead className="text-[10px] font-black uppercase text-right pr-8">Status</TableHead>
-                        <TableHead className="w-[80px]"></TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {sortedSales.length > 0 ? (
-                        sortedSales.map((s) => (
-                          <TableRow key={s.id} className="group hover:bg-neutral-50 border-neutral-50 transition-all cursor-zoom-in active:scale-[0.995]" onClick={() => handleEditSale(s)}>
-                            <TableCell className="pl-8 text-[10px] font-black text-muted-foreground/60 uppercase">{s.saleDate}</TableCell>
-                            <TableCell>
-                              <div className="flex flex-col">
-                                <span className="text-sm font-black text-neutral-900">{s.buyerName}</span>
-                                <span className="text-[9px] font-bold text-muted-foreground uppercase opacity-60">{s.buyerVillage}</span>
-                              </div>
-                            </TableCell>
-                            <TableCell><Badge className="bg-primary/10 text-primary border-none font-black text-[10px] px-3">{s.animalCount} Head</Badge></TableCell>
-                            <TableCell className="text-right font-black text-sm">₹{s.salePrice.toLocaleString()}</TableCell>
-                            <TableCell className="text-right pr-8">
-                              {s.outstandingDuesFromBuyer > 0 ? (
-                                <span className="text-[10px] font-black text-rose-600">₹{s.outstandingDuesFromBuyer.toLocaleString()} DUE</span>
-                              ) : (
-                                <span className="text-[10px] font-black text-emerald-600">PAID FULL</span>
-                              )}
-                            </TableCell>
-                            <TableCell className="pr-4" onClick={(e) => e.stopPropagation()}>
-                              <div className="flex gap-2 opacity-0 group-hover:opacity-100">
-                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl bg-neutral-100 hover:bg-neutral-200" onClick={() => handleEditSale(s)}><Pencil className="h-3.5 w-3.5" /></Button>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100" onClick={() => deleteSale(s.id, s._path)}><Trash2 className="h-3.5 w-3.5" /></Button>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))
-                      ) : (
-                        <TableRow><TableCell colSpan={6} className="text-center py-20 opacity-40 font-black uppercase text-[10px]">No sales recorded yet</TableCell></TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
+        <TabsContent value="master" className="m-0 animate-in fade-in slide-in-from-bottom-2 duration-500">
+          <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
+            <ScrollArea className="h-[600px] w-full">
+              <Table>
+                <TableHeader className="bg-slate-50 border-none">
+                  <TableRow className="border-none hover:bg-transparent">
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-slate-400">Date</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-slate-400">Type</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-slate-400">Counterparty</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-center text-slate-400">Qty</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-slate-400">Value Impact</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {combinedLedger.length > 0 ? combinedLedger.map((item: any) => (
+                    <TableRow key={item.id} className="hover:bg-slate-50 transition-colors border-b border-slate-100 group">
+                      <TableCell className="py-6 pl-10 text-[11px] font-black text-slate-400 uppercase tracking-widest">{item.date}</TableCell>
+                      <TableCell>
+                        <Badge className={cn("border-none font-black text-[8px] uppercase tracking-wider px-2 py-0.5", item._type === 'sale' ? "bg-emerald-50 text-emerald-600" : "bg-blue-50 text-blue-600")}>
+                          {item._type === 'sale' ? 'OUT / SALE' : 'IN / BUY'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-col">
+                          <span className="text-[14px] font-black text-slate-900">{item.entity}</span>
+                          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{item.buyerVillage || item.villageName}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-center"><span className="text-[14px] font-black text-slate-900">{item.animalCount} Head</span></TableCell>
+                      <TableCell className="text-right pr-10">
+                        <div className="flex flex-col items-end">
+                          <span className={cn("text-[18px] font-black", item._type === 'sale' ? "text-emerald-600" : "text-slate-900")}>
+                            {item._type === 'sale' ? '+' : '-'}₹{item.value.toLocaleString()}
+                          </span>
+                          {item.dues > 0 && <span className="text-[9px] font-bold text-rose-500 uppercase">₹{item.dues.toLocaleString()} OUTSTANDING</span>}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )) : (
+                    <TableRow><TableCell colSpan={5} className="text-center py-32 opacity-20 font-black uppercase text-xs">No trade records discovered</TableCell></TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </ScrollArea>
+          </Card>
         </TabsContent>
 
-        <TabsContent value="purchases" className="animate-in fade-in slide-in-from-bottom-2 duration-500">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-            <div className="lg:col-span-4">
-              <Card className="form-card sticky top-24 border-t-4 border-neutral-900 !bg-neutral-900">
-                <CardHeader className="p-0 mb-8">
-                  <CardTitle className="text-xl font-black tracking-tight flex items-center gap-3 text-white uppercase">
-                    <ShoppingBag className="h-5 w-5 text-emerald-400" /> Purchase Entry
-                  </CardTitle>
-                  <CardDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Document livestock purchase outflow</CardDescription>
-                </CardHeader>
-                <CardContent className="p-0">
-                  <Form {...purchaseForm}>
-                    <form onSubmit={purchaseForm.handleSubmit(onPurchaseSubmit)} className="space-y-6">
-                      <FormField control={purchaseForm.control} name="purchaseDate" render={({ field }) => (
-                        <FormItem className="flex flex-col"><Label className="text-[10px] font-black uppercase opacity-40 ml-2">Date</Label><Popover><PopoverTrigger asChild><Button variant="outline" className="h-12 w-full rounded-xl bg-white/5 border-none text-white font-bold text-left px-4">{field.value ? format(field.value, "MMM dd, yy") : "Select"}</Button></PopoverTrigger><PopoverContent className="w-auto p-0 border-none"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover></FormItem>
-                      )} />
-                      <FormField control={purchaseForm.control} name="farmerName" render={({ field }) => (
-                        <FormItem><Label className="text-[10px] font-black uppercase opacity-40 ml-2">Origin Farmer</Label><FormControl><Input className="h-12 rounded-xl bg-white/5 border-none text-white font-bold" {...field} /></FormControl></FormItem>
-                      )} />
-                      <FormField control={purchaseForm.control} name="villageName" render={({ field }) => (
-                        <FormItem><Label className="text-[10px] font-black uppercase opacity-40 ml-2">Village</Label><FormControl><Input className="h-12 rounded-xl bg-white/5 border-none text-white font-bold" {...field} /></FormControl></FormItem>
-                      )} />
-                      <div className="grid grid-cols-2 gap-4">
-                        <FormField control={purchaseForm.control} name="animalCount" render={({ field }) => (
-                          <FormItem><Label className="text-[10px] font-black uppercase opacity-40 ml-2">Count</Label><FormControl><Input type="number" className="h-12 rounded-xl bg-white/5 border-none text-white font-black" {...field} /></FormControl></FormItem>
-                        )} />
-                        <FormField control={purchaseForm.control} name="purchasePrice" render={({ field }) => (
-                          <FormItem><Label className="text-[10px] font-black uppercase opacity-40 ml-2">Total Price (₹)</Label><FormControl><Input type="number" className="h-12 rounded-xl bg-white/5 border-none text-white font-black" {...field} /></FormControl></FormItem>
-                        )} />
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <FormField control={purchaseForm.control} name="amountPaid" render={({ field }) => (
-                          <FormItem><Label className="text-[10px] font-black uppercase opacity-40 ml-2">Paid (₹)</Label><FormControl><Input type="number" className="h-12 rounded-xl bg-white/5 border-none text-white font-bold" {...field} /></FormControl></FormItem>
-                        )} />
-                        <FormField control={purchaseForm.control} name="dueAmount" render={({ field }) => (
-                          <FormItem><Label className="text-[10px] font-black uppercase opacity-40 ml-2 text-rose-400">Due (₹)</Label><FormControl><Input type="number" className="h-12 rounded-xl bg-rose-500/10 border-none text-rose-400 font-black" {...field} readOnly /></FormControl></FormItem>
-                        )} />
-                      </div>
-                      <Button type="submit" className="primary-btn w-full !bg-emerald-600 hover:!bg-emerald-500">Commit Purchase</Button>
-                    </form>
-                  </Form>
-                </CardContent>
-              </Card>
-            </div>
+        <TabsContent value="sales" className="m-0 animate-in fade-in slide-in-from-bottom-2 duration-500">
+          <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
+            <Table>
+              <TableHeader className="bg-slate-50 border-none">
+                <TableRow>
+                  <TableHead className="text-[10px] font-black uppercase pl-10 py-6">Date</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase">Buyer / Destination</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase text-center">Qty</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase text-right pr-10">Value</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {sales?.map((s) => (
+                  <TableRow key={s.id} className="hover:bg-slate-50 border-b border-slate-100 group">
+                    <TableCell className="pl-10 text-[10px] font-black text-slate-400 uppercase">{s.saleDate}</TableCell>
+                    <TableCell><span className="text-sm font-black text-slate-900">{s.buyerName}</span></TableCell>
+                    <TableCell className="text-center"><Badge className="bg-emerald-50 text-emerald-600 border-none font-black text-[10px] px-3">{s.animalCount} Head</Badge></TableCell>
+                    <TableCell className="text-right pr-10 font-black text-emerald-600">₹{s.salePrice.toLocaleString()}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Card>
+        </TabsContent>
 
-            <div className="lg:col-span-8">
-              <Card className="form-card p-0 overflow-hidden">
-                <CardHeader className="p-8 pb-4">
-                  <div className="flex justify-between items-end">
-                    <div>
-                      <CardTitle className="text-xl font-black tracking-tight leading-none mb-2 uppercase">Purchase Ledger</CardTitle>
-                      <CardDescription className="text-neutral-400 text-[10px] font-black uppercase tracking-widest">Complete history of livestock entries</CardDescription>
-                    </div>
-                    <History className="h-7 w-7 text-neutral-100" />
-                  </div>
-                </CardHeader>
-                <CardContent className="p-0 overflow-x-auto">
-                  <Table>
-                    <TableHeader className="bg-neutral-50">
-                      <TableRow className="border-b border-neutral-100">
-                        <TableHead className="text-[10px] font-black uppercase pl-8 py-5">Date</TableHead>
-                        <TableHead className="text-[10px] font-black uppercase">Origin / Farmer</TableHead>
-                        <TableHead className="text-[10px] font-black uppercase">Qty</TableHead>
-                        <TableHead className="text-[10px] font-black uppercase text-right">Value</TableHead>
-                        <TableHead className="text-[10px] font-black uppercase text-right pr-8">Status</TableHead>
-                        <TableHead className="w-[80px]"></TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {sortedPurchases.length > 0 ? (
-                        sortedPurchases.map((p) => (
-                          <TableRow key={p.id} className="group hover:bg-neutral-50 border-neutral-50 transition-all cursor-zoom-in active:scale-[0.995]" onClick={() => handleEditPurchase(p)}>
-                            <TableCell className="pl-8 py-6 text-[10px] font-black text-muted-foreground/60 uppercase">{p.purchaseDate}</TableCell>
-                            <TableCell>
-                              <div className="flex flex-col">
-                                <span className="text-sm font-black text-neutral-900">{p.farmerName}</span>
-                                <span className="text-[9px] font-bold text-muted-foreground uppercase opacity-60">{p.villageName}</span>
-                              </div>
-                            </TableCell>
-                            <TableCell><Badge className="bg-primary/10 text-primary border-none font-black text-[10px] px-3">{p.animalCount} Head</Badge></TableCell>
-                            <TableCell className="text-right font-black text-sm">₹{p.purchasePrice.toLocaleString()}</TableCell>
-                            <TableCell className="text-right pr-8">
-                              {p.dueAmount > 0 ? (
-                                <span className="text-[10px] font-black text-rose-600">₹{p.dueAmount.toLocaleString()} DUE</span>
-                              ) : (
-                                <span className="text-[10px] font-black text-emerald-600">PAID FULL</span>
-                              )}
-                            </TableCell>
-                            <TableCell className="pr-4" onClick={(e) => e.stopPropagation()}>
-                              <div className="flex gap-2 opacity-0 group-hover:opacity-100">
-                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl bg-neutral-100 hover:bg-neutral-200" onClick={() => handleEditPurchase(p)}><Pencil className="h-3.5 w-3.5" /></Button>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100" onClick={() => deletePurchase(p.id, p._path)}><Trash2 className="h-3.5 w-3.5" /></Button>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))
-                      ) : (
-                        <TableRow><TableCell colSpan={6} className="text-center py-20 opacity-40 font-black uppercase text-[10px]">No purchase records logged</TableCell></TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
+        <TabsContent value="purchases" className="m-0 animate-in fade-in slide-in-from-bottom-2 duration-500">
+          <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
+            <Table>
+              <TableHeader className="bg-slate-50 border-none">
+                <TableRow>
+                  <TableHead className="text-[10px] font-black uppercase pl-10 py-6">Date</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase">Origin / Farmer</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase text-center">Qty</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase text-right pr-10">Cost</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {purchases?.map((p) => (
+                  <TableRow key={p.id} className="hover:bg-slate-50 border-b border-slate-100 group">
+                    <TableCell className="pl-10 text-[10px] font-black text-slate-400 uppercase">{p.purchaseDate}</TableCell>
+                    <TableCell><span className="text-sm font-black text-slate-900">{p.farmerName}</span></TableCell>
+                    <TableCell className="text-center"><Badge className="bg-blue-50 text-blue-600 border-none font-black text-[10px] px-3">{p.animalCount} Head</Badge></TableCell>
+                    <TableCell className="text-right pr-10 font-black text-slate-900">₹{p.purchasePrice.toLocaleString()}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Card>
         </TabsContent>
       </Tabs>
 
-      {/* --- DIALOGS: EDIT SALE --- */}
+      {/* --- EDIT MODALS --- */}
       <Dialog open={isEditSaleOpen} onOpenChange={setIsEditSaleOpen}>
-        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
+        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
             <DialogTitle className="text-xl font-black uppercase">Update Disposal</DialogTitle>
-            <DialogDescription className="text-white/40 text-xs uppercase tracking-widest">Adjust record for: {editingSale?.buyerName}</DialogDescription>
+            <DialogDescription className="text-white/40 text-[10px] uppercase tracking-widest">Adjust record for: {editingSale?.buyerName}</DialogDescription>
           </DialogHeader>
           <Form {...editSalesForm}>
-            <form onSubmit={editSalesForm.handleSubmit(onEditSaleSubmit)} className="space-y-6 p-8 bg-white">
+            <form onSubmit={editSalesForm.handleSubmit(onEditSaleSubmit)} className="space-y-6 p-8">
               <FormField control={editSalesForm.control} name="saleDate" render={({ field }) => (
-                <FormItem className="flex flex-col"><Label className="text-xs font-black uppercase opacity-40">Date</Label><Popover><PopoverTrigger asChild><Button variant="outline" className="h-12 rounded-xl bg-neutral-50 border-none font-bold text-left px-4">{field.value ? format(field.value, "MMM dd, yy") : "Select"}</Button></PopoverTrigger><PopoverContent className="w-auto p-0"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover></FormItem>
+                <FormItem className="flex flex-col"><Label className="form-label-tactical text-slate-400">Date</Label><Popover><PopoverTrigger asChild><Button variant="outline" className="form-input-tactical w-full text-left bg-slate-50 border-slate-200">{field.value ? format(field.value, "MMM dd, yy") : "Select"}</Button></PopoverTrigger><PopoverContent className="w-auto p-0 border-none shadow-2xl"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover></FormItem>
               )} />
               <div className="grid grid-cols-2 gap-4">
-                <FormField control={editSalesForm.control} name="buyerName" render={({ field }) => (<FormItem><Label className="text-xs font-black uppercase opacity-40">Buyer</Label><FormControl><Input className="h-12 rounded-xl bg-neutral-50 border-none font-bold" {...field} /></FormControl></FormItem>)} />
-                <FormField control={editSalesForm.control} name="buyerVillage" render={({ field }) => (<FormItem><Label className="text-xs font-black uppercase opacity-40">Village</Label><FormControl><Input className="h-12 rounded-xl bg-neutral-50 border-none font-bold" {...field} /></FormControl></FormItem>)} />
+                <FormField control={editSalesForm.control} name="buyerName" render={({ field }) => (<FormItem><Label className="form-label-tactical text-slate-400">Buyer</Label><FormControl><Input className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>)} />
+                <FormField control={editSalesForm.control} name="buyerVillage" render={({ field }) => (<FormItem><Label className="form-label-tactical text-slate-400">Village</Label><FormControl><Input className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>)} />
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <FormField control={editSalesForm.control} name="salePrice" render={({ field }) => (<FormItem><Label className="text-xs font-black uppercase opacity-40">Price</Label><FormControl><Input type="number" className="h-12 rounded-xl bg-neutral-50 border-none font-black" {...field} /></FormControl></FormItem>)} />
-                <FormField control={editSalesForm.control} name="amountReceived" render={({ field }) => (<FormItem><Label className="text-xs font-black uppercase opacity-40">Received</Label><FormControl><Input type="number" className="h-12 rounded-xl bg-emerald-50 border-none text-emerald-600 font-bold" {...field} /></FormControl></FormItem>)} />
+                <FormField control={editSalesForm.control} name="salePrice" render={({ field }) => (<FormItem><Label className="form-label-tactical text-slate-400">Price (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200 font-black" {...field} /></FormControl></FormItem>)} />
+                <FormField control={editSalesForm.control} name="amountReceived" render={({ field }) => (<FormItem><Label className="form-label-tactical text-slate-400">Received (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200 font-bold text-emerald-600" {...field} /></FormControl></FormItem>)} />
               </div>
               <DialogFooter className="pt-4 gap-4">
                 <Button variant="outline" type="button" onClick={() => setIsEditSaleOpen(false)} className="h-12 px-6 rounded-xl font-bold uppercase text-xs">Cancel</Button>
-                <Button type="submit" className="h-12 px-8 rounded-xl font-black uppercase bg-neutral-900 text-white hover:bg-neutral-800 flex-1 text-xs">
-                  <Save className="mr-2 h-4 w-4" /> Save Ledger Changes
-                </Button>
+                <Button type="submit" className="h-12 px-8 rounded-xl font-black uppercase bg-neutral-900 text-white flex-1 text-xs"><Save className="mr-2 h-4 w-4 text-emerald-400" /> Save Adjustments</Button>
               </DialogFooter>
             </form>
           </Form>
         </DialogContent>
       </Dialog>
 
-      {/* --- DIALOGS: EDIT PURCHASE --- */}
       <Dialog open={isEditPurchaseOpen} onOpenChange={setIsEditPurchaseOpen}>
-        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
+        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
-            <DialogTitle className="text-xl font-black uppercase">Update Purchase</DialogTitle>
-            <DialogDescription className="text-white/40 text-xs uppercase tracking-widest">Adjust record for: {editingPurchase?.farmerName}</DialogDescription>
+            <DialogTitle className="text-xl font-black uppercase">Update Acquisition</DialogTitle>
+            <DialogDescription className="text-white/40 text-[10px] uppercase tracking-widest">Adjust record for: {editingPurchase?.farmerName}</DialogDescription>
           </DialogHeader>
           <Form {...editPurchaseForm}>
-            <form onSubmit={editPurchaseForm.handleSubmit(onEditPurchaseSubmit)} className="space-y-6 p-8 bg-white">
+            <form onSubmit={editPurchaseForm.handleSubmit(onEditPurchaseSubmit)} className="space-y-6 p-8">
               <FormField control={editPurchaseForm.control} name="purchaseDate" render={({ field }) => (
-                <FormItem className="flex flex-col"><Label className="text-xs font-black uppercase opacity-40">Date</Label><Popover><PopoverTrigger asChild><Button variant="outline" className="h-12 rounded-xl bg-neutral-50 border-none font-bold text-left px-4">{field.value ? format(field.value, "MMM dd, yy") : "Select"}</Button></PopoverTrigger><PopoverContent className="w-auto p-0"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover></FormItem>
+                <FormItem className="flex flex-col"><Label className="form-label-tactical text-slate-400">Date</Label><Popover><PopoverTrigger asChild><Button variant="outline" className="form-input-tactical w-full text-left bg-slate-50 border-slate-200">{field.value ? format(field.value, "MMM dd, yy") : "Select"}</Button></PopoverTrigger><PopoverContent className="w-auto p-0 border-none shadow-2xl"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover></FormItem>
               )} />
               <div className="grid grid-cols-2 gap-4">
-                <FormField control={editPurchaseForm.control} name="farmerName" render={({ field }) => (<FormItem><Label className="text-xs font-black uppercase opacity-40">Farmer</Label><FormControl><Input className="h-12 rounded-xl bg-neutral-50 border-none font-bold" {...field} /></FormControl></FormItem>)} />
-                <FormField control={editPurchaseForm.control} name="villageName" render={({ field }) => (<FormItem><Label className="text-xs font-black uppercase opacity-40">Village</Label><FormControl><Input className="h-12 rounded-xl bg-neutral-50 border-none font-bold" {...field} /></FormControl></FormItem>)} />
+                <FormField control={editPurchaseForm.control} name="farmerName" render={({ field }) => (<FormItem><Label className="form-label-tactical text-slate-400">Farmer</Label><FormControl><Input className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>)} />
+                <FormField control={editPurchaseForm.control} name="villageName" render={({ field }) => (<FormItem><Label className="form-label-tactical text-slate-400">Village</Label><FormControl><Input className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>)} />
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <FormField control={editPurchaseForm.control} name="purchasePrice" render={({ field }) => (<FormItem><Label className="text-xs font-black uppercase opacity-40">Total Price</Label><FormControl><Input type="number" className="h-12 rounded-xl bg-neutral-50 border-none font-black" {...field} /></FormControl></FormItem>)} />
-                <FormField control={editPurchaseForm.control} name="amountPaid" render={({ field }) => (<FormItem><Label className="text-xs font-black uppercase opacity-40">Paid</Label><FormControl><Input type="number" className="h-12 rounded-xl bg-emerald-50 border-none text-emerald-600 font-bold" {...field} /></FormControl></FormItem>)} />
+                <FormField control={editPurchaseForm.control} name="purchasePrice" render={({ field }) => (<FormItem><Label className="form-label-tactical text-slate-400">Cost (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200 font-black" {...field} /></FormControl></FormItem>)} />
+                <FormField control={editPurchaseForm.control} name="amountPaid" render={({ field }) => (<FormItem><Label className="form-label-tactical text-slate-400">Paid (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200 font-bold text-blue-600" {...field} /></FormControl></FormItem>)} />
               </div>
               <DialogFooter className="pt-4 gap-4">
                 <Button variant="outline" type="button" onClick={() => setIsEditPurchaseOpen(false)} className="h-12 px-6 rounded-xl font-bold uppercase text-xs">Cancel</Button>
-                <Button type="submit" className="h-12 px-8 rounded-xl font-black uppercase bg-neutral-900 text-white hover:bg-neutral-800 flex-1 text-xs">
-                  <Save className="mr-2 h-4 w-4" /> Save Ledger Changes
-                </Button>
+                <Button type="submit" className="h-12 px-8 rounded-xl font-black uppercase bg-neutral-900 text-white flex-1 text-xs"><Save className="mr-2 h-4 w-4 text-emerald-400" /> Save Adjustments</Button>
               </DialogFooter>
             </form>
           </Form>
