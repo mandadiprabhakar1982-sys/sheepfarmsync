@@ -14,7 +14,8 @@ import {
   Search,
   Pencil,
   Save,
-  ShieldCheck
+  ShieldCheck,
+  PlusCircle
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -35,6 +36,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from '@/components/ui/dialog';
 import type { LaborCost } from '@/lib/types';
 
@@ -56,6 +58,7 @@ export default function LaborPage() {
   const { laborCosts, addLaborCost, deleteLaborCost, updateLaborCost, totalLaborCost, isLoading } = useFarm();
   const [searchTerm, setSearchTerm] = useState('');
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [isEntryDialogOpen, setIsEntryDialogOpen] = useState(false);
   
   // Edit States
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -119,6 +122,7 @@ export default function LaborPage() {
     const newCost = { ...data, date: format(data.date, 'yyyy-MM-dd') };
     addLaborCost(newCost);
     form.reset();
+    setIsEntryDialogOpen(false);
     toast({
       title: 'Success!',
       description: 'Employee cost has been recorded.',
@@ -163,10 +167,103 @@ export default function LaborPage() {
   }
 
   return (
-    <div className="animate-in fade-in duration-700 max-w-[1400px] mx-auto">
-      <div className="mb-10">
-        <h1 className="text-xl font-medium text-slate-900">Labor Management</h1>
-        <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-slate-400 mt-1">OPERATIONAL STAFF & DISBURSEMENTS</p>
+    <div className="animate-in fade-in duration-700 max-w-7xl mx-auto py-8 px-4 md:px-10">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+        <div>
+          <h1 className="text-xl font-medium text-slate-900">Labor Management</h1>
+          <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-slate-400 mt-1">OPERATIONAL STAFF & DISBURSEMENTS</p>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={() => { form.reset(); setIsEntryDialogOpen(true); }} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-neutral-900 hover:bg-neutral-800 text-white gap-2 shadow-xl">
+                <PlusCircle className="h-5 w-5 text-emerald-400" />
+                Disbursement Entry
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
+              <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400">
+                    <Plus className="h-5 w-5" />
+                  </div>
+                  <DialogTitle className="text-xl font-black tracking-tight uppercase">Labor Disbursement</DialogTitle>
+                </div>
+                <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Commit new staff expenditure to ledger</DialogDescription>
+              </DialogHeader>
+              
+              <div className="p-8">
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                    <div className="space-y-6">
+                      <FormField control={form.control} name="date" render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <Label className="form-label-tactical text-slate-400">Transaction Date</Label>
+                          <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
+                            <PopoverTrigger asChild>
+                              <Button variant="outline" className="form-input-tactical w-full text-left justify-between bg-slate-50 border-slate-200">
+                                {field.value ? format(field.value, "MMMM do, yyyy") : "Pick date"}
+                                <CalendarIcon className="h-4 w-4 opacity-20" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0 border-slate-200 bg-white shadow-2xl">
+                              <Calendar mode="single" selected={field.value} onSelect={(d) => { field.onChange(d); setIsDatePickerOpen(false); }} initialFocus className="text-slate-900" />
+                            </PopoverContent>
+                          </Popover>
+                        </FormItem>
+                      )} />
+
+                      <FormField control={form.control} name="employeeName" render={({ field }) => (
+                        <FormItem><Label className="form-label-tactical text-slate-400">Employee Name</Label><FormControl><Input placeholder="e.g. Ram Singh" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
+                      )} />
+
+                      <div className="grid grid-cols-2 gap-6">
+                        <FormField control={form.control} name="numberOfLaborers" render={({ field }) => (
+                          <FormItem><Label className="form-label-tactical text-slate-400">Staff Count</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
+                        )} />
+                        <FormField control={form.control} name="wages" render={({ field }) => (
+                          <FormItem><Label className="form-label-tactical text-slate-400">Wage / Head (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
+                        )} />
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-4">
+                        <FormField control={form.control} name="advancePayments" render={({ field }) => (
+                          <FormItem><Label className="form-label-tactical text-slate-400">Advance</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
+                        )} />
+                        <FormField control={form.control} name="foodCosts" render={({ field }) => (
+                          <FormItem><Label className="form-label-tactical text-slate-400">Food</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
+                        )} />
+                        <FormField control={form.control} name="fuelCosts" render={({ field }) => (
+                          <FormItem><Label className="form-label-tactical text-slate-400">Fuel</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
+                        )} />
+                      </div>
+
+                      <FormField control={form.control} name="totalLaborCosts" render={({ field }) => (
+                        <FormItem>
+                          <Label className="form-label-tactical text-slate-400">Total Ledger Impact (₹)</Label>
+                          <FormControl><Input type="number" className="h-16 rounded-2xl bg-emerald-50 border-2 border-emerald-200 text-emerald-700 font-black text-xl px-6" {...field} readOnly /></FormControl>
+                        </FormItem>
+                      )} />
+                    </div>
+
+                    <Button type="submit" className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm uppercase tracking-[0.25em] transition-all active:scale-95 shadow-xl">
+                      Log Disbursement
+                    </Button>
+                  </form>
+                </Form>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          <div className="px-6 py-3 bg-neutral-900 rounded-2xl text-white flex items-center gap-4 shadow-xl">
+            <ShieldCheck className="h-5 w-5 text-emerald-400" />
+            <div>
+              <p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Net Staff Spend</p>
+              <p className="text-xl font-black tracking-tight text-white">₹{totalLaborCost.toLocaleString()}</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
@@ -210,127 +307,57 @@ export default function LaborPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-        <div className="lg:col-span-8 space-y-8">
-          <div className="relative">
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
-            <Input 
-              placeholder="Filter by Employee Name..." 
-              value={searchTerm} 
-              onChange={(e) => setSearchTerm(e.target.value)} 
-              className="h-16 pl-16 rounded-full bg-white border-slate-200 text-slate-900 placeholder:text-slate-300 font-bold shadow-sm" 
-            />
-          </div>
-
-          <div className="glass-card rounded-[40px] overflow-hidden border-slate-100 bg-white">
-            <ScrollArea className="h-[600px] w-full">
-              <Table>
-                <TableHeader className="bg-slate-50 border-none">
-                  <TableRow className="border-none hover:bg-transparent">
-                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-slate-400">Temporal Node</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-slate-400">Employee Identity</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-center text-white/40 text-slate-400">Staff Count</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-slate-400">Disbursement</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {sortedLaborCosts.length > 0 ? sortedLaborCosts.map((cost) => (
-                    <TableRow key={cost.id} className="hover:bg-slate-50 transition-colors border-b border-slate-100 group" onClick={() => handleEditClick(cost)}>
-                      <TableCell className="py-6 pl-10 text-[11px] font-black text-slate-400 uppercase tracking-widest">{cost.date}</TableCell>
-                      <TableCell>
-                        <div className="flex flex-col">
-                          <span className="text-[14px] font-black text-slate-900">{cost.employeeName}</span>
-                          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Wages: ₹{cost.wages}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Badge className="bg-blue-500/10 text-blue-600 border-none font-black text-[10px] px-3">{cost.numberOfLaborers} Staff</Badge>
-                      </TableCell>
-                      <TableCell className="text-right pr-10">
-                        <div className="flex items-center justify-end gap-4">
-                          <span className="text-[16px] font-black text-slate-900">₹{cost.totalLaborCosts.toLocaleString()}</span>
-                          <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
-                            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-emerald-50 text-emerald-600 hover:bg-emerald-100" onClick={(evt) => { evt.stopPropagation(); handleEditClick(cost); }}><Pencil className="h-4 w-4" /></Button>
-                            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-100" onClick={(evt) => { evt.stopPropagation(); handleDeleteCost(cost.id, cost._path); }}><Trash2 className="h-4 w-4" /></Button>
-                          </div>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  )) : (
-                    <TableRow><TableCell colSpan={4} className="text-center py-32 opacity-20 font-black uppercase text-xs">No disbursement records discovered</TableCell></TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </ScrollArea>
-          </div>
+      <div className="space-y-8">
+        <div className="relative">
+          <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
+          <Input 
+            placeholder="Filter by Employee Name..." 
+            value={searchTerm} 
+            onChange={(e) => setSearchTerm(e.target.value)} 
+            className="h-16 pl-16 rounded-full bg-white border-slate-200 text-slate-900 placeholder:text-slate-300 font-bold shadow-sm" 
+          />
         </div>
 
-        <div className="lg:col-span-4">
-          <div className="glass-card rounded-[40px] p-10 h-full border-slate-100 bg-white shadow-2xl">
-            <div className="flex items-center gap-3 mb-10 text-emerald-600">
-              <Plus className="h-6 w-6" />
-              <h3 className="text-lg font-black uppercase tracking-widest">Add Employee Cost</h3>
-            </div>
-            
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                <div className="space-y-6">
-                  <FormField control={form.control} name="date" render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <Label className="form-label-tactical text-slate-400">Transaction Date</Label>
-                      <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
-                        <PopoverTrigger asChild>
-                          <Button variant="outline" className="form-input-tactical w-full text-left justify-between bg-slate-50 border-slate-200">
-                            {field.value ? format(field.value, "MMMM do, yyyy") : "Pick date"}
-                            <CalendarIcon className="h-4 w-4 opacity-20" />
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0 border-slate-200 bg-white shadow-2xl">
-                          <Calendar mode="single" selected={field.value} onSelect={(d) => { field.onChange(d); setIsDatePickerOpen(false); }} initialFocus className="text-slate-900" />
-                        </PopoverContent>
-                      </Popover>
-                    </FormItem>
-                  )} />
-
-                  <FormField control={form.control} name="employeeName" render={({ field }) => (
-                    <FormItem><Label className="form-label-tactical text-slate-400">Employee Name</Label><FormControl><Input placeholder="e.g. Ram Singh" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
-                  )} />
-
-                  <div className="grid grid-cols-2 gap-6">
-                    <FormField control={form.control} name="numberOfLaborers" render={({ field }) => (
-                      <FormItem><Label className="form-label-tactical text-slate-400">Staff Count</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
-                    )} />
-                    <FormField control={form.control} name="wages" render={({ field }) => (
-                      <FormItem><Label className="form-label-tactical text-slate-400">Wage / Head (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
-                    )} />
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-4">
-                    <FormField control={form.control} name="advancePayments" render={({ field }) => (
-                      <FormItem><Label className="form-label-tactical text-slate-400">Advance</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
-                    )} />
-                    <FormField control={form.control} name="foodCosts" render={({ field }) => (
-                      <FormItem><Label className="form-label-tactical text-slate-400">Food</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
-                    )} />
-                    <FormField control={form.control} name="fuelCosts" render={({ field }) => (
-                      <FormItem><Label className="form-label-tactical text-slate-400">Fuel</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
-                    )} />
-                  </div>
-
-                  <FormField control={form.control} name="totalLaborCosts" render={({ field }) => (
-                    <FormItem>
-                      <Label className="form-label-tactical text-slate-400">Total Ledger Impact (₹)</Label>
-                      <FormControl><Input type="number" className="h-16 rounded-2xl bg-emerald-50 border-2 border-emerald-200 text-emerald-700 font-black text-xl px-6" {...field} readOnly /></FormControl>
-                    </FormItem>
-                  )} />
-                </div>
-
-                <Button type="submit" className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm uppercase tracking-[0.25em] transition-all active:scale-95 shadow-xl">
-                  Log Disbursement
-                </Button>
-              </form>
-            </Form>
-          </div>
+        <div className="glass-card rounded-[40px] overflow-hidden border-slate-100 bg-white">
+          <ScrollArea className="h-[600px] w-full">
+            <Table>
+              <TableHeader className="bg-slate-50 border-none">
+                <TableRow className="border-none hover:bg-transparent">
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-slate-400">Temporal Node</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-slate-400">Employee Identity</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-center text-slate-400">Staff Count</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-slate-400">Disbursement</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {sortedLaborCosts.length > 0 ? sortedLaborCosts.map((cost) => (
+                  <TableRow key={cost.id} className="hover:bg-slate-50 transition-colors border-b border-slate-100 group" onClick={() => handleEditClick(cost)}>
+                    <TableCell className="py-6 pl-10 text-[11px] font-black text-slate-400 uppercase tracking-widest">{cost.date}</TableCell>
+                    <TableCell>
+                      <div className="flex flex-col">
+                        <span className="text-[14px] font-black text-slate-900">{cost.employeeName}</span>
+                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Wages: ₹{cost.wages}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Badge className="bg-blue-500/10 text-blue-600 border-none font-black text-[10px] px-3">{cost.numberOfLaborers} Staff</Badge>
+                    </TableCell>
+                    <TableCell className="text-right pr-10">
+                      <div className="flex items-center justify-end gap-4">
+                        <span className="text-[16px] font-black text-slate-900">₹{cost.totalLaborCosts.toLocaleString()}</span>
+                        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                          <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-emerald-50 text-emerald-600 hover:bg-emerald-100" onClick={(evt) => { evt.stopPropagation(); handleEditClick(cost); }}><Pencil className="h-4 w-4" /></Button>
+                          <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-100" onClick={(evt) => { evt.stopPropagation(); handleDeleteCost(cost.id, cost._path); }}><Trash2 className="h-4 w-4" /></Button>
+                        </div>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )) : (
+                  <TableRow><TableCell colSpan={4} className="text-center py-32 opacity-20 font-black uppercase text-xs">No disbursement records discovered</TableCell></TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </ScrollArea>
         </div>
       </div>
 
