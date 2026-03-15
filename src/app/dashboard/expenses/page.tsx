@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useForm, type SubmitHandler } from 'react-hook-form';
@@ -121,7 +122,6 @@ export default function ExpensesPage() {
     }
   }, [editingExpense, editForm]);
 
-  // Camera Handlers
   const startCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
@@ -378,7 +378,7 @@ export default function ExpensesPage() {
                         className="h-12 w-12 rounded-xl bg-slate-100 overflow-hidden border border-slate-200 cursor-zoom-in active:scale-95 transition-transform"
                         onClick={(evt) => { if (e.imageUrl) { evt.stopPropagation(); setZoomedPhoto(e.imageUrl); } }}
                       >
-                        {e.imageUrl ? <img src={e.imageUrl} className="h-full w-full object-cover" alt="Receipt" /> : <div className="h-full w-full flex items-center justify-center"><ImageIcon className="h-4 w-4 text-slate-300" /></div>}
+                        {e.imageUrl ? <img src={e.imageUrl} className="h-full w-full object-cover" alt="Receipt" /> : <div className="h-full w-full flex items-center justify-center"><Receipt className="h-4 w-4 text-slate-300" /></div>}
                       </div>
                     </TableCell>
                     <TableCell><span className="text-[14px] font-black text-slate-900 truncate block max-w-[300px]">{e.description}</span></TableCell>

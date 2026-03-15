@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect, useRef } from 'react';
@@ -69,7 +70,7 @@ const assetSchema = z.object({
   age: z.coerce.number().min(0, 'Age is required'),
   currentWeight: z.coerce.number().min(1, 'Weight is required'),
   breed: z.string().min(1, 'Breed is required').default('Standard'),
-  photoDataUrl: z.string().optional(),
+  imageUrl: z.string().optional(),
 });
 
 type AssetFormData = z.infer<typeof assetSchema>;
@@ -102,13 +103,12 @@ export default function LivestockPage() {
   const assetForm = useForm<AssetFormData>({
     resolver: zodResolver(assetSchema),
     defaultValues: { 
-      tagId: '', registrationDate: new Date(), gender: 'female', age: 6, currentWeight: 25, breed: 'Standard', photoDataUrl: '' 
+      tagId: '', registrationDate: new Date(), gender: 'female', age: 6, currentWeight: 25, breed: 'Standard', imageUrl: '' 
     },
   });
 
   const editAssetForm = useForm<AssetFormData>({ resolver: zodResolver(assetSchema) });
 
-  // Handle Camera Permission
   const startCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ 
@@ -152,7 +152,7 @@ export default function LivestockPage() {
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
         const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
         setCapturedPhoto(dataUrl);
-        assetForm.setValue('photoDataUrl', dataUrl);
+        assetForm.setValue('imageUrl', dataUrl);
         stopCamera();
       }
     }
@@ -165,7 +165,7 @@ export default function LivestockPage() {
       reader.onloadend = () => {
         const dataUrl = reader.result as string;
         setCapturedPhoto(dataUrl);
-        assetForm.setValue('photoDataUrl', dataUrl);
+        assetForm.setValue('imageUrl', dataUrl);
         setIsCameraActive(false);
       };
       reader.readAsDataURL(file);
@@ -174,7 +174,7 @@ export default function LivestockPage() {
 
   const resetPhoto = () => {
     setCapturedPhoto(null);
-    assetForm.setValue('photoDataUrl', '');
+    assetForm.setValue('imageUrl', '');
     setIsCameraActive(false);
   };
 
@@ -188,15 +188,14 @@ export default function LivestockPage() {
   const onAssetSubmit: SubmitHandler<AssetFormData> = async (data) => {
     setIsUploading(true);
     try {
-      // Logic: Upload base64 to Storage and get URL
-      let finalUrl = data.photoDataUrl;
-      if (storage && data.photoDataUrl?.startsWith('data:')) {
-        finalUrl = await uploadToStorage(storage, data.photoDataUrl, 'sheep_profiles');
+      let finalUrl = data.imageUrl;
+      if (storage && data.imageUrl?.startsWith('data:')) {
+        finalUrl = await uploadToStorage(storage, data.imageUrl, 'sheep_profiles');
       }
 
       addTrackedSheep({ 
         ...data, 
-        photoDataUrl: finalUrl,
+        imageUrl: finalUrl,
         registrationDate: format(data.registrationDate, 'yyyy-MM-dd') 
       });
       
@@ -228,6 +227,7 @@ export default function LivestockPage() {
       age: asset.age, 
       currentWeight: asset.currentWeight, 
       breed: asset.breed || 'Standard',
+      imageUrl: asset.imageUrl
     });
     setIsEditAssetOpen(true);
   };
@@ -492,14 +492,14 @@ export default function LivestockPage() {
                         <div 
                           className="h-16 w-16 rounded-full overflow-hidden bg-slate-100 border-2 border-slate-200 shrink-0 cursor-zoom-in group/img transition-transform active:scale-95"
                           onClick={() => {
-                            if (sheep.photoDataUrl) {
-                              setZoomedPhoto(sheep.photoDataUrl);
+                            if (sheep.imageUrl) {
+                              setZoomedPhoto(sheep.imageUrl);
                               setZoomedAssetId(sheep.tagId);
                             }
                           }}
                         >
-                          {sheep.photoDataUrl ? (
-                            <img src={sheep.photoDataUrl} className="h-full w-full object-cover group-hover/img:scale-110 transition-transform duration-500" alt="Sheep" />
+                          {sheep.imageUrl ? (
+                            <img src={sheep.imageUrl} className="h-full w-full object-cover group-hover/img:scale-110 transition-transform duration-500" alt="Sheep" />
                           ) : (
                             <div className="h-full w-full flex items-center justify-center"><Camera className="h-6 w-6 text-slate-300" /></div>
                           )}
@@ -547,7 +547,6 @@ export default function LivestockPage() {
         </div>
       </div>
 
-      {/* --- PHOTO ZOOM DIALOG --- */}
       <Dialog open={!!zoomedPhoto} onOpenChange={(open) => !open && setZoomedPhoto(null)}>
         <DialogContent className="sm:max-w-3xl rounded-[3rem] p-0 overflow-hidden border-none shadow-2xl bg-neutral-900">
           {zoomedPhoto && (

@@ -87,7 +87,7 @@ export type TrackedSheep = {
   age: number; // in months
   gender?: 'male' | 'female';
   breed?: string;
-  photoDataUrl?: string;
+  imageUrl?: string;
   registrationDate?: string;
   createdBy?: string;
   creatorEmail?: string;
@@ -111,6 +111,7 @@ export type HealthTask = {
   nextDueDate: string;
   administeredBy: string;
   notes?: string;
+  cost: number;
   createdBy?: string;
   creatorEmail?: string;
   creatorName?: string;
