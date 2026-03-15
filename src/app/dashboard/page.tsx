@@ -1,7 +1,6 @@
-
 'use client';
 
-import Link from 'next/navigation';
+import Link from 'next/link';
 import Image from 'next/image';
 import { useFarm } from '@/context/FarmContext';
 import { 
