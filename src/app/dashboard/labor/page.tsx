@@ -15,7 +15,9 @@ import {
   Pencil,
   Save,
   ShieldCheck,
-  PlusCircle
+  PlusCircle,
+  Banknote,
+  Receipt
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -49,6 +51,8 @@ const formSchema = z.object({
   foodCosts: z.coerce.number().nonnegative('Cannot be negative').optional(),
   fuelCosts: z.coerce.number().nonnegative('Cannot be negative').optional(),
   totalLaborCosts: z.coerce.number().min(0, 'Total must be non-negative'),
+  amountPaid: z.coerce.number().nonnegative('Cannot be negative').default(0),
+  pendingAmount: z.coerce.number().default(0),
 });
 
 type LaborFormData = z.infer<typeof formSchema>;
@@ -74,6 +78,8 @@ export default function LaborPage() {
       foodCosts: 0,
       fuelCosts: 0,
       totalLaborCosts: 0,
+      amountPaid: 0,
+      pendingAmount: 0,
     },
   });
 
@@ -81,35 +87,43 @@ export default function LaborPage() {
     resolver: zodResolver(formSchema),
   });
 
+  // Entry Form Calc Logic
   const watchedFields = form.watch([
     'wages',
     'numberOfLaborers',
     'advancePayments',
     'foodCosts',
     'fuelCosts',
+    'amountPaid'
   ]);
 
   useEffect(() => {
-    const [wages, num, advance, food, fuel] = watchedFields;
+    const [wages, num, advance, food, fuel, paid] = watchedFields;
     const totalWages = (wages || 0) * (num || 1);
     const total = totalWages + (advance || 0) + (food || 0) + (fuel || 0);
+    const pending = total - (paid || 0);
     form.setValue('totalLaborCosts', total);
+    form.setValue('pendingAmount', pending);
   }, [watchedFields, form]);
 
+  // Edit Form Calc Logic
   const watchedEditFields = editForm.watch([
     'wages',
     'numberOfLaborers',
     'advancePayments',
     'foodCosts',
     'fuelCosts',
+    'amountPaid'
   ]);
 
   useEffect(() => {
     if (!editingCost) return;
-    const [wages, num, advance, food, fuel] = watchedEditFields;
+    const [wages, num, advance, food, fuel, paid] = watchedEditFields;
     const totalWages = (wages || 0) * (num || 1);
     const total = totalWages + (advance || 0) + (food || 0) + (fuel || 0);
+    const pending = total - (paid || 0);
     editForm.setValue('totalLaborCosts', total);
+    editForm.setValue('pendingAmount', pending);
   }, [watchedEditFields, editForm, editingCost]);
 
   const sortedLaborCosts = useMemo(() => {
@@ -117,6 +131,10 @@ export default function LaborPage() {
     const filtered = laborCosts.filter(c => c.employeeName.toLowerCase().includes(searchTerm.toLowerCase()));
     return [...filtered].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [laborCosts, searchTerm]);
+
+  const totalPendingLiability = useMemo(() => {
+    return (laborCosts || []).reduce((s, c) => s + (c.pendingAmount || 0), 0);
+  }, [laborCosts]);
 
   const onSubmit: SubmitHandler<LaborFormData> = (data) => {
     const newCost = { ...data, date: format(data.date, 'yyyy-MM-dd') };
@@ -146,6 +164,8 @@ export default function LaborPage() {
     editForm.reset({
       ...cost,
       date: new Date(cost.date),
+      amountPaid: cost.amountPaid || 0,
+      pendingAmount: cost.pendingAmount || 0,
     });
     setIsEditDialogOpen(true);
   };
@@ -239,10 +259,19 @@ export default function LaborPage() {
                         )} />
                       </div>
 
+                      <div className="grid grid-cols-2 gap-6">
+                        <FormField control={form.control} name="amountPaid" render={({ field }) => (
+                          <FormItem><Label className="form-label-tactical text-slate-400">Amount Disbursed (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200 font-black text-emerald-600" {...field} /></FormControl></FormItem>
+                        )} />
+                        <FormField control={form.control} name="pendingAmount" render={({ field }) => (
+                          <FormItem><Label className="form-label-tactical text-slate-400">Pending Balance (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-rose-50 border-rose-100 text-rose-600 font-black" {...field} readOnly /></FormControl></FormItem>
+                        )} />
+                      </div>
+
                       <FormField control={form.control} name="totalLaborCosts" render={({ field }) => (
                         <FormItem>
-                          <Label className="form-label-tactical text-slate-400">Total Ledger Impact (₹)</Label>
-                          <FormControl><Input type="number" className="h-16 rounded-2xl bg-emerald-50 border-2 border-emerald-200 text-emerald-700 font-black text-xl px-6" {...field} readOnly /></FormControl>
+                          <Label className="form-label-tactical text-slate-400">Total Commitment (₹)</Label>
+                          <FormControl><Input type="number" className="h-16 rounded-2xl bg-slate-900 border-none text-white font-black text-xl px-6" {...field} readOnly /></FormControl>
                         </FormItem>
                       )} />
                     </div>
@@ -280,30 +309,30 @@ export default function LaborPage() {
           <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest">NET DISBURSEMENT</p>
         </div>
 
-        <div className="glass-card glow-purple rounded-[32px] p-8 h-[180px] flex flex-col justify-between bg-white shadow-xl">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Active Staff</p>
-              <p className="text-5xl font-black tracking-tighter text-slate-900">{(laborCosts || []).length}</p>
-            </div>
-            <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
-              <Users className="h-5 w-5 text-purple-600" />
-            </div>
-          </div>
-          <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest">TOTAL EMPLOYEES LOGGED</p>
-        </div>
-
         <div className="glass-card glow-coral rounded-[32px] p-8 h-[180px] flex flex-col justify-between bg-white shadow-xl">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Advances Paid</p>
-              <p className="text-5xl font-black tracking-tighter text-slate-900">₹{(laborCosts || []).reduce((s, c) => s + (c.advancePayments || 0), 0).toLocaleString()}</p>
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Total Pending</p>
+              <p className="text-5xl font-black tracking-tighter text-rose-600">₹{totalPendingLiability.toLocaleString()}</p>
             </div>
             <div className="h-10 w-10 rounded-full bg-rose-100 flex items-center justify-center">
-              <TrendingUp className="h-5 w-5 text-rose-600" />
+              <Banknote className="h-5 w-5 text-rose-600" />
             </div>
           </div>
-          <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest">STAFF LIABILITIES</p>
+          <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest">OUTSTANDING LIABILITIES</p>
+        </div>
+
+        <div className="glass-card glow-purple rounded-[32px] p-8 h-[180px] flex flex-col justify-between bg-white shadow-xl">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Advances Paid</p>
+              <p className="text-5xl font-black tracking-tighter text-purple-600">₹{(laborCosts || []).reduce((s, c) => s + (c.advancePayments || 0), 0).toLocaleString()}</p>
+            </div>
+            <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
+              <Receipt className="h-5 w-5 text-purple-600" />
+            </div>
+          </div>
+          <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest">STAFF ADVANCE LOG</p>
         </div>
       </div>
 
@@ -325,7 +354,7 @@ export default function LaborPage() {
                 <TableRow className="border-none hover:bg-transparent">
                   <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-slate-400">Temporal Node</TableHead>
                   <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-slate-400">Employee Identity</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-center text-slate-400">Staff Count</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-center text-slate-400">Status</TableHead>
                   <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-slate-400">Disbursement</TableHead>
                 </TableRow>
               </TableHeader>
@@ -336,15 +365,22 @@ export default function LaborPage() {
                     <TableCell>
                       <div className="flex flex-col">
                         <span className="text-[14px] font-black text-slate-900">{cost.employeeName}</span>
-                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Wages: ₹{cost.wages}</span>
+                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Wages: ₹{cost.wages} • {cost.numberOfLaborers} Staff</span>
                       </div>
                     </TableCell>
                     <TableCell className="text-center">
-                      <Badge className="bg-blue-500/10 text-blue-600 border-none font-black text-[10px] px-3">{cost.numberOfLaborers} Staff</Badge>
+                      {cost.pendingAmount && cost.pendingAmount > 0 ? (
+                        <Badge className="bg-rose-500/10 text-rose-600 border-none font-black text-[10px] px-3 uppercase tracking-widest">₹{cost.pendingAmount.toLocaleString()} PENDING</Badge>
+                      ) : (
+                        <Badge className="bg-emerald-500/10 text-emerald-600 border-none font-black text-[10px] px-3 uppercase tracking-widest">SETTLED</Badge>
+                      )}
                     </TableCell>
                     <TableCell className="text-right pr-10">
                       <div className="flex items-center justify-end gap-4">
-                        <span className="text-[16px] font-black text-slate-900">₹{cost.totalLaborCosts.toLocaleString()}</span>
+                        <div className="flex flex-col items-end">
+                          <span className="text-[16px] font-black text-slate-900">₹{cost.amountPaid?.toLocaleString() || '0'}</span>
+                          <span className="text-[9px] font-black text-slate-400 uppercase">OF ₹{cost.totalLaborCosts.toLocaleString()}</span>
+                        </div>
                         <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
                           <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-emerald-50 text-emerald-600 hover:bg-emerald-100" onClick={(evt) => { evt.stopPropagation(); handleEditClick(cost); }}><Pencil className="h-4 w-4" /></Button>
                           <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-100" onClick={(evt) => { evt.stopPropagation(); handleDeleteCost(cost.id, cost._path); }}><Trash2 className="h-4 w-4" /></Button>
@@ -375,15 +411,15 @@ export default function LaborPage() {
                 <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2">Employee Name</Label><FormControl><Input className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
               )} />
               <div className="grid grid-cols-2 gap-4">
-                <FormField control={editForm.control} name="numberOfLaborers" render={({ field }) => (
-                  <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2">Count</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
+                <FormField control={editForm.control} name="amountPaid" render={({ field }) => (
+                  <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2">Amount Paid (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200 font-bold" {...field} /></FormControl></FormItem>
                 )} />
-                <FormField control={editForm.control} name="wages" render={({ field }) => (
-                  <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2">Wage/Head</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
+                <FormField control={editForm.control} name="pendingAmount" render={({ field }) => (
+                  <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2">Pending (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-rose-50 border-rose-100 font-black text-rose-600" {...field} readOnly /></FormControl></FormItem>
                 )} />
               </div>
               <FormField control={editForm.control} name="totalLaborCosts" render={({ field }) => (
-                <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2">Total Impact (₹)</Label><FormControl><Input type="number" className="h-14 rounded-2xl bg-emerald-50 border-emerald-200 font-black text-lg px-6 text-emerald-700" {...field} readOnly /></FormControl></FormItem>
+                <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2">Total Impact (₹)</Label><FormControl><Input type="number" className="h-14 rounded-2xl bg-slate-900 border-none font-black text-lg px-6 text-white" {...field} readOnly /></FormControl></FormItem>
               )} />
               <div className="flex gap-4 pt-4">
                 <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)} className="h-14 flex-1 rounded-2xl border-slate-200 font-black uppercase text-xs">Cancel</Button>

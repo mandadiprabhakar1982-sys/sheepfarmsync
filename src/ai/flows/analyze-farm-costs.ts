@@ -49,6 +49,8 @@ const LaborCostSchema = z.object({
   foodCosts: z.number().describe('Cost of food provided to employees.'),
   fuelCosts: z.number().describe('Cost of fuel for transport related to employees.'),
   totalLaborCosts: z.number().describe('Total calculated employee costs for this entry.'),
+  amountPaid: z.number().optional().describe('Actual amount paid to the employee.'),
+  pendingAmount: z.number().optional().describe('Amount still pending to be paid.'),
 });
 
 const FarmExpenseSchema = z.object({
