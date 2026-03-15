@@ -7,13 +7,9 @@ import {
   PlusCircle, 
   Calendar as CalendarIcon, 
   Trash2, 
-  Pencil, 
-  Leaf, 
-  Package,
   Plus,
   ShieldCheck,
-  Wheat,
-  History
+  Wheat
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -40,11 +36,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
 import { useFarm } from '@/context/FarmContext';
-import { useState, useEffect, useMemo } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import type { FeedCost } from '@/lib/types';
+import { useState, useMemo } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Label } from '@/components/ui/label';
 import { PageHeader } from '@/components/page-header';
@@ -71,7 +64,7 @@ type FeedFormData = z.infer<typeof formSchema>;
 
 export default function FeedPage() {
   const { toast } = useToast();
-  const { feedCosts, addFeedCost, deleteFeedCost, updateFeedCost, totalFeedCost, isLoading } = useFarm();
+  const { feedCosts, addFeedCost, deleteFeedCost, totalFeedCost, isLoading } = useFarm();
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [isEntryDialogOpen, setIsEntryDialogOpen] = useState(false);
   
@@ -215,131 +208,55 @@ export default function FeedPage() {
         </div>
       </div>
 
-      <Tabs defaultValue="entry" className="w-full">
-        <div className="flex justify-center mb-10">
-          <TabsList className="p-1 bg-[#e7eddc] rounded-[1.25rem] flex justify-start items-center h-14 w-fit shadow-inner">
-            <TabsTrigger value="entry" className="tab-inactive data-[state=active]:tab-active h-12 px-10 font-black text-[10px] uppercase tracking-widest">Active Inventory</TabsTrigger>
-            <TabsTrigger value="history" className="tab-inactive data-[state=active]:tab-active h-12 px-10 font-black text-[10px] uppercase tracking-widest">Purchase Ledger</TabsTrigger>
-          </TabsList>
-        </div>
-
-        <TabsContent value="entry" className="animate-in fade-in slide-in-from-bottom-2 duration-500">
-          <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
-            <CardHeader className="bg-[#84cc16] text-white p-10 py-12">
-              <div className="flex justify-between items-end">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-3">
-                    <Wheat className="h-6 w-6" />
-                    <CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Inventory Stream</CardTitle>
-                  </div>
-                  <CardDescription className="text-emerald-100/60 text-xs font-black uppercase tracking-[0.2em]">High-fidelity operational records</CardDescription>
+      <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+        <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
+          <CardHeader className="bg-[#84cc16] text-white p-10 py-12">
+            <div className="flex justify-between items-end">
+              <div className="space-y-1">
+                <div className="flex items-center gap-3">
+                  <Wheat className="h-6 w-6" />
+                  <CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Inventory Stream</CardTitle>
                 </div>
-                <p className="text-4xl font-black tracking-tighter">₹{totalFeedCost.toLocaleString()}</p>
+                <CardDescription className="text-emerald-100/60 text-xs font-black uppercase tracking-[0.2em]">High-fidelity operational records</CardDescription>
               </div>
-            </CardHeader>
-            <CardContent className="p-0 overflow-x-auto">
-              <Table>
-                <TableHeader className="bg-neutral-50">
-                  <TableRow>
-                    <TableHead className="text-[10px] font-black uppercase py-6 pl-10">Temporal Node</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase">Category</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-center">Packaging</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-right">Quantity</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-right pr-10">Value Payload</TableHead>
+              <p className="text-4xl font-black tracking-tighter">₹{totalFeedCost.toLocaleString()}</p>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0 overflow-x-auto">
+            <Table>
+              <TableHeader className="bg-neutral-50">
+                <TableRow>
+                  <TableHead className="text-[10px] font-black uppercase py-6 pl-10">Temporal Node</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase">Category</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase text-center">Packaging</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase text-right">Quantity</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase text-right pr-10">Value Payload</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {sortedFeedCosts.length > 0 ? sortedFeedCosts.map((c) => (
+                  <TableRow key={c.id} className="group hover:bg-neutral-50 transition-colors border-b border-slate-100">
+                    <TableCell className="pl-10 py-8 text-[11px] font-black text-slate-400 uppercase tracking-widest">{c.date}</TableCell>
+                    <TableCell><span className="text-[14px] font-black text-slate-900 uppercase">{c.feedType}</span></TableCell>
+                    <TableCell className="text-center">
+                      {c.bags ? <Badge className="bg-emerald-50 text-emerald-700 border-none font-black text-[10px] px-3">{c.bags} BAGS</Badge> : <span className="text-[10px] text-slate-300 font-bold uppercase">BULK</span>}
+                    </TableCell>
+                    <TableCell className="text-right"><span className="text-[16px] font-black text-slate-900">{c.quantity} KG</span></TableCell>
+                    <TableCell className="text-right pr-10">
+                      <div className="flex items-center justify-end gap-4">
+                        <span className="text-[18px] font-black text-emerald-700">₹{c.cost.toLocaleString()}</span>
+                        <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-rose-50 text-rose-600 opacity-0 group-hover:opacity-100 transition-all" onClick={() => handleDeleteCost(c.id, c._path)}><Trash2 className="h-4 w-4" /></Button>
+                      </div>
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {sortedFeedCosts.length > 0 ? sortedFeedCosts.map((c) => (
-                    <TableRow key={c.id} className="group hover:bg-neutral-50 transition-colors border-b border-slate-100">
-                      <TableCell className="pl-10 py-8 text-[11px] font-black text-slate-400 uppercase tracking-widest">{c.date}</TableCell>
-                      <TableCell><span className="text-[14px] font-black text-slate-900 uppercase">{c.feedType}</span></TableCell>
-                      <TableCell className="text-center">
-                        {c.bags ? <Badge className="bg-emerald-50 text-emerald-700 border-none font-black text-[10px] px-3">{c.bags} BAGS</Badge> : <span className="text-[10px] text-slate-300 font-bold uppercase">BULK</span>}
-                      </TableCell>
-                      <TableCell className="text-right"><span className="text-[16px] font-black text-slate-900">{c.quantity} KG</span></TableCell>
-                      <TableCell className="text-right pr-10">
-                        <div className="flex items-center justify-end gap-4">
-                          <span className="text-[18px] font-black text-emerald-700">₹{c.cost.toLocaleString()}</span>
-                          <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-rose-50 text-rose-600 opacity-0 group-hover:opacity-100 transition-all" onClick={() => handleDeleteCost(c.id, c._path)}><Trash2 className="h-4 w-4" /></Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  )) : (
-                    <TableRow><TableCell colSpan={5} className="text-center py-32 opacity-20 font-black uppercase text-xs">No disbursement records discovered</TableCell></TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="history" className="animate-in fade-in slide-in-from-bottom-2 duration-500">
-           <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
-              <CardHeader className="bg-neutral-900 text-white p-10 py-12">
-                <div className="flex justify-between items-end">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-3">
-                      <History className="h-6 w-6 text-emerald-400" />
-                      <CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Purchase Archive</CardTitle>
-                    </div>
-                    <CardDescription className="text-white/40 text-xs font-black uppercase tracking-[0.2em]">Audit-grade historical audit</CardDescription>
-                  </div>
-                  <BadgeIndianRupee className="h-10 w-10 text-white/10" />
-                </div>
-              </CardHeader>
-              <CardContent className="p-0 overflow-x-auto">
-                <Table>
-                  <TableHeader className="bg-neutral-50">
-                    <TableRow>
-                      <TableHead className="text-[10px] font-black uppercase py-6 pl-10">Date</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase">Type</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase text-center">Bags</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase text-right">Qty</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase text-right pr-10">Total Cost</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {sortedFeedCosts.map((c) => (
-                      <TableRow key={c.id} className="hover:bg-neutral-50 border-b border-slate-100 transition-colors">
-                        <TableCell className="pl-10 py-8 text-[11px] font-black text-slate-400 uppercase">{c.date}</TableCell>
-                        <TableCell><span className="text-sm font-bold text-slate-900 uppercase">{c.feedType}</span></TableCell>
-                        <TableCell className="text-center">
-                          {c.bags ? <span className="text-[10px] font-black text-slate-900">{c.bags}</span> : <span className="text-[10px] text-slate-300">N/A</span>}
-                        </TableCell>
-                        <TableCell className="text-right"><span className="text-sm font-black text-slate-900">{c.quantity} KG</span></TableCell>
-                        <TableCell className="text-right pr-10"><span className="text-base font-black text-emerald-700">₹{c.cost.toLocaleString()}</span></TableCell>
-                      </TableRow>
-                    ))}
-                    {!sortedFeedCosts.length && <TableRow><TableCell colSpan={5} className="text-center py-20 opacity-20 font-black uppercase text-xs">Empty Archive</TableCell></TableRow>}
-                  </TableBody>
-                </Table>
-              </CardContent>
-           </Card>
-        </TabsContent>
-      </Tabs>
+                )) : (
+                  <TableRow><TableCell colSpan={5} className="text-center py-32 opacity-20 font-black uppercase text-xs">No disbursement records discovered</TableCell></TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
     </div>
-  );
-}
-
-function BadgeIndianRupee(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M6 3h12" />
-      <path d="M6 8h12" />
-      <path d="m6 13 8.5 8" />
-      <path d="M10.6 13h5.4" />
-      <path d="M10.6 13a5 5 0 0 1 0-10" />
-    </svg>
   );
 }
