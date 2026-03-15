@@ -14,7 +14,8 @@ import {
   Skull,
   Receipt,
   Users,
-  ChevronRight
+  ChevronRight,
+  Sparkles
 } from 'lucide-react';
 
 import {
@@ -29,7 +30,6 @@ import {
   SidebarGroupLabel,
   SidebarGroupContent,
 } from '@/components/ui/sidebar';
-import { Logo } from '@/components/logo';
 import { cn } from '@/lib/utils';
 import { useFarm } from '@/context/FarmContext';
 
@@ -68,18 +68,25 @@ export function AppSidebar() {
   ], []); 
 
   return (
-    <Sidebar collapsible="none" className="sidebar">
+    <Sidebar collapsible="none" className="sidebar border-none shadow-2xl">
       <SidebarHeader className="h-24 flex items-center px-10 mb-2">
-        <Logo />
+        <div className="flex items-center gap-3 select-none group">
+          <div className="bg-white p-2.5 rounded-xl shadow-lg">
+            <Sparkles className="h-5 w-5 text-primary" />
+          </div>
+          <h1 className="text-xl font-black leading-none uppercase tracking-tight text-white">
+            SYNC <span className="opacity-60">PRO</span>
+          </h1>
+        </div>
       </SidebarHeader>
 
-      <SidebarContent className="px-6 no-scrollbar bg-slate-50">
+      <SidebarContent className="px-6 no-scrollbar bg-transparent">
         {groups.map((group, gIdx) => {
           if (group.adminOnly && !isAdmin) return null;
 
           return (
             <SidebarGroup key={gIdx} className="mb-6">
-              <SidebarGroupLabel className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 mb-4 px-4">
+              <SidebarGroupLabel className="text-[9px] font-black uppercase tracking-[0.3em] text-white/40 mb-4 px-4">
                 {group.label}
               </SidebarGroupLabel>
               <SidebarGroupContent>
@@ -94,13 +101,13 @@ export function AppSidebar() {
                           className={cn(
                             "h-12 px-4 rounded-xl transition-all duration-300",
                             isActive 
-                              ? "bg-white text-primary border border-primary/10 shadow-sm scale-[1.02]" 
-                              : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+                              ? "bg-white text-primary shadow-xl scale-[1.02] font-black" 
+                              : "text-white/70 hover:bg-white/10 hover:text-white"
                           )}
                         >
                           <Link href={link.href} className="flex items-center justify-between w-full">
                             <div className="flex items-center">
-                              <link.icon className={cn("h-4 w-4", isActive ? "text-primary" : "opacity-40")} />
+                              <link.icon className={cn("h-4 w-4", isActive ? "text-primary" : "opacity-60")} />
                               <span className="ml-3 text-[12px] font-bold tracking-tight">{link.label}</span>
                             </div>
                             {isActive && <ChevronRight className="h-3 w-3 text-primary" />}
@@ -116,8 +123,8 @@ export function AppSidebar() {
         })}
       </SidebarContent>
 
-      <SidebarFooter className="p-10 opacity-20 bg-slate-50">
-        <p className="text-[14px] font-black tracking-tighter text-slate-900 uppercase">SYNC PRO</p>
+      <SidebarFooter className="p-10 opacity-40 bg-transparent">
+        <p className="text-[14px] font-black tracking-tighter text-white uppercase">SYNC PRO</p>
       </SidebarFooter>
     </Sidebar>
   );
