@@ -18,18 +18,6 @@ import {
 export default function DashboardPage() {
   const { 
     userRole, 
-    totalSheep, 
-    purchases,
-    sales,
-    healthTasks,
-    feedCosts,
-    laborCosts,
-    farmExpenses,
-    bankLoans,
-    creditCards,
-    privateDebts,
-    monthlyIncomes,
-    monthlyExpenses,
     isLoading
   } = useFarm();
   
@@ -122,13 +110,16 @@ export default function DashboardPage() {
     const Icon = item.icon;
     return (
       <Link href={item.href} className="group transition-all active:scale-95 w-[240px]">
-        <div className="hub-card h-[240px] bg-[#C9D1D6] rounded-[40px] p-8 flex flex-col items-center justify-center gap-6 border-b-4 border-black/10 hover:border-black/20 hover:-translate-y-1 transition-all shadow-xl">
-          <div className="blob-shape p-6 rounded-[2rem] flex items-center justify-center" style={{ backgroundColor: `${item.color}20` }}>
-            <Icon className="h-14 w-14" style={{ color: item.color }} />
+        <div className="hub-card h-[240px] bg-[#0F1115] rounded-[40px] p-8 flex flex-col items-center justify-center gap-6 border border-white/10 hover:border-emerald-500/40 hover:-translate-y-1 transition-all shadow-2xl relative overflow-hidden group">
+          {/* Animated Background Highlight */}
+          <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          
+          <div className="blob-shape p-1 rounded-[2.5rem] flex items-center justify-center relative z-10" style={{ backgroundColor: `${item.color}10` }}>
+            <Icon className="h-24 w-24" style={{ color: item.color }} />
           </div>
-          <div className="text-center">
-            <h3 className="text-[14px] font-black text-neutral-900 tracking-tight leading-none mb-1 uppercase">{item.title}</h3>
-            <p className="text-[9px] font-bold text-neutral-500 uppercase tracking-widest">{item.subtitle}</p>
+          <div className="text-center relative z-10">
+            <h3 className="text-[14px] font-black text-white tracking-tight leading-none mb-1 uppercase">{item.title}</h3>
+            <p className="text-[9px] font-bold text-white/30 uppercase tracking-widest">{item.subtitle}</p>
           </div>
         </div>
       </Link>
@@ -136,7 +127,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="animate-in fade-in duration-1000 max-w-7xl mx-auto">
+    <div className="animate-in fade-in duration-1000 max-w-7xl mx-auto py-12">
       <div className="flex items-center gap-8 mb-16">
         <HubSparkle />
         <div className="space-y-1">
@@ -158,7 +149,7 @@ export default function DashboardPage() {
       
       <div className="mt-24 border-t border-white/5 pt-8 opacity-20">
         <p className="text-[9px] font-black uppercase tracking-widest text-white">SYNC PRO ELITE</p>
-        <p className="text-[8px] font-bold text-white uppercase tracking-tighter">Tactical v3.5.0</p>
+        <p className="text-[8px] font-bold text-white uppercase tracking-tighter">Tactical v4.0.0</p>
       </div>
     </div>
   );
