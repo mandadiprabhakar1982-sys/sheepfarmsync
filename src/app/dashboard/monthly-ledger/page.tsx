@@ -21,7 +21,9 @@ import {
   Landmark,
   Wallet,
   TrendingUp,
-  PlusCircle
+  PlusCircle,
+  Pencil,
+  Save
 } from 'lucide-react';
 import { useFarm } from '@/context/FarmContext';
 import { useToast } from '@/hooks/use-toast';
@@ -36,20 +38,25 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
 } from '@/components/ui/dialog';
 
 export default function MonthlyLedgerPage() {
   const { toast } = useToast();
   const { 
-    monthlyIncomes, addMonthlyIncome, deleteMonthlyIncome,
-    monthlyExpenses, addMonthlyExpense, deleteMonthlyExpense,
+    monthlyIncomes, addMonthlyIncome, deleteMonthlyIncome, updateMonthlyIncome,
+    monthlyExpenses, addMonthlyExpense, deleteMonthlyExpense, updateMonthlyExpense,
   } = useFarm();
 
   const [activeTab, setActiveTab] = useState('income');
   const [selectedMonth, setSelectedMonth] = useState(format(new Date(), 'MM'));
   const [selectedYear, setSelectedYear] = useState(format(new Date(), 'yyyy'));
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // Dialog States
   const [isEntryDialogOpen, setIsEntryDialogOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<any>(null);
 
   // Form States
   const [date, setDate] = useState(format(new Date(), 'yyyy-MM-dd'));
@@ -103,8 +110,43 @@ export default function MonthlyLedgerPage() {
       addMonthlyExpense({ date, source, amount: val, category });
       toast({ title: "Outflow Recorded", description: "Expense record synchronized." });
     }
-    setSource(''); setAmount('');
+    resetForm();
     setIsEntryDialogOpen(false);
+  };
+
+  const handleEditClick = (item: any) => {
+    setEditingItem(item);
+    setDate(item.date);
+    setSource(item.source);
+    setAmount(item.amount.toString());
+    setType(item.type);
+    setCategory(item.category || 'household');
+    setIsEditModalOpen(true);
+  };
+
+  const handleUpdate = () => {
+    if (!editingItem) return;
+    const val = parseFloat(amount);
+    const data = type === 'income' ? { date, source, amount: val } : { date, source, amount: val, category };
+    
+    if (type === 'income') {
+      updateMonthlyIncome(editingItem.id, data, editingItem._path);
+    } else {
+      updateMonthlyExpense(editingItem.id, data as any, editingItem._path);
+    }
+    
+    toast({ title: "Record Adjusted", description: "Ledger has been synchronized." });
+    setIsEditModalOpen(false);
+    setEditingItem(null);
+    resetForm();
+  };
+
+  const resetForm = () => {
+    setDate(format(new Date(), 'yyyy-MM-dd'));
+    setSource('');
+    setAmount('');
+    setType('income');
+    setCategory('household');
   };
 
   const SummaryCard = ({ title, value, icon: Icon, color, subtitle }: { title: string, value: number, icon: any, color: string, subtitle: string }) => (
@@ -157,16 +199,26 @@ export default function MonthlyLedgerPage() {
                   </div>
                 </TableCell>
                 <TableCell className="text-right pr-10">
-                  <div className="flex items-center justify-end gap-6">
-                    <span className="text-xl font-black text-slate-900 tracking-tight">₹{item.amount.toLocaleString()}</span>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-8 w-8 text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity" 
-                      onClick={() => item.type === 'income' ? deleteMonthlyIncome(item.id, item._path) : deleteMonthlyExpense(item.id, item._path)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                  <div className="flex items-center justify-end gap-2">
+                    <span className="text-xl font-black text-slate-900 tracking-tight mr-4">₹{item.amount.toLocaleString()}</span>
+                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-8 w-8 text-blue-500 hover:bg-blue-50" 
+                        onClick={() => handleEditClick(item)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-8 w-8 text-rose-500 hover:bg-rose-50" 
+                        onClick={() => item.type === 'income' ? deleteMonthlyIncome(item.id, item._path) : deleteMonthlyExpense(item.id, item._path)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </TableCell>
               </TableRow>
@@ -195,7 +247,7 @@ export default function MonthlyLedgerPage() {
         <div className="flex flex-wrap items-center gap-4 bg-white p-2 rounded-2xl shadow-xl">
            <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>
              <DialogTrigger asChild>
-               <Button className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-neutral-900 hover:bg-neutral-800 text-white gap-2">
+               <Button onClick={() => { resetForm(); setIsEntryDialogOpen(true); }} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-neutral-900 hover:bg-neutral-800 text-white gap-2">
                  <PlusCircle className="h-5 w-5 text-emerald-400" />
                  Ledger Entry
                </Button>
@@ -434,6 +486,79 @@ export default function MonthlyLedgerPage() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* --- EDIT DIALOG --- */}
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
+          <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2.5 rounded-xl bg-blue-500/20 text-blue-400">
+                <Pencil className="h-5 w-5" />
+              </div>
+              <DialogTitle className="text-xl font-black tracking-tight uppercase">Update Audit Record</DialogTitle>
+            </div>
+            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Adjust temporal fiscal parameters</DialogDescription>
+          </DialogHeader>
+          <div className="p-8 space-y-6">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Transaction Date</Label>
+                <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="h-14 rounded-2xl bg-neutral-50 border-none font-bold" />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Stream Type</Label>
+                <Select value={type} onValueChange={(v: any) => setType(v)}>
+                  <SelectTrigger className="h-14 rounded-2xl bg-neutral-50 border-none font-bold"><SelectValue /></SelectTrigger>
+                  <SelectContent className="rounded-2xl shadow-2xl border-none">
+                    <SelectItem value="income" className="font-bold">Inflow (+)</SelectItem>
+                    <SelectItem value="expense" className="font-bold">Outflow (-)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Origin / Entity</Label>
+              <Input 
+                value={source} 
+                onChange={(e) => setSource(e.target.value)} 
+                placeholder="e.g. Salary, HDFC Bank, Personal" 
+                className="h-14 rounded-2xl bg-neutral-50 border-none font-bold px-6"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Value Payload (₹)</Label>
+              <Input 
+                type="number" 
+                value={amount} 
+                onChange={(e) => setAmount(e.target.value)} 
+                placeholder="0.00"
+                className="h-16 rounded-2xl bg-neutral-50 border-none font-black text-2xl px-6 text-blue-600"
+              />
+            </div>
+
+            {type === 'expense' && (
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Fiscal Category</Label>
+                <Select value={category} onValueChange={(v: any) => setCategory(v)}>
+                  <SelectTrigger className="h-14 rounded-2xl bg-neutral-50 border-none font-bold"><SelectValue /></SelectTrigger>
+                  <SelectContent className="rounded-2xl shadow-2xl border-none">
+                    <SelectItem value="loan" className="font-bold">Institutional Loan</SelectItem>
+                    <SelectItem value="card" className="font-bold">Credit Card</SelectItem>
+                    <SelectItem value="private" className="font-bold">Unsecured Debt</SelectItem>
+                    <SelectItem value="household" className="font-bold">Household Spends</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            <Button onClick={handleUpdate} className="w-full h-16 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-[0.2em] shadow-2xl transition-all active:scale-95">
+              <Save className="mr-2 h-5 w-5" /> Save Ledger Changes
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
