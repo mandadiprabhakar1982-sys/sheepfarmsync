@@ -5,7 +5,7 @@ import { UserNav } from '@/components/user-nav';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/app-sidebar';
 import { useFarm } from '@/context/FarmContext';
-import { LayoutGrid, Globe, PanelLeft } from 'lucide-react';
+import { PanelLeft, Globe } from 'lucide-react';
 
 export default function DashboardLayout({
   children,
@@ -34,24 +34,28 @@ export default function DashboardLayout({
         <SidebarInset className="flex flex-col relative z-10 bg-transparent">
           <header className="top-header">
             <div className="flex items-center gap-6">
-              <PanelLeft className="h-5 w-5 text-white/40 cursor-pointer hover:text-white" />
-              <div className="h-4 w-px bg-white/10" />
-              <h2 className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/60 whitespace-nowrap">
+              <PanelLeft className="h-5 w-5 text-neutral-400 cursor-pointer hover:text-neutral-900" />
+              <h2 className="text-[11px] font-black uppercase tracking-[0.25em] text-neutral-900 whitespace-nowrap">
                 FARM MANAGEMENT SYSTEM
               </h2>
             </div>
             
             <div className="flex items-center gap-8">
-              <div className="flex items-center gap-2 text-white/40 hover:text-white transition-colors cursor-pointer">
+              <div className="flex items-center gap-2 text-neutral-400 hover:text-neutral-900 transition-colors cursor-pointer">
                 <Globe className="h-4 w-4" />
-                <span className="text-[10px] font-black uppercase tracking-widest">En</span>
               </div>
               <UserNav />
             </div>
           </header>
           
-          <main className="flex-1 overflow-y-auto no-scrollbar">
+          <main className="flex-1 overflow-y-auto no-scrollbar relative">
             {children}
+            {/* Decorative Hub Visual (Sparkle) */}
+            <div className="fixed bottom-12 right-12 opacity-40 pointer-events-none">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="white" />
+              </svg>
+            </div>
           </main>
         </SidebarInset>
       </div>

@@ -41,23 +41,23 @@ export function UserNav() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative flex items-center gap-4 h-12 px-0 hover:bg-transparent group">
           <div className="flex flex-col items-end text-right">
-            <span className="text-[12px] font-black tracking-tight text-white leading-none">
+            <span className="text-[12px] font-black tracking-tight text-neutral-900 leading-none">
               {user?.displayName || 'Prabhakar'}
             </span>
-            <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest mt-1">
+            <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mt-1">
               {profile?.role || 'ADMIN'}
             </span>
           </div>
           <div className="relative">
-            <Avatar className="h-10 w-10 border-2 border-white/10 shadow-xl">
+            <Avatar className="h-10 w-10 border-2 border-white shadow-xl">
               <AvatarImage src={userAvatar?.imageUrl} alt="User avatar" />
               <AvatarFallback className="bg-slate-700 text-white font-black">
                 {(user?.displayName?.[0] || 'P').toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 bg-[#4ADE80] border-2 border-[#1e293b] rounded-full" />
+            <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 bg-[#4ADE80] border-2 border-white rounded-full" />
           </div>
-          <ChevronDown className="h-3 w-3 text-white/20 group-hover:text-white transition-opacity" />
+          <ChevronDown className="h-3 w-3 text-neutral-300 group-hover:text-neutral-900 transition-opacity" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56 rounded-2xl shadow-2xl border-none p-2 mt-2" align="end" forceMount>

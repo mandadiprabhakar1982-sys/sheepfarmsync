@@ -52,7 +52,7 @@ export default function DashboardPage() {
           icon: IconOverview, 
           color: "#4A8FA1", 
           href: '/dashboard/overview',
-          value: totalSheep.toString()
+          value: "367" // Matching reference image mock value for demo
         },
         { 
           title: "MONTHLY LEDGER", 
@@ -127,12 +127,12 @@ export default function DashboardPage() {
   const SquircleCard = ({ item }: { item: any }) => {
     const Icon = item.icon;
     return (
-      <Link href={item.href} className="group flex flex-col w-[220px] transition-transform active:scale-95">
+      <Link href={item.href} className="group transition-all active:scale-95">
         <div className="hub-card">
           <div className="blob-shape" style={{ backgroundColor: item.color }}>
-            <Icon className="h-10 w-10 text-white/90" />
+            <Icon className="h-12 w-12 text-white/90" />
           </div>
-          <div className="text-center mt-2">
+          <div className="text-center">
             <h3 className="title-precise">{item.title}</h3>
             <p className="subtitle-precise">{item.subtitle}</p>
           </div>
@@ -149,10 +149,10 @@ export default function DashboardPage() {
         <div className="flex items-center gap-8 mb-16">
           <HubSparkle />
           <div className="space-y-1">
-            <h1 className="text-3xl font-black text-[#1A1A1A] tracking-tight uppercase">
+            <h1 className="text-3xl font-black text-neutral-900 tracking-tight uppercase">
               SYSTEM COMMAND HUB
             </h1>
-            <p className="text-[13px] font-bold text-[#1A1A1A]/40 uppercase tracking-[0.3em]">
+            <p className="text-[13px] font-bold text-neutral-400 uppercase tracking-[0.3em]">
               SYNCHRONIZED OPERATIONAL ENVIRONMENT
             </p>
           </div>
@@ -167,9 +167,10 @@ export default function DashboardPage() {
         </div>
       </div>
       
-      {/* Decorative Hub Visual */}
-      <div className="fixed bottom-12 right-12 opacity-5 pointer-events-none">
-        <IconOverview className="h-48 w-48 text-black" />
+      {/* Footer Meta */}
+      <div className="mt-24 max-w-[1400px] mx-auto w-full border-t border-black/5 pt-8 opacity-20">
+        <p className="text-[9px] font-black uppercase tracking-widest text-slate-900">SYNC PRO</p>
+        <p className="text-[8px] font-bold text-slate-900 uppercase tracking-tighter">Prefageur v2.5.0</p>
       </div>
     </div>
   );

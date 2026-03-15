@@ -68,21 +68,21 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="none" className="sidebar">
-      <SidebarHeader className="h-24 flex items-center px-8 mb-6">
+      <SidebarHeader className="h-24 flex items-center px-10 mb-6">
         <Logo />
       </SidebarHeader>
 
-      <SidebarContent className="px-4 no-scrollbar">
+      <SidebarContent className="px-6 no-scrollbar">
         {groups.map((group, gIdx) => {
           if (group.adminOnly && !isAdmin) return null;
 
           return (
             <SidebarGroup key={gIdx} className="mb-10">
-              <SidebarGroupLabel className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-500 mb-4 px-4">
+              <SidebarGroupLabel className="text-[10px] font-black uppercase tracking-[0.25em] text-neutral-900 mb-4 px-4 opacity-100">
                 {group.label}
               </SidebarGroupLabel>
               <SidebarGroupContent>
-                <SidebarMenu className="gap-1">
+                <SidebarMenu className="gap-1.5">
                   {group.links.map((link) => {
                     const isActive = pathname === link.href;
                     return (
@@ -93,8 +93,8 @@ export function AppSidebar() {
                           className={cn(
                             "h-11 px-4 rounded-xl transition-all duration-300",
                             isActive 
-                              ? "bg-[#334155] text-white shadow-xl translate-x-1" 
-                              : "text-slate-600 hover:bg-white/40"
+                              ? "bg-[#1e293b] text-white shadow-xl translate-x-1" 
+                              : "text-neutral-600 hover:bg-white/40"
                           )}
                         >
                           <Link href={link.href} className="flex items-center">
@@ -112,7 +112,7 @@ export function AppSidebar() {
         })}
       </SidebarContent>
 
-      <SidebarFooter className="p-8 border-t border-black/5">
+      <SidebarFooter className="p-10 border-t border-black/5">
         <div className="flex flex-col gap-1 opacity-20">
           <p className="text-[9px] font-black uppercase tracking-widest text-slate-900">SYNC PRO</p>
           <p className="text-[8px] font-bold text-slate-900 uppercase tracking-tighter">Prefageur v2.5.0</p>
