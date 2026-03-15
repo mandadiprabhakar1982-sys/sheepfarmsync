@@ -22,7 +22,8 @@ import {
   PlusCircle,
   ShieldCheck,
   Image as ImageIcon,
-  Save
+  Save,
+  Maximize2
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -82,6 +83,10 @@ export default function LivestockPage() {
   const [editingAsset, setEditingAsset] = useState<any>(null);
   const [isEditAssetOpen, setIsEditAssetOpen] = useState(false);
   
+  // Photo Zoom State
+  const [zoomedPhoto, setZoomedPhoto] = useState<string | null>(null);
+  const [zoomedAssetId, setZoomedAssetId] = useState<string | null>(null);
+
   // Camera & Photo State
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
@@ -457,9 +462,17 @@ export default function LivestockPage() {
                   <TableRow key={sheep.id} className="group hover:bg-slate-50 transition-colors border-b border-slate-100">
                     <TableCell className="py-6 pl-10">
                       <div className="flex items-center gap-6">
-                        <div className="h-16 w-16 rounded-full overflow-hidden bg-slate-100 border-2 border-slate-200 shrink-0">
+                        <div 
+                          className="h-16 w-16 rounded-full overflow-hidden bg-slate-100 border-2 border-slate-200 shrink-0 cursor-zoom-in group/img transition-transform active:scale-95"
+                          onClick={() => {
+                            if (sheep.photoDataUrl) {
+                              setZoomedPhoto(sheep.photoDataUrl);
+                              setZoomedAssetId(sheep.tagId);
+                            }
+                          }}
+                        >
                           {sheep.photoDataUrl ? (
-                            <img src={sheep.photoDataUrl} className="h-full w-full object-cover" alt="Sheep" />
+                            <img src={sheep.photoDataUrl} className="h-full w-full object-cover group-hover/img:scale-110 transition-transform duration-500" alt="Sheep" />
                           ) : (
                             <div className="h-full w-full flex items-center justify-center"><Camera className="h-6 w-6 text-slate-300" /></div>
                           )}
@@ -506,6 +519,51 @@ export default function LivestockPage() {
           </ScrollArea>
         </div>
       </div>
+
+      {/* --- PHOTO ZOOM DIALOG --- */}
+      <Dialog open={!!zoomedPhoto} onOpenChange={(open) => !open && setZoomedPhoto(null)}>
+        <DialogContent className="sm:max-w-3xl rounded-[3rem] p-0 overflow-hidden border-none shadow-2xl bg-neutral-900">
+          {zoomedPhoto && (
+            <div className="flex flex-col h-full relative">
+              <div className="absolute top-6 left-8 z-20">
+                <Badge className="bg-emerald-500 text-neutral-900 border-none px-4 py-1.5 font-black text-[10px] uppercase tracking-[0.2em] shadow-lg">
+                  Identity Zoom: {zoomedAssetId}
+                </Badge>
+              </div>
+              <div className="absolute top-6 right-8 z-20">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => setZoomedPhoto(null)}
+                  className="h-10 w-10 rounded-full bg-white/10 text-white hover:bg-white/20 backdrop-blur-md"
+                >
+                  <X className="h-5 w-5" />
+                </Button>
+              </div>
+              <div className="w-full aspect-square md:aspect-video relative overflow-hidden bg-black flex items-center justify-center">
+                <img 
+                  src={zoomedPhoto} 
+                  className="w-full h-full object-contain animate-in zoom-in-95 duration-500" 
+                  alt="Expanded sheep identity" 
+                />
+              </div>
+              <div className="p-10 bg-neutral-900 text-white border-t border-white/5">
+                <div className="flex justify-between items-center">
+                  <div className="space-y-1">
+                    <h3 className="text-2xl font-black tracking-tighter uppercase leading-none">{zoomedAssetId}</h3>
+                    <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Verified Digital Registry Asset</p>
+                  </div>
+                  <div className="flex gap-4">
+                    <div className="h-12 w-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+                      <ShieldCheck className="h-6 w-6" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={isEditAssetOpen} onOpenChange={setIsEditAssetOpen}>
         <DialogContent className="sm:max-w-md rounded-[32px] p-0 overflow-hidden border-slate-200 bg-white shadow-2xl">
