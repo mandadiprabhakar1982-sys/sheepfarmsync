@@ -21,7 +21,8 @@ import {
   X,
   PlusCircle,
   ShieldCheck,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Save
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -52,6 +53,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
 } from '@/components/ui/dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { PageHeader } from '@/components/page-header';
@@ -236,7 +238,7 @@ export default function LivestockPage() {
                 Add New Animal
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
+            <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
               <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400">
@@ -247,7 +249,7 @@ export default function LivestockPage() {
                 <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Enroll new livestock asset into digital flock</DialogDescription>
               </DialogHeader>
               
-              <div className="p-8">
+              <div className="p-8 max-h-[70vh] overflow-y-auto no-scrollbar">
                 <div className="mb-8 space-y-4">
                   <Label className="form-label-tactical text-slate-400">Identity Capture</Label>
                   <div className="relative group">
@@ -307,7 +309,7 @@ export default function LivestockPage() {
                               Open Camera
                             </Button>
                             <div className="relative">
-                              <Input 
+                              <input 
                                 type="file" 
                                 accept="image/*" 
                                 onChange={handleFileUpload}
@@ -520,7 +522,9 @@ export default function LivestockPage() {
               )} />
               <div className="flex gap-4 pt-4">
                 <Button type="button" variant="outline" onClick={() => setIsEditAssetOpen(false)} className="h-14 flex-1 rounded-2xl border-slate-200 font-black uppercase text-xs">Cancel</Button>
-                <Button type="submit" className="h-14 flex-1 rounded-2xl bg-emerald-600 text-white font-black uppercase text-xs shadow-xl">Update Ledger</Button>
+                <Button type="submit" className="h-14 flex-1 rounded-2xl bg-emerald-600 text-white font-black uppercase text-xs shadow-xl">
+                  <Save className="mr-2 h-4 w-4" /> Update Ledger
+                </Button>
               </div>
             </form>
           </Form>
