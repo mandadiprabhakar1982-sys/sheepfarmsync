@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useMemo } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -12,20 +12,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { LogOut, Settings, ChevronDown, User } from 'lucide-react';
+import { LogOut, Settings, ChevronDown } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useAuth, useUser, useFirestore, useDoc } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { doc } from 'firebase/firestore';
 import type { UserProfile } from '@/lib/types';
-import { useLanguage } from '@/context/LanguageContext';
 
 export function UserNav() {
   const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
   const auth = useAuth();
   const { user } = useUser();
   const firestore = useFirestore();
-  const { t } = useLanguage();
   
   const userDocRef = useMemo(() => {
     if (!user || !firestore) return null;
@@ -43,23 +41,23 @@ export function UserNav() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative flex items-center gap-4 h-12 px-0 hover:bg-transparent group">
           <div className="flex flex-col items-end text-right">
-            <span className="text-[12px] font-black tracking-tight text-[#1A1A1A] leading-none">
+            <span className="text-[12px] font-black tracking-tight text-white leading-none">
               {user?.displayName || 'Prabhakar'}
             </span>
-            <span className="text-[10px] font-bold text-[#1A1A1A]/40 uppercase tracking-widest mt-1">
+            <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest mt-1">
               {profile?.role || 'ADMIN'}
             </span>
           </div>
           <div className="relative">
-            <Avatar className="h-10 w-10 border-2 border-white shadow-xl">
+            <Avatar className="h-10 w-10 border-2 border-white/10 shadow-xl">
               <AvatarImage src={userAvatar?.imageUrl} alt="User avatar" />
-              <AvatarFallback className="bg-[#16242F] text-white font-black">
+              <AvatarFallback className="bg-slate-700 text-white font-black">
                 {(user?.displayName?.[0] || 'P').toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 bg-[#4ADE80] border-2 border-[#DDE2E5] rounded-full" />
+            <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 bg-[#4ADE80] border-2 border-[#1e293b] rounded-full" />
           </div>
-          <ChevronDown className="h-3 w-3 opacity-20 group-hover:opacity-100 transition-opacity" />
+          <ChevronDown className="h-3 w-3 text-white/20 group-hover:text-white transition-opacity" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56 rounded-2xl shadow-2xl border-none p-2 mt-2" align="end" forceMount>

@@ -5,9 +5,7 @@ import { UserNav } from '@/components/user-nav';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/app-sidebar';
 import { useFarm } from '@/context/FarmContext';
-import { useLanguage } from '@/context/LanguageContext';
-import { Logo } from '@/components/logo';
-import { LayoutGrid, Globe, User } from 'lucide-react';
+import { LayoutGrid, Globe, PanelLeft } from 'lucide-react';
 
 export default function DashboardLayout({
   children,
@@ -15,7 +13,6 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const { isLoadingProfile } = useFarm();
-  const { t } = useLanguage();
   const pathname = usePathname();
 
   if (isLoadingProfile) {
@@ -37,14 +34,15 @@ export default function DashboardLayout({
         <SidebarInset className="flex flex-col relative z-10 bg-transparent">
           <header className="top-header">
             <div className="flex items-center gap-6">
-              <LayoutGrid className="h-5 w-5 text-[#1A1A1A]/40" />
-              <h2 className="text-[13px] font-bold uppercase tracking-[0.2em] text-[#1A1A1A] whitespace-nowrap opacity-80">
+              <PanelLeft className="h-5 w-5 text-white/40 cursor-pointer hover:text-white" />
+              <div className="h-4 w-px bg-white/10" />
+              <h2 className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/60 whitespace-nowrap">
                 FARM MANAGEMENT SYSTEM
               </h2>
             </div>
             
             <div className="flex items-center gap-8">
-              <div className="flex items-center gap-2 opacity-40 hover:opacity-100 transition-opacity cursor-pointer">
+              <div className="flex items-center gap-2 text-white/40 hover:text-white transition-colors cursor-pointer">
                 <Globe className="h-4 w-4" />
                 <span className="text-[10px] font-black uppercase tracking-widest">En</span>
               </div>

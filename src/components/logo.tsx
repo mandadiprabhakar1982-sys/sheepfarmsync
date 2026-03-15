@@ -1,17 +1,12 @@
 import { cn } from '@/lib/utils';
-import { Sparkles, Atom, Lock, Share2, User, Landmark, TrendingUp, Skull, Wallet, Syringe, Wheat, ShoppingBag, Heart, Smartphone } from 'lucide-react';
-
-/**
- * HIGH-FIDELITY TACTICAL ICONOGRAPHY
- * Matches the System Command Hub visual assets exactly.
- */
+import { Sparkles, Atom, Lock, Share2, User, Landmark, TrendingUp, TrendingDown, Skull, Wallet, Syringe, Wheat, ShoppingBag, Heart, Shield, Banknote } from 'lucide-react';
 
 export const Logo = ({ className }: { className?: string }) => (
   <div className={cn('flex items-center gap-3 select-none group', className)}>
-    <div className="bg-[#16242F] p-2.5 rounded-2xl shadow-xl">
-      <Sparkles className="h-6 w-6 text-[#F8CF40]" />
+    <div className="bg-[#16242F] p-2 rounded-xl shadow-lg">
+      <Sparkles className="h-5 w-5 text-[#F8CF40]" />
     </div>
-    <h1 className="text-xl font-black leading-none uppercase tracking-tight text-[#16242F]">
+    <h1 className="text-lg font-black leading-none uppercase tracking-tight text-[#16242F]">
       SYNC <span className="opacity-40">PRO</span>
     </h1>
   </div>
@@ -20,40 +15,43 @@ export const Logo = ({ className }: { className?: string }) => (
 export const SyncProIcon = ({ className }: { className?: string }) => <Sparkles className={className} />;
 
 export const HubSparkle = ({ className }: { className?: string }) => (
-  <div className={cn("bg-[#16242F] p-5 rounded-[2rem] shadow-2xl", className)}>
-    <Sparkles className="h-8 w-8 text-white" />
+  <div className={cn("bg-[#1e293b] p-4 rounded-2xl shadow-2xl", className)}>
+    <Sparkles className="h-6 w-6 text-white" />
   </div>
 );
 
-export const IconOverview = ({ className }: { className?: string }) => <Atom className={className} strokeWidth={1.2} />;
-export const IconLedger = ({ className }: { className?: string }) => <Lock className={className} strokeWidth={1.2} />;
-export const IconLiabilities = ({ className }: { className?: string }) => <Share2 className={className} strokeWidth={1.2} />;
-export const IconFlock = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M12 2L12 22M12 2L19 6M12 2L5 6M19 6L19 18M5 6L5 18M19 18L12 22M5 18L12 22" />
-    <circle cx="12" cy="12" r="3" />
-  </svg>
-);
-export const IconTrade = ({ className }: { className?: string }) => (
+// High-Fidelity Tactical Icons for Overview
+export const IconInventory = ({ className }: { className?: string }) => (
   <div className="relative">
-    <Wallet className={className} strokeWidth={1.2} />
-    <TrendingUp className="absolute -top-1 -right-1 h-3 w-3 text-emerald-600" />
+    <Shield className={className} strokeWidth={1.5} />
+    <Sparkles className="absolute inset-0 m-auto h-3 w-3 text-white/50" />
   </div>
 );
-export const IconHealth = ({ className }: { className?: string }) => (
+
+export const IconMortality = ({ className }: { className?: string }) => <Skull className={className} strokeWidth={1.5} />;
+export const IconReceivables = ({ className }: { className?: string }) => <TrendingUp className={className} strokeWidth={1.5} />;
+export const IconPayables = ({ className }: { className?: string }) => <TrendingDown className={className} strokeWidth={1.5} />;
+export const IconDisbursed = ({ className }: { className?: string }) => (
+  <span className={cn("text-xl font-black", className)}>₹</span>
+);
+
+export const IconFeedSack = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M6 3h12l2 4v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7l2-4z" />
+    <path d="M12 12v4" />
+    <path d="M10 14h4" />
+    <circle cx="12" cy="14" r="3" />
+  </svg>
+);
+
+export const IconLaborUser = ({ className }: { className?: string }) => <User className={className} strokeWidth={1.5} />;
+export const IconMedicalPlus = ({ className }: { className?: string }) => (
   <div className="relative">
-    <Heart className={className} strokeWidth={1.2} />
+    <Heart className={className} strokeWidth={1.5} fill="currentColor" fillOpacity={0.2} />
     <Syringe className="absolute -bottom-1 -right-1 h-3 w-3" />
   </div>
 );
-export const IconFeed = ({ className }: { className?: string }) => <ShoppingBag className={className} strokeWidth={1.2} />;
-export const IconLabor = ({ className }: { className?: string }) => <User className={className} strokeWidth={1.2} />;
-export const IconExpenses = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <rect x="2" y="4" width="20" height="16" rx="2" />
-    <path d="M7 15h0M12 15h0M17 15h0M7 11h0M12 11h0M17 11h0M7 7h0M12 7h0M17 7h0" />
-  </svg>
-);
+export const IconMiscBills = ({ className }: { className?: string }) => <Banknote className={className} strokeWidth={1.5} />;
 
-export const SheepIcon = IconFlock;
-export const HighFidelityHealth = IconHealth;
+export const SheepIcon = IconInventory;
+export const HighFidelityHealth = IconMedicalPlus;
