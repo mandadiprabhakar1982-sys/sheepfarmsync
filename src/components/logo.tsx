@@ -55,4 +55,5 @@ export const IconExpenses = ({ className }: { className?: string }) => (
   </svg>
 );
 
-export const SheepIcon = IconFlock; // Backward compatibility
+export const SheepIcon = IconFlock;
+export const HighFidelityHealth = IconHealth;
