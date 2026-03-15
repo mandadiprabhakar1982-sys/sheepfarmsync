@@ -1,39 +1,40 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 217 91% 92%;    /* Soft Light Azure from image */
-    --foreground: 222 47% 11%;
+    --background: 84 30% 97%;    /* Warm misty cream from image */
+    --foreground: 84 47% 11%;
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 84 47% 11%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --primary: 217 91% 60%;      /* Elite Azure Blue */
+    --popover-foreground: 84 47% 11%;
+    --primary: 84 60% 35%;      /* Rich Telangana Green */
     --primary-foreground: 0 0% 100%;
-    --secondary: 217 91% 96%;
-    --secondary-foreground: 222 47% 11.2%;
-    --muted: 217 20% 90%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 217 91% 60%;
-    --accent-foreground: 222 47% 11.2%;
+    --secondary: 84 30% 92%;
+    --secondary-foreground: 84 47% 11.2%;
+    --muted: 84 20% 90%;
+    --muted-foreground: 84 16.3% 46.9%;
+    --accent: 38 92% 50%;       /* Sunset Gold */
+    --accent-foreground: 84 47% 11.2%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-    --border: 217 30% 85%;
-    --input: 217 30% 85%;
-    --ring: 217 91% 60%;
+    --border: 84 30% 85%;
+    --input: 84 30% 85%;
+    --ring: 84 60% 35%;
     --radius: 1.5rem;
 
-    /* Sidebar Variables synchronized with Light Azure reference image */
-    --sidebar-background: 217 91% 98%;
-    --sidebar-foreground: 222 47% 11%;
-    --sidebar-primary: 217 91% 60%;
+    /* Sidebar Variables synchronized with warm palette */
+    --sidebar-background: 84 30% 98%;
+    --sidebar-foreground: 84 47% 11%;
+    --sidebar-primary: 84 60% 35%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 217 91% 94%;
-    --sidebar-accent-foreground: 217 91% 40%;
-    --sidebar-border: 217 30% 90%;
-    --sidebar-ring: 217 91% 60%;
+    --sidebar-accent: 84 30% 94%;
+    --sidebar-accent-foreground: 84 60% 25%;
+    --sidebar-border: 84 30% 90%;
+    --sidebar-ring: 84 60% 35%;
   }
 }
 
@@ -47,7 +48,7 @@
 
 .top-header {
   height: 72px;
-  @apply bg-white/80 backdrop-blur-md border-b border-sidebar-border flex items-center justify-between px-10 z-50 shadow-sm;
+  @apply bg-white/60 backdrop-blur-md border-b border-sidebar-border flex items-center justify-between px-10 z-50 shadow-sm;
 }
 
 .sidebar {
@@ -56,7 +57,7 @@
 
 /* CLEAN MODERN SURFACES */
 .glass-card {
-  @apply bg-white border border-slate-200 shadow-xl overflow-hidden relative transition-all;
+  @apply bg-white/80 backdrop-blur-lg border border-white/40 shadow-xl overflow-hidden relative transition-all;
 }
 
 .glass-sheen {
@@ -90,6 +91,13 @@
 
 .subtitle {
   @apply text-[11px] font-black uppercase tracking-[0.3em] text-slate-400;
+}
+
+.dashboard-backdrop {
+  background-image: linear-gradient(to bottom, rgba(248, 250, 242, 0.8), rgba(248, 250, 242, 0.95)), url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1920');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
 }
 
 @layer utilities {

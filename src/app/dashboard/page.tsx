@@ -1,6 +1,7 @@
+
 'use client';
 
-import Link from 'next/link';
+import Link from 'next/navigation';
 import Image from 'next/image';
 import { useFarm } from '@/context/FarmContext';
 import { 
@@ -113,7 +114,7 @@ export default function DashboardPage() {
     
     return (
       <Link href={item.href} className="group transition-all active:scale-95">
-        <div className="w-full h-[280px] bg-white rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-6 shadow-[0_20px_50px_rgba(0,0,0,0.05)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.1)] transition-all hover:-translate-y-2 border border-white relative">
+        <div className="w-full h-[280px] bg-white/80 backdrop-blur-xl rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-6 shadow-[0_20px_50px_rgba(0,0,0,0.05)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.1)] transition-all hover:-translate-y-2 border border-white/40 relative">
           
           {/* Illustration Container */}
           <div className="relative w-32 h-32 mb-2 transition-transform group-hover:scale-110 duration-500">

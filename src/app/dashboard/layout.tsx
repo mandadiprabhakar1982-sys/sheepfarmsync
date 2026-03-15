@@ -1,3 +1,4 @@
+
 'use client';
 
 import { usePathname } from 'next/navigation';
@@ -28,7 +29,7 @@ export default function DashboardLayout({
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-background overflow-hidden font-sans">
+      <div className="flex min-h-screen w-full bg-background overflow-hidden font-sans dashboard-backdrop">
         <AppSidebar />
 
         <SidebarInset className="flex flex-col relative z-10 bg-transparent">
