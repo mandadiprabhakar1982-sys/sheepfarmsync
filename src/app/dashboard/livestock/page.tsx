@@ -23,7 +23,8 @@ import {
   ShieldCheck,
   Image as ImageIcon,
   Save,
-  Maximize2
+  Maximize2,
+  Loader2
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -33,6 +34,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useFarm } from '@/context/FarmContext';
+import { useStorage } from '@/firebase';
+import { uploadToStorage } from '@/lib/upload';
 import { cn } from '@/lib/utils';
 import {
   Table,
@@ -73,6 +76,7 @@ type AssetFormData = z.infer<typeof assetSchema>;
 
 export default function LivestockPage() {
   const { toast } = useToast();
+  const storage = useStorage();
   const { 
     trackedSheep, addTrackedSheep, updateTrackedSheep, deleteTrackedSheep,
     totalDailyFeed, totalTracked, totalSheep, isLoading
@@ -82,6 +86,7 @@ export default function LivestockPage() {
   const [isEntryDialogOpen, setIsEntryDialogOpen] = useState(false);
   const [editingAsset, setEditingAsset] = useState<any>(null);
   const [isEditAssetOpen, setIsEditAssetOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   
   // Photo Zoom State
   const [zoomedPhoto, setZoomedPhoto] = useState<string | null>(null);
@@ -180,13 +185,31 @@ export default function LivestockPage() {
     return trackedSheep.filter(s => s.tagId.toLowerCase().includes(term) || (s.breed || '').toLowerCase().includes(term));
   }, [trackedSheep, searchTerm]);
 
-  const onAssetSubmit: SubmitHandler<AssetFormData> = (data) => {
-    addTrackedSheep({ ...data, registrationDate: format(data.registrationDate, 'yyyy-MM-dd') });
-    assetForm.reset();
-    setCapturedPhoto(null);
-    stopCamera();
-    setIsEntryDialogOpen(false);
-    toast({ title: 'Record Saved', description: `Asset ${data.tagId} synchronized.` });
+  const onAssetSubmit: SubmitHandler<AssetFormData> = async (data) => {
+    setIsUploading(true);
+    try {
+      // Logic: Upload base64 to Storage and get URL
+      let finalUrl = data.photoDataUrl;
+      if (storage && data.photoDataUrl?.startsWith('data:')) {
+        finalUrl = await uploadToStorage(storage, data.photoDataUrl, 'sheep_profiles');
+      }
+
+      addTrackedSheep({ 
+        ...data, 
+        photoDataUrl: finalUrl,
+        registrationDate: format(data.registrationDate, 'yyyy-MM-dd') 
+      });
+      
+      assetForm.reset();
+      setCapturedPhoto(null);
+      stopCamera();
+      setIsEntryDialogOpen(false);
+      toast({ title: 'Record Saved', description: `Asset ${data.tagId} synchronized with cloud storage.` });
+    } catch (e) {
+      toast({ variant: 'destructive', title: 'Registration Failed', description: 'Could not sync asset visual data.' });
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const onEditAssetSubmit: SubmitHandler<AssetFormData> = (data) => {
@@ -375,8 +398,12 @@ export default function LivestockPage() {
                       </div>
                     </div>
 
-                    <Button type="submit" className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm uppercase tracking-[0.25em] transition-all active:scale-95 shadow-xl">
-                      Synchronize Record
+                    <Button type="submit" disabled={isUploading} className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm uppercase tracking-[0.25em] transition-all active:scale-95 shadow-xl">
+                      {isUploading ? (
+                        <><Loader2 className="mr-3 h-5 w-5 animate-spin" /> Persisting Asset...</>
+                      ) : (
+                        'Synchronize Record'
+                      )}
                     </Button>
                   </form>
                 </Form>

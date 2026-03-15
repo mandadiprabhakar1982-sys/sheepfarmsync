@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState, useMemo, useRef } from 'react';
@@ -25,7 +24,8 @@ import {
   Upload,
   ImageIcon,
   X,
-  Maximize2
+  Maximize2,
+  Loader2
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -64,6 +64,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useFarm } from '@/context/FarmContext';
+import { useStorage } from '@/firebase';
+import { uploadToStorage } from '@/lib/upload';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -102,6 +104,7 @@ type PurchaseFormData = z.infer<typeof purchaseFormSchema>;
 
 export default function TradeLedgerPage() {
   const { toast } = useToast();
+  const storage = useStorage();
   const { 
     sales, addSale, deleteSale, updateSale, postToMarketplace,
     purchases, addPurchase, deletePurchase, updatePurchase,
@@ -115,6 +118,7 @@ export default function TradeLedgerPage() {
   const [isEditPurchaseOpen, setIsEditPurchaseOpen] = useState(false);
   const [editingSale, setEditingSale] = useState<AnimalSale | null>(null);
   const [editingPurchase, setEditingPurchase] = useState<LivestockPurchase | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   // Photo Zoom State
   const [zoomedPhoto, setZoomedPhoto] = useState<string | null>(null);
@@ -190,27 +194,59 @@ export default function TradeLedgerPage() {
   }, [watchedPurchaseFields, purchaseForm]);
 
   // --- HANDLERS ---
-  const onSalesSubmit: SubmitHandler<SalesFormData> = (data) => {
-    const payload = { ...data, saleDate: format(data.saleDate, 'yyyy-MM-dd') };
-    addSale(payload);
-    if (data.isPublic) {
-      postToMarketplace({
-        saleDate: payload.saleDate, village: data.buyerVillage, animalCount: data.animalCount,
-        totalWeight: data.animalWeightKg, askingPrice: data.salePrice, notes: `Sold to ${data.buyerName}`
-      });
+  const onSalesSubmit: SubmitHandler<SalesFormData> = async (data) => {
+    setIsUploading(true);
+    try {
+      let finalUrl = data.imageUrl;
+      if (storage && data.imageUrl?.startsWith('data:')) {
+        finalUrl = await uploadToStorage(storage, data.imageUrl, 'disposals');
+      }
+
+      const payload = { 
+        ...data, 
+        imageUrl: finalUrl,
+        saleDate: format(data.saleDate, 'yyyy-MM-dd') 
+      };
+      addSale(payload);
+      if (data.isPublic) {
+        postToMarketplace({
+          saleDate: payload.saleDate, village: data.buyerVillage, animalCount: data.animalCount,
+          totalWeight: data.animalWeightKg, askingPrice: data.salePrice, notes: `Sold to ${data.buyerName}`
+        });
+      }
+      salesForm.reset();
+      setCapturedPhoto(null);
+      setIsDisposalOpen(false);
+      toast({ title: 'Sale Logged', description: 'Transaction recorded with visual asset.' });
+    } catch (e) {
+      toast({ variant: 'destructive', title: 'Sync Error', description: 'Failed to persist disposal visual.' });
+    } finally {
+      setIsUploading(false);
     }
-    salesForm.reset();
-    setCapturedPhoto(null);
-    setIsDisposalOpen(false);
-    toast({ title: 'Sale Logged', description: 'Transaction recorded.' });
   };
 
-  const onPurchaseSubmit: SubmitHandler<PurchaseFormData> = (data) => {
-    addPurchase({ ...data, purchaseDate: format(data.purchaseDate, 'yyyy-MM-dd') });
-    purchaseForm.reset();
-    setCapturedPhoto(null);
-    setIsAcquisitionOpen(false);
-    toast({ title: 'Purchase Logged', description: 'Acquisition recorded.' });
+  const onPurchaseSubmit: SubmitHandler<PurchaseFormData> = async (data) => {
+    setIsUploading(true);
+    try {
+      let finalUrl = data.imageUrl;
+      if (storage && data.imageUrl?.startsWith('data:')) {
+        finalUrl = await uploadToStorage(storage, data.imageUrl, 'acquisitions');
+      }
+
+      addPurchase({ 
+        ...data, 
+        imageUrl: finalUrl,
+        purchaseDate: format(data.purchaseDate, 'yyyy-MM-dd') 
+      });
+      purchaseForm.reset();
+      setCapturedPhoto(null);
+      setIsAcquisitionOpen(false);
+      toast({ title: 'Purchase Logged', description: 'Acquisition recorded with visual asset.' });
+    } catch (e) {
+      toast({ variant: 'destructive', title: 'Sync Error', description: 'Failed to persist acquisition visual.' });
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const onEditSaleSubmit: SubmitHandler<SalesFormData> = (data) => {
@@ -307,7 +343,9 @@ export default function TradeLedgerPage() {
                     <FormField control={salesForm.control} name="outstandingDuesFromBuyer" render={({ field }) => (<FormItem><Label className="form-label-tactical">Due (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-rose-50 border-rose-100 text-rose-600 font-black" {...field} readOnly /></FormControl></FormItem>)} />
                   </div>
                   <FormField control={salesForm.control} name="isPublic" render={({ field }) => (<FormItem className="flex items-center space-x-3 space-y-0 rounded-2xl border border-slate-100 p-4 bg-slate-50"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><div className="leading-none"><Label className="text-[10px] font-black uppercase tracking-wider flex items-center gap-2 text-slate-600">Post to Marketplace <Globe className="h-3 w-3 text-primary" /></Label></div></FormItem>)} />
-                  <Button type="submit" className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm uppercase tracking-[0.25em] transition-all active:scale-95 shadow-xl">Commit Sale</Button>
+                  <Button type="submit" disabled={isUploading} className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm uppercase tracking-[0.25em] transition-all active:scale-95 shadow-xl">
+                    {isUploading ? <><Loader2 className="mr-3 h-5 w-5 animate-spin" /> Persisting Trade Data...</> : 'Commit Sale'}
+                  </Button>
                 </form></Form>
               </div>
             </DialogContent>
@@ -357,7 +395,9 @@ export default function TradeLedgerPage() {
                     <FormField control={purchaseForm.control} name="amountPaid" render={({ field }) => (<FormItem><Label className="form-label-tactical">Paid (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>)} />
                     <FormField control={purchaseForm.control} name="dueAmount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Due (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-rose-50 border-rose-100 text-rose-600 font-black" {...field} readOnly /></FormControl></FormItem>)} />
                   </div>
-                  <Button type="submit" className="w-full h-16 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black text-sm uppercase tracking-[0.25em] transition-all active:scale-95 shadow-xl">Commit Acquisition</Button>
+                  <Button type="submit" disabled={isUploading} className="w-full h-16 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black text-sm uppercase tracking-[0.25em] transition-all active:scale-95 shadow-xl">
+                    {isUploading ? <><Loader2 className="mr-3 h-5 w-5 animate-spin" /> Persisting Trade Data...</> : 'Commit Acquisition'}
+                  </Button>
                 </form></Form>
               </div>
             </DialogContent>
@@ -396,7 +436,6 @@ export default function TradeLedgerPage() {
             )) || <TableRow><TableCell colSpan={5} className="text-center py-32 opacity-20 font-black uppercase text-xs">No trade records discovered</TableCell></TableRow>}
           </TableBody></Table></ScrollArea></Card>
         </TabsContent>
-        {/* Sales/Purchases tabs follow same pattern but filtered */}
       </Tabs>
 
       <Dialog open={!!zoomedPhoto} onOpenChange={(o) => !o && setZoomedPhoto(null)}>
@@ -408,7 +447,6 @@ export default function TradeLedgerPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Edit modals logic maintained as per previous implementation but updated with optional image fields if needed */}
       <canvas ref={canvasRef} className="hidden" />
     </div>
   );

@@ -4,11 +4,13 @@ import { firebaseConfig } from '@/firebase/config';
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth } from 'firebase/auth';
 import { getFirestore, Firestore, initializeFirestore } from 'firebase/firestore';
+import { getStorage, FirebaseStorage } from 'firebase/storage';
 
 // Global singletons to prevent multiple instances during hot reloads/SSR
 let firebaseApp: FirebaseApp | undefined;
 let firebaseAuth: Auth | undefined;
 let firestore: Firestore | undefined;
+let firebaseStorage: FirebaseStorage | undefined;
 
 /**
  * Initializes Firebase and returns the singleton SDK instances.
@@ -35,12 +37,17 @@ export function initializeFirebase() {
         useFetchStreams: false,
       });
     }
+
+    if (!firebaseStorage) {
+      firebaseStorage = getStorage(firebaseApp);
+    }
   }
 
   return {
     firebaseApp: firebaseApp || null,
     auth: firebaseAuth || null,
-    firestore: firestore || null
+    firestore: firestore || null,
+    storage: firebaseStorage || null
   };
 }
 
@@ -48,7 +55,8 @@ export function getSdks(app: FirebaseApp) {
   return {
     firebaseApp: app,
     auth: getAuth(app),
-    firestore: getFirestore(app)
+    firestore: getFirestore(app),
+    storage: getStorage(app)
   };
 }
 

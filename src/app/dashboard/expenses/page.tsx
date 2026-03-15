@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useForm, type SubmitHandler } from 'react-hook-form';
@@ -19,7 +18,8 @@ import {
   Upload,
   ImageIcon,
   X,
-  AlertCircle
+  AlertCircle,
+  Loader2
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useState, useEffect, useMemo, useRef } from 'react';
@@ -53,6 +53,8 @@ import {
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useFarm } from '@/context/FarmContext';
+import { useStorage } from '@/firebase';
+import { uploadToStorage } from '@/lib/upload';
 import { Textarea } from '@/components/ui/textarea';
 import type { FarmExpense } from '@/lib/types';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -72,12 +74,14 @@ type ExpenseFormData = z.infer<typeof formSchema>;
 
 export default function ExpensesPage() {
   const { toast } = useToast();
+  const storage = useStorage();
   const { farmExpenses, addFarmExpense, deleteFarmExpense, updateFarmExpense, totalFarmExpenses, isLoading } = useFarm();
   const [isEntryDialogOpen, setIsEntryDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<FarmExpense | null>(null);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
   
   // Photo Zoom State
   const [zoomedPhoto, setZoomedPhoto] = useState<string | null>(null);
@@ -157,13 +161,29 @@ export default function ExpensesPage() {
     setIsCameraActive(false);
   };
 
-  const onSubmit: SubmitHandler<ExpenseFormData> = (data) => {
-    const newExpense = { ...data, expenseDate: format(data.expenseDate, 'yyyy-MM-dd') };
-    addFarmExpense(newExpense);
-    form.reset();
-    setCapturedPhoto(null);
-    setIsEntryDialogOpen(false);
-    toast({ title: 'Success!', description: 'Expense recorded.' });
+  const onSubmit: SubmitHandler<ExpenseFormData> = async (data) => {
+    setIsUploading(true);
+    try {
+      let finalUrl = data.imageUrl;
+      if (storage && data.imageUrl?.startsWith('data:')) {
+        finalUrl = await uploadToStorage(storage, data.imageUrl, 'expense_receipts');
+      }
+
+      const newExpense = { 
+        ...data, 
+        imageUrl: finalUrl,
+        expenseDate: format(data.expenseDate, 'yyyy-MM-dd') 
+      };
+      addFarmExpense(newExpense);
+      form.reset();
+      setCapturedPhoto(null);
+      setIsEntryDialogOpen(false);
+      toast({ title: 'Success!', description: 'Expense and receipt visual persisted.' });
+    } catch (e) {
+      toast({ variant: 'destructive', title: 'Upload Error', description: 'Failed to persist receipt image.' });
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const onEditSubmit: SubmitHandler<ExpenseFormData> = (data) => {
@@ -292,7 +312,13 @@ export default function ExpensesPage() {
                         <FormItem><Label className="form-label-tactical text-slate-400">Total Impact (₹)</Label><FormControl><Input type="number" step="0.01" className="h-16 rounded-2xl bg-slate-900 border-none text-white font-black text-xl px-6" {...field} /></FormControl></FormItem>
                       )} />
                     </div>
-                    <Button type="submit" className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm uppercase tracking-[0.25em] transition-all active:scale-95 shadow-xl">Record Disbursement</Button>
+                    <Button type="submit" disabled={isUploading} className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm uppercase tracking-[0.25em] transition-all active:scale-95 shadow-xl">
+                      {isUploading ? (
+                        <><Loader2 className="mr-3 h-5 w-5 animate-spin" /> Persisting Visuals...</>
+                      ) : (
+                        'Record Disbursement'
+                      )}
+                    </Button>
                   </form>
                 </Form>
               </div>
