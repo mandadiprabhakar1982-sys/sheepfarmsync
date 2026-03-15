@@ -59,12 +59,14 @@ export default function MonthlyLedgerPage() {
   }, [monthlyIncomes, monthlyExpenses, selectedMonth, selectedYear]);
 
   const filteredIncomes = useMemo(() => combinedData.filter(i => i.type === 'income'), [combinedData]);
-  const filteredInstitutional = useMemo(() => combinedData.filter(e => e.type === 'expense' && (e.category === 'loan' || e.category === 'card')), [combinedData]);
+  const filteredInstitutional = useMemo(() => combinedData.filter(e => e.type === 'expense' && e.category === 'loan'), [combinedData]);
+  const filteredCards = useMemo(() => combinedData.filter(e => e.type === 'expense' && e.category === 'card'), [combinedData]);
   const filteredPrivate = useMemo(() => combinedData.filter(e => e.type === 'expense' && e.category === 'private'), [combinedData]);
   const filteredHousehold = useMemo(() => combinedData.filter(e => e.type === 'expense' && e.category === 'household'), [combinedData]);
 
   const totalInflow = useMemo(() => filteredIncomes.reduce((s, i) => s + Number(i.amount || 0), 0), [filteredIncomes]);
   const totalInstitutional = useMemo(() => filteredInstitutional.reduce((s, e) => s + Number(e.amount || 0), 0), [filteredInstitutional]);
+  const totalCards = useMemo(() => filteredCards.reduce((s, e) => s + Number(e.amount || 0), 0), [filteredCards]);
   const totalPrivate = useMemo(() => filteredPrivate.reduce((s, e) => s + Number(e.amount || 0), 0), [filteredPrivate]);
   const totalHousehold = useMemo(() => filteredHousehold.reduce((s, e) => s + Number(e.amount || 0), 0), [filteredHousehold]);
 
@@ -99,7 +101,12 @@ export default function MonthlyLedgerPage() {
             data.map(item => (
               <TableRow key={item.id} className="group hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-0">
                 <TableCell className="pl-10 py-10">
-                  <span className="text-sm font-black text-slate-300 tracking-tight leading-none whitespace-nowrap">{item.date}</span>
+                  <span className="text-sm font-black text-slate-300 tracking-tight leading-none whitespace-nowrap block">
+                    {item.date.split('-').slice(0, 2).join('-')}
+                  </span>
+                  <span className="text-sm font-black text-slate-300 tracking-tight leading-none whitespace-nowrap block mt-1">
+                    {item.date.split('-')[2]}
+                  </span>
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-col gap-1.5">
@@ -177,6 +184,7 @@ export default function MonthlyLedgerPage() {
             <TabsList className="mb-8 p-1 bg-white rounded-2xl flex flex-wrap justify-start items-center h-auto w-full shadow-md border border-slate-100 gap-1">
               <TabsTrigger value="income" className="rounded-xl font-black text-[9px] tracking-widest uppercase data-[state=active]:bg-emerald-600 data-[state=active]:text-white">Inflow</TabsTrigger>
               <TabsTrigger value="institutional" className="rounded-xl font-black text-[9px] tracking-widest uppercase data-[state=active]:bg-primary data-[state=active]:text-white">Institutional</TabsTrigger>
+              <TabsTrigger value="cards" className="rounded-xl font-black text-[9px] tracking-widest uppercase data-[state=active]:bg-[#ea580c] data-[state=active]:text-white">Credit Line</TabsTrigger>
               <TabsTrigger value="private" className="rounded-xl font-black text-[9px] tracking-widest uppercase data-[state=active]:bg-slate-700 data-[state=active]:text-white">Private Debt</TabsTrigger>
               <TabsTrigger value="household" className="rounded-xl font-black text-[9px] tracking-widest uppercase data-[state=active]:bg-rose-600 data-[state=active]:text-white">Household</TabsTrigger>
             </TabsList>
@@ -214,6 +222,24 @@ export default function MonthlyLedgerPage() {
                   </div>
                 </CardHeader>
                 <LedgerTable data={filteredInstitutional} emptyMsg="No institutional records discovered" badgeClass="bg-blue-50 text-primary" />
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="cards" className="m-0">
+              <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
+                <CardHeader className="bg-[#ea580c] text-white p-10 py-12">
+                  <div className="flex justify-between items-center">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-3">
+                        <CreditCard className="h-6 w-6" />
+                        <CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Revolving Lines</CardTitle>
+                      </div>
+                      <CardDescription className="text-orange-100/60 text-xs font-black uppercase tracking-[0.2em]">Temporal Stream Audit</CardDescription>
+                    </div>
+                    <p className="text-4xl font-black tracking-tighter">₹{totalCards.toLocaleString()}</p>
+                  </div>
+                </CardHeader>
+                <LedgerTable data={filteredCards} emptyMsg="No card transactions discovered" badgeLabel="CARD" badgeClass="bg-pink-50 text-pink-600" />
               </Card>
             </TabsContent>
 
