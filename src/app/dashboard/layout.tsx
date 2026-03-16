@@ -29,22 +29,22 @@ export default function DashboardLayout({
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-background overflow-hidden font-sans dashboard-backdrop pb-20 md:pb-0">
+      <div className="app-container dashboard-backdrop">
         <AppSidebar />
 
-        <SidebarInset className="flex flex-col relative z-10 bg-transparent">
+        <SidebarInset className="flex flex-col h-full bg-transparent overflow-hidden">
           <header className="top-header">
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-4 md:gap-6">
               <div className="flex items-center gap-2 text-slate-400">
                 <PanelLeft className="h-4 w-4 cursor-pointer hover:text-slate-900 transition-colors hidden md:block" />
                 <MoreVertical className="h-4 w-4 opacity-20 hidden md:block" />
               </div>
-              <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-500 whitespace-nowrap">
+              <h2 className="text-[9px] md:text-[11px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] text-slate-500 whitespace-nowrap">
                 FARM MANAGEMENT SYSTEM
               </h2>
             </div>
             
-            <div className="flex items-center gap-4 md:gap-8">
+            <div className="flex items-center gap-2 md:gap-8">
               <div className="hidden sm:flex items-center gap-2 text-slate-400 hover:text-primary transition-colors cursor-pointer">
                 <Globe className="h-4 w-4" />
                 <span className="text-[10px] font-black uppercase tracking-widest">EN</span>
@@ -53,7 +53,7 @@ export default function DashboardLayout({
             </div>
           </header>
           
-          <main className="flex-1 overflow-y-auto no-scrollbar relative p-6 md:p-12">
+          <main className="scroll-content p-4 md:p-12 pb-24 md:pb-12">
             {children}
           </main>
         </SidebarInset>

@@ -28,9 +28,9 @@ export function MobileNav() {
   ];
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white/80 backdrop-blur-2xl border-t border-slate-200 px-4 shadow-[0_-4px_20px_rgba(0,0,0,0.03)]">
-      {/* Safe Area Inset Spacer for notched phones */}
-      <div className="flex items-center justify-between h-16 max-w-md mx-auto pb-safe">
+    <div className="md:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white/90 backdrop-blur-2xl border-t border-slate-200 shadow-[0_-4px_24px_rgba(0,0,0,0.06)] px-2">
+      {/* Container for links with safe area handling */}
+      <div className="flex items-center justify-between h-16 max-w-lg mx-auto">
         {links.map((link) => {
           const isActive = pathname === link.href;
           return (
@@ -38,23 +38,38 @@ export function MobileNav() {
               key={link.href} 
               href={link.href}
               className={cn(
-                "flex flex-col items-center justify-center flex-1 gap-1 transition-all active:scale-90",
+                "flex flex-col items-center justify-center flex-1 gap-1 transition-all active:scale-90 h-full",
                 isActive ? "text-primary" : "text-slate-400"
               )}
             >
-              <link.icon className={cn("h-5 w-5", isActive ? "stroke-[2.5px]" : "stroke-2")} />
-              <span className="text-[9px] font-black uppercase tracking-tighter leading-none">{link.label}</span>
+              <div className={cn(
+                "p-1 rounded-xl transition-colors",
+                isActive ? "bg-primary/5" : "bg-transparent"
+              )}>
+                <link.icon className={cn("h-5 w-5", isActive ? "stroke-[2.5px]" : "stroke-2")} />
+              </div>
+              <span className={cn(
+                "text-[9px] font-black uppercase tracking-tight leading-none",
+                isActive ? "opacity-100" : "opacity-60"
+              )}>
+                {link.label}
+              </span>
             </Link>
           );
         })}
         
         {/* Toggle full sidebar menu */}
         <button 
-          onClick={toggleSidebar}
-          className="flex flex-col items-center justify-center flex-1 gap-1 text-slate-400 active:scale-90"
+          onClick={(e) => {
+            e.preventDefault();
+            toggleSidebar();
+          }}
+          className="flex flex-col items-center justify-center flex-1 gap-1 text-slate-400 active:scale-90 h-full"
         >
-          <Menu className="h-5 w-5" />
-          <span className="text-[9px] font-black uppercase tracking-tighter leading-none">More</span>
+          <div className="p-1 rounded-xl bg-transparent">
+            <Menu className="h-5 w-5" />
+          </div>
+          <span className="text-[9px] font-black uppercase tracking-tight leading-none opacity-60">More</span>
         </button>
       </div>
       

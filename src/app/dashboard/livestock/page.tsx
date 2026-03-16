@@ -61,6 +61,7 @@ import {
 import { PageHeader } from '@/components/page-header';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const assetSchema = z.object({
   tagId: z.string().min(1, 'Tag ID is required'),
@@ -222,7 +223,7 @@ export default function LivestockPage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-[calc(100vh-120px)] w-full items-center justify-center">
+      <div className="flex h-full w-full items-center justify-center">
         <div className="flex flex-col items-center gap-6">
           <div className="w-12 h-12 border-4 border-slate-100 rounded-full border-t-emerald-500 animate-spin" />
           <p className="text-[12px] font-black text-slate-400 uppercase tracking-[0.3em]">SYNCHRONIZING REGISTRY...</p>
@@ -232,8 +233,8 @@ export default function LivestockPage() {
   }
 
   return (
-    <div className="animate-in fade-in duration-700 max-w-7xl mx-auto py-8 px-4 md:px-10">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+    <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 shrink-0">
         <PageHeader title="Livestock Hub" description="PRECISION ASSET REGISTRY" className="mb-0" />
         
         <div className="flex items-center gap-4">
@@ -269,118 +270,116 @@ export default function LivestockPage() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <div className="px-6 py-3 bg-neutral-900 rounded-2xl text-white flex items-center gap-4 shadow-xl">
+          <div className="hidden sm:flex px-6 py-3 bg-neutral-900 rounded-2xl text-white items-center gap-4 shadow-xl">
             <ShieldCheck className="h-5 w-5 text-emerald-400" />
             <div><p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Net Flock</p><p className="text-xl font-black tracking-tight">{totalSheep}</p></div>
           </div>
         </div>
       </div>
 
-      <div className="space-y-8">
-        <div className="flex flex-col lg:flex-row gap-6">
-          <div className="relative flex-1">
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
-            <Input placeholder="Search Tag ID..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="h-16 pl-16 rounded-full bg-white border-none text-slate-900 font-bold shadow-sm" />
-          </div>
-          
-          <div className="flex gap-2 bg-white/50 backdrop-blur-sm p-2 rounded-2xl border border-white/60 shadow-sm">
-            {['all', 'male', 'female'].map((g) => (
-              <Button key={g} variant="ghost" onClick={() => setGenderFilter(g as any)} className={cn("h-12 px-6 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all", genderFilter === g ? "bg-white shadow-md text-emerald-600" : "text-slate-400")}>{g}</Button>
-            ))}
-          </div>
+      <div className="flex flex-col lg:flex-row gap-4 mb-6 shrink-0">
+        <div className="relative flex-1">
+          <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
+          <Input placeholder="Search Tag ID..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="h-14 pl-16 rounded-full bg-white border-none text-slate-900 font-bold shadow-sm" />
         </div>
-
-        <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
-          <CardHeader className="bg-emerald-600 text-white p-10 py-12">
-            <div className="flex justify-between items-end">
-              <div className="space-y-1">
-                <div className="flex items-center gap-3"><LayoutGrid className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Livestock Registry</CardTitle></div>
-                <CardDescription className="text-emerald-100/60 text-xs font-black uppercase tracking-[0.2em]">Verified Individual Records</CardDescription>
-              </div>
-              <p className="text-4xl font-black tracking-tighter">{filteredAssets.length} ASSETS</p>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0 overflow-x-auto">
-            <Table>
-              <TableHeader className="bg-slate-50/50">
-                <TableRow className="hover:bg-transparent border-none">
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-slate-400">Asset ID</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-slate-400">Attributes</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-slate-400">Weight</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-slate-400">Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredAssets.length > 0 ? filteredAssets.map((sheep) => (
-                  <TableRow key={sheep.id} className="hover:bg-slate-50/50 border-b border-slate-100 transition-colors group">
-                    <TableCell className="pl-10 py-10">
-                      <div className="flex items-center gap-6">
-                        <div 
-                          className="h-20 w-20 rounded-2xl overflow-hidden bg-slate-100 border border-slate-100 cursor-zoom-in active:scale-95 transition-transform shrink-0 relative"
-                          onClick={() => { setZoomedAsset(sheep); }}
-                        >
-                          {sheep.imageUrl ? (
-                            <Image 
-                              src={sheep.imageUrl} 
-                              alt={`Sheep ${sheep.tagId}`}
-                              fill
-                              className="object-cover"
-                              sizes="80px"
-                            />
-                          ) : (
-                            <div className="h-full w-full flex items-center justify-center bg-slate-50 text-slate-300">
-                              <ImageIcon className="h-8 w-8" />
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex flex-col gap-1">
-                          <span className="text-2xl font-black text-slate-900 tracking-tight leading-none">{sheep.tagId}</span>
-                          <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">{sheep.breed || 'STANDARD'}</span>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-col gap-1">
-                        <span className="text-sm font-black text-slate-900 uppercase">{sheep.gender || 'FEMALE'}</span>
-                        <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">{sheep.age} MONTHS</span>
-                        <div className="flex items-center gap-1.5 mt-1 text-[9px] font-bold text-emerald-600 uppercase tracking-tight">
-                          <CalendarDays className="h-2.5 w-2.5" />
-                          Reg: {sheep.registrationDate || 'N/A'}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-xl font-black text-slate-900 tracking-tight">{sheep.currentWeight} kg</span>
-                    </TableCell>
-                    <TableCell className="text-right pr-10">
-                      <div className="flex items-center justify-end gap-2">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-12 w-12 rounded-full bg-slate-50 text-slate-400 hover:bg-emerald-50 hover:text-emerald-600 transition-all shadow-sm"
-                          onClick={() => handleEditClick(sheep)}
-                        >
-                          <Pencil className="h-5 w-5" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-12 w-12 rounded-full bg-slate-50 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-all opacity-0 group-hover:opacity-100"
-                          onClick={() => deleteTrackedSheep(sheep.id, sheep._path)}
-                        >
-                          <Trash2 className="h-5 w-5" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                )) : (
-                  <TableRow><TableCell colSpan={4} className="text-center py-32 opacity-20 font-black uppercase text-xs tracking-widest">No assets match your filter</TableCell></TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+        
+        <div className="flex gap-1 bg-white/50 backdrop-blur-sm p-1.5 rounded-2xl border border-white/60 shadow-sm w-fit">
+          {['all', 'male', 'female'].map((g) => (
+            <Button key={g} variant="ghost" size="sm" onClick={() => setGenderFilter(g as any)} className={cn("h-10 px-4 rounded-xl font-black text-[9px] uppercase tracking-widest transition-all", genderFilter === g ? "bg-white shadow-md text-emerald-600" : "text-slate-400")}>{g}</Button>
+          ))}
+        </div>
       </div>
+
+      <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white flex-1 min-h-0 flex flex-col">
+        <CardHeader className="bg-emerald-600 text-white p-6 md:p-10 shrink-0">
+          <div className="flex justify-between items-end">
+            <div className="space-y-1">
+              <div className="flex items-center gap-3"><LayoutGrid className="h-6 w-6" /><CardTitle className="text-xl md:text-2xl font-black tracking-tight leading-none uppercase">Livestock Registry</CardTitle></div>
+              <CardDescription className="text-emerald-100/60 text-[10px] font-black uppercase tracking-[0.2em]">Verified Individual Records</CardDescription>
+            </div>
+            <p className="text-2xl md:text-4xl font-black tracking-tighter">{filteredAssets.length} ASSETS</p>
+          </div>
+        </CardHeader>
+        <ScrollArea className="flex-1">
+          <Table>
+            <TableHeader className="bg-slate-50/50 sticky top-0 z-10 backdrop-blur">
+              <TableRow className="hover:bg-transparent border-none">
+                <TableHead className="text-[9px] md:text-[10px] font-black uppercase tracking-widest py-6 md:py-8 pl-6 md:pl-10 text-slate-400">Asset ID</TableHead>
+                <TableHead className="text-[9px] md:text-[10px] font-black uppercase tracking-widest py-6 md:py-8 text-slate-400">Attributes</TableHead>
+                <TableHead className="text-[9px] md:text-[10px] font-black uppercase tracking-widest py-6 md:py-8 text-slate-400">Weight</TableHead>
+                <TableHead className="text-[9px] md:text-[10px] font-black uppercase tracking-widest py-6 md:py-8 text-right pr-6 md:pr-10 text-slate-400">Action</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredAssets.length > 0 ? filteredAssets.map((sheep) => (
+                <TableRow key={sheep.id} className="hover:bg-slate-50/50 border-b border-slate-100 transition-colors group">
+                  <TableCell className="pl-6 md:pl-10 py-6 md:py-10">
+                    <div className="flex items-center gap-4 md:gap-6">
+                      <div 
+                        className="h-12 w-12 md:h-20 md:w-20 rounded-xl md:rounded-2xl overflow-hidden bg-slate-100 border border-slate-100 cursor-zoom-in active:scale-95 transition-transform shrink-0 relative"
+                        onClick={() => { setZoomedAsset(sheep); }}
+                      >
+                        {sheep.imageUrl ? (
+                          <Image 
+                            src={sheep.imageUrl} 
+                            alt={`Sheep ${sheep.tagId}`}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 768px) 48px, 80px"
+                          />
+                        ) : (
+                          <div className="h-full w-full flex items-center justify-center bg-slate-50 text-slate-300">
+                            <ImageIcon className="h-5 w-5 md:h-8 md:w-8" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex flex-col gap-0.5 md:gap-1">
+                        <span className="text-sm md:text-2xl font-black text-slate-900 tracking-tight leading-none">{sheep.tagId}</span>
+                        <span className="text-[8px] md:text-[10px] font-black text-slate-300 uppercase tracking-widest">{sheep.breed || 'STANDARD'}</span>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-col gap-0.5 md:gap-1">
+                      <span className="text-[10px] md:text-sm font-black text-slate-900 uppercase">{sheep.gender || 'FEMALE'}</span>
+                      <span className="text-[8px] md:text-[10px] font-black text-slate-300 uppercase tracking-widest">{sheep.age} MOS</span>
+                      <div className="hidden md:flex items-center gap-1.5 mt-1 text-[9px] font-bold text-emerald-600 uppercase tracking-tight">
+                        <CalendarDays className="h-2.5 w-2.5" />
+                        Reg: {sheep.registrationDate || 'N/A'}
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-xs md:text-xl font-black text-slate-900 tracking-tight">{sheep.currentWeight} kg</span>
+                  </TableCell>
+                  <TableCell className="text-right pr-6 md:pr-10">
+                    <div className="flex items-center justify-end gap-1 md:gap-2">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-8 w-8 md:h-12 md:w-12 rounded-full bg-slate-50 text-slate-400 hover:bg-emerald-50 hover:text-emerald-600 transition-all shadow-sm"
+                        onClick={() => handleEditClick(sheep)}
+                      >
+                        <Pencil className="h-3.5 w-3.5 md:h-5 md:w-5" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-8 w-8 md:h-12 md:w-12 rounded-full bg-slate-50 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-all opacity-0 md:group-hover:opacity-100"
+                        onClick={() => deleteTrackedSheep(sheep.id, sheep._path)}
+                      >
+                        <Trash2 className="h-3.5 w-3.5 md:h-5 md:w-5" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )) : (
+                <TableRow><TableCell colSpan={4} className="text-center py-32 opacity-20 font-black uppercase text-xs tracking-widest">No assets match your filter</TableCell></TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </ScrollArea>
+      </Card>
 
       <Dialog open={!!zoomedAsset} onOpenChange={(o) => !o && setZoomedAsset(null)}>
         <DialogContent className="sm:max-w-3xl rounded-[3rem] p-0 overflow-hidden border-none shadow-2xl bg-neutral-50">
