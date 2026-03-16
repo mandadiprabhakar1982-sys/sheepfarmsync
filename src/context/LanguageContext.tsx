@@ -54,7 +54,7 @@ const translations = {
     nutrition_engine: "Nutrition Engine",
     community_market: "Community Market",
     liability_portfolio: "Debt & Loan Portfolio",
-    monthly_balance: "Finance Ledger",
+    monthly_balance: "Personal Finance",
     dashboard_hero: "Sync Pro",
     dashboard_desc: "Precision Management Suite",
     
@@ -114,7 +114,7 @@ const translations = {
     nutrition_engine: "పోషకాహార ఇంజిన్",
     community_market: "కమ్యూనిటీ మార్కెట్",
     liability_portfolio: "అప్పుల పోర్ట్‌ఫోలియో",
-    monthly_balance: "ఫైనాన్స్ లెడ్జర్",
+    monthly_balance: "పర్సనల్ ఫైనాన్స్",
     dashboard_hero: "షీప్ సింక్ ప్రో",
     dashboard_desc: "నిర్వహణ సాఫ్ట్‌వేర్",
 

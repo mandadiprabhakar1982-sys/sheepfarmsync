@@ -42,10 +42,10 @@ import {
 import { Label } from '@/components/ui/label';
 
 /**
- * @fileOverview Unified Finance Ledger (Standard Indian English)
+ * @fileOverview Personal Finance Ledger (Standard Indian English)
  * Tactical tabs for Income, Bank EMI, Credit Card, Personal Spend, and Household.
  */
-export default function FinancialLedgerPage() {
+export default function PersonalFinancePage() {
   const { 
     sales, purchases, feedCosts, laborCosts, medicineExpenses, 
     healthTasks, farmExpenses, monthlyIncomes, monthlyExpenses,
@@ -126,21 +126,21 @@ export default function FinancialLedgerPage() {
   const handleAddIncome = () => {
     if (!source || !amount) return;
     addMonthlyIncome({ date: entryDate, source, amount: parseFloat(amount) });
-    toast({ title: 'Income Recorded', description: 'Synchronized with Finance Ledger.' });
+    toast({ title: 'Income Recorded', description: 'Synchronized with Personal Finance.' });
     setIsIncomeDialogOpen(false); setSource(''); setAmount('');
   };
 
   const handleAddExpense = () => {
     if (!source || !amount) return;
     addMonthlyExpense({ date: entryDate, source, amount: parseFloat(amount), category });
-    toast({ title: 'Expense Logged', description: 'Disbursement audit updated.' });
+    toast({ title: 'Expense Logged', description: 'Personal disbursement audit updated.' });
     setIsExpenseDialogOpen(false); setSource(''); setAmount('');
   };
 
   const formatGroupDate = (dateStr: string) => {
     const d = parseISO(dateStr);
-    if (isToday(d)) return `TODAY - ${dateStr}`;
-    if (isYesterday(d)) return `YESTERDAY - ${dateStr}`;
+    if (isToday(d)) return `Today - ${dateStr}`;
+    if (isYesterday(d)) return `Yesterday - ${dateStr}`;
     return dateStr;
   };
 
@@ -165,7 +165,7 @@ export default function FinancialLedgerPage() {
     <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col relative bg-white md:bg-transparent">
       {/* MOBILE HEADER */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-[110] bg-[#059669] text-white px-6 py-5 flex items-center justify-between shadow-lg">
-        <h2 className="text-xl font-black tracking-tight uppercase">Finance Ledger</h2>
+        <h2 className="text-xl font-black tracking-tight">Personal Finance</h2>
         <div className="text-right">
           <p className="text-[8px] font-black uppercase opacity-60 leading-none mb-1">Period Balance</p>
           <p className="text-xl font-black">₹{netCashFlow.toLocaleString()}</p>
@@ -175,7 +175,7 @@ export default function FinancialLedgerPage() {
       <div className="md:hidden h-16 shrink-0" />
 
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-6 md:mb-8 shrink-0 px-4 md:px-0 mt-4 md:mt-0">
-        <PageHeader title="Finance Ledger" description="UNIFIED PRIVATE & BUSINESS ACCOUNTS" className="mb-0 hidden md:block" />
+        <PageHeader title="Personal Finance" description="Unified private & business accounts" className="mb-0 hidden md:block" />
 
         <div className="flex items-center gap-2 md:gap-4 overflow-x-auto pb-2 md:pb-0 no-scrollbar md:w-auto w-full">
           <Button onClick={() => setIsIncomeDialogOpen(true)} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-xl border-none shrink-0">
@@ -200,22 +200,22 @@ export default function FinancialLedgerPage() {
         <div className="flex flex-col md:flex-row gap-4 items-center">
           <div className="relative flex-1 w-full">
             <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
-            <Input placeholder="Search Finance Records..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="h-12 md:h-14 pl-12 pr-12 rounded-2xl md:rounded-full bg-white border-none font-bold shadow-sm" />
+            <Input placeholder="Search finance records..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="h-12 md:h-14 pl-12 pr-12 rounded-2xl md:rounded-full bg-white border-none font-bold shadow-sm" />
           </div>
           
           <div className="flex gap-2 shrink-0 overflow-x-auto no-scrollbar pb-2 md:pb-0 w-full md:w-auto">
             <Select value={selectedMonth} onValueChange={setSelectedMonth}><SelectTrigger className="h-12 md:h-14 w-[120px] rounded-2xl bg-white border-none font-bold shadow-sm"><SelectValue placeholder="Month" /></SelectTrigger><SelectContent>{Array.from({ length: 12 }, (_, i) => { const m = (i + 1).toString().padStart(2, '0'); return <SelectItem key={m} value={m}>{format(new Date(2024, i), 'MMMM')}</SelectItem> })}</SelectContent></Select>
-            <Select value={selectedYear} onValueChange={setSelectedYear}><SelectTrigger className="h-12 md:h-14 w-[120px] rounded-2xl bg-white border-none font-bold shadow-sm"><SelectValue placeholder="Year" /></SelectTrigger><SelectContent><SelectItem value="ALL">ALL TIME</SelectItem>{['2023', '2024', '2025'].map(y => <SelectItem key={y} value={y}>{y}</SelectItem>)}</SelectContent></Select>
+            <Select value={selectedYear} onValueChange={setSelectedYear}><SelectTrigger className="h-12 md:h-14 w-[120px] rounded-2xl bg-white border-none font-bold shadow-sm"><SelectValue placeholder="Year" /></SelectTrigger><SelectContent><SelectItem value="ALL">All Time</SelectItem>{['2023', '2024', '2025'].map(y => <SelectItem key={y} value={y}>{y}</SelectItem>)}</SelectContent></Select>
           </div>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full flex-1 flex flex-col min-h-0">
           <TabsList className="w-full h-14 md:h-16 bg-[#e7eddc] rounded-2xl p-1.5 flex justify-start md:justify-center overflow-x-auto no-scrollbar shadow-inner mb-8">
-            <TabsTrigger value="income" className="tab-trigger-tactical"><ArrowUpCircle className="h-3.5 w-3.5 mr-2" /> INCOME</TabsTrigger>
-            <TabsTrigger value="bank_emi" className="tab-trigger-tactical"><Landmark className="h-3.5 w-3.5 mr-2" /> BANK EMI</TabsTrigger>
-            <TabsTrigger value="card" className="tab-trigger-tactical"><CreditCard className="h-3.5 w-3.5 mr-2" /> CARD</TabsTrigger>
-            <TabsTrigger value="personal" className="tab-trigger-tactical"><User className="h-3.5 w-3.5 mr-2" /> PERSONAL</TabsTrigger>
-            <TabsTrigger value="household" className="tab-trigger-tactical"><Home className="h-3.5 w-3.5 mr-2" /> HOUSEHOLD</TabsTrigger>
+            <TabsTrigger value="income" className="tab-trigger-tactical"><ArrowUpCircle className="h-3.5 w-3.5 mr-2" /> Income</TabsTrigger>
+            <TabsTrigger value="bank_emi" className="tab-trigger-tactical"><Landmark className="h-3.5 w-3.5 mr-2" /> Bank EMI</TabsTrigger>
+            <TabsTrigger value="card" className="tab-trigger-tactical"><CreditCard className="h-3.5 w-3.5 mr-2" /> Card</TabsTrigger>
+            <TabsTrigger value="personal" className="tab-trigger-tactical"><User className="h-3.5 w-3.5 mr-2" /> Personal</TabsTrigger>
+            <TabsTrigger value="household" className="tab-trigger-tactical"><Home className="h-3.5 w-3.5 mr-2" /> Household</TabsTrigger>
           </TabsList>
 
           <TabsContent value={activeTab} className="flex-1 min-h-0 flex flex-col m-0">
@@ -224,7 +224,7 @@ export default function FinancialLedgerPage() {
                 <div className="flex justify-between items-end">
                   <div className="space-y-1">
                     <div className="flex items-center gap-3"><ArrowRightLeft className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">{activeTab.replace('_', ' ')} Audit</CardTitle></div>
-                    <CardDescription className="text-emerald-100/60 text-[10px] font-black uppercase tracking-[0.2em]">Verified Financial Cash Flow</CardDescription>
+                    <CardDescription className="text-emerald-100/60 text-[10px] font-black uppercase tracking-[0.2em]">Verified personal financial cash flow</CardDescription>
                   </div>
                   <p className="text-4xl font-black tracking-tighter">₹{netCashFlow.toLocaleString()}</p>
                 </div>
@@ -252,7 +252,7 @@ export default function FinancialLedgerPage() {
                               <p className={cn("text-xl font-black", item.type === 'income' ? "text-[#059669]" : "text-slate-900")}>{item.type === 'income' ? '+' : '-'}₹{item.amount.toLocaleString()}</p>
                               <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#ecfdf5] text-[#059669] border border-[#d1fae5] mt-1">
                                 <CheckCircle2 className="h-2.5 w-2.5" />
-                                <span className="text-[9px] font-black uppercase tracking-widest">VERIFIED</span>
+                                <span className="text-[9px] font-black uppercase tracking-widest">Verified</span>
                               </div>
                             </div>
                           </div>
@@ -321,7 +321,7 @@ export default function FinancialLedgerPage() {
         <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
             <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-rose-500/20 text-rose-400"><ArrowDownCircle className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase">Expense Entry</DialogTitle></div>
-            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Document new private disbursement</DialogDescription>
+            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Document new personal disbursement</DialogDescription>
           </DialogHeader>
           <div className="p-8 space-y-6">
             <div className="space-y-2"><Label className="form-label-tactical">Transaction Date</Label><Input type="date" value={entryDate} onChange={(e) => setEntryDate(e.target.value)} className="form-input-tactical" /></div>

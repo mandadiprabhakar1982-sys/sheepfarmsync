@@ -85,7 +85,7 @@ export default function DashboardPage() {
             <div className="premium-card p-5 flex items-center justify-between active:scale-[0.98]">
               <div className="flex items-center gap-4">
                 <div className="h-12 w-12 rounded-2xl flex items-center justify-center text-white shadow-md bg-emerald-600"><ArrowUpCircle className="h-6 w-6" /></div>
-                <span className="text-[11px] font-black text-slate-600">Total Cash Inflow</span>
+                <span className="text-[11px] font-black text-slate-600">Cash Inflow</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-2xl font-black tracking-tighter text-emerald-600">₹{totalCashInflow.toLocaleString()}</span>
@@ -201,7 +201,7 @@ export default function DashboardPage() {
   const hubItems = [
     { title: "Summary", subtitle: "Executive Report", icon: IconOverview, href: '/dashboard/overview', color: "from-emerald-950/40 to-emerald-900/40" },
     { title: "Daily Ledger", subtitle: "Farm Cost Audit", icon: IconFarmCost, href: '/dashboard/farm-ledger', color: "from-amber-950/40 to-amber-900/40" },
-    { title: "Finance", subtitle: "Unified Accounts", icon: IconLedger, href: '/dashboard/monthly-ledger', adminOnly: true, color: "from-emerald-900/40 to-emerald-800/40" },
+    { title: "Personal Finance", subtitle: "Unified Accounts", icon: IconLedger, href: '/dashboard/monthly-ledger', adminOnly: true, color: "from-emerald-900/40 to-emerald-800/40" },
     { title: "Debt & Loans", subtitle: "Debt Portfolio", icon: IconLiabilities, href: '/dashboard/balance-sheet', adminOnly: true, color: "from-amber-900/40 to-amber-800/40" },
     { title: "Sheep List", subtitle: "Flock Registry", icon: IconFlock, href: '/dashboard/livestock', color: "from-emerald-800/40 to-emerald-700/40" },
     { title: "Selling", subtitle: "Revenue Stream", icon: IconTrade, href: '/dashboard/sales', color: "from-emerald-700/40 to-emerald-600/40" },

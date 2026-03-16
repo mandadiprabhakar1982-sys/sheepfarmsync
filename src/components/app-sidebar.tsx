@@ -60,7 +60,7 @@ export function AppSidebar() {
       label: "Private Accounts",
       adminOnly: true,
       links: [
-        { href: '/dashboard/monthly-ledger', label: "Finance Ledger", icon: Wallet },
+        { href: '/dashboard/monthly-ledger', label: "Personal Finance", icon: Wallet },
         { href: '/dashboard/balance-sheet', label: "Debt & Loans", icon: BookOpen },
       ]
     },
