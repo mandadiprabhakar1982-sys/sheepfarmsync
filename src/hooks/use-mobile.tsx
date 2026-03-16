@@ -40,6 +40,9 @@ export function useWindowDimensions() {
       })
     }
 
+    // Capture initial dimensions immediately on mount
+    handleResize()
+
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
   }, [])

@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useWindowDimensions } from '@/hooks/use-mobile';
 import { useFarm } from '@/context/FarmContext';
 import { useRouter } from 'next/navigation';
@@ -37,8 +38,8 @@ import {
  * @fileOverview Pashu Control Hub
  */
 export default function DashboardPage() {
+  const [mounted, setMounted] = useState(false);
   const { width } = useWindowDimensions();
-  const isMobile = width < 768 && width !== 0;
   const router = useRouter();
   
   const { 
@@ -53,10 +54,15 @@ export default function DashboardPage() {
     isLoading
   } = useFarm();
 
+  // Handle Hydration
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // We only block the render if the critical profile data is still loading
-  if (isLoading && !userRole) {
+  if (!mounted || (isLoading && !userRole)) {
     return (
-      <div className="flex h-full w-full items-center justify-center">
+      <div className="flex h-full w-full items-center justify-center min-h-[60vh]">
         <div className="flex flex-col items-center gap-6">
           <Loader2 className="h-10 w-10 animate-spin text-primary opacity-20" />
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">Establishing Hub Link...</p>
@@ -65,11 +71,12 @@ export default function DashboardPage() {
     );
   }
 
+  const isMobile = width < 768 && width !== 0;
   const isAdmin = userRole === 'admin';
 
   // --- MOBILE HUB ---
   const MobileHome = (
-    <div className="max-w-lg mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700 dashboard-stack">
+    <div className="max-w-lg mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500 dashboard-stack">
       <section>
         <h2 className="text-xl font-black uppercase tracking-tight text-slate-900 mb-6 px-2">Paisa Summary</h2>
         <div className="space-y-4">
@@ -204,7 +211,7 @@ export default function DashboardPage() {
   ];
 
   const WebDashboard = (
-    <div className="animate-in fade-in duration-1000 max-w-7xl mx-auto pb-20">
+    <div className="animate-in fade-in duration-500 max-w-7xl mx-auto pb-20">
       <div className="flex items-center gap-10 mb-20">
         <HubSparkle className="h-24 w-24 shrink-0" />
         <div className="space-y-3">
