@@ -49,7 +49,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 
 /**
- * @fileOverview Pashu Debt Portfolio
+ * @fileOverview Debt & Loans Portfolio
  */
 export default function BalanceSheetPage() {
   const { toast } = useToast();
@@ -91,8 +91,6 @@ export default function BalanceSheetPage() {
   // UI States
   const [editingItem, setEditingItem] = useState<any>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [viewingItem, setViewingItem] = useState<any>(null);
-  const [isZoomViewOpen, setIsZoomViewOpen] = useState(false);
 
   // LOGICAL AUTOMATION
   useEffect(() => {
@@ -194,40 +192,30 @@ export default function BalanceSheetPage() {
     setIsEditDialogOpen(true);
   };
 
-  const handleSaveEdit = () => {
-    if (!editingItem) return;
-    const path = editingItem._path;
-    if (editingItem._type === 'loan') {
-      updateBankLoan(editingItem.id, { bankName, totalLoan: parseFloat(totalLoan), balanceLoan: parseFloat(balanceLoan), totalTenure: parseFloat(totalTenure), monthlyEmi: parseFloat(monthlyEmi), pendingTenure: parseFloat(pendingTenure), interest: parseFloat(interest), paymentDate, startDate }, path);
-    } else if (editingItem._type === 'card') {
-      updateCreditCard(editingItem.id, { bankName, dueDate: cardDueDate, totalLimit: parseFloat(cardTotalLimit), outstandingAmount: parseFloat(cardOutstanding), minimumPayment: parseFloat(cardMinPayment) }, path);
-    } else if (editingItem._type === 'private') {
-      updatePrivateDebt(editingItem.id, { personName, amount: parseFloat(amount), date: debtDate, interestRate: parseFloat(privateInterestRate), monthlyInterest: parseFloat(monthlyInterest), yearlyInterest: parseFloat(yearlyInterest) }, path);
-    }
-    toast({ title: "Audit Updated", description: "Ledger record has been synchronized." });
-    setIsEditDialogOpen(false); setEditingItem(null); resetForms();
+  const getProgressClass = (val: number) => {
+    if (val < 33) return "progress-red";
+    if (val < 66) return "progress-yellow";
+    return "progress-green";
   };
 
   const SummaryCard = ({ title, value, icon: Icon, color }: { title: string, value: number, icon: any, color: string }) => (
-    <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white group transition-all hover:-translate-y-1">
-      <CardContent className="p-8 flex items-center gap-6">
-        <div className={cn("p-4 rounded-2xl text-white shadow-lg", color)}>
-          <Icon className="h-7 w-7" />
-        </div>
-        <div className="min-w-0">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 mb-1">{title}</p>
-          <p className="text-3xl font-black tracking-tighter">₹{value.toLocaleString()}</p>
-        </div>
-      </CardContent>
+    <Card className="premium-card p-8 flex items-center gap-6">
+      <div className={cn("p-4 rounded-2xl text-white shadow-lg", color)}>
+        <Icon className="h-7 w-7" />
+      </div>
+      <div className="min-w-0">
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 mb-1">{title}</p>
+        <p className="text-3xl font-black tracking-tighter">₹{value.toLocaleString()}</p>
+      </div>
     </Card>
   );
 
   return (
     <div className="container mx-auto py-8 px-4 md:px-10 max-w-7xl animate-in fade-in duration-700">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
-        <PageHeader title="Debt & Loan Portfolio" description="PRECISION AUDIT OF APPULU & BANK LIABILITIES" className="mb-0" />
+        <PageHeader title="Debt & Loans" description="PRECISION AUDIT OF LIABILITIES" className="mb-0" />
         <div className="flex items-center gap-4">
-          <Button onClick={() => { resetForms(); setIsEntryDialogOpen(true); }} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-xl">
+          <Button onClick={() => { resetForms(); setIsEntryDialogOpen(true); }} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-primary hover:bg-secondary-foreground text-white gap-2 shadow-xl border-none">
             <PlusCircle className="h-5 w-5 text-accent" />
             Add Account
           </Button>
@@ -241,16 +229,16 @@ export default function BalanceSheetPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
         <SummaryCard title="Monthly EMI" value={totalMonthlyEmi} icon={ReceiptIndianRupee} color="bg-emerald-600" />
         <SummaryCard title="Bank Loans" value={totalLoanBalance} icon={Landmark} color="bg-blue-600" />
-        <SummaryCard title="Card Baaki" value={totalCreditCardDebt} icon={CreditCard} color="bg-indigo-600" />
-        <SummaryCard title="Private Appulu" value={totalPrivateDebt} icon={Banknote} color="bg-rose-600" />
+        <SummaryCard title="Card Debt" value={totalCreditCardDebt} icon={CreditCard} color="bg-indigo-600" />
+        <SummaryCard title="Private Debt" value={totalPrivateDebt} icon={Banknote} color="bg-rose-600" />
       </div>
 
       <div className="w-full">
         <Tabs defaultValue="loans" onValueChange={setActiveTab} className="w-full">
           <TabsList className="mb-10 p-1.5 bg-[#e7eddc] rounded-2xl grid grid-cols-3 h-14 max-w-2xl mx-auto shadow-inner">
-            <TabsTrigger value="loans" className="rounded-xl font-black text-[10px] uppercase tracking-widest data-[state=active]:bg-white">BANK LOANS</TabsTrigger>
-            <TabsTrigger value="cards" className="rounded-xl font-black text-[10px] uppercase tracking-widest data-[state=active]:bg-white">CREDIT CARDS</TabsTrigger>
-            <TabsTrigger value="private" className="rounded-xl font-black text-[10px] uppercase tracking-widest data-[state=active]:bg-white">PRIVATE APPULU</TabsTrigger>
+            <TabsTrigger value="loans" className="rounded-xl font-black text-[10px] uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:text-primary">Bank Loans</TabsTrigger>
+            <TabsTrigger value="cards" className="rounded-xl font-black text-[10px] uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:text-primary">Credit Cards</TabsTrigger>
+            <TabsTrigger value="private" className="rounded-xl font-black text-[10px] uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:text-primary">Private Debt</TabsTrigger>
           </TabsList>
 
           <TabsContent value="loans">
@@ -269,7 +257,7 @@ export default function BalanceSheetPage() {
                   <TableHeader className="bg-neutral-50">
                     <TableRow>
                       <TableHead className="text-[10px] font-black uppercase pl-10 py-6">Bank Name</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase">Loan Progress</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase">Repayment Progress</TableHead>
                       <TableHead className="text-[10px] font-black uppercase text-right">Principal Bal</TableHead>
                       <TableHead className="text-[10px] font-black uppercase text-right">Next EMI</TableHead>
                       <TableHead className="w-[100px]"></TableHead>
@@ -284,15 +272,15 @@ export default function BalanceSheetPage() {
                           <TableCell className="min-w-[180px]">
                             <div className="space-y-2 py-2">
                               <div className="flex justify-between text-[8px] font-black uppercase tracking-widest">
-                                <span className="text-emerald-600">{progress.toFixed(0)}% Repaid</span>
-                                <span className="text-orange-600">{Math.round(loan.pendingTenure)} Mos Left</span>
+                                <span>{progress.toFixed(0)}% Repaid</span>
+                                <span className="text-orange-600">{Math.round(loan.pendingTenure)} Months Left</span>
                               </div>
-                              <Progress value={progress} className="h-1.5 bg-neutral-100" />
+                              <Progress value={progress} className="h-1.5 bg-neutral-100" indicatorClassName={getProgressClass(progress)} />
                             </div>
                           </TableCell>
                           <TableCell className="text-right"><p className="text-[16px] font-black text-neutral-900">₹{loan.balanceLoan.toLocaleString()}</p><p className="text-[9px] font-bold text-muted-foreground uppercase opacity-40">Of ₹{loan.totalLoan.toLocaleString()}</p></TableCell>
                           <TableCell className="text-right text-[16px] font-black">₹{loan.monthlyEmi.toLocaleString()}</TableCell>
-                          <TableCell className="pr-10 text-right"><Button variant="ghost" size="icon" onClick={() => handleEditClick(loan, 'loan')} className="h-9 w-9 rounded-xl bg-neutral-100"><Pencil className="h-4 w-4" /></Button></TableCell>
+                          <TableCell className="pr-10 text-right"><Button variant="ghost" size="icon" onClick={() => handleEditClick(loan, 'loan')} className="h-9 w-9 rounded-xl bg-neutral-100"><Pencil className="h-4 w-4 text-primary" /></Button></TableCell>
                         </TableRow>
                       );
                     })}
@@ -307,7 +295,7 @@ export default function BalanceSheetPage() {
               <CardHeader className="bg-indigo-600 text-white p-10 py-12">
                 <div className="flex justify-between items-end">
                   <div className="space-y-1">
-                    <div className="flex items-center gap-3"><CreditCard className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Credit Card Baaki</CardTitle></div>
+                    <div className="flex items-center gap-3"><CreditCard className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Credit Card Debt</CardTitle></div>
                     <CardDescription className="text-indigo-100/60 text-xs font-black uppercase tracking-[0.2em]">Active Revolving Debt Audit</CardDescription>
                   </div>
                   <p className="text-4xl font-black tracking-tighter">₹{totalCreditCardDebt.toLocaleString()}</p>
@@ -323,7 +311,7 @@ export default function BalanceSheetPage() {
                         <TableCell className="text-[10px] font-black text-muted-foreground uppercase">{card.dueDate || 'N/A'}</TableCell>
                         <TableCell className="text-right text-[14px] font-bold text-muted-foreground">₹{card.totalLimit.toLocaleString()}</TableCell>
                         <TableCell className="text-right text-[16px] font-black text-rose-600">₹{card.outstandingAmount.toLocaleString()}</TableCell>
-                        <TableCell className="pr-10 text-right"><Button variant="ghost" size="icon" onClick={() => handleEditClick(card, 'card')} className="h-9 w-9 rounded-xl bg-neutral-100"><Pencil className="h-4 w-4" /></Button></TableCell>
+                        <TableCell className="pr-10 text-right"><Button variant="ghost" size="icon" onClick={() => handleEditClick(card, 'card')} className="h-9 w-9 rounded-xl bg-neutral-100"><Pencil className="h-4 w-4 text-primary" /></Button></TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -337,8 +325,8 @@ export default function BalanceSheetPage() {
               <CardHeader className="bg-rose-600 text-white p-10 py-12">
                 <div className="flex justify-between items-end">
                   <div className="space-y-1">
-                    <div className="flex items-center gap-3"><Banknote className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Private Appulu</CardTitle></div>
-                    <CardDescription className="text-rose-100/60 text-xs font-black uppercase tracking-[0.2em]">Personal & Village Interest Tracking</CardDescription>
+                    <div className="flex items-center gap-3"><Banknote className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Private Debt</CardTitle></div>
+                    <CardDescription className="text-rose-100/60 text-xs font-black uppercase tracking-[0.2em]">Personal & Local Interest Tracking</CardDescription>
                   </div>
                   <p className="text-4xl font-black tracking-tighter">₹{totalPrivateDebt.toLocaleString()}</p>
                 </div>
@@ -353,7 +341,7 @@ export default function BalanceSheetPage() {
                         <TableCell className="text-center"><span className="px-3 py-1 rounded-lg bg-rose-50 text-rose-600 text-[10px] font-black uppercase">{debt.interestRate}% P.M.</span></TableCell>
                         <TableCell className="text-right text-[14px] font-black text-rose-600">₹{(debt.monthlyInterest || 0).toLocaleString()}</TableCell>
                         <TableCell className="text-right text-[16px] font-black">₹{debt.amount.toLocaleString()}</TableCell>
-                        <TableCell className="pr-10 text-right"><Button variant="ghost" size="icon" onClick={() => handleEditClick(debt, 'private')} className="h-9 w-9 rounded-xl bg-neutral-100"><Pencil className="h-4 w-4" /></Button></TableCell>
+                        <TableCell className="pr-10 text-right"><Button variant="ghost" size="icon" onClick={() => handleEditClick(debt, 'private')} className="h-9 w-9 rounded-xl bg-neutral-100"><Pencil className="h-4 w-4 text-primary" /></Button></TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -368,7 +356,7 @@ export default function BalanceSheetPage() {
       <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>
         <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
-            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400"><Plus className="h-5 w-5" /></div><DialogTitle className="text-xl font-black uppercase tracking-tight">Debt Entry</DialogTitle></div>
+            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-primary/20 text-primary"><Plus className="h-5 w-5" /></div><DialogTitle className="text-xl font-black uppercase tracking-tight">Debt Entry</DialogTitle></div>
             <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Enroll new financial liability into portfolio</DialogDescription>
           </DialogHeader>
           <div className="p-8 space-y-6">
@@ -385,7 +373,7 @@ export default function BalanceSheetPage() {
                 </div>
               </div>
             )}
-            <Button onClick={handleAdd} className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase tracking-widest shadow-xl">Record Account</Button>
+            <Button onClick={handleAdd} className="w-full h-16 rounded-2xl bg-primary hover:bg-secondary-foreground text-white font-black uppercase tracking-widest shadow-xl border-none">Record Account</Button>
           </div>
         </DialogContent>
       </Dialog>

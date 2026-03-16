@@ -78,7 +78,7 @@
 
 .premium-card:hover {
   transform: translateY(-4px);
-  border-color: #0FA5A0; 
+  border-color: hsl(var(--primary)); 
   box-shadow: 
     0 10px 15px -3px rgba(15, 165, 160, 0.1), 
     0 4px 6px -4px rgba(15, 165, 160, 0.1);
@@ -91,6 +91,17 @@
 
 .form-label-tactical {
   @apply text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.25em] text-muted-foreground ml-2 mb-2 block;
+}
+
+/* PROGRESS COLORS */
+.progress-red {
+  background-color: #E53935 !important;
+}
+.progress-yellow {
+  background-color: #FBC02D !important;
+}
+.progress-green {
+  background-color: #43A047 !important;
 }
 
 /* DYNAMIC TYPOGRAPHY */
