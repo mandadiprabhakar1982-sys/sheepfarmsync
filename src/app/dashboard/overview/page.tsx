@@ -27,7 +27,7 @@ import Link from 'next/link';
 import { PageHeader } from '@/components/page-header';
 
 /**
- * @fileOverview Sheep Enterprise Summary (Standard Indian English)
+ * @fileOverview Sheep Enterprise Dashboard (Standard Indian English)
  */
 export default function OverviewPage() {
   const { width } = useWindowDimensions();
@@ -99,7 +99,7 @@ export default function OverviewPage() {
 
   const MobileView = (
     <div className="max-w-lg mx-auto space-y-8 py-4 animate-in fade-in duration-700 pb-24">
-      <PageHeader title="Farm Summary" description="Tactical operational overview" className="px-2" />
+      <PageHeader title="Dashboard" description="Tactical operational overview" className="px-2" />
       
       <section>
         <div className="grid grid-cols-2 gap-4 px-2 mb-6">
@@ -143,7 +143,7 @@ export default function OverviewPage() {
   // --- WEB COMPONENTS ---
   const WebView = (
     <div className="space-y-12 animate-in fade-in duration-1000 pb-20 px-4 md:px-0">
-      <PageHeader title="Executive Summary" description="Consolidated farm performance audit" />
+      <PageHeader title="Dashboard" description="Consolidated farm performance audit" />
 
       {/* INVENTORY & FLOCK STATUS */}
       <section>

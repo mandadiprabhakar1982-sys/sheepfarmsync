@@ -52,7 +52,7 @@ export function AppSidebar() {
       label: "MAIN CONTROL",
       links: [
         { href: '/dashboard', label: "Home", icon: Home },
-        { href: '/dashboard/overview', label: "Farm Summary", icon: LayoutDashboard },
+        { href: '/dashboard/overview', label: "Dashboard", icon: LayoutDashboard },
         { href: '/dashboard/analysis', label: "AI Farm Report", icon: BarChart },
       ]
     },

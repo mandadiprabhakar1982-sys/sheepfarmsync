@@ -27,7 +27,7 @@ const translations = {
     sales: "Buying & Selling",
     expenses: "Expenses",
     analytics: "Analytics",
-    overview: "Summary",
+    overview: "Dashboard",
     marketplace: "Market",
     reports: "Reports",
     calculator: "Calculator",
@@ -49,7 +49,7 @@ const translations = {
     stealth_mode: "Stealth Deployment",
     
     // Headers
-    farm_overview: "Farm Summary",
+    farm_overview: "Dashboard",
     flock_intel: "Flock Intelligence",
     nutrition_engine: "Nutrition Engine",
     community_market: "Community Market",
@@ -87,7 +87,7 @@ const translations = {
     sales: "కొనుగోళ్లు & అమ్మకాలు",
     expenses: "ఖర్చులు",
     analytics: "విశ్లేషణ",
-    overview: "అవలోకనం",
+    overview: "డ్యాష్‌బోర్డ్",
     marketplace: "మార్కెట్ ప్లేస్",
     reports: "నివేదికలు",
     calculator: "క్యాలిక్యులేటర్",
@@ -109,7 +109,7 @@ const translations = {
     stealth_mode: "స్టెల్త్ డిప్లాయ్‌మెంట్",
 
     // Headers
-    farm_overview: "ఫాం అవలోకనం",
+    farm_overview: "డ్యాష్‌బోర్డ్",
     flock_intel: "మంద ఇంటెలిజెన్స్",
     nutrition_engine: "పోషకాహార ఇంజిన్",
     community_market: "కమ్యూనిటీ మార్కెట్ ప్లేస్",

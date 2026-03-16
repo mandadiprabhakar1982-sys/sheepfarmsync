@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { 
-  LayoutGrid, 
+  Home as HomeIcon,
   Users, 
   IndianRupee, 
   Activity
@@ -18,7 +18,7 @@ export function MobileNav() {
   const pathname = usePathname();
 
   const links = [
-    { href: '/dashboard', label: 'Dashboard', icon: LayoutGrid },
+    { href: '/dashboard', label: 'Home', icon: HomeIcon },
     { href: '/dashboard/medicine', label: 'Health', icon: Activity },
     { href: '/dashboard/livestock', label: 'Flock', icon: Users },
     { href: '/dashboard/monthly-ledger', label: 'Finance', icon: IndianRupee },
