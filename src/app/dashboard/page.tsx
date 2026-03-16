@@ -15,6 +15,7 @@ import {
   IconExpenses
 } from '@/components/logo';
 import { cn } from '@/lib/utils';
+import { ShieldCheck } from 'lucide-react';
 
 export default function DashboardPage() {
   const { 
@@ -93,7 +94,6 @@ export default function DashboardPage() {
           color: "from-slate-800/40 to-slate-700/40"
         },
       ]
-Group items continued...
     }
   ];
 
