@@ -1,7 +1,6 @@
-
 'use client';
 
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -9,10 +8,7 @@ import {
   Trash2, 
   Pencil, 
   Search,
-  Calendar as CalendarIcon,
   Plus,
-  Scale,
-  Users,
   Camera,
   Upload,
   X,
@@ -20,14 +16,13 @@ import {
   ShieldCheck,
   Image as ImageIcon,
   Save,
-  Maximize2,
   Loader2,
   ChevronDown,
   LayoutGrid,
-  Filter,
-  ArrowRight,
   MoreVertical,
-  Activity
+  Activity,
+  History,
+  Weight
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -62,8 +57,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { PageHeader } from '@/components/page-header';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const assetSchema = z.object({
   tagId: z.string().min(1, 'Tag ID is required'),
@@ -87,7 +91,6 @@ export default function LivestockPage() {
   
   const [searchTerm, setSearchTerm] = useState('');
   const [genderFilter, setGenderFilter] = useState<'all' | 'male' | 'female'>('all');
-  const [breedFilter, setBreedFilter] = useState('all');
   
   const [isEntryDialogOpen, setIsEntryDialogOpen] = useState(false);
   const [editingAsset, setEditingAsset] = useState<any>(null);
@@ -146,15 +149,6 @@ export default function LivestockPage() {
     }
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, formToSet: any) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => { formToSet.setValue('imageUrl', reader.result as string); };
-      reader.readAsDataURL(file);
-    }
-  };
-
   const filteredAssets = useMemo(() => {
     if (!trackedSheep) return [];
     let list = trackedSheep;
@@ -163,9 +157,8 @@ export default function LivestockPage() {
       list = list.filter(s => s.tagId.toLowerCase().includes(term) || (s.breed || '').toLowerCase().includes(term));
     }
     if (genderFilter !== 'all') list = list.filter(s => s.gender === genderFilter);
-    if (breedFilter !== 'all') list = list.filter(s => s.breed === breedFilter);
     return list;
-  }, [trackedSheep, searchTerm, genderFilter, breedFilter]);
+  }, [trackedSheep, searchTerm, genderFilter]);
 
   const onAssetSubmit: SubmitHandler<AssetFormData> = async (data) => {
     setIsUploading(true);
@@ -224,7 +217,7 @@ export default function LivestockPage() {
   }
 
   return (
-    <div className="animate-in fade-in duration-700 max-w-5xl mx-auto py-8 px-4 md:px-10">
+    <div className="animate-in fade-in duration-700 max-w-7xl mx-auto py-8 px-4 md:px-10">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
         <PageHeader title="Livestock Hub" description="PRECISION ASSET REGISTRY" className="mb-0" />
         
@@ -275,41 +268,74 @@ export default function LivestockPage() {
           <CardHeader className="bg-emerald-600 text-white p-10 py-12">
             <div className="flex justify-between items-end">
               <div className="space-y-1">
-                <div className="flex items-center gap-3"><LayoutGrid className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Asset Registry</CardTitle></div>
+                <div className="flex items-center gap-3"><LayoutGrid className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Livestock Registry</CardTitle></div>
                 <CardDescription className="text-emerald-100/60 text-xs font-black uppercase tracking-[0.2em]">Verified Individual Records</CardDescription>
               </div>
               <p className="text-4xl font-black tracking-tighter">{filteredAssets.length} ASSETS</p>
             </div>
           </CardHeader>
-          <CardContent className="p-8 bg-neutral-50/50">
-            <div className="grid grid-cols-1 gap-4">
-              {filteredAssets.length > 0 ? filteredAssets.map((sheep) => (
-                <Card key={sheep.id} className="border-none shadow-sm hover:shadow-md transition-all rounded-[1.5rem] bg-white group overflow-hidden">
-                  <div className="p-4 flex items-center gap-6">
-                    <div 
-                      className="h-20 w-20 rounded-2xl overflow-hidden bg-slate-100 shrink-0 cursor-zoom-in active:scale-95 transition-transform border border-slate-100" 
-                      onClick={() => { setZoomedAsset(sheep); setZoomedPhoto(sheep.imageUrl || defaultSheepImage); }}
-                    >
-                      <img src={sheep.imageUrl || defaultSheepImage} className="h-full w-full object-cover" alt="Sheep" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-2xl font-black tracking-tight text-slate-900 leading-none mb-1">{sheep.tagId}</h3>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{sheep.breed || 'STANDARD'}</p>
-                    </div>
-                    <div className="hidden sm:flex flex-col items-end gap-1 px-6 border-r border-slate-100">
-                      <span className="text-lg font-black text-slate-900 leading-none">{sheep.currentWeight} KG</span>
-                      <span className="text-[8px] font-black uppercase text-slate-300 tracking-widest">WEIGHT</span>
-                    </div>
-                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity pr-2">
-                      <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl bg-slate-50 text-slate-400 hover:bg-emerald-50 hover:text-emerald-600" onClick={() => { setEditingAsset(sheep); editAssetForm.reset({ ...sheep, registrationDate: sheep.registrationDate ? new Date(sheep.registrationDate) : new Date() }); setIsEditAssetOpen(true); }}><Pencil className="h-4 w-4" /></Button>
-                      <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl bg-slate-50 text-slate-400 hover:bg-rose-50 hover:text-rose-600" onClick={() => deleteTrackedSheep(sheep.id, sheep._path)}><Trash2 className="h-4 w-4" /></Button>
-                    </div>
-                  </div>
-                </Card>
-              )) : (
-                <div className="py-32 text-center opacity-20 font-black uppercase text-xs tracking-widest">No assets match your filter</div>
-              )}
-            </div>
+          <CardContent className="p-0 overflow-x-auto">
+            <Table>
+              <TableHeader className="bg-slate-50/50">
+                <TableRow className="hover:bg-transparent border-none">
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-slate-400">Asset ID</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-slate-400">Attributes</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-slate-400">Weight</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-slate-400">Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredAssets.length > 0 ? filteredAssets.map((sheep) => (
+                  <TableRow key={sheep.id} className="hover:bg-slate-50/50 border-b border-slate-100 transition-colors group">
+                    <TableCell className="pl-10 py-10">
+                      <div className="flex items-center gap-6">
+                        <div 
+                          className="h-20 w-20 rounded-2xl overflow-hidden bg-slate-100 border border-slate-100 cursor-zoom-in active:scale-95 transition-transform shrink-0"
+                          onClick={() => { setZoomedAsset(sheep); setZoomedPhoto(sheep.imageUrl || defaultSheepImage); }}
+                        >
+                          <img src={sheep.imageUrl || defaultSheepImage} className="h-full w-full object-cover" alt="Asset" />
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <span className="text-2xl font-black text-slate-900 tracking-tight leading-none">{sheep.tagId}</span>
+                          <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">{sheep.breed || 'STANDARD'}</span>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-col gap-1">
+                        <span className="text-sm font-black text-slate-900 uppercase">{sheep.gender || 'FEMALE'}</span>
+                        <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">{sheep.age} MONTHS</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-xl font-black text-slate-900 tracking-tight">{sheep.currentWeight} kg</span>
+                    </TableCell>
+                    <TableCell className="text-right pr-10">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-12 w-12 rounded-full bg-slate-50 text-slate-400 hover:bg-emerald-50 hover:text-emerald-600 transition-all shadow-sm"
+                          onClick={() => { setEditingAsset(sheep); editAssetForm.reset({ ...sheep, registrationDate: sheep.registrationDate ? new Date(sheep.registrationDate) : new Date() }); setIsEditAssetOpen(true); }}
+                        >
+                          <Pencil className="h-5 w-5" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-12 w-12 rounded-full bg-slate-50 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-all opacity-0 group-hover:opacity-100"
+                          onClick={() => deleteTrackedSheep(sheep.id, sheep._path)}
+                        >
+                          <Trash2 className="h-5 w-5" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )) : (
+                  <TableRow><TableCell colSpan={4} className="text-center py-32 opacity-20 font-black uppercase text-xs tracking-widest">No assets match your filter</TableCell></TableRow>
+                )}
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
       </div>
@@ -354,11 +380,48 @@ export default function LivestockPage() {
             <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Register new biological asset</DialogDescription>
           </DialogHeader>
           <div className="p-8 max-h-[70vh] overflow-y-auto no-scrollbar">
+            <div className="mb-8 space-y-4">
+              <Label className="form-label-tactical">Asset Proof</Label>
+              <div className="w-full aspect-video rounded-3xl bg-slate-50 border-2 border-dashed border-slate-200 overflow-hidden flex items-center justify-center relative">
+                {isCameraActive ? (
+                  <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
+                ) : (
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="p-6 rounded-full bg-white shadow-sm border border-slate-100 text-slate-300"><ImageIcon className="h-8 w-8" /></div>
+                    <p className="text-[10px] font-black text-slate-400 uppercase">Awaiting Media</p>
+                  </div>
+                )}
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                {isCameraActive ? (
+                  <Button type="button" onClick={() => capturePhoto(assetForm)} className="col-span-2 h-14 rounded-xl bg-emerald-600 text-white font-black uppercase text-xs">Capture Photo</Button>
+                ) : (
+                  <>
+                    <Button type="button" onClick={startCamera} className="h-12 rounded-xl bg-neutral-900 text-white font-black text-[10px] uppercase gap-2"><Camera className="h-4 w-4 text-emerald-400" /> Open Camera</Button>
+                    <div className="relative">
+                      <input type="file" accept="image/*" onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => { assetForm.setValue('imageUrl', reader.result as string); };
+                          reader.readAsDataURL(file);
+                        }
+                      }} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
+                      <Button type="button" variant="outline" className="w-full h-12 rounded-xl border-slate-200 font-black text-[10px] uppercase gap-2"><Upload className="h-4 w-4 text-blue-500" /> Gallery</Button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
             <Form {...assetForm}><form onSubmit={assetForm.handleSubmit(onAssetSubmit)} className="space-y-6">
               <FormField control={assetForm.control} name="tagId" render={({ field }) => (<FormItem><Label className="form-label-tactical">Tag ID</Label><FormControl><Input placeholder="e.g. 31-1" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>)} />
               <div className="grid grid-cols-2 gap-4">
                 <FormField control={assetForm.control} name="breed" render={({ field }) => (<FormItem><Label className="form-label-tactical">Breed</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="form-input-tactical bg-slate-50"><SelectValue /></SelectTrigger></FormControl><SelectContent>{['Standard', 'Nellore', 'Deccani'].map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}</SelectContent></Select></FormItem>)} />
                 <FormField control={assetForm.control} name="currentWeight" render={({ field }) => (<FormItem><Label className="form-label-tactical">Weight (KG)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50" {...field} /></FormControl></FormItem>)} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <FormField control={assetForm.control} name="gender" render={({ field }) => (<FormItem><Label className="form-label-tactical">Gender</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="form-input-tactical bg-slate-50"><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="male">MALE</SelectItem><SelectItem value="female">FEMALE</SelectItem></SelectContent></Select></FormItem>)} />
+                <FormField control={assetForm.control} name="age" render={({ field }) => (<FormItem><Label className="form-label-tactical">Age (Months)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50" {...field} /></FormControl></FormItem>)} />
               </div>
               <Button type="submit" disabled={isUploading} className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm uppercase tracking-widest shadow-xl">
                 {isUploading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Synchronize Record'}
@@ -382,7 +445,11 @@ export default function LivestockPage() {
                 <FormField control={editAssetForm.control} name="breed" render={({ field }) => (<FormItem><Label className="form-label-tactical">Breed</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="form-input-tactical bg-slate-50"><SelectValue /></SelectTrigger></FormControl><SelectContent>{['Standard', 'Nellore', 'Deccani'].map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}</SelectContent></Select></FormItem>)} />
                 <FormField control={editAssetForm.control} name="currentWeight" render={({ field }) => (<FormItem><Label className="form-label-tactical">Weight (KG)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50" {...field} /></FormControl></FormItem>)} />
               </div>
-              <Button type="submit" disabled={isUploading} className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm uppercase tracking-widest">
+              <div className="grid grid-cols-2 gap-4">
+                <FormField control={editAssetForm.control} name="gender" render={({ field }) => (<FormItem><Label className="form-label-tactical">Gender</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="form-input-tactical bg-slate-50"><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="male">MALE</SelectItem><SelectItem value="female">FEMALE</SelectItem></SelectContent></Select></FormItem>)} />
+                <FormField control={editAssetForm.control} name="age" render={({ field }) => (<FormItem><Label className="form-label-tactical">Age (Months)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50" {...field} /></FormControl></FormItem>)} />
+              </div>
+              <Button type="submit" disabled={isUploading} className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm uppercase tracking-widest shadow-xl">
                 {isUploading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Save Adjustments'}
               </Button>
             </form></Form>
