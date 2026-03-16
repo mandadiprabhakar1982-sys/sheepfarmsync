@@ -17,6 +17,7 @@ import {
   Loader2,
   ChevronDown,
   LayoutGrid,
+  CalendarDays,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import Image from 'next/image';
@@ -302,6 +303,10 @@ export default function LivestockPage() {
                       <div className="flex flex-col gap-1">
                         <span className="text-sm font-black text-slate-900 uppercase">{sheep.gender || 'FEMALE'}</span>
                         <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">{sheep.age} MONTHS</span>
+                        <div className="flex items-center gap-1.5 mt-1 text-[9px] font-bold text-emerald-600 uppercase tracking-tight">
+                          <CalendarDays className="h-2.5 w-2.5" />
+                          Reg: {sheep.registrationDate || 'N/A'}
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -382,6 +387,7 @@ export default function LivestockPage() {
                     <div><p className="text-[8px] font-black uppercase text-white/30 mb-1">Breed</p><p className="text-xs font-black uppercase text-emerald-400">{zoomedAsset?.breed || 'Standard'}</p></div>
                     <div><p className="text-[8px] font-black uppercase text-white/30 mb-1">Weight</p><p className="text-xs font-black">{zoomedAsset?.currentWeight} KG</p></div>
                     <div><p className="text-[8px] font-black uppercase text-white/30 mb-1">Age</p><p className="text-xs font-black">{zoomedAsset?.age} MOS</p></div>
+                    <div><p className="text-[8px] font-black uppercase text-white/30 mb-1">Registered</p><p className="text-xs font-black">{zoomedAsset?.registrationDate || 'N/A'}</p></div>
                   </div>
                 </div>
                 <div className="h-12 w-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-400"><ShieldCheck className="h-6 w-6" /></div>
