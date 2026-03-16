@@ -13,14 +13,14 @@ import { useSidebar } from '@/components/ui/sidebar';
 
 /**
  * @fileOverview Native-style bottom navigation for mobile devices.
- * Matches the design from the requested screenshot.
+ * Synchronized with the design for Dashboard, Flock, Finance, and Menu.
  */
 export function MobileNav() {
   const pathname = usePathname();
   const { toggleSidebar } = useSidebar();
 
   const links = [
-    { href: '/dashboard/overview', label: 'Dashboard', icon: LayoutGrid },
+    { href: '/dashboard', label: 'Dashboard', icon: LayoutGrid },
     { href: '/dashboard/livestock', label: 'Flock', icon: Users },
     { href: '/dashboard/monthly-ledger', label: 'Finance', icon: IndianRupee },
   ];
@@ -29,7 +29,11 @@ export function MobileNav() {
     <div className="md:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white/95 backdrop-blur-3xl border-t border-slate-100 shadow-[0_-8px_30px_rgba(0,0,0,0.04)] px-2">
       <div className="flex items-center justify-between h-16 max-w-lg mx-auto">
         {links.map((link) => {
-          const isActive = pathname === link.href;
+          // Dashboard link matches /dashboard root
+          const isActive = link.href === '/dashboard' 
+            ? pathname === '/dashboard' 
+            : pathname.startsWith(link.href);
+            
           return (
             <Link 
               key={link.href} 
@@ -52,7 +56,7 @@ export function MobileNav() {
           );
         })}
         
-        {/* Menu Toggle */}
+        {/* Menu Toggle - Native Mobile Behavior */}
         <button 
           onClick={(e) => {
             e.preventDefault();
