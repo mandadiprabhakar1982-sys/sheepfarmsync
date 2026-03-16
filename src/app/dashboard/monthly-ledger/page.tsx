@@ -19,29 +19,54 @@ import {
   Landmark,
   Home,
   User,
-  LayoutGrid
+  LayoutGrid,
+  PlusCircle,
+  Plus,
+  ArrowDownCircle,
+  ArrowUpCircle,
+  Loader2
 } from 'lucide-react';
 import { useFarm } from '@/context/FarmContext';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { format, parseISO, isValid, isToday, isYesterday } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 
 /**
  * @fileOverview Unified Financial Ledger
- * Features tactical tabs for Bank EMI, Credit Card, Personal, and Household audits.
+ * Features tactical tabs for Income, Bank EMI, Credit Card, Personal, and Household audits.
  */
 export default function FinancialLedgerPage() {
   const { 
     sales, purchases, feedCosts, laborCosts, medicineExpenses, 
-    healthTasks, farmExpenses, monthlyIncomes, monthlyExpenses
+    healthTasks, farmExpenses, monthlyIncomes, monthlyExpenses,
+    addMonthlyIncome, addMonthlyExpense, isLoading 
   } = useFarm();
+  const { toast } = useToast();
 
   const [selectedMonth, setSelectedMonth] = useState(format(new Date(), 'MM'));
   const [selectedYear, setSelectedYear] = useState(format(new Date(), 'yyyy'));
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeTab, setActiveTab] = useState('master');
+  const [activeTab, setActiveTab] = useState('income');
+
+  // Modal States
+  const [isIncomeDialogOpen, setIsIncomeDialogOpen] = useState(false);
+  const [isExpenseDialogOpen, setIsExpenseDialogOpen] = useState(false);
+
+  // Form States
+  const [entryDate, setEntryDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const [source, setSource] = useState('');
+  const [amount, setAmount] = useState('');
+  const [category, setCategory] = useState<'loan' | 'card' | 'private' | 'household'>('household');
 
   const combinedData = useMemo(() => {
     // 1. Manual Private Incomes
@@ -151,7 +176,8 @@ export default function FinancialLedgerPage() {
       
       // Tab Filtering
       let matchesTab = true;
-      if (activeTab === 'bank_emi') matchesTab = item.cat === 'Bank EMI';
+      if (activeTab === 'income') matchesTab = item.type === 'income';
+      else if (activeTab === 'bank_emi') matchesTab = item.cat === 'Bank EMI';
       else if (activeTab === 'card') matchesTab = item.cat === 'Credit Card';
       else if (activeTab === 'personal') matchesTab = item.cat === 'Personal';
       else if (activeTab === 'household') matchesTab = item.cat === 'Household';
@@ -168,6 +194,22 @@ export default function FinancialLedgerPage() {
     }, 0);
   }, [combinedData]);
 
+  const handleAddIncome = () => {
+    if (!source || !amount) return;
+    addMonthlyIncome({ date: entryDate, source, amount: parseFloat(amount) });
+    toast({ title: 'Income Recorded', description: 'Transaction added to ledger.' });
+    setIsIncomeDialogOpen(false);
+    setSource(''); setAmount('');
+  };
+
+  const handleAddExpense = () => {
+    if (!source || !amount) return;
+    addMonthlyExpense({ date: entryDate, source, amount: parseFloat(amount), category });
+    toast({ title: 'Expense Logged', description: 'Disbursement synchronized.' });
+    setIsExpenseDialogOpen(false);
+    setSource(''); setAmount('');
+  };
+
   const formatGroupDate = (dateStr: string) => {
     const d = parseISO(dateStr);
     if (isToday(d)) return `TODAY - ${dateStr}`;
@@ -175,7 +217,6 @@ export default function FinancialLedgerPage() {
     return dateStr;
   };
 
-  // Grouping for Mobile
   const groupedData = useMemo(() => {
     const groups: { [key: string]: any[] } = {};
     combinedData.forEach(item => {
@@ -185,13 +226,21 @@ export default function FinancialLedgerPage() {
     return Object.entries(groups).map(([date, items]) => ({ date, items }));
   }, [combinedData]);
 
+  if (isLoading) {
+    return (
+      <div className="flex h-full w-full items-center justify-center">
+        <Loader2 className="h-10 w-10 animate-spin text-primary opacity-20" />
+      </div>
+    );
+  }
+
   return (
     <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col relative bg-white md:bg-transparent">
       {/* MOBILE HEADER */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-[110] bg-[#059669] text-white px-6 py-5 flex items-center justify-between shadow-lg">
-        <h2 className="text-xl font-black tracking-tight uppercase leading-none">Financial Ledger</h2>
+        <h2 className="text-xl font-black tracking-tight uppercase leading-none">Finance Hub</h2>
         <div className="text-right">
-          <p className="text-[8px] font-black uppercase opacity-60 leading-none mb-1">Net Period Flow</p>
+          <p className="text-[8px] font-black uppercase opacity-60 leading-none mb-1">Period Balance</p>
           <p className="text-xl font-black">₹{netCashFlow.toLocaleString()}</p>
         </div>
       </div>
@@ -201,8 +250,16 @@ export default function FinancialLedgerPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-6 md:mb-8 shrink-0 px-4 md:px-0 mt-4 md:mt-0">
         <PageHeader title="Financial Ledger" description="UNIFIED OPERATIONAL & PRIVATE AUDIT" className="mb-0 hidden md:block" />
 
-        <div className="hidden md:flex items-center gap-4">
-          <div className="px-6 py-3 bg-neutral-900 rounded-2xl text-white flex items-center gap-4 shadow-xl shrink-0">
+        <div className="flex items-center gap-2 md:gap-4 overflow-x-auto pb-2 md:pb-0 no-scrollbar md:w-auto w-full">
+          <Button onClick={() => setIsIncomeDialogOpen(true)} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-xl border-none shrink-0">
+            <ArrowUpCircle className="h-5 w-5 text-accent" />
+            Record Income
+          </Button>
+          <Button onClick={() => setIsExpenseDialogOpen(true)} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-rose-600 hover:bg-rose-700 text-white gap-2 shadow-xl border-none shrink-0">
+            <ArrowDownCircle className="h-5 w-5 text-white" />
+            Log Expense
+          </Button>
+          <div className="hidden md:flex px-6 py-3 bg-neutral-900 rounded-2xl text-white items-center gap-4 shadow-xl shrink-0">
             <ShieldCheck className="h-5 w-5 text-emerald-400" />
             <div>
               <p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Net Balance</p>
@@ -253,7 +310,7 @@ export default function FinancialLedgerPage() {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full flex-1 flex flex-col min-h-0">
           <div className="relative">
             <TabsList className="w-full h-14 md:h-16 bg-[#e7eddc] rounded-2xl p-1.5 flex justify-start md:justify-center overflow-x-auto no-scrollbar shadow-inner mb-8">
-              <TabsTrigger value="master" className="tab-trigger-tactical"><LayoutGrid className="h-3.5 w-3.5 mr-2" /> MASTER</TabsTrigger>
+              <TabsTrigger value="income" className="tab-trigger-tactical"><ArrowUpCircle className="h-3.5 w-3.5 mr-2" /> INCOME</TabsTrigger>
               <TabsTrigger value="bank_emi" className="tab-trigger-tactical"><Landmark className="h-3.5 w-3.5 mr-2" /> BANK EMI</TabsTrigger>
               <TabsTrigger value="card" className="tab-trigger-tactical"><CreditCard className="h-3.5 w-3.5 mr-2" /> CARD</TabsTrigger>
               <TabsTrigger value="personal" className="tab-trigger-tactical"><User className="h-3.5 w-3.5 mr-2" /> PERSONAL</TabsTrigger>
@@ -351,6 +408,88 @@ export default function FinancialLedgerPage() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* MOBILE FAB - Alternate buttons */}
+      <div className="md:hidden fixed bottom-24 right-6 flex flex-col gap-4 z-[120]">
+        <button 
+          onClick={() => setIsExpenseDialogOpen(true)}
+          className="h-12 w-12 rounded-full bg-rose-600 text-white shadow-2xl flex items-center justify-center active:scale-90 transition-all"
+        >
+          <Plus className="h-6 w-6" />
+        </button>
+        <button 
+          onClick={() => setIsIncomeDialogOpen(true)}
+          className="h-14 w-14 rounded-full bg-[#059669] text-white shadow-2xl flex items-center justify-center active:scale-90 transition-all"
+        >
+          <ArrowUpCircle className="h-7 w-7" />
+        </button>
+      </div>
+
+      {/* INCOME DIALOG */}
+      <Dialog open={isIncomeDialogOpen} onOpenChange={setIsIncomeDialogOpen}>
+        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
+          <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
+            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400"><ArrowUpCircle className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase">Income Record</DialogTitle></div>
+            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Document new manual cash inflow</DialogDescription>
+          </DialogHeader>
+          <div className="p-8 space-y-6">
+            <div className="space-y-2">
+              <Label className="form-label-tactical">Transaction Date</Label>
+              <Input type="date" value={entryDate} onChange={(e) => setEntryDate(e.target.value)} className="form-input-tactical" />
+            </div>
+            <div className="space-y-2">
+              <Label className="form-label-tactical">Origin Source</Label>
+              <Input placeholder="e.g. Salary, Rent, Bonus" value={source} onChange={(e) => setSource(e.target.value)} className="form-input-tactical" />
+            </div>
+            <div className="space-y-2">
+              <Label className="form-label-tactical">Total Amount (₹)</Label>
+              <Input type="number" placeholder="0" value={amount} onChange={(e) => setAmount(e.target.value)} className="form-input-tactical font-black text-xl text-emerald-600" />
+            </div>
+            <Button onClick={handleAddIncome} className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase shadow-xl">Commit Income</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* EXPENSE DIALOG */}
+      <Dialog open={isExpenseDialogOpen} onOpenChange={setIsExpenseDialogOpen}>
+        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
+          <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
+            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-rose-500/20 text-rose-400"><ArrowDownCircle className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase">Expense Entry</DialogTitle></div>
+            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Document manual disbursement</DialogDescription>
+          </DialogHeader>
+          <div className="p-8 space-y-6">
+            <div className="space-y-2">
+              <Label className="form-label-tactical">Transaction Date</Label>
+              <Input type="date" value={entryDate} onChange={(e) => setEntryDate(e.target.value)} className="form-input-tactical" />
+            </div>
+            <div className="space-y-2">
+              <Label className="form-label-tactical">Ledger Source</Label>
+              <Input placeholder="e.g. EB Bill, Grocery" value={source} onChange={(e) => setSource(e.target.value)} className="form-input-tactical" />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="form-label-tactical">Amount (₹)</Label>
+                <Input type="number" placeholder="0" value={amount} onChange={(e) => setAmount(e.target.value)} className="form-input-tactical font-black" />
+              </div>
+              <div className="space-y-2">
+                <Label className="form-label-tactical">Audit Category</Label>
+                <Select value={category} onValueChange={(v: any) => setCategory(v)}>
+                  <SelectTrigger className="form-input-tactical">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="loan">Bank EMI</SelectItem>
+                    <SelectItem value="card">Credit Card</SelectItem>
+                    <SelectItem value="private">Personal</SelectItem>
+                    <SelectItem value="household">Household</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <Button onClick={handleAddExpense} className="w-full h-16 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black uppercase shadow-xl">Commit Expense</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
