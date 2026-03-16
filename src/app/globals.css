@@ -64,18 +64,23 @@
   padding-top: env(safe-area-inset-top);
 }
 
-/* PREMIUM SURFACES */
-.glass-card {
-  @apply bg-white/80 backdrop-blur-2xl border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden relative transition-all duration-500;
+/* PREMIUM DEPTH PROTOCOL */
+.premium-card {
+  background: #ffffff;
+  border: 1px solid rgba(229, 231, 235, 0.5);
+  border-radius: 1.5rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 
+    0 4px 6px -1px rgba(15, 23, 42, 0.05), 
+    0 2px 4px -1px rgba(15, 23, 42, 0.03);
 }
 
-.glass-sheen::after {
-  content: "";
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 100%);
-  pointer-events: none;
-  opacity: 0.5;
+.premium-card:hover {
+  transform: translateY(-4px);
+  border-color: #10B981;
+  box-shadow: 
+    0 10px 15px -3px rgba(16, 185, 129, 0.1), 
+    0 4px 6px -4px rgba(16, 185, 129, 0.1);
 }
 
 /* MOBILE TACTICAL CLASSES */
@@ -84,15 +89,6 @@
   flex-direction: column;
   gap: 16px;
   padding: 16px;
-}
-
-.card-mobile {
-  width: 100%;
-  padding: 20px;
-  border-radius: 12px;
-  /* Simplified shadow to prevent lag on mobile */
-  border: 1px solid var(--border);
-  @apply bg-white shadow-sm;
 }
 
 /* TACTICAL FORM ELEMENTS */
@@ -119,13 +115,6 @@
   
   .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
   .pt-safe { padding-top: env(safe-area-inset-top); }
-
-  .tab-active { @apply bg-white text-primary shadow-xl scale-[1.05] border-b-2 border-primary; }
-  .tab-inactive { @apply text-slate-400 hover:text-slate-600; }
-
-  .glow-gold { border-bottom: 4px solid hsl(var(--accent)); }
-  .glow-emerald { border-bottom: 4px solid #10b981; }
-  .glow-forest { border-bottom: 4px solid hsl(var(--primary)); }
 
   .tab-trigger-tactical {
     @apply inline-flex items-center justify-center whitespace-nowrap rounded-[1rem] px-6 py-2 text-[10px] font-black uppercase tracking-widest ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-white data-[state=active]:text-[#059669] data-[state=active]:shadow-lg data-[state=active]:scale-[1.05] flex-shrink-0;

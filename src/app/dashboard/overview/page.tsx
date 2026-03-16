@@ -59,7 +59,7 @@ export default function OverviewPage() {
   // --- MOBILE COMPONENTS ---
   const MobileFinancialRow = ({ title, value, icon: Icon, color, href, subValue }: { title: string, value: string, icon: any, color: string, href?: string, subValue?: string }) => {
     const content = (
-      <div className="bg-white rounded-xl p-4 flex items-center justify-between border border-slate-200 shadow-depth mb-2 active:scale-[0.98] transition-all">
+      <div className="premium-card p-4 flex items-center justify-between mb-2 active:scale-[0.98]">
         <div className="flex items-center gap-3">
           <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center text-white shadow-sm", color)}>
             <Icon className="h-4 w-4" />
@@ -84,7 +84,7 @@ export default function OverviewPage() {
 
   const MobileBreakdownCard = ({ title, value, icon: Icon, color, href }: { title: string, value: string, icon: any, color: string, href?: string }) => {
     const content = (
-      <div className="bg-white rounded-2xl p-5 flex flex-col items-center text-center border border-slate-200 shadow-depth aspect-square justify-center active:scale-[0.98] transition-all">
+      <div className="premium-card p-5 flex flex-col items-center text-center aspect-square justify-center active:scale-[0.98]">
         <div className={cn("h-12 w-12 rounded-xl flex items-center justify-center text-white mb-3 shadow-md", color)}>
           <Icon className="h-6 w-6" />
         </div>
@@ -103,11 +103,11 @@ export default function OverviewPage() {
       
       <section>
         <div className="grid grid-cols-2 gap-4 px-2 mb-6">
-          <div className="bg-emerald-600 rounded-[1.5rem] p-6 text-white shadow-depth border border-white/10">
+          <div className="bg-emerald-600 rounded-[1.5rem] p-6 text-white shadow-lg border border-white/10">
             <p className="text-[8px] font-black uppercase tracking-widest opacity-60 mb-1">Live Sheep</p>
             <p className="text-4xl font-black tracking-tighter">{totalSheep}</p>
           </div>
-          <div className="bg-rose-600 rounded-[1.5rem] p-6 text-white shadow-depth border border-white/10">
+          <div className="bg-rose-600 rounded-[1.5rem] p-6 text-white shadow-lg border border-white/10">
             <p className="text-[8px] font-black uppercase tracking-widest opacity-60 mb-1">Total Deaths</p>
             <p className="text-4xl font-black tracking-tighter">{totalDead}</p>
           </div>
@@ -149,7 +149,7 @@ export default function OverviewPage() {
       <section>
         <h2 className="text-xl font-black uppercase tracking-tight text-slate-900 mb-6">Sheep Inventory Status</h2>
         <div className="flex gap-6">
-          <Card className="flex-1 border border-slate-200 shadow-depth rounded-[2.5rem] bg-white p-10 flex items-center gap-8 group hover:-translate-y-1 hover:shadow-depth-hover transition-all">
+          <div className="premium-card flex-1 p-10 flex items-center gap-8 group">
             <div className="h-24 w-24 rounded-[2rem] bg-emerald-500 flex items-center justify-center text-white shadow-2xl shadow-emerald-500/20">
               <SheepIcon className="h-12 w-12" />
             </div>
@@ -158,9 +158,9 @@ export default function OverviewPage() {
               <p className="text-6xl font-black tracking-tighter text-slate-900">{totalSheep}</p>
               <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mt-1">Active Registry</p>
             </div>
-          </Card>
+          </div>
           
-          <Card className="w-[300px] border border-slate-200 shadow-depth rounded-[2.5rem] bg-white p-10 flex items-center gap-6 group hover:-translate-y-1 hover:shadow-depth-hover transition-all">
+          <div className="premium-card w-[300px] p-10 flex items-center gap-6 group">
             <div className="h-16 w-16 rounded-2xl bg-rose-500 flex items-center justify-center text-white shadow-lg shadow-rose-500/20">
               <Skull className="h-8 w-8" />
             </div>
@@ -169,7 +169,7 @@ export default function OverviewPage() {
               <p className="text-4xl font-black tracking-tighter text-rose-600">{totalDead}</p>
               <p className="text-[10px] font-black text-rose-400 uppercase tracking-widest mt-1">Loss Record</p>
             </div>
-          </Card>
+          </div>
         </div>
       </section>
 
@@ -183,7 +183,7 @@ export default function OverviewPage() {
             { label: 'Payables to Farmers', val: totalPayables, icon: TrendingDown, color: 'bg-[#f59e0b]', href: '/dashboard/purchase' },
             { label: 'Total Farm Expenditure', val: totalExpenses, icon: ReceiptIndianRupee, color: 'bg-slate-900', href: '/dashboard/farm-ledger' },
           ].map((row, i) => (
-            <Link key={i} href={row.href} className="bg-white rounded-2xl h-16 px-8 flex items-center justify-between border border-slate-200 shadow-depth transition-all hover:bg-slate-50 hover:-translate-y-0.5 hover:shadow-depth-hover group">
+            <Link key={i} href={row.href} className="premium-card h-16 px-8 flex items-center justify-between transition-all group">
               <div className="flex items-center gap-4">
                 <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center text-white shadow-sm", row.color)}>
                   <row.icon className="h-4 w-4" />
@@ -214,13 +214,13 @@ export default function OverviewPage() {
             { label: 'Misc Expenses', val: totalFarmExpenses, icon: Wallet, color: 'bg-amber-600', href: '/dashboard/expenses' },
           ].map((stat, i) => (
             <Link key={i} href={stat.href}>
-              <Card className="border border-slate-200 shadow-depth rounded-[2rem] bg-white p-8 group hover:-translate-y-1 hover:shadow-depth-hover transition-all text-center flex flex-col items-center h-full">
+              <div className="premium-card p-8 group transition-all text-center flex flex-col items-center h-full">
                 <div className={cn("h-14 w-14 rounded-2xl flex items-center justify-center mb-4 text-white shadow-lg", stat.color)}>
                   <stat.icon className="h-7 w-7" />
                 </div>
                 <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">{stat.label}:</p>
                 <p className="text-2xl font-black tracking-tighter text-slate-900">₹{stat.val.toLocaleString()}</p>
-              </Card>
+              </div>
             </Link>
           ))}
         </div>
