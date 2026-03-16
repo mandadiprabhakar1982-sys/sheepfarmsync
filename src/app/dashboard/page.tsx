@@ -35,9 +35,6 @@ import {
   IconFarmCost
 } from '@/components/logo';
 
-/**
- * @fileOverview Farm Executive Control Hub (Standard Indian English)
- */
 export default function DashboardPage() {
   const { width, isHydrated } = useWindowDimensions();
   const router = useRouter();
@@ -75,20 +72,19 @@ export default function DashboardPage() {
   const isMobile = width < 768;
   const isAdmin = userRole === 'admin';
 
-  // --- MOBILE HUB ---
   const MobileHome = (
     <div className="max-w-lg mx-auto animate-in fade-in duration-500 dashboard-stack pb-24">
       <section>
-        <h2 className="text-xl font-black tracking-tight text-slate-900 mb-6 px-2">Financial Summary</h2>
+        <h2 className="text-xl font-black tracking-tight text-foreground mb-6 px-2">Financial Summary</h2>
         <div className="space-y-4">
           <Link href="/dashboard/monthly-ledger" className="block">
             <div className="premium-card p-5 flex items-center justify-between active:scale-[0.98]">
               <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-2xl flex items-center justify-center text-white shadow-md bg-emerald-600"><ArrowUpCircle className="h-6 w-6" /></div>
-                <span className="text-[11px] font-black text-slate-600">Cash Inflow</span>
+                <div className="h-12 w-12 rounded-2xl flex items-center justify-center text-white shadow-md bg-primary"><ArrowUpCircle className="h-6 w-6" /></div>
+                <span className="text-[11px] font-black text-foreground/70">Cash Inflow</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-2xl font-black tracking-tighter text-emerald-600">₹{totalCashInflow.toLocaleString()}</span>
+                <span className="text-2xl font-black tracking-tighter text-primary">₹{totalCashInflow.toLocaleString()}</span>
                 <ChevronRight className="h-4 w-4 text-slate-300" />
               </div>
             </div>
@@ -97,10 +93,10 @@ export default function DashboardPage() {
             <div className="premium-card p-5 flex items-center justify-between active:scale-[0.98]">
               <div className="flex items-center gap-4">
                 <div className="h-12 w-12 rounded-2xl flex items-center justify-center text-white shadow-md bg-blue-500"><TrendingUp className="h-6 w-6" /></div>
-                <span className="text-[11px] font-black text-slate-600">Receivables</span>
+                <span className="text-[11px] font-black text-foreground/70">Receivables</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-2xl font-black tracking-tighter text-slate-900">₹{totalReceivables.toLocaleString()}</span>
+                <span className="text-2xl font-black tracking-tighter text-foreground">₹{totalReceivables.toLocaleString()}</span>
                 <ChevronRight className="h-4 w-4 text-slate-300" />
               </div>
             </div>
@@ -109,10 +105,10 @@ export default function DashboardPage() {
             <div className="premium-card p-5 flex items-center justify-between active:scale-[0.98]">
               <div className="flex items-center gap-4">
                 <div className="h-12 w-12 rounded-2xl flex items-center justify-center text-white shadow-md bg-[#f59e0b]"><TrendingDown className="h-6 w-6" /></div>
-                <span className="text-[11px] font-black text-slate-600">Payables</span>
+                <span className="text-[11px] font-black text-foreground/70">Payables</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-2xl font-black tracking-tighter text-slate-900">₹{totalPayables.toLocaleString()}</span>
+                <span className="text-2xl font-black tracking-tighter text-foreground">₹{totalPayables.toLocaleString()}</span>
                 <ChevronRight className="h-4 w-4 text-slate-300" />
               </div>
             </div>
@@ -121,19 +117,18 @@ export default function DashboardPage() {
       </section>
 
       <section>
-        <h2 className="text-xl font-black tracking-tight text-slate-900 mb-6 px-2">Operational Audit</h2>
+        <h2 className="text-xl font-black tracking-tight text-foreground mb-6 px-2">Operational Audit</h2>
         
-        {/* FARM LEDGER ACTION CARD */}
         <div className="mb-6 px-2">
           <Link href="/dashboard/farm-ledger">
-            <div className="bg-emerald-900 rounded-[2rem] p-8 text-white shadow-xl border border-white/10 relative overflow-hidden active:scale-[0.98] transition-all">
+            <div className="bg-primary rounded-[2rem] p-8 text-white shadow-xl border border-white/10 relative overflow-hidden active:scale-[0.98] transition-all">
               <div className="absolute top-0 right-0 p-8 opacity-10 rotate-12">
                 <IconFarmCost className="h-32 w-32" />
               </div>
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="h-10 w-10 rounded-xl bg-white/20 flex items-center justify-center">
-                    <Zap className="h-5 w-5 text-accent" />
+                    <Zap className="h-5 w-5 text-white" />
                   </div>
                   <div>
                     <h3 className="text-lg font-black tracking-tight leading-none">Daily Farm Ledger</h3>
@@ -142,10 +137,10 @@ export default function DashboardPage() {
                 </div>
                 <div className="flex justify-between items-end">
                   <div>
-                    <p className="text-[10px] font-black text-accent uppercase tracking-widest">Total Farm Spend</p>
+                    <p className="text-[10px] font-black text-white/80 uppercase tracking-widest">Total Farm Spend</p>
                     <p className="text-3xl font-black tracking-tighter">₹{totalExpenses.toLocaleString()}</p>
                   </div>
-                  <div className="bg-accent rounded-full p-2 text-black shadow-lg">
+                  <div className="bg-white/20 backdrop-blur-md rounded-full p-2 text-white shadow-lg">
                     <ChevronRight className="h-5 w-5" />
                   </div>
                 </div>
@@ -162,25 +157,24 @@ export default function DashboardPage() {
             { label: 'Expenses', val: totalFarmExpenses, icon: Wallet, href: '/dashboard/expenses' },
           ].map((item, i) => (
             <Link key={i} href={item.href} className="premium-card p-6 flex flex-col items-center text-center aspect-square justify-center active:scale-[0.98]">
-              <div className="h-16 w-16 rounded-[1.5rem] bg-[#f59e0b] flex items-center justify-center text-white mb-4 shadow-lg shadow-amber-500/20">
+              <div className="h-16 w-16 rounded-[1.5rem] bg-secondary flex items-center justify-center text-primary mb-4 shadow-lg shadow-primary/10">
                 <item.icon className="h-8 w-8" />
               </div>
               <p className="text-[9px] font-black text-slate-400 mb-1">{item.label}:</p>
-              <p className="text-xl font-black tracking-tighter text-slate-900">₹{item.val.toLocaleString()}</p>
+              <p className="text-xl font-black tracking-tighter text-foreground">₹{item.val.toLocaleString()}</p>
             </Link>
           ))}
         </div>
       </section>
 
       <div className="pt-4 px-2">
-        <Button onClick={() => router.push('/dashboard/expenses')} className="w-full h-16 rounded-2xl bg-neutral-900 hover:bg-black text-white font-black uppercase tracking-[0.2em] shadow-xl text-sm gap-3 border-none">
-          <Plus className="h-6 w-6 text-accent" /> Log Misc Expense
+        <Button onClick={() => router.push('/dashboard/expenses')} className="w-full h-16 rounded-2xl bg-foreground hover:bg-black text-white font-black uppercase tracking-[0.2em] shadow-xl text-sm gap-3 border-none">
+          <Plus className="h-6 w-6 text-primary" /> Log Misc Expense
         </Button>
       </div>
     </div>
   );
 
-  // --- WEB HUB ---
   const HubCard = ({ item }: { item: any }) => {
     return (
       <Link href={item.href} className="group transition-all active:scale-95 block">
@@ -190,8 +184,8 @@ export default function DashboardPage() {
             <item.icon className="w-full h-full" />
           </div>
           <div className="text-center relative z-10">
-            <h3 className="text-[15px] font-black text-slate-900 tracking-widest leading-none mb-1 group-hover:text-white transition-colors">{item.title}</h3>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em] group-hover:text-accent transition-colors">{item.subtitle}</p>
+            <h3 className="text-[15px] font-black text-foreground tracking-widest leading-none mb-1 group-hover:text-white transition-colors">{item.title}</h3>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em] group-hover:text-white/60 transition-colors">{item.subtitle}</p>
           </div>
         </div>
       </Link>
@@ -199,16 +193,16 @@ export default function DashboardPage() {
   };
 
   const hubItems = [
-    { title: "Summary", subtitle: "Executive Report", icon: IconOverview, href: '/dashboard/overview', color: "from-emerald-950/40 to-emerald-900/40" },
-    { title: "Daily Ledger", subtitle: "Farm Cost Audit", icon: IconFarmCost, href: '/dashboard/farm-ledger', color: "from-amber-950/40 to-amber-900/40" },
-    { title: "Personal Finance", subtitle: "Unified Accounts", icon: IconLedger, href: '/dashboard/monthly-ledger', adminOnly: true, color: "from-emerald-900/40 to-emerald-800/40" },
-    { title: "Debt & Loans", subtitle: "Debt Portfolio", icon: IconLiabilities, href: '/dashboard/balance-sheet', adminOnly: true, color: "from-amber-900/40 to-amber-800/40" },
-    { title: "Sheep List", subtitle: "Flock Registry", icon: IconFlock, href: '/dashboard/livestock', color: "from-emerald-800/40 to-emerald-700/40" },
-    { title: "Selling", subtitle: "Revenue Stream", icon: IconTrade, href: '/dashboard/sales', color: "from-emerald-700/40 to-emerald-600/40" },
-    { title: "Medical", subtitle: "Clinical History", icon: IconHealth, href: '/dashboard/medicine', color: "from-red-900/40 to-red-800/40" },
-    { title: "Fodder", subtitle: "Feed Inventory", icon: IconFeed, href: '/dashboard/feed', color: "from-emerald-600/40 to-emerald-500/40" },
-    { title: "Labour", subtitle: "Staff & Coolie", icon: IconLabor, href: '/dashboard/labor', color: "from-slate-900/40 to-slate-800/40" },
-    { title: "Expenses", subtitle: "Misc Overheads", icon: IconExpenses, href: '/dashboard/expenses', color: "from-slate-800/40 to-slate-700/40" },
+    { title: "Summary", subtitle: "Executive Report", icon: IconOverview, href: '/dashboard/overview', color: "from-primary/20 to-primary/40" },
+    { title: "Daily Ledger", subtitle: "Farm Cost Audit", icon: IconFarmCost, href: '/dashboard/farm-ledger', color: "from-primary/20 to-primary/40" },
+    { title: "Personal Finance", subtitle: "Unified Accounts", icon: IconLedger, href: '/dashboard/monthly-ledger', adminOnly: true, color: "from-primary/20 to-primary/40" },
+    { title: "Debt & Loans", subtitle: "Debt Portfolio", icon: IconLiabilities, href: '/dashboard/balance-sheet', adminOnly: true, color: "from-primary/20 to-primary/40" },
+    { title: "Sheep List", subtitle: "Flock Registry", icon: IconFlock, href: '/dashboard/livestock', color: "from-primary/20 to-primary/40" },
+    { title: "Selling", subtitle: "Revenue Stream", icon: IconTrade, href: '/dashboard/sales', color: "from-primary/20 to-primary/40" },
+    { title: "Medical", subtitle: "Clinical History", icon: IconHealth, href: '/dashboard/medicine', color: "from-primary/20 to-primary/40" },
+    { title: "Fodder", subtitle: "Feed Inventory", icon: IconFeed, href: '/dashboard/feed', color: "from-primary/20 to-primary/40" },
+    { title: "Labour", subtitle: "Staff & Coolie", icon: IconLabor, href: '/dashboard/labor', color: "from-primary/20 to-primary/40" },
+    { title: "Expenses", subtitle: "Misc Overheads", icon: IconExpenses, href: '/dashboard/expenses', color: "from-primary/20 to-primary/40" },
   ];
 
   const WebDashboard = (
@@ -216,7 +210,7 @@ export default function DashboardPage() {
       <div className="flex items-center gap-10 mb-20 mt-10">
         <HubSparkle className="h-24 w-24 shrink-0" />
         <div className="space-y-3">
-          <h1 className="text-5xl font-black text-slate-900 tracking-tighter leading-none">Executive <span className="text-primary">Control Hub</span></h1>
+          <h1 className="text-5xl font-black text-foreground tracking-tighter leading-none">Executive <span className="text-primary">Control Hub</span></h1>
           <p className="text-[11px] font-black text-primary/60 uppercase tracking-[0.5em]">High-Density Management Infrastructure</p>
         </div>
       </div>

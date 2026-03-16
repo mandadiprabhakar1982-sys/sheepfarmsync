@@ -25,7 +25,7 @@ export function MobileNav() {
   ];
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white/95 backdrop-blur-3xl border-t border-slate-100 shadow-[0_-8px_30px_rgba(0,0,0,0.04)] px-2">
+    <div className="md:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white/95 backdrop-blur-3xl border-t border-border shadow-[0_-8px_30px_rgba(0,0,0,0.04)] px-2">
       <div className="flex items-center justify-between h-16 max-w-lg mx-auto">
         {links.map((link) => {
           const isActive = link.href === '/dashboard' 
@@ -38,7 +38,7 @@ export function MobileNav() {
               href={link.href}
               className={cn(
                 "flex flex-col items-center justify-center flex-1 gap-1 transition-all active:scale-90 h-full",
-                isActive ? "text-[#059669]" : "text-slate-400"
+                isActive ? "text-primary" : "text-slate-400"
               )}
             >
               <div className="p-1 rounded-xl">
