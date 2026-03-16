@@ -491,6 +491,10 @@ export default function TradeLedgerPage() {
 
       <Dialog open={!!zoomedPhoto} onOpenChange={(o) => !o && setZoomedPhoto(null)}>
         <DialogContent className="sm:max-w-3xl rounded-[3rem] p-0 overflow-hidden border-none shadow-2xl bg-neutral-900">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Trade Evidence Zoom</DialogTitle>
+            <DialogDescription>Full visual audit of trade transaction record</DialogDescription>
+          </DialogHeader>
           <div className="relative aspect-square md:aspect-video flex items-center justify-center">
             {zoomedPhoto && <img src={zoomedPhoto} className="w-full h-full object-contain" alt="Asset audit" />}
             <Button variant="ghost" size="icon" onClick={() => setZoomedPhoto(null)} className="absolute top-6 right-8 h-10 w-10 rounded-full bg-white/10 text-white hover:bg-white/20"><X className="h-5 w-5" /></Button>

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useForm, type SubmitHandler } from 'react-hook-form';
@@ -199,7 +198,7 @@ export default function ExpensesPage() {
   
   const handleDeleteExpense = (id: string, path?: string) => {
     deleteFarmExpense(id, path);
-     toast({ title: 'Deleted', description: 'Expense record removed.', variant: 'destructive' });
+    toast({ title: 'Deleted', description: 'Expense record removed.', variant: 'destructive' });
   }
 
   const handleEditClick = (expense: FarmExpense) => {
@@ -405,6 +404,10 @@ export default function ExpensesPage() {
 
       <Dialog open={!!zoomedPhoto} onOpenChange={(o) => !o && setZoomedPhoto(null)}>
         <DialogContent className="sm:max-w-3xl rounded-[3rem] p-0 overflow-hidden border-none shadow-2xl bg-neutral-900">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Receipt Evidence Zoom</DialogTitle>
+            <DialogDescription>Full visual audit of procurement receipt</DialogDescription>
+          </DialogHeader>
           <div className="relative aspect-square md:aspect-video flex items-center justify-center">
             {zoomedPhoto && <img src={zoomedPhoto} className="w-full h-full object-contain" alt="Expanded evidence" />}
             <Button variant="ghost" size="icon" onClick={() => setZoomedPhoto(null)} className="absolute top-6 right-8 h-10 w-10 rounded-full bg-white/10 text-white hover:bg-white/20"><X className="h-5 w-5" /></Button>

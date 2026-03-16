@@ -575,6 +575,10 @@ export default function LivestockPage() {
 
       <Dialog open={!!zoomedPhoto} onOpenChange={(open) => !open && setZoomedPhoto(null)}>
         <DialogContent className="sm:max-w-3xl rounded-[3rem] p-0 overflow-hidden border-none shadow-2xl bg-neutral-900">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Asset Identity Zoom: {zoomedAsset?.tagId}</DialogTitle>
+            <DialogDescription>Full biological specification review</DialogDescription>
+          </DialogHeader>
           {zoomedPhoto && (
             <div className="flex flex-col h-full relative">
               <div className="absolute top-6 left-8 z-20"><Badge className="bg-emerald-500 text-neutral-900 border-none px-4 py-1.5 font-black text-[10px] uppercase tracking-[0.2em] shadow-lg">Identity Zoom: {zoomedAsset?.tagId}</Badge></div>
