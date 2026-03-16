@@ -58,6 +58,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { PageHeader } from '@/components/page-header';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 const assetSchema = z.object({
   tagId: z.string().min(1, 'Tag ID is required'),
@@ -439,7 +441,25 @@ export default function LivestockPage() {
               </div>
             </div>
             <Form {...assetForm}><form onSubmit={assetForm.handleSubmit(onAssetSubmit)} className="space-y-6">
-              <FormField control={assetForm.control} name="tagId" render={({ field }) => (<FormItem><Label className="form-label-tactical">Tag ID</Label><FormControl><Input placeholder="e.g. 31-1" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>)} />
+              <div className="grid grid-cols-2 gap-4">
+                <FormField control={assetForm.control} name="tagId" render={({ field }) => (<FormItem><Label className="form-label-tactical">Tag ID</Label><FormControl><Input placeholder="e.g. 31-1" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>)} />
+                <FormField control={assetForm.control} name="registrationDate" render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <Label className="form-label-tactical">Registration Date</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className="form-input-tactical w-full text-left justify-between bg-slate-50 border-slate-200">
+                          {field.value ? format(field.value, "MMM dd, yyyy") : "Select date"}
+                          <CalendarDays className="h-4 w-4 opacity-20" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 border-none shadow-2xl">
+                        <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
+                      </PopoverContent>
+                    </Popover>
+                  </FormItem>
+                )} />
+              </div>
               <div className="grid grid-cols-2 gap-4">
                 <FormField control={assetForm.control} name="breed" render={({ field }) => (<FormItem><Label className="form-label-tactical">Breed</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="form-input-tactical bg-slate-50"><SelectValue /></SelectTrigger></FormControl><SelectContent>{['Standard', 'Nellore', 'Deccani'].map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}</SelectContent></Select></FormItem>)} />
                 <FormField control={assetForm.control} name="currentWeight" render={({ field }) => (<FormItem><Label className="form-label-tactical">Weight (KG)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50" {...field} /></FormControl></FormItem>)} />
@@ -465,7 +485,25 @@ export default function LivestockPage() {
           </DialogHeader>
           <div className="p-8">
             <Form {...editAssetForm}><form onSubmit={editAssetForm.handleSubmit(onEditAssetSubmit)} className="space-y-6">
-              <FormField control={editAssetForm.control} name="tagId" render={({ field }) => (<FormItem><Label className="form-label-tactical">Tag ID</Label><FormControl><Input className="form-input-tactical bg-slate-50" {...field} /></FormControl></FormItem>)} />
+              <div className="grid grid-cols-2 gap-4">
+                <FormField control={editAssetForm.control} name="tagId" render={({ field }) => (<FormItem><Label className="form-label-tactical">Tag ID</Label><FormControl><Input className="form-input-tactical bg-slate-50" {...field} /></FormControl></FormItem>)} />
+                <FormField control={editAssetForm.control} name="registrationDate" render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <Label className="form-label-tactical">Registration Date</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className="form-input-tactical w-full text-left justify-between bg-slate-50 border-slate-200">
+                          {field.value ? format(field.value, "MMM dd, yyyy") : "Select date"}
+                          <CalendarDays className="h-4 w-4 opacity-20" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 border-none shadow-2xl">
+                        <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
+                      </PopoverContent>
+                    </Popover>
+                  </FormItem>
+                )} />
+              </div>
               <div className="grid grid-cols-2 gap-4">
                 <FormField control={editAssetForm.control} name="breed" render={({ field }) => (<FormItem><Label className="form-label-tactical">Breed</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="form-input-tactical bg-slate-50"><SelectValue /></SelectTrigger></FormControl><SelectContent>{['Standard', 'Nellore', 'Deccani'].map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}</SelectContent></Select></FormItem>)} />
                 <FormField control={editAssetForm.control} name="currentWeight" render={({ field }) => (<FormItem><Label className="form-label-tactical">Weight (KG)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50" {...field} /></FormControl></FormItem>)} />
