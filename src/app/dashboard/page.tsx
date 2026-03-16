@@ -1,8 +1,6 @@
-
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { useFarm } from '@/context/FarmContext';
 import { 
   HubSparkle,
@@ -16,7 +14,6 @@ import {
   IconLabor,
   IconExpenses
 } from '@/components/logo';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { cn } from '@/lib/utils';
 
 export default function DashboardPage() {
@@ -34,7 +31,6 @@ export default function DashboardPage() {
           title: "OVERVIEW", 
           subtitle: "ANALYTICS", 
           icon: IconOverview, 
-          imageId: "dash-analytics",
           href: '/dashboard/overview',
           color: "from-blue-500/20 to-indigo-500/20"
         },
@@ -42,7 +38,6 @@ export default function DashboardPage() {
           title: "LEDGER", 
           subtitle: "BALANCE SHEET", 
           icon: IconLedger, 
-          imageId: "dash-ledger",
           href: '/dashboard/monthly-ledger',
           adminOnly: true,
           color: "from-emerald-500/20 to-teal-500/20"
@@ -51,7 +46,6 @@ export default function DashboardPage() {
           title: "DEBT", 
           subtitle: "PORTFOLIO", 
           icon: IconLiabilities, 
-          imageId: "dash-liabilities",
           href: '/dashboard/balance-sheet',
           adminOnly: true,
           color: "from-rose-500/20 to-orange-500/20"
@@ -60,7 +54,6 @@ export default function DashboardPage() {
           title: "FLOCK", 
           subtitle: "LIVESTOCK", 
           icon: IconFlock, 
-          imageId: "dash-flock",
           href: '/dashboard/livestock',
           color: "from-amber-500/20 to-yellow-500/20"
         },
@@ -68,7 +61,6 @@ export default function DashboardPage() {
           title: "TRADE", 
           subtitle: "BUY & SELL", 
           icon: IconTrade, 
-          imageId: "dash-sales",
           href: '/dashboard/sales',
           color: "from-sky-500/20 to-blue-500/20"
         },
@@ -76,7 +68,6 @@ export default function DashboardPage() {
           title: "HEALTH", 
           subtitle: "CLINICAL", 
           icon: IconHealth, 
-          imageId: "dash-health",
           href: '/dashboard/medicine',
           color: "from-red-500/20 to-rose-500/20"
         },
@@ -84,7 +75,6 @@ export default function DashboardPage() {
           title: "FEED", 
           subtitle: "INVENTORY", 
           icon: IconFeed, 
-          imageId: "dash-feed",
           href: '/dashboard/feed',
           color: "from-lime-500/20 to-green-500/20"
         },
@@ -92,7 +82,6 @@ export default function DashboardPage() {
           title: "LABOR", 
           subtitle: "STAFF", 
           icon: IconLabor, 
-          imageId: "dash-labor",
           href: '/dashboard/labor',
           color: "from-orange-500/20 to-amber-500/20"
         },
@@ -100,7 +89,6 @@ export default function DashboardPage() {
           title: "EXPENSES", 
           subtitle: "OVERHEAD", 
           icon: IconExpenses, 
-          imageId: "dash-expenses",
           href: '/dashboard/expenses',
           color: "from-slate-500/20 to-gray-500/20"
         },
@@ -120,8 +108,6 @@ export default function DashboardPage() {
   }
 
   const HubCard = ({ item }: { item: any }) => {
-    const imageData = PlaceHolderImages.find(img => img.id === item.imageId);
-    
     return (
       <Link href={item.href} className="group transition-all active:scale-95">
         <div className="w-full h-[180px] sm:h-[240px] md:h-[280px] bg-white/70 backdrop-blur-xl rounded-[2rem] sm:rounded-[2.5rem] p-4 sm:p-8 flex flex-col items-center justify-center gap-3 sm:gap-6 shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all hover:-translate-y-1.5 border border-white/60 relative overflow-hidden glass-sheen">
@@ -129,22 +115,14 @@ export default function DashboardPage() {
           {/* Vibrant Glow Background */}
           <div className={cn("absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-500", item.color)} />
           
-          {/* Illustration Container */}
-          <div className="relative w-16 h-16 sm:w-24 sm:h-24 md:w-32 md:h-32 transition-transform group-hover:scale-110 duration-500 z-10">
-            {imageData && (
-              <Image 
-                src={imageData.imageUrl} 
-                alt={imageData.description}
-                fill
-                className="object-contain drop-shadow-2xl"
-                data-ai-hint={imageData.imageHint}
-              />
-            )}
+          {/* Icon Container */}
+          <div className="relative w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 transition-transform group-hover:scale-110 duration-500 z-10 text-slate-900 group-hover:text-white flex items-center justify-center">
+            <item.icon className="w-full h-full" />
           </div>
           
           <div className="text-center relative z-10">
-            <h3 className="text-[11px] sm:text-[13px] md:text-[15px] font-black text-slate-900 tracking-wider leading-none mb-1 uppercase">{item.title}</h3>
-            <p className="hidden sm:block text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em]">{item.subtitle}</p>
+            <h3 className="text-[11px] sm:text-[13px] md:text-[15px] font-black text-slate-900 tracking-wider leading-none mb-1 uppercase group-hover:text-white transition-colors">{item.title}</h3>
+            <p className="hidden sm:block text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em] group-hover:text-white/60 transition-colors">{item.subtitle}</p>
           </div>
         </div>
       </Link>

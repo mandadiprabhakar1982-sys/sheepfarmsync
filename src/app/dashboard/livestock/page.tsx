@@ -8,21 +8,15 @@ import {
   Trash2, 
   Pencil, 
   Search,
-  Plus,
   Camera,
   Upload,
   X,
   PlusCircle,
   ShieldCheck,
   Image as ImageIcon,
-  Save,
   Loader2,
   ChevronDown,
   LayoutGrid,
-  MoreVertical,
-  Activity,
-  History,
-  Weight
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -37,7 +31,6 @@ import { uploadToStorage } from '@/lib/upload';
 import { cn } from '@/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
@@ -46,8 +39,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
-  DialogFooter,
 } from '@/components/ui/dialog';
 import {
   DropdownMenu,
@@ -66,8 +57,6 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { PageHeader } from '@/components/page-header';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 const assetSchema = z.object({
   tagId: z.string().min(1, 'Tag ID is required'),
@@ -114,8 +103,6 @@ export default function LivestockPage() {
   });
 
   const editAssetForm = useForm<AssetFormData>({ resolver: zodResolver(assetSchema) });
-
-  const defaultSheepImage = PlaceHolderImages.find(img => img.id === 'dash-flock')?.imageUrl || '';
 
   const startCamera = async () => {
     try {
@@ -291,9 +278,15 @@ export default function LivestockPage() {
                       <div className="flex items-center gap-6">
                         <div 
                           className="h-20 w-20 rounded-2xl overflow-hidden bg-slate-100 border border-slate-100 cursor-zoom-in active:scale-95 transition-transform shrink-0"
-                          onClick={() => { setZoomedAsset(sheep); setZoomedPhoto(sheep.imageUrl || defaultSheepImage); }}
+                          onClick={() => { setZoomedAsset(sheep); setZoomedPhoto(sheep.imageUrl || null); }}
                         >
-                          <img src={sheep.imageUrl || defaultSheepImage} className="h-full w-full object-cover" alt="Asset" />
+                          {sheep.imageUrl ? (
+                            <img src={sheep.imageUrl} className="h-full w-full object-cover" alt="Asset" />
+                          ) : (
+                            <div className="h-full w-full flex items-center justify-center bg-slate-50 text-slate-300">
+                              <ImageIcon className="h-8 w-8" />
+                            </div>
+                          )}
                         </div>
                         <div className="flex flex-col gap-1">
                           <span className="text-2xl font-black text-slate-900 tracking-tight leading-none">{sheep.tagId}</span>
@@ -341,7 +334,7 @@ export default function LivestockPage() {
       </div>
 
       {/* --- ZOOM DIALOG --- */}
-      <Dialog open={!!zoomedPhoto} onOpenChange={(o) => !o && setZoomedPhoto(null)}>
+      <Dialog open={!!zoomedAsset} onOpenChange={(o) => !o && setZoomedAsset(null)}>
         <DialogContent className="sm:max-w-3xl rounded-[3rem] p-0 overflow-hidden border-none shadow-2xl bg-neutral-900">
           <DialogHeader className="sr-only">
             <DialogTitle>Asset Identity Zoom: {zoomedAsset?.tagId}</DialogTitle>
@@ -350,7 +343,14 @@ export default function LivestockPage() {
           <div className="flex flex-col h-full relative">
             <div className="absolute top-6 left-8 z-20"><Badge className="bg-emerald-500 text-neutral-900 border-none px-4 py-1.5 font-black text-[10px] uppercase tracking-[0.2em] shadow-lg">ID: {zoomedAsset?.tagId}</Badge></div>
             <div className="w-full aspect-video relative overflow-hidden bg-black flex items-center justify-center">
-              <img src={zoomedPhoto!} className="w-full h-full object-contain" alt="Sheep" />
+              {zoomedAsset?.imageUrl ? (
+                <img src={zoomedAsset.imageUrl} className="w-full h-full object-contain" alt="Sheep" />
+              ) : (
+                <div className="flex flex-col items-center gap-4 text-white/20">
+                  <ImageIcon className="h-20 w-20" />
+                  <p className="text-xs font-black uppercase tracking-widest">No Visual Evidence</p>
+                </div>
+              )}
             </div>
             <div className="p-10 bg-neutral-900 text-white border-t border-white/5">
               <div className="flex justify-between items-start">
