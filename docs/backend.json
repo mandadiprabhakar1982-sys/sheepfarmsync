@@ -53,12 +53,16 @@
     "TrackedSheep": {
       "title": "TrackedSheep",
       "type": "object",
-      "description": "Individual animal tracking for growth logs.",
+      "description": "Individual animal tracking for biological and growth records.",
       "properties": {
         "id": { "type": "string" },
         "tagId": { "type": "string" },
         "currentWeight": { "type": "number" },
-        "age": { "type": "number" }
+        "age": { "type": "number" },
+        "breed": { "type": "string" },
+        "gender": { "type": "string", "enum": ["male", "female"] },
+        "imageUrl": { "type": "string" },
+        "registrationDate": { "type": "string", "format": "date" }
       },
       "required": ["id", "tagId"]
     },

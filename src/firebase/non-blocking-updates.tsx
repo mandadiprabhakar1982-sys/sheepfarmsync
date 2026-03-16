@@ -1,3 +1,4 @@
+
 'use client';
     
 import {
@@ -14,14 +15,12 @@ import { FirestorePermissionError } from '@/firebase/errors';
 
 /** 
  * Helper to filter undefined values from an object before sending to Firestore.
- * Ensures compatibility with specialized objects like FieldValues.
  */
 function filterUndefined(obj: any): any {
   if (Array.isArray(obj)) {
     return obj.map(filterUndefined);
   } else if (obj !== null && typeof obj === 'object') {
     const proto = Object.getPrototypeOf(obj);
-    // Only recurse into plain objects to avoid mangling FieldValues or Dates
     if (proto === null || proto === Object.prototype) {
       return Object.keys(obj).reduce((acc: any, key) => {
         const val = filterUndefined(obj[key]);
@@ -36,13 +35,11 @@ function filterUndefined(obj: any): any {
 }
 
 /**
- * Initiates a setDoc operation for a document reference.
- * Does NOT await the write operation internally.
+ * Initiates a setDoc operation. Errors are handled centrally by the error emitter.
  */
 export function setDocumentNonBlocking(docRef: DocumentReference, data: any, options: SetOptions) {
   const filteredData = filterUndefined(data);
   setDoc(docRef, filteredData, options).catch(error => {
-    console.error("Firestore Write Error (setDoc):", error);
     errorEmitter.emit(
       'permission-error',
       new FirestorePermissionError({
@@ -55,13 +52,12 @@ export function setDocumentNonBlocking(docRef: DocumentReference, data: any, opt
 }
 
 /**
- * Initiates an addDoc operation for a collection reference.
+ * Initiates an addDoc operation.
  */
 export function addDocumentNonBlocking(colRef: CollectionReference, data: any) {
   const filteredData = filterUndefined(data);
   addDoc(colRef, filteredData)
     .catch(error => {
-      console.error("Firestore Write Error (addDoc):", error);
       errorEmitter.emit(
         'permission-error',
         new FirestorePermissionError({
@@ -74,13 +70,12 @@ export function addDocumentNonBlocking(colRef: CollectionReference, data: any) {
 }
 
 /**
- * Initiates an updateDoc operation for a document reference.
+ * Initiates an updateDoc operation.
  */
 export function updateDocumentNonBlocking(docRef: DocumentReference, data: any) {
   const filteredData = filterUndefined(data);
   updateDoc(docRef, filteredData)
     .catch(error => {
-      console.error("Firestore Write Error (updateDoc):", error);
       errorEmitter.emit(
         'permission-error',
         new FirestorePermissionError({
@@ -93,12 +88,11 @@ export function updateDocumentNonBlocking(docRef: DocumentReference, data: any) 
 }
 
 /**
- * Initiates a deleteDoc operation for a document reference.
+ * Initiates a deleteDoc operation.
  */
 export function deleteDocumentNonBlocking(docRef: DocumentReference) {
   deleteDoc(docRef)
     .catch(error => {
-      console.error("Firestore Write Error (deleteDoc):", error);
       errorEmitter.emit(
         'permission-error',
         new FirestorePermissionError({
