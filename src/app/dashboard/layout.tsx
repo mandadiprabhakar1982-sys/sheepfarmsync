@@ -1,26 +1,32 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
 import { UserNav } from '@/components/user-nav';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/app-sidebar';
 import { MobileNav } from '@/components/mobile-nav';
 import { useFarm } from '@/context/FarmContext';
-import { PanelLeft, MoreVertical } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { PanelLeft, MoreVertical, Loader2 } from 'lucide-react';
 
+/**
+ * @fileOverview Structural Gatekeeper Layout.
+ * Manages the transition between Desktop Sidebar and Mobile Bottom Navigation models.
+ */
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const { isLoadingProfile } = useFarm();
+  const isMobile = useIsMobile();
 
+  // AUTHENTICATION GATE: Prevent UI leaks during profile sync
   if (isLoadingProfile) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-white fixed inset-0 z-[9999]">
         <div className="flex flex-col items-center gap-6">
           <div className="w-12 h-12 border-4 border-slate-100 rounded-full border-t-primary animate-spin" />
-          <p className="text-[12px] font-black text-slate-400 uppercase tracking-[0.4em]">AUTHENTICATING</p>
+          <p className="text-[12px] font-black text-slate-400 uppercase tracking-[0.4em]">Establishing Secure Link</p>
         </div>
       </div>
     );
@@ -29,11 +35,12 @@ export default function DashboardLayout({
   return (
     <SidebarProvider>
       <div className="app-container dashboard-backdrop">
-        {/* DESKTOP SIDEBAR / MOBILE DRAWER */}
-        <AppSidebar />
+        
+        {/* DESKTOP GATE: Only show full sidebar if NOT on mobile */}
+        {isMobile === false && <AppSidebar />}
 
         <SidebarInset className="flex flex-col h-full bg-transparent overflow-hidden">
-          {/* STICKY TOP HEADER */}
+          {/* STICKY TOP HEADER - Universal across models */}
           <header className="top-header">
             <div className="flex items-center gap-4 md:gap-6">
               <div className="flex items-center gap-2 text-slate-400">
@@ -56,8 +63,13 @@ export default function DashboardLayout({
           </main>
         </SidebarInset>
         
-        {/* STICKY MOBILE BOTTOM NAV */}
-        <MobileNav />
+        {/* MOBILE GATE: Show slide-over sidebar and bottom nav if on mobile */}
+        {isMobile === true && (
+          <>
+            <AppSidebar /> 
+            <MobileNav />
+          </>
+        )}
       </div>
     </SidebarProvider>
   );

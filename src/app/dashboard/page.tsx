@@ -14,8 +14,7 @@ import {
   Plus,
   Loader2,
   ShieldCheck,
-  ChevronRight,
-  LayoutGrid
+  ChevronRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -35,6 +34,7 @@ import {
 
 /**
  * @fileOverview Gatekeeper Page: Dispatches between Web Dashboard and Mobile App Model
+ * This acts as the "Logic Gate" described in the Responsive Routing Strategy.
  */
 export default function DashboardPage() {
   const isMobile = useIsMobile();
@@ -51,12 +51,13 @@ export default function DashboardPage() {
   } = useFarm();
   const router = useRouter();
 
+  // GATEKEEPER LOADING STATE: Prevents UI flickering during device detection
   if (isLoading || isMobile === undefined) {
     return (
       <div className="flex h-[calc(100vh-180px)] w-full items-center justify-center">
         <div className="flex flex-col items-center gap-6">
           <Loader2 className="h-10 w-10 animate-spin text-primary opacity-20" />
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">Linking Command Hub</p>
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">Dispatching Command Hub</p>
         </div>
       </div>
     );
@@ -64,7 +65,7 @@ export default function DashboardPage() {
 
   const isAdmin = userRole === 'admin';
 
-  // --- MOBILE APP MODEL COMPONENTS ---
+  // --- MODEL A: MOBILE APP (STREAMLINED FINANCIAL VIEW) ---
   const FinancialRow = ({ title, value, icon: Icon, color, href }: { title: string, value: string, icon: any, color: string, href: string }) => (
     <Link href={href} className="block w-full">
       <div className="bg-white rounded-[1.5rem] p-5 flex items-center justify-between shadow-sm border border-slate-100 mb-4 active:scale-[0.98] transition-all">
@@ -145,7 +146,7 @@ export default function DashboardPage() {
     </div>
   );
 
-  // --- WEB DASHBOARD COMPONENTS ---
+  // --- MODEL B: WEB DASHBOARD (HIGH-DENSITY GRID) ---
   const HubCard = ({ item }: { item: any }) => (
     <Link href={item.href} className="group transition-all active:scale-95 block">
       <div className="w-full h-[240px] bg-white/80 backdrop-blur-xl rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-6 shadow-xl hover:shadow-[0_20px_60px_rgba(6,78,59,0.15)] transition-all hover:-translate-y-1 border border-white relative overflow-hidden glass-sheen">
@@ -218,5 +219,6 @@ export default function DashboardPage() {
     </div>
   );
 
+  // GATEKEEPER REDIRECT: Dispatch the correct model based on viewport
   return isMobile ? MobileHome : WebDashboard;
 }
