@@ -205,7 +205,7 @@ export default function LivestockPage() {
       }
       addTrackedSheep({ 
         ...data, 
-        imageUrl: finalUrl,
+        imageUrl: finalUrl || '',
         registrationDate: format(data.registrationDate, 'yyyy-MM-dd') 
       });
       assetForm.reset();
@@ -236,7 +236,7 @@ export default function LivestockPage() {
       age: asset.age, 
       currentWeight: asset.currentWeight, 
       breed: asset.breed || 'Standard',
-      imageUrl: asset.imageUrl
+      imageUrl: asset.imageUrl || ''
     });
     setIsEditAssetOpen(true);
   };
@@ -338,10 +338,22 @@ export default function LivestockPage() {
                   <TableRow key={sheep.id} className="group hover:bg-slate-50 transition-colors border-b border-slate-100">
                     <TableCell className="py-6 pl-10">
                       <div className="flex items-center gap-6">
-                        <div className="h-16 w-16 rounded-full overflow-hidden bg-slate-100 border-2 border-slate-200 shrink-0 cursor-zoom-in group/img transition-transform active:scale-95" onClick={() => { if (sheep.imageUrl) { setZoomedPhoto(sheep.imageUrl); setZoomedAssetId(sheep.tagId); } }}>
-                          {sheep.imageUrl ? <img src={sheep.imageUrl} className="h-full w-full object-cover group-hover/img:scale-110 transition-transform duration-500" alt="Sheep" /> : <div className="h-full w-full flex items-center justify-center"><Camera className="h-6 w-6 text-slate-300" /></div>}
+                        <div 
+                          className="h-16 w-16 rounded-full overflow-hidden bg-slate-100 border-2 border-slate-200 shrink-0 cursor-zoom-in group/img transition-transform active:scale-95 flex items-center justify-center" 
+                          onClick={() => { if (sheep.imageUrl) { setZoomedPhoto(sheep.imageUrl); setZoomedAssetId(sheep.tagId); } }}
+                        >
+                          {sheep.imageUrl ? (
+                            <img src={sheep.imageUrl} className="h-full w-full object-cover group-hover/img:scale-110 transition-transform duration-500" alt="Sheep" onError={(e) => { (e.target as any).src = 'https://picsum.photos/seed/sheep/200/200'; }} />
+                          ) : (
+                            <div className="h-full w-full flex items-center justify-center bg-slate-100 text-slate-300">
+                              <Camera className="h-6 w-6" />
+                            </div>
+                          )}
                         </div>
-                        <div className="flex flex-col"><span className="text-[16px] font-black text-slate-900 uppercase">{sheep.tagId}</span><span className="text-[10px] font-bold text-slate-400 uppercase mt-1 tracking-widest">{sheep.breed || 'Standard'}</span></div>
+                        <div className="flex flex-col">
+                          <span className="text-[16px] font-black text-slate-900 uppercase">{sheep.tagId}</span>
+                          <span className="text-[10px] font-bold text-slate-400 uppercase mt-1 tracking-widest">{sheep.breed || 'Standard'}</span>
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell><div className="flex flex-col"><span className="text-[11px] font-black text-slate-600 uppercase tracking-tight">{sheep.gender || 'FEMALE'}</span><span className="text-[10px] font-bold text-slate-400 uppercase">{sheep.age} Months Old</span></div></TableCell>
@@ -417,7 +429,7 @@ export default function LivestockPage() {
             <div className="flex flex-col h-full relative">
               <div className="absolute top-6 left-8 z-20"><Badge className="bg-emerald-500 text-neutral-900 border-none px-4 py-1.5 font-black text-[10px] uppercase tracking-[0.2em] shadow-lg">Identity Zoom: {zoomedAssetId}</Badge></div>
               <div className="absolute top-6 right-8 z-20"><Button variant="ghost" size="icon" onClick={() => setZoomedPhoto(null)} className="h-10 w-10 rounded-full bg-white/10 text-white hover:bg-white/20 backdrop-blur-md"><X className="h-5 w-5" /></Button></div>
-              <div className="w-full aspect-square md:aspect-video relative overflow-hidden bg-black flex items-center justify-center"><img src={zoomedPhoto} className="w-full h-full object-contain animate-in zoom-in-95 duration-500" alt="Sheep" /></div>
+              <div className="w-full aspect-square md:aspect-video relative overflow-hidden bg-black flex items-center justify-center"><img src={zoomedPhoto} className="w-full h-full object-contain animate-in zoom-in-95 duration-500" alt="Sheep" onError={(e) => { (e.target as any).src = 'https://picsum.photos/seed/sheep/800/600'; }} /></div>
               <div className="p-10 bg-neutral-900 text-white border-t border-white/5"><div className="flex justify-between items-center"><div className="space-y-1"><h3 className="text-2xl font-black tracking-tighter uppercase leading-none">{zoomedAssetId}</h3><p className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Verified Digital Registry Asset</p></div><div className="flex gap-4"><div className="h-12 w-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-400"><ShieldCheck className="h-6 w-6" /></div></div></div></div>
             </div>
           )}
