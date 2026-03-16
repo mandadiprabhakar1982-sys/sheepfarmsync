@@ -26,8 +26,7 @@ import { SheepIcon } from '@/components/logo';
 import Link from 'next/link';
 
 /**
- * @fileOverview Precision Overview Page
- * Matched to high-fidelity design for both Web (Laptop) and Mobile models.
+ * @fileOverview Pashu Summary Page
  */
 export default function OverviewPage() {
   const { width } = useWindowDimensions();
@@ -92,27 +91,27 @@ export default function OverviewPage() {
   const MobileView = (
     <div className="max-w-lg mx-auto space-y-8 py-4 animate-in fade-in duration-700">
       <section>
-        <h2 className="text-xs font-black uppercase tracking-widest text-slate-900 mb-4 px-1">Financial Summary</h2>
+        <h2 className="text-xs font-black uppercase tracking-widest text-slate-900 mb-4 px-1">Paisa Summary</h2>
         <div className="space-y-1">
           <MobileFinancialRow title="Monthly Cash Inflow" value={`₹${totalCashInflow.toLocaleString()}`} icon={ArrowUpCircle} color="bg-emerald-600" />
-          <MobileFinancialRow title="Receivables Pending" value={`₹${totalReceivables.toLocaleString()}`} icon={TrendingUp} color="bg-blue-500" />
-          <MobileFinancialRow title="Payables Due" value={`₹${totalPayables.toLocaleString()}`} icon={TrendingDown} color="bg-[#f59e0b]" />
-          <MobileFinancialRow title="Total Expenditure Audit" value={`₹${totalExpenses.toLocaleString()}`} icon={ReceiptIndianRupee} color="bg-slate-800" href="/dashboard/farm-ledger" />
+          <MobileFinancialRow title="Receivables (Raavalasina)" value={`₹${totalReceivables.toLocaleString()}`} icon={TrendingUp} color="bg-blue-500" />
+          <MobileFinancialRow title="Payables (Ivvalasina)" value={`₹${totalPayables.toLocaleString()}`} icon={TrendingDown} color="bg-[#f59e0b]" />
+          <MobileFinancialRow title="Total Farm Spend" value={`₹${totalExpenses.toLocaleString()}`} icon={ReceiptIndianRupee} color="bg-slate-800" href="/dashboard/farm-ledger" />
         </div>
       </section>
 
       <section>
-        <h2 className="text-xs font-black uppercase tracking-widest text-slate-900 mb-4 px-1">Operational Breakdown</h2>
+        <h2 className="text-xs font-black uppercase tracking-widest text-slate-900 mb-4 px-1">Farm Cost Breakdown</h2>
         <div className="grid grid-cols-2 gap-4">
-          <MobileBreakdownCard title="Feed Usage" value={`₹${totalFeedCost.toLocaleString()}`} icon={Wheat} color="bg-[#f59e0b]" />
-          <MobileBreakdownCard title="Labor Cost" value={`₹${totalLaborCost.toLocaleString()}`} icon={Users} color="bg-blue-500" />
+          <MobileBreakdownCard title="Fodder Usage" value={`₹${totalFeedCost.toLocaleString()}`} icon={Wheat} color="bg-[#f59e0b]" />
+          <MobileBreakdownCard title="Labour Cost" value={`₹${totalLaborCost.toLocaleString()}`} icon={Users} color="bg-blue-500" />
           <MobileBreakdownCard title="Medical" value={`₹${totalMedicineCost.toLocaleString()}`} icon={Heart} color="bg-emerald-500" />
-          <MobileBreakdownCard title="Misc. Expenses" value={`₹${totalFarmExpenses.toLocaleString()}`} icon={Wallet} color="bg-amber-600" />
+          <MobileBreakdownCard title="Other Kharchulu" value={`₹${totalFarmExpenses.toLocaleString()}`} icon={Wallet} color="bg-amber-600" />
         </div>
       </section>
 
       <Button onClick={() => router.push('/dashboard/expenses')} className="w-full h-14 rounded-xl bg-[#f59e0b] hover:bg-amber-600 text-white font-black uppercase tracking-[0.1em] shadow-lg text-xs gap-2 border-none">
-        <Plus className="h-4 w-4" /> RECORD EXPENSE
+        <Plus className="h-4 w-4" /> RECORD KHARCHU
       </Button>
     </div>
   );
@@ -122,14 +121,14 @@ export default function OverviewPage() {
     <div className="space-y-12 animate-in fade-in duration-1000 pb-20">
       {/* INVENTORY & FLOCK STATUS */}
       <section>
-        <h2 className="text-xl font-black uppercase tracking-tight text-slate-900 mb-6">Inventory & Flock Status</h2>
+        <h2 className="text-xl font-black uppercase tracking-tight text-slate-900 mb-6">Pashu Inventory Status</h2>
         <div className="flex gap-6">
           <Card className="flex-1 border-none shadow-xl rounded-[2.5rem] bg-white p-10 flex items-center gap-8">
             <div className="h-24 w-24 rounded-[2rem] bg-emerald-500 flex items-center justify-center text-white shadow-2xl shadow-emerald-500/20">
               <SheepIcon className="h-12 w-12" />
             </div>
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Live Sheep Inventory</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Live Pashu Count</p>
               <p className="text-6xl font-black tracking-tighter text-slate-900">{totalSheep}</p>
               <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mt-1">Active Flock</p>
             </div>
@@ -140,7 +139,7 @@ export default function OverviewPage() {
               <Skull className="h-8 w-8" />
             </div>
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Mortalities</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Total Deaths</p>
               <p className="text-4xl font-black tracking-tighter text-rose-600">{totalDead}</p>
               <p className="text-[10px] font-black text-rose-400 uppercase tracking-widest mt-1">Loss Record</p>
             </div>
@@ -150,13 +149,13 @@ export default function OverviewPage() {
 
       {/* FINANCIAL SUMMARY */}
       <section>
-        <h2 className="text-xl font-black uppercase tracking-tight text-slate-900 mb-6">Financial Summary</h2>
+        <h2 className="text-xl font-black uppercase tracking-tight text-slate-900 mb-6">Paisa Summary</h2>
         <div className="space-y-4">
           {[
             { label: 'Monthly Cash Inflow', val: totalCashInflow, icon: ArrowUpCircle, color: 'bg-emerald-600' },
-            { label: 'Receivables Pending', val: totalReceivables, icon: TrendingUp, color: 'bg-blue-500' },
-            { label: 'Payables Due', val: totalPayables, icon: TrendingDown, color: 'bg-[#f59e0b]' },
-            { label: 'Total Expenditure Audit', val: totalExpenses, icon: ReceiptIndianRupee, color: 'bg-slate-900', href: '/dashboard/farm-ledger' },
+            { label: 'Receivables (Raavalasina)', val: totalReceivables, icon: TrendingUp, color: 'bg-blue-50' },
+            { label: 'Payables (Ivvalasina)', val: totalPayables, icon: TrendingDown, color: 'bg-[#fef3c7]' },
+            { label: 'Total Farm Expenditure', val: totalExpenses, icon: ReceiptIndianRupee, color: 'bg-slate-900', href: '/dashboard/farm-ledger' },
           ].map((row, i) => (
             <Link key={i} href={row.href || '#'} className={cn(
               "bg-white rounded-2xl h-16 px-8 flex items-center justify-between shadow-sm border border-slate-100 transition-all hover:bg-slate-50",
@@ -181,15 +180,15 @@ export default function OverviewPage() {
       <section>
         <div className="flex items-center justify-center gap-4 mb-8">
           <div className="h-[1px] flex-1 bg-slate-100" />
-          <h2 className="text-sm font-black uppercase tracking-[0.3em] text-slate-400">Operational Breakdown</h2>
+          <h2 className="text-sm font-black uppercase tracking-[0.3em] text-slate-400">Farm Cost Breakdown</h2>
           <div className="h-[1px] flex-1 bg-slate-100" />
         </div>
         <div className="grid grid-cols-4 gap-6">
           {[
-            { label: 'Feed Usage', val: totalFeedCost, icon: Wheat, color: 'bg-[#f59e0b]' },
-            { label: 'Labor Cost', val: totalLaborCost, icon: Users, color: 'bg-blue-500' },
+            { label: 'Fodder Usage', val: totalFeedCost, icon: Wheat, color: 'bg-[#f59e0b]' },
+            { label: 'Labour Cost', val: totalLaborCost, icon: Users, color: 'bg-blue-500' },
             { label: 'Medical', val: totalMedicineCost, icon: Heart, color: 'bg-emerald-500' },
-            { label: 'Misc. Expenses', val: totalFarmExpenses, icon: Wallet, color: 'bg-amber-600' },
+            { label: 'Other Kharchulu', val: totalFarmExpenses, icon: Wallet, color: 'bg-amber-600' },
           ].map((stat, i) => (
             <Card key={i} className="border-none shadow-xl rounded-[2rem] bg-white p-8 group hover:-translate-y-1 transition-all text-center flex flex-col items-center">
               <div className={cn("h-14 w-14 rounded-2xl flex items-center justify-center mb-4 text-white shadow-lg", stat.color)}>

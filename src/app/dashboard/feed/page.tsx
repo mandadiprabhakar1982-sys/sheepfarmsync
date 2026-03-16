@@ -89,25 +89,16 @@ export default function FeedPage() {
     setIsEntryDialogOpen(false);
     toast({
       title: 'Success!',
-      description: 'Feed cost has been recorded.',
+      description: 'Fodder cost has been recorded.',
     });
   };
-
-  const handleDeleteCost = (id: string, path?: string) => {
-    deleteFeedCost(id, path);
-     toast({
-      title: 'Deleted',
-      description: 'Cost record deleted.',
-      variant: 'destructive'
-    });
-  }
 
   if (isLoading) {
     return (
       <div className="flex h-[calc(100vh-120px)] w-full items-center justify-center">
         <div className="flex flex-col items-center gap-6">
           <div className="w-12 h-12 border-4 border-slate-100 rounded-full border-t-emerald-500 animate-spin" />
-          <p className="text-[12px] font-black text-slate-400 uppercase tracking-[0.3em]">SYNCHRONIZING FEED DATA...</p>
+          <p className="text-[12px] font-black text-slate-400 uppercase tracking-[0.3em]">SYNCHRONIZING FODDER DATA...</p>
         </div>
       </div>
     );
@@ -117,8 +108,8 @@ export default function FeedPage() {
     <div className="container mx-auto py-8 px-4 md:px-10 max-w-7xl animate-in fade-in duration-700">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
         <PageHeader
-          title="Feed Management"
-          description="OPERATIONAL INVENTORY & PROCUREMENT"
+          title="Fodder & Feed"
+          description="FARM INVENTORY & FEED BUYING LOG"
           className="mb-0"
         />
         
@@ -127,7 +118,7 @@ export default function FeedPage() {
             <DialogTrigger asChild>
               <Button onClick={() => { form.reset(); setIsEntryDialogOpen(true); }} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-neutral-900 hover:bg-neutral-800 text-white gap-2 shadow-xl">
                 <PlusCircle className="h-5 w-5 text-emerald-400" />
-                Ledger Entry
+                Record Fodder
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
@@ -136,9 +127,9 @@ export default function FeedPage() {
                   <div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400">
                     <Plus className="h-5 w-5" />
                   </div>
-                  <DialogTitle className="text-xl font-black tracking-tight uppercase">Feed Entry</DialogTitle>
+                  <DialogTitle className="text-xl font-black tracking-tight uppercase">Fodder Entry</DialogTitle>
                 </div>
-                <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Commit new inventory procurement to ledger</DialogDescription>
+                <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Commit fodder procurement to farm records</DialogDescription>
               </DialogHeader>
               
               <div className="p-8">
@@ -147,7 +138,7 @@ export default function FeedPage() {
                     <div className="space-y-6">
                       <FormField control={form.control} name="date" render={({ field }) => (
                         <FormItem className="flex flex-col">
-                          <Label className="form-label-tactical text-slate-400">Transaction Date</Label>
+                          <Label className="form-label-tactical text-slate-400">Date of Buying</Label>
                           <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
                             <PopoverTrigger asChild>
                               <Button variant="outline" className="form-input-tactical w-full text-left justify-between bg-slate-50 border-slate-200">
@@ -190,7 +181,7 @@ export default function FeedPage() {
                     </div>
 
                     <Button type="submit" className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm uppercase tracking-[0.25em] transition-all active:scale-95 shadow-xl">
-                      Record Procurement
+                      Record Fodder Buy
                     </Button>
                   </form>
                 </Form>
@@ -201,7 +192,7 @@ export default function FeedPage() {
           <div className="px-6 py-3 bg-neutral-900 rounded-2xl text-white flex items-center gap-4 shadow-xl">
             <ShieldCheck className="h-5 w-5 text-emerald-400" />
             <div>
-              <p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Total Expend</p>
+              <p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Net Fodder Cost</p>
               <p className="text-xl font-black tracking-tight text-white">₹{totalFeedCost.toLocaleString()}</p>
             </div>
           </div>
@@ -215,9 +206,9 @@ export default function FeedPage() {
               <div className="space-y-1">
                 <div className="flex items-center gap-3">
                   <Wheat className="h-6 w-6" />
-                  <CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Inventory Stream</CardTitle>
+                  <CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Fodder Ledger</CardTitle>
                 </div>
-                <CardDescription className="text-emerald-100/60 text-xs font-black uppercase tracking-[0.2em]">High-fidelity operational records</CardDescription>
+                <CardDescription className="text-emerald-100/60 text-xs font-black uppercase tracking-[0.2em]">High-fidelity fodder inventory records</CardDescription>
               </div>
               <p className="text-4xl font-black tracking-tighter">₹{totalFeedCost.toLocaleString()}</p>
             </div>
@@ -226,11 +217,11 @@ export default function FeedPage() {
             <Table>
               <TableHeader className="bg-neutral-50">
                 <TableRow>
-                  <TableHead className="text-[10px] font-black uppercase py-6 pl-10">Temporal Node</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase py-6 pl-10">Bill Date</TableHead>
                   <TableHead className="text-[10px] font-black uppercase">Category</TableHead>
                   <TableHead className="text-[10px] font-black uppercase text-center">Packaging</TableHead>
                   <TableHead className="text-[10px] font-black uppercase text-right">Quantity</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase text-right pr-10">Value Payload</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase text-right pr-10">Bill Amount</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -245,12 +236,12 @@ export default function FeedPage() {
                     <TableCell className="text-right pr-10">
                       <div className="flex items-center justify-end gap-4">
                         <span className="text-[18px] font-black text-emerald-700">₹{c.cost.toLocaleString()}</span>
-                        <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-rose-50 text-rose-600 opacity-0 group-hover:opacity-100 transition-all" onClick={() => handleDeleteCost(c.id, c._path)}><Trash2 className="h-4 w-4" /></Button>
+                        <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-rose-50 text-rose-600 opacity-0 group-hover:opacity-100 transition-all" onClick={() => deleteFeedCost(c.id, c._path)}><Trash2 className="h-4 w-4" /></Button>
                       </div>
                     </TableCell>
                   </TableRow>
                 )) : (
-                  <TableRow><TableCell colSpan={5} className="text-center py-32 opacity-20 font-black uppercase text-xs">No disbursement records discovered</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={5} className="text-center py-32 opacity-20 font-black uppercase text-xs">No records found</TableCell></TableRow>
                 )}
               </TableBody>
             </Table>

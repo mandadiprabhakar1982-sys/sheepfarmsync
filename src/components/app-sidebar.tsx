@@ -49,46 +49,46 @@ export function AppSidebar() {
 
   const groups = React.useMemo(() => [
     {
-      label: "MAIN COMMAND",
+      label: "MAIN CONTROL",
       links: [
-        { href: '/dashboard', label: "Dashboard Hub", icon: Home },
-        { href: '/dashboard/overview', label: "Analytics Overview", icon: LayoutDashboard },
-        { href: '/dashboard/analysis', label: "AI Intelligence", icon: BarChart },
+        { href: '/dashboard', label: "Home Hub", icon: Home },
+        { href: '/dashboard/overview', label: "Farm Summary", icon: LayoutDashboard },
+        { href: '/dashboard/analysis', label: "AI Pashu Report", icon: BarChart },
       ]
     },
     {
-      label: "PRIVATE ASSETS",
+      label: "PRIVATE ACCOUNTS",
       adminOnly: true,
       links: [
-        { href: '/dashboard/monthly-ledger', label: "Financial Ledger", icon: Wallet },
-        { href: '/dashboard/balance-sheet', label: "Liability Portfolio", icon: BookOpen },
+        { href: '/dashboard/monthly-ledger', label: "Paisa Ledger", icon: Wallet },
+        { href: '/dashboard/balance-sheet', label: "Debt & Loans", icon: BookOpen },
       ]
     },
     {
-      label: "FARM COST AUDIT",
+      label: "FARM EXPENSES",
       links: [
-        { href: '/dashboard/farm-ledger', label: "Farm Ledger", icon: IconFarmCost },
-        { href: '/dashboard/purchase', label: "Acquisitions", icon: Package },
-        { href: '/dashboard/feed', label: "Feed Inventory", icon: Wheat },
-        { href: '/dashboard/medicine', label: "Health & Pharma", icon: Syringe },
-        { href: '/dashboard/labor', label: "Staff Labor", icon: Users },
-        { href: '/dashboard/expenses', label: "Farm Overheads", icon: Receipt },
+        { href: '/dashboard/farm-ledger', label: "Daily Ledger", icon: IconFarmCost },
+        { href: '/dashboard/purchase', label: "Pashu Buying", icon: Package },
+        { href: '/dashboard/feed', label: "Fodder & Feed", icon: Wheat },
+        { href: '/dashboard/medicine', label: "Medical & Health", icon: Syringe },
+        { href: '/dashboard/labor', label: "Labour & Staff", icon: Users },
+        { href: '/dashboard/expenses', label: "Other Kharchulu", icon: Receipt },
       ]
     },
     {
-      label: "ECOSYSTEM",
+      label: "VILLAGE ECOSYSTEM",
       links: [
         { href: '/dashboard/feed-calculator', label: "Calculator", icon: Calculator },
-        { href: '/dashboard/marketplace', label: "Marketplace", icon: Globe },
+        { href: '/dashboard/marketplace', label: "Village Mandi", icon: Globe },
         { href: '/dashboard/help', label: "Install App", icon: Smartphone },
       ]
     },
     {
-      label: "REGISTRIES",
+      label: "RECORDS",
       links: [
-        { href: '/dashboard/livestock', label: "Livestock Hub", icon: LayoutGrid },
-        { href: '/dashboard/sales', label: "Trade Ledger", icon: ArrowRightLeft },
-        { href: '/dashboard/mortality', label: "Loss Log", icon: Skull },
+        { href: '/dashboard/livestock', label: "Pashu List", icon: LayoutGrid },
+        { href: '/dashboard/sales', label: "Selling Ledger", icon: ArrowRightLeft },
+        { href: '/dashboard/mortality', label: "Death Log", icon: Skull },
       ]
     }
   ], []); 

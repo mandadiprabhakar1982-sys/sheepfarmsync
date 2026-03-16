@@ -77,7 +77,7 @@ export default function ExpensesPage() {
     addFarmExpense(newExpense);
     form.reset();
     setIsEntryDialogOpen(false);
-    toast({ title: 'Success!', description: 'Expense record persisted.' });
+    toast({ title: 'Success!', description: 'Kharchu record saved.' });
   };
 
   const formatGroupDate = (dateStr: string) => {
@@ -92,7 +92,7 @@ export default function ExpensesPage() {
       <div className="flex h-full w-full items-center justify-center">
         <div className="flex flex-col items-center gap-6">
           <div className="w-12 h-12 border-4 border-slate-100 rounded-full border-t-emerald-500 animate-spin" />
-          <p className="text-[12px] font-black text-slate-400 uppercase tracking-[0.3em]">SYNCHRONIZING EXPENSE DATA...</p>
+          <p className="text-[12px] font-black text-slate-400 uppercase tracking-[0.3em]">SYNCHRONIZING EXPENSES...</p>
         </div>
       </div>
     );
@@ -102,23 +102,23 @@ export default function ExpensesPage() {
     <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col relative bg-white md:bg-transparent">
       {/* MOBILE HEADER */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-[110] bg-[#059669] text-white px-6 py-5 flex items-center justify-between shadow-lg">
-        <h2 className="text-xl font-black tracking-tight">Misc Ledger</h2>
+        <h2 className="text-xl font-black tracking-tight">Itara Kharchulu</h2>
         <p className="text-xl font-black">₹{totalFarmExpenses.toLocaleString()}</p>
       </div>
 
       <div className="md:hidden h-16 shrink-0" />
 
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-6 md:mb-8 shrink-0 px-4 md:px-0 mt-4 md:mt-0">
-        <PageHeader title="Misc. Procurement" description="OVERHEADS & CONSUMABLES" className="mb-0 hidden md:block" />
+        <PageHeader title="Other Expenses" description="FARM OVERHEADS & MISC KHARCHULU" className="mb-0 hidden md:block" />
 
         <div className="hidden md:flex items-center gap-4">
           <Button onClick={() => setIsEntryDialogOpen(true)} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-xl border-none">
             <PlusCircle className="h-5 w-5 text-accent" />
-            Commit Expense
+            Log Kharchu
           </Button>
           <div className="px-6 py-3 bg-neutral-900 rounded-2xl text-white flex items-center gap-4 shadow-xl shrink-0">
             <ShieldCheck className="h-5 w-5 text-emerald-400" />
-            <div><p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Net Overhead</p><p className="text-xl font-black tracking-tight text-white">₹{totalFarmExpenses.toLocaleString()}</p></div>
+            <div><p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Net Kharchu</p><p className="text-xl font-black tracking-tight text-white">₹{totalFarmExpenses.toLocaleString()}</p></div>
           </div>
         </div>
       </div>
@@ -127,7 +127,7 @@ export default function ExpensesPage() {
         <div className="relative shrink-0 w-full max-w-xl mx-auto md:mx-0">
           <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
           <Input 
-            placeholder="Filter by Description..." 
+            placeholder="Search Kharchu Description..." 
             value={searchTerm} 
             onChange={(e) => setSearchTerm(e.target.value)} 
             className="h-12 md:h-14 pl-12 pr-12 rounded-2xl md:rounded-full bg-neutral-100/50 md:bg-white border-none text-slate-900 font-bold shadow-sm" 
@@ -140,7 +140,7 @@ export default function ExpensesPage() {
             <div className="flex justify-between items-end">
               <div className="space-y-1">
                 <div className="flex items-center gap-3"><Receipt className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Expense Ledger</CardTitle></div>
-                <CardDescription className="text-emerald-100/60 text-[10px] font-black uppercase tracking-[0.2em]">Operational Overhead Audit</CardDescription>
+                <CardDescription className="text-emerald-100/60 text-[10px] font-black uppercase tracking-[0.2em]">Operational Misc. Kharchulu Audit</CardDescription>
               </div>
               <p className="text-4xl font-black tracking-tighter">₹{totalFarmExpenses.toLocaleString()}</p>
             </div>
@@ -159,7 +159,7 @@ export default function ExpensesPage() {
                       <div key={e.id} className="bg-white rounded-[1.25rem] p-5 flex items-center justify-between shadow-sm border border-white/60 active:scale-[0.98] transition-all">
                         <div className="flex-1 min-w-0">
                           <h3 className="text-lg font-black text-slate-900 truncate leading-none mb-1">{e.description}</h3>
-                          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Procurement • Verified</p>
+                          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Other Expenses</p>
                         </div>
                         <div className="text-right shrink-0">
                           <p className="text-xl font-black text-slate-900">₹{e.amount.toLocaleString()}</p>
@@ -172,7 +172,7 @@ export default function ExpensesPage() {
                     ))}
                   </div>
                 </div>
-              )) : <div className="py-20 text-center opacity-20 font-black uppercase text-xs">No records discovered</div>}
+              )) : <div className="py-20 text-center opacity-20 font-black uppercase text-xs">No records found</div>}
               <div className="h-32" />
             </ScrollArea>
           </div>
@@ -184,9 +184,9 @@ export default function ExpensesPage() {
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="border-b border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-400">
-                      <th className="py-4 px-4">Temporal Node</th>
-                      <th className="py-4 px-4">Payload Identity</th>
-                      <th className="py-4 px-4 text-right">Value Impact</th>
+                      <th className="py-4 px-4">Kharchu Date</th>
+                      <th className="py-4 px-4">Description</th>
+                      <th className="py-4 px-4 text-right">Bill Value</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -221,14 +221,14 @@ export default function ExpensesPage() {
       <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>
         <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
-            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400"><Plus className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase">Expense Entry</DialogTitle></div>
-            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Document new operational overhead</DialogDescription>
+            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400"><Plus className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase">Kharchu Entry</DialogTitle></div>
+            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Document new farm overhead</DialogDescription>
           </DialogHeader>
           <div className="p-8">
             <Form {...form}><form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField control={form.control} name="description" render={({ field }) => (<FormItem><Label className="form-label-tactical">Payload Description</Label><FormControl><Input placeholder="e.g. Fence repair" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
-              <FormField control={form.control} name="amount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Total Impact (₹)</Label><FormControl><Input type="number" className="form-input-tactical font-black text-xl" {...field} /></FormControl></FormItem>)} />
-              <Button type="submit" className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase shadow-xl">Record Disbursement</Button>
+              <FormField control={form.control} name="description" render={({ field }) => (<FormItem><Label className="form-label-tactical">Kharchu Detail</Label><FormControl><Input placeholder="e.g. Electricity bill" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+              <FormField control={form.control} name="amount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Bill Amount (₹)</Label><FormControl><Input type="number" className="form-input-tactical font-black text-xl" {...field} /></FormControl></FormItem>)} />
+              <Button type="submit" className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase shadow-xl">Record Kharchu</Button>
             </form></Form>
           </div>
         </DialogContent>

@@ -152,7 +152,7 @@ export default function PurchasePage() {
       <div className="flex h-full w-full items-center justify-center">
         <div className="flex flex-col items-center gap-6">
           <div className="w-12 h-12 border-4 border-slate-100 rounded-full border-t-emerald-500 animate-spin" />
-          <p className="text-[12px] font-black text-slate-400 uppercase tracking-[0.3em]">SYNCHRONIZING ACQUISITIONS...</p>
+          <p className="text-[12px] font-black text-slate-400 uppercase tracking-[0.3em]">SYNCHRONIZING BUYING DATA...</p>
         </div>
       </div>
     );
@@ -162,9 +162,9 @@ export default function PurchasePage() {
     <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col relative bg-white md:bg-transparent">
       {/* MOBILE HEADER */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-[110] bg-[#059669] text-white px-6 py-5 flex items-center justify-between shadow-lg">
-        <h2 className="text-xl font-black tracking-tight uppercase">Acquisitions</h2>
+        <h2 className="text-xl font-black tracking-tight uppercase">Buy Records</h2>
         <div className="text-right">
-          <p className="text-[8px] font-black uppercase opacity-60 leading-none mb-1">Net Purchase</p>
+          <p className="text-[8px] font-black uppercase opacity-60 leading-none mb-1">Total Konna</p>
           <p className="text-xl font-black">₹{totalPurchaseCost.toLocaleString()}</p>
         </div>
       </div>
@@ -172,17 +172,17 @@ export default function PurchasePage() {
       <div className="md:hidden h-16 shrink-0" />
 
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-6 md:mb-8 shrink-0 px-4 md:px-0 mt-4 md:mt-0">
-        <PageHeader title="Sheep Acquisition" description="LIVESTOCK PROCUREMENT AUDIT" className="mb-0 hidden md:block" />
+        <PageHeader title="Pashu Buying" description="RECORD NEW PURCHASES FROM FARMERS" className="mb-0 hidden md:block" />
 
         <div className="hidden md:flex items-center gap-4">
           <Button onClick={() => setIsEntryDialogOpen(true)} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-xl border-none">
             <PlusCircle className="h-5 w-5 text-accent" />
-            Log Purchase
+            Record Buying
           </Button>
           <div className="px-6 py-3 bg-neutral-900 rounded-2xl text-white flex items-center gap-4 shadow-xl shrink-0">
             <ShieldCheck className="h-5 w-5 text-emerald-400" />
             <div>
-              <p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Net Purchase</p>
+              <p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Net Buy Spend</p>
               <p className="text-xl font-black tracking-tight text-white">₹{totalPurchaseCost.toLocaleString()}</p>
             </div>
           </div>
@@ -205,8 +205,8 @@ export default function PurchasePage() {
           <CardHeader className="bg-emerald-600 text-white p-10 shrink-0 hidden md:block">
             <div className="flex justify-between items-end">
               <div className="space-y-1">
-                <div className="flex items-center gap-3"><ShoppingBag className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Acquisition Ledger</CardTitle></div>
-                <CardDescription className="text-emerald-100/60 text-[10px] font-black uppercase tracking-[0.2em]">Verified Livestock Procurement Stream</CardDescription>
+                <div className="flex items-center gap-3"><ShoppingBag className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Buying Ledger</CardTitle></div>
+                <CardDescription className="text-emerald-100/60 text-[10px] font-black uppercase tracking-[0.2em]">Verified Cattle Procurement Stream</CardDescription>
               </div>
               <p className="text-4xl font-black tracking-tighter">₹{totalPurchaseCost.toLocaleString()}</p>
             </div>
@@ -244,7 +244,7 @@ export default function PurchasePage() {
                     ))}
                   </div>
                 </div>
-              )) : <div className="py-20 text-center opacity-20 font-black uppercase text-xs">No records discovered</div>}
+              )) : <div className="py-20 text-center opacity-20 font-black uppercase text-xs">No buying records found</div>}
               <div className="h-32" />
             </ScrollArea>
           </div>
@@ -255,10 +255,10 @@ export default function PurchasePage() {
               <Table>
                 <TableHeader className="bg-slate-50/50 sticky top-0 z-10 backdrop-blur">
                   <TableRow className="border-none hover:bg-transparent">
-                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-slate-400">Date</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-slate-400">Buying Date</TableHead>
                     <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-slate-400">Farmer / Village</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-center text-slate-400">Asset Count</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-slate-400">Acquisition Value</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-center text-slate-400">Head Count</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-slate-400">Purchase Value</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -275,7 +275,7 @@ export default function PurchasePage() {
                         <div className="flex items-center justify-end gap-4">
                           <div className="flex flex-col items-end">
                             <span className="text-[18px] font-black text-slate-900">₹{p.purchasePrice.toLocaleString()}</span>
-                            {p.dueAmount > 0 && <span className="text-[9px] font-bold text-rose-500 uppercase">₹{p.dueAmount.toLocaleString()} Outstanding</span>}
+                            {p.dueAmount > 0 && <span className="text-[9px] font-bold text-rose-500 uppercase">₹{p.dueAmount.toLocaleString()} Pending</span>}
                           </div>
                           <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
                             <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-emerald-50 text-emerald-600" onClick={(e) => { e.stopPropagation(); handleEditClick(p); }}><Pencil className="h-4 w-4" /></Button>
@@ -304,16 +304,16 @@ export default function PurchasePage() {
       <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>
         <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
-            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400"><Plus className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase">Acquisition Entry</DialogTitle></div>
-            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Enroll new livestock acquisition into registry</DialogDescription>
+            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400"><Plus className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase">Buying Entry</DialogTitle></div>
+            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Enroll new pashu purchase into records</DialogDescription>
           </DialogHeader>
           <div className="p-8 max-h-[75vh] overflow-y-auto no-scrollbar">
             <Form {...purchaseForm}><form onSubmit={purchaseForm.handleSubmit(onPurchaseSubmit)} className="space-y-6">
               <FormField control={purchaseForm.control} name="purchaseDate" render={({ field }) => (
-                <FormItem className="flex flex-col"><Label className="form-label-tactical">Transaction Date</Label><Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}><PopoverTrigger asChild><Button variant="outline" className="form-input-tactical w-full text-left justify-between">{field.value ? format(field.value, "MMM dd, yyyy") : "Pick date"}<CalendarIcon className="h-4 w-4 opacity-20" /></Button></PopoverTrigger><PopoverContent className="w-auto p-0 border-none bg-white shadow-2xl"><Calendar mode="single" selected={field.value} onSelect={(d) => { field.onChange(d); setIsDatePickerOpen(false); }} initialFocus /></PopoverContent></Popover></FormItem>
+                <FormItem className="flex flex-col"><Label className="form-label-tactical">Date of Buying</Label><Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}><PopoverTrigger asChild><Button variant="outline" className="form-input-tactical w-full text-left justify-between">{field.value ? format(field.value, "MMM dd, yyyy") : "Pick date"}<CalendarIcon className="h-4 w-4 opacity-20" /></Button></PopoverTrigger><PopoverContent className="w-auto p-0 border-none bg-white shadow-2xl"><Calendar mode="single" selected={field.value} onSelect={(d) => { field.onChange(d); setIsDatePickerOpen(false); }} initialFocus /></PopoverContent></Popover></FormItem>
               )} />
               <div className="grid grid-cols-2 gap-4">
-                <FormField control={purchaseForm.control} name="farmerName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Farmer Name</Label><FormControl><Input placeholder="Seller Identity" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+                <FormField control={purchaseForm.control} name="farmerName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Farmer Name</Label><FormControl><Input placeholder="Seller Name" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
                 <FormField control={purchaseForm.control} name="villageName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Village</Label><FormControl><Input placeholder="Location" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -322,9 +322,9 @@ export default function PurchasePage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <FormField control={purchaseForm.control} name="amountPaid" render={({ field }) => (<FormItem><Label className="form-label-tactical">Amount Paid (₹)</Label><FormControl><Input type="number" className="form-input-tactical font-black text-emerald-600" {...field} /></FormControl></FormItem>)} />
-                <FormField control={purchaseForm.control} name="dueAmount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Outstanding (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-rose-50 text-rose-600 font-black" {...field} readOnly /></FormControl></FormItem>)} />
+                <FormField control={purchaseForm.control} name="dueAmount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Ivvalasina (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-rose-50 text-rose-600 font-black" {...field} readOnly /></FormControl></FormItem>)} />
               </div>
-              <Button type="submit" className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase tracking-widest shadow-xl">Synchronize Purchase</Button>
+              <Button type="submit" className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase tracking-widest shadow-xl">Record Pashu Buy</Button>
             </form></Form>
           </div>
         </DialogContent>
@@ -334,8 +334,8 @@ export default function PurchasePage() {
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
-            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400"><Pencil className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase">Update Record</DialogTitle></div>
-            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Adjust historical acquisition parameters</DialogDescription>
+            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400"><Pencil className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase">Update Pashu Buy</DialogTitle></div>
+            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Adjust historical purchase records</DialogDescription>
           </DialogHeader>
           <div className="p-8 max-h-[75vh] overflow-y-auto no-scrollbar">
             <Form {...editForm}><form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-6">
@@ -344,7 +344,7 @@ export default function PurchasePage() {
                 <FormField control={editForm.control} name="purchasePrice" render={({ field }) => (<FormItem><Label className="form-label-tactical">Purchase Price (₹)</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
                 <FormField control={editForm.control} name="amountPaid" render={({ field }) => (<FormItem><Label className="form-label-tactical">Amount Paid (₹)</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
               </div>
-              <Button type="submit" className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase tracking-widest shadow-xl">Save Adjustments</Button>
+              <Button type="submit" className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase tracking-widest shadow-xl">Save Changes</Button>
             </form></Form>
           </div>
         </DialogContent>

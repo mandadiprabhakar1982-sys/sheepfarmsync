@@ -45,14 +45,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
   Table,
   TableBody,
   TableCell,
@@ -94,12 +86,6 @@ export default function LivestockPage() {
   const [isUploading, setIsUploading] = useState(false);
   
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
-  const [zoomedAsset, setZoomedAsset] = useState<any>(null);
-
-  // Camera & Photo State
-  const [isCameraActive, setIsCameraActive] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const assetForm = useForm<AssetFormData>({
     resolver: zodResolver(assetSchema),
@@ -119,11 +105,10 @@ export default function LivestockPage() {
     return list;
   }, [trackedSheep, searchTerm, genderFilter]);
 
-  // Grouping for Mobile View
   const groupedAssets = useMemo(() => {
     const groups: { [key: string]: any[] } = {};
     filteredAssets.forEach(asset => {
-      const date = asset.registrationDate || 'Legacy Records';
+      const date = asset.registrationDate || 'Old Records';
       if (!groups[date]) groups[date] = [];
       groups[date].push(asset);
     });
@@ -140,9 +125,9 @@ export default function LivestockPage() {
       addTrackedSheep({ ...data, imageUrl: finalUrl || '', registrationDate: format(data.registrationDate, 'yyyy-MM-dd') });
       assetForm.reset();
       setIsEntryDialogOpen(false);
-      toast({ title: 'Record Saved', description: `Asset ${data.tagId} synchronized.` });
+      toast({ title: 'Record Saved', description: `Pashu ${data.tagId} synchronized.` });
     } catch (e) {
-      toast({ variant: 'destructive', title: 'Error', description: 'Could not sync asset.' });
+      toast({ variant: 'destructive', title: 'Error', description: 'Could not save Pashu.' });
     } finally {
       setIsUploading(false);
     }
@@ -154,7 +139,7 @@ export default function LivestockPage() {
   };
 
   const formatGroupDate = (dateStr: string) => {
-    if (dateStr === 'Legacy Records') return dateStr;
+    if (dateStr === 'Old Records') return dateStr;
     const d = parseISO(dateStr);
     if (isToday(d)) return `TODAY - ${dateStr}`;
     if (isYesterday(d)) return `YESTERDAY - ${dateStr}`;
@@ -166,7 +151,7 @@ export default function LivestockPage() {
       <div className="flex h-full w-full items-center justify-center">
         <div className="flex flex-col items-center gap-6">
           <div className="w-12 h-12 border-4 border-slate-100 rounded-full border-t-emerald-500 animate-spin" />
-          <p className="text-[12px] font-black text-slate-400 uppercase tracking-[0.3em]">SYNCHRONIZING REGISTRY...</p>
+          <p className="text-[12px] font-black text-slate-400 uppercase tracking-[0.3em]">SYNCHRONIZING PASHU LIST...</p>
         </div>
       </div>
     );
@@ -174,27 +159,25 @@ export default function LivestockPage() {
 
   return (
     <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col relative bg-white md:bg-transparent">
-      {/* MOBILE HEADER (HIGH PROFILE) */}
+      {/* MOBILE HEADER */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-[110] bg-[#059669] text-white px-6 py-5 flex items-center justify-between shadow-lg">
-        <h2 className="text-xl font-black tracking-tight">Livestock Hub</h2>
+        <h2 className="text-xl font-black tracking-tight">Pashu Hub</h2>
         <p className="text-xl font-black">{totalSheep} Head</p>
       </div>
 
       <div className="md:hidden h-16 shrink-0" />
 
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-6 md:mb-8 shrink-0 px-4 md:px-0 mt-4 md:mt-0">
-        <PageHeader title="Livestock Hub" description="PRECISION ASSET REGISTRY" className="mb-0 hidden md:block" />
+        <PageHeader title="Pashu Registry" description="HIGH-FIDELITY FLOCK RECORDS" className="mb-0 hidden md:block" />
 
-        <div className="flex items-center gap-2 md:gap-4 overflow-x-auto pb-2 md:pb-0 no-scrollbar md:w-auto w-full">
-          <div className="hidden md:flex items-center gap-4">
-            <Button onClick={() => setIsEntryDialogOpen(true)} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-xl border-none">
-              <PlusCircle className="h-5 w-5 text-accent" />
-              Add Asset
-            </Button>
-            <div className="px-6 py-3 bg-neutral-900 rounded-2xl text-white flex items-center gap-4 shadow-xl shrink-0">
-              <ShieldCheck className="h-5 w-5 text-emerald-400" />
-              <div><p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Net Flock</p><p className="text-xl font-black tracking-tight">{totalSheep}</p></div>
-            </div>
+        <div className="hidden md:flex items-center gap-4">
+          <Button onClick={() => setIsEntryDialogOpen(true)} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-xl border-none">
+            <PlusCircle className="h-5 w-5 text-accent" />
+            Add Pashu
+          </Button>
+          <div className="px-6 py-3 bg-neutral-900 rounded-2xl text-white flex items-center gap-4 shadow-xl shrink-0">
+            <ShieldCheck className="h-5 w-5 text-emerald-400" />
+            <div><p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Net Pashu</p><p className="text-xl font-black tracking-tight">{totalSheep}</p></div>
           </div>
         </div>
       </div>
@@ -203,7 +186,7 @@ export default function LivestockPage() {
         <div className="relative shrink-0 w-full max-w-xl mx-auto md:mx-0">
           <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
           <Input 
-            placeholder="Search Tag ID or Breed..." 
+            placeholder="Search Pashu Tag or Breed..." 
             value={searchTerm} 
             onChange={(e) => setSearchTerm(e.target.value)} 
             className="h-12 md:h-14 pl-12 pr-12 rounded-2xl md:rounded-full bg-neutral-100/50 md:bg-white border-none text-slate-900 font-bold shadow-sm" 
@@ -215,14 +198,14 @@ export default function LivestockPage() {
           <CardHeader className="bg-emerald-600 text-white p-10 shrink-0 hidden md:block">
             <div className="flex justify-between items-end">
               <div className="space-y-1">
-                <div className="flex items-center gap-3"><LayoutGrid className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Asset Registry</CardTitle></div>
-                <CardDescription className="text-emerald-100/60 text-[10px] font-black uppercase tracking-[0.2em]">High-Fidelity Individual Records</CardDescription>
+                <div className="flex items-center gap-3"><LayoutGrid className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Pashu Registry</CardTitle></div>
+                <CardDescription className="text-emerald-100/60 text-[10px] font-black uppercase tracking-[0.2em]">Verified Individual Flock Records</CardDescription>
               </div>
               <p className="text-4xl font-black tracking-tighter">{totalSheep} Head</p>
             </div>
           </CardHeader>
 
-          {/* MOBILE VIEW: GROUPED LIST */}
+          {/* MOBILE VIEW */}
           <div className="block md:hidden flex-1 overflow-hidden bg-slate-50 -mx-4">
             <ScrollArea className="h-full px-4 pt-4">
               {groupedAssets.length > 0 ? groupedAssets.map((group) => (
@@ -234,13 +217,13 @@ export default function LivestockPage() {
                     {group.items.map((sheep) => (
                       <div key={sheep.id} className="bg-white rounded-[1.25rem] p-5 flex items-center justify-between shadow-sm border border-white/60 active:scale-[0.98] transition-all" onClick={() => handleEditClick(sheep)}>
                         <div className="flex items-center gap-4 flex-1 min-w-0">
-                          <div className="h-14 w-14 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 relative shrink-0" onClick={(e) => { e.stopPropagation(); setZoomedAsset(sheep); }}>
-                            {sheep.imageUrl ? <Image src={sheep.imageUrl} alt="Sheep" fill className="object-cover" sizes="56px" /> : <ImageIcon className="h-full w-full p-4 text-slate-300" />}
+                          <div className="h-14 w-14 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 relative shrink-0">
+                            {sheep.imageUrl ? <Image src={sheep.imageUrl} alt="Pashu" fill className="object-cover" sizes="56px" /> : <ImageIcon className="h-full w-full p-4 text-slate-300" />}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h3 className="text-lg font-black text-slate-900 leading-none mb-1">{sheep.tagId}</h3>
+                            <h3 className="text-lg font-black text-slate-900 leading-none mb-1">Tag: {sheep.tagId}</h3>
                             <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-                              {sheep.breed || 'Standard'} • {sheep.age} Mos • {sheep.gender}
+                              {sheep.breed || 'Pashu'} • {sheep.age} Mos
                             </p>
                           </div>
                         </div>
@@ -255,36 +238,36 @@ export default function LivestockPage() {
                     ))}
                   </div>
                 </div>
-              )) : <div className="py-20 text-center opacity-20 font-black uppercase text-xs">No assets discovered</div>}
+              )) : <div className="py-20 text-center opacity-20 font-black uppercase text-xs">No records discovered</div>}
               <div className="h-32" />
             </ScrollArea>
           </div>
 
-          {/* DESKTOP VIEW: TABLE */}
+          {/* DESKTOP VIEW */}
           <div className="hidden md:block flex-1 overflow-hidden">
             <ScrollArea className="h-full">
               <Table>
                 <TableHeader className="bg-slate-50/50 sticky top-0 z-10 backdrop-blur">
                   <TableRow className="border-none hover:bg-transparent">
-                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-slate-400">Identity</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-slate-400">Pashu Identity</TableHead>
                     <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-slate-400">Attributes</TableHead>
                     <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-center text-slate-400">Status</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-slate-400">Live Weight</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-slate-400">Current Weight</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredAssets.map((sheep) => (
-                    <TableRow key={sheep.id} className="hover:bg-slate-50 transition-colors border-b border-slate-100 group cursor-pointer" onClick={() => handleEditClick(sheep)}>
+                    <TableRow key={sheep.id} className="hover:bg-slate-50 border-b border-slate-100 group cursor-pointer" onClick={() => handleEditClick(sheep)}>
                       <TableCell className="pl-10 py-8">
                         <div className="flex items-center gap-4">
                           <div className="h-12 w-12 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden relative shrink-0">
-                            {sheep.imageUrl ? <Image src={sheep.imageUrl} alt="Sheep" fill className="object-cover" sizes="48px" /> : <ImageIcon className="h-full w-full p-3 text-slate-300" />}
+                            {sheep.imageUrl ? <Image src={sheep.imageUrl} alt="Pashu" fill className="object-cover" sizes="48px" /> : <ImageIcon className="h-full w-full p-3 text-slate-300" />}
                           </div>
-                          <span className="text-[16px] font-black text-slate-900">{sheep.tagId}</span>
+                          <span className="text-[16px] font-black text-slate-900">Tag: {sheep.tagId}</span>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="flex flex-col"><span className="text-[14px] font-bold text-slate-600">{sheep.breed || 'Standard'}</span><span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{sheep.age} Mos • {sheep.gender}</span></div>
+                        <div className="flex flex-col"><span className="text-[14px] font-bold text-slate-600">{sheep.breed || 'Standard'}</span><span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{sheep.age} Months • {sheep.gender}</span></div>
                       </TableCell>
                       <TableCell className="text-center">
                         <Badge className="bg-emerald-500/10 text-emerald-600 border-none font-black text-[10px] px-3 uppercase tracking-widest">VERIFIED</Badge>
@@ -309,18 +292,17 @@ export default function LivestockPage() {
         <Plus className="h-7 w-7" />
       </button>
 
-      {/* DIALOGS */}
       <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>
         <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
-            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400"><Plus className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase">Register Asset</DialogTitle></div>
-            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Enroll new biological record into registry</DialogDescription>
+            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400"><Plus className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase">Pashu Enrollment</DialogTitle></div>
+            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Enroll new animal into farm registry</DialogDescription>
           </DialogHeader>
           <div className="p-8 max-h-[70vh] overflow-y-auto no-scrollbar">
             <Form {...assetForm}><form onSubmit={assetForm.handleSubmit(onAssetSubmit)} className="space-y-8">
               <div className="space-y-6">
                 <FormField control={assetForm.control} name="tagId" render={({ field }) => (
-                  <FormItem><Label className="form-label-tactical">Asset Tag ID</Label><FormControl><Input placeholder="e.g. 101-A" className="form-input-tactical" {...field} /></FormControl><FormMessage /></FormItem>
+                  <FormItem><Label className="form-label-tactical">Pashu Tag ID</Label><FormControl><Input placeholder="e.g. 101-A" className="form-input-tactical" {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
                 <div className="grid grid-cols-2 gap-4">
                   <FormField control={assetForm.control} name="breed" render={({ field }) => (
@@ -329,13 +311,11 @@ export default function LivestockPage() {
                   <FormField control={assetForm.control} name="currentWeight" render={({ field }) => (<FormItem><Label className="form-label-tactical">Weight (KG)</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
                 </div>
               </div>
-              <Button type="submit" disabled={isUploading} className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase tracking-widest shadow-xl">{isUploading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Synchronize Asset'}</Button>
+              <Button type="submit" disabled={isUploading} className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase tracking-widest shadow-xl">{isUploading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Enroll Pashu'}</Button>
             </form></Form>
           </div>
         </DialogContent>
       </Dialog>
-
-      <canvas ref={canvasRef} className="hidden" />
     </div>
   );
 }
