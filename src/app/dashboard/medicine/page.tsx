@@ -25,7 +25,7 @@ import { format, addMonths } from 'date-fns';
 
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -342,8 +342,9 @@ export default function MedicinePage() {
                           <span className="text-[16px] font-black text-slate-900">₹{exp.totalAmountSpent.toLocaleString()}</span>
                           <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-rose-50 text-rose-600 opacity-0 group-hover:opacity-100 transition-all" onClick={() => handleDeleteExpense(exp.id, exp._path)}><Trash2 className="h-4 w-4" /></Button>
                         </div>
-                      </TableRow>
-                    )) : (
+                      </TableCell>
+                    </TableRow>
+                  )) : (
                     <TableRow><TableCell colSpan={4} className="text-center py-32 opacity-20 font-black uppercase text-xs">No procurement records discovered</TableCell></TableRow>
                   )}
                 </TableBody>
