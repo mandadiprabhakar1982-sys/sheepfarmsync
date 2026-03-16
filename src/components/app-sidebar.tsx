@@ -51,7 +51,7 @@ export function AppSidebar() {
     {
       label: "MAIN CONTROL",
       links: [
-        { href: '/dashboard', label: "Home Hub", icon: Home },
+        { href: '/dashboard', label: "Home", icon: Home },
         { href: '/dashboard/overview', label: "Farm Summary", icon: LayoutDashboard },
         { href: '/dashboard/analysis', label: "AI Farm Report", icon: BarChart },
       ]
@@ -65,9 +65,9 @@ export function AppSidebar() {
       ]
     },
     {
-      label: "FARM EXPENSES",
+      label: "FARM COST AUDIT",
       links: [
-        { href: '/dashboard/farm-ledger', label: "Daily Ledger", icon: IconFarmCost },
+        { href: '/dashboard/farm-ledger', label: "Farm Ledger", icon: IconFarmCost },
         { href: '/dashboard/purchase', label: "Sheep Buying", icon: Package },
         { href: '/dashboard/feed', label: "Fodder & Feed", icon: Wheat },
         { href: '/dashboard/medicine', label: "Medical & Health", icon: Syringe },
