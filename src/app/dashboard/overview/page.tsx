@@ -12,20 +12,18 @@ import {
   Wallet, 
   Plus,
   Loader2,
-  ChevronRight,
-  ShieldCheck,
-  Activity,
-  BarChart3
+  Skull,
+  LayoutGrid
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
+import { SheepIcon } from '@/components/logo';
 
 /**
- * @fileOverview Responsive Overview Page
- * Laptop: Deep Analytics View
- * Mobile: Quick Status & Big Buttons
+ * @fileOverview Precision Overview Page
+ * Matched to high-fidelity design for both Web (Laptop) and Mobile models.
  */
 export default function OverviewPage() {
   const { width } = useWindowDimensions();
@@ -33,6 +31,8 @@ export default function OverviewPage() {
   const router = useRouter();
   
   const { 
+    totalSheep,
+    totalDead,
     totalExpenses, 
     totalReceivables, 
     totalPayables, 
@@ -51,110 +51,135 @@ export default function OverviewPage() {
     );
   }
 
-  // --- MOBILE COMPONENTS (Tactical Feeds & Big Buttons) ---
-  const FinancialRow = ({ title, value, icon: Icon, color }: { title: string, value: string, icon: any, color: string }) => (
-    <div className="bg-white rounded-[1.5rem] p-5 flex items-center justify-between shadow-sm border border-slate-100 mb-4 active:scale-[0.98] transition-all">
-      <div className="flex items-center gap-4">
-        <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center text-white shadow-md", color)}>
-          <Icon className="h-6 w-6" />
+  // --- MOBILE COMPONENTS ---
+  const MobileFinancialRow = ({ title, value, icon: Icon, color }: { title: string, value: string, icon: any, color: string }) => (
+    <div className="bg-white rounded-xl p-4 flex items-center justify-between shadow-sm border border-slate-100 mb-2">
+      <div className="flex items-center gap-3">
+        <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center text-white shadow-sm", color)}>
+          <Icon className="h-4 w-4" />
         </div>
-        <span className="text-[11px] font-black uppercase tracking-widest text-slate-600">{title}</span>
+        <span className="text-[10px] font-black uppercase tracking-tight text-slate-600">{title}</span>
       </div>
-      <span className="text-2xl font-black tracking-tighter text-slate-900">{value}</span>
+      <span className="text-base font-black tracking-tight text-slate-900">{value}</span>
     </div>
   );
 
-  const BreakdownCard = ({ title, value, icon: Icon }: { title: string, value: string, icon: any }) => (
-    <div className="bg-white rounded-[2rem] p-6 flex flex-col items-center text-center shadow-sm border border-slate-100 aspect-square justify-center active:scale-[0.98] transition-all">
-      <div className="h-16 w-16 rounded-[1.5rem] bg-[#f59e0b] flex items-center justify-center text-white mb-4 shadow-lg shadow-amber-500/20">
-        <Icon className="h-8 w-8" />
+  const MobileBreakdownCard = ({ title, value, icon: Icon, color }: { title: string, value: string, icon: any, color: string }) => (
+    <div className="bg-white rounded-2xl p-5 flex flex-col items-center text-center shadow-sm border border-slate-100 aspect-square justify-center">
+      <div className={cn("h-12 w-12 rounded-xl flex items-center justify-center text-white mb-3 shadow-md", color)}>
+        <Icon className="h-6 w-6" />
       </div>
-      <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">{title}:</p>
-      <p className="text-xl font-black tracking-tighter text-slate-900">{value}</p>
+      <p className="text-[8px] font-black uppercase tracking-widest text-slate-400 mb-1">{title}:</p>
+      <p className="text-sm font-black tracking-tight text-slate-900">{value}</p>
     </div>
   );
 
-  const MobileOverview = (
-    <div className="max-w-lg mx-auto space-y-10 py-4 animate-in fade-in duration-700">
+  const MobileView = (
+    <div className="max-w-lg mx-auto space-y-8 py-4 animate-in fade-in duration-700">
       <section>
-        <h2 className="text-xl font-black uppercase tracking-tight text-slate-900 mb-6 px-2">Financial Summary</h2>
+        <h2 className="text-xs font-black uppercase tracking-widest text-slate-900 mb-4 px-1">Financial Summary</h2>
         <div className="space-y-1">
-          <FinancialRow title="Receivables" value={`₹${totalReceivables.toLocaleString()}`} icon={TrendingUp} color="bg-blue-500" />
-          <FinancialRow title="Payables" value={`₹${totalPayables.toLocaleString()}`} icon={TrendingDown} color="bg-[#f59e0b]" />
-          <FinancialRow title="Total Cost" value={`₹${totalExpenses.toLocaleString()}`} icon={ReceiptIndianRupee} color="bg-slate-800" />
+          <MobileFinancialRow title="Receivables Pending" value={`₹${totalReceivables.toLocaleString()}`} icon={TrendingUp} color="bg-blue-500" />
+          <MobileFinancialRow title="Payables Due" value={`₹${totalPayables.toLocaleString()}`} icon={TrendingDown} color="bg-[#f59e0b]" />
+          <MobileFinancialRow title="Total Cost Summary" value={`₹${totalExpenses.toLocaleString()}`} icon={ReceiptIndianRupee} color="bg-slate-800" />
         </div>
       </section>
 
       <section>
-        <h2 className="text-xl font-black uppercase tracking-tight text-slate-900 mb-6 px-2">Operational Breakdown</h2>
+        <h2 className="text-xs font-black uppercase tracking-widest text-slate-900 mb-4 px-1">Operational Breakdown</h2>
         <div className="grid grid-cols-2 gap-4">
-          <BreakdownCard title="Feed" value={`₹${totalFeedCost.toLocaleString()}`} icon={Wheat} />
-          <BreakdownCard title="Labor" value={`₹${totalLaborCost.toLocaleString()}`} icon={Users} />
-          <BreakdownCard title="Medical" value={`₹${totalMedicineCost.toLocaleString()}`} icon={Heart} />
-          <BreakdownCard title="Misc" value={`₹${totalFarmExpenses.toLocaleString()}`} icon={Wallet} />
+          <MobileBreakdownCard title="Feed Usage" value={`₹${totalFeedCost.toLocaleString()}`} icon={Wheat} color="bg-[#f59e0b]" />
+          <MobileBreakdownCard title="Labor Cost" value={`₹${totalLaborCost.toLocaleString()}`} icon={Users} color="bg-blue-500" />
+          <MobileBreakdownCard title="Medical" value={`₹${totalMedicineCost.toLocaleString()}`} icon={Heart} color="bg-emerald-500" />
+          <MobileBreakdownCard title="Misc. Expenses" value={`₹${totalFarmExpenses.toLocaleString()}`} icon={Wallet} color="bg-amber-600" />
         </div>
       </section>
 
-      <Button onClick={() => router.push('/dashboard/expenses')} className="w-full h-16 rounded-2xl bg-[#f59e0b] hover:bg-amber-600 text-white font-black uppercase tracking-[0.2em] shadow-xl text-sm gap-3">
-        <Plus className="h-6 w-6" /> RECORD EXPENSE
+      <Button onClick={() => router.push('/dashboard/expenses')} className="w-full h-14 rounded-xl bg-[#f59e0b] hover:bg-amber-600 text-white font-black uppercase tracking-[0.1em] shadow-lg text-xs gap-2 border-none">
+        <Plus className="h-4 w-4" /> RECORD EXPENSE
       </Button>
     </div>
   );
 
-  // --- WEB COMPONENTS (Deep Analytics & Grids) ---
-  const WebOverview = (
+  // --- WEB COMPONENTS ---
+  const WebView = (
     <div className="space-y-12 animate-in fade-in duration-1000 pb-20">
-      <div className="flex justify-between items-end">
-        <div>
-          <h1 className="text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-4">Analytics Overview</h1>
-          <p className="text-[11px] font-black text-emerald-600 uppercase tracking-[0.5em]">System Intelligence Hub</p>
-        </div>
-        <div className="flex gap-4">
-          <Button variant="outline" className="h-12 px-6 rounded-xl font-black uppercase text-xs tracking-widest gap-2">
-            <Activity className="h-4 w-4" /> Live Sync
-          </Button>
-          <Button onClick={() => router.push('/dashboard/analysis')} className="h-12 px-8 rounded-xl bg-primary text-white font-black uppercase text-xs tracking-widest gap-2">
-            <BarChart3 className="h-4 w-4 text-accent" /> Run AI Audit
-          </Button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-3 gap-8">
-        <Card className="border-none shadow-2xl rounded-[2.5rem] bg-blue-600 text-white overflow-hidden p-8">
-          <TrendingUp className="h-10 w-10 mb-6 text-blue-200" />
-          <p className="text-[10px] font-black uppercase tracking-[0.25em] opacity-60 mb-2">Total Receivables</p>
-          <p className="text-5xl font-black tracking-tighter">₹{totalReceivables.toLocaleString()}</p>
-        </Card>
-        <Card className="border-none shadow-2xl rounded-[2.5rem] bg-amber-500 text-white overflow-hidden p-8">
-          <TrendingDown className="h-10 w-10 mb-6 text-amber-100" />
-          <p className="text-[10px] font-black uppercase tracking-[0.25em] opacity-60 mb-2">Total Payables</p>
-          <p className="text-5xl font-black tracking-tighter">₹{totalPayables.toLocaleString()}</p>
-        </Card>
-        <Card className="border-none shadow-2xl rounded-[2.5rem] bg-slate-900 text-white overflow-hidden p-8">
-          <ShieldCheck className="h-10 w-10 mb-6 text-emerald-400" />
-          <p className="text-[10px] font-black uppercase tracking-[0.25em] opacity-60 mb-2">Total Capital Impact</p>
-          <p className="text-5xl font-black tracking-tighter">₹{totalExpenses.toLocaleString()}</p>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-4 gap-8">
-        {[
-          { label: 'Feed Procurement', val: totalFeedCost, icon: Wheat, color: 'text-emerald-600' },
-          { label: 'Labor Disbursement', val: totalLaborCost, icon: Users, color: 'text-blue-600' },
-          { label: 'Clinical Costs', val: totalMedicineCost, icon: Heart, color: 'text-red-600' },
-          { label: 'General Overhead', val: totalFarmExpenses, icon: Wallet, color: 'text-purple-600' },
-        ].map((stat, i) => (
-          <Card key={i} className="border-none shadow-xl rounded-[2rem] bg-white p-8 group hover:-translate-y-1 transition-all">
-            <div className={cn("h-12 w-12 rounded-2xl bg-neutral-50 flex items-center justify-center mb-6", stat.color)}>
-              <stat.icon className="h-6 w-6" />
+      {/* INVENTORY & FLOCK STATUS */}
+      <section>
+        <h2 className="text-xl font-black uppercase tracking-tight text-slate-900 mb-6">Inventory & Flock Status</h2>
+        <div className="flex gap-6">
+          <Card className="flex-1 border-none shadow-xl rounded-[2.5rem] bg-white p-10 flex items-center gap-8">
+            <div className="h-24 w-24 rounded-[2rem] bg-emerald-500 flex items-center justify-center text-white shadow-2xl shadow-emerald-500/20">
+              <SheepIcon className="h-12 w-12" />
             </div>
-            <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">{stat.label}</p>
-            <p className="text-3xl font-black tracking-tighter text-slate-900">₹{stat.val.toLocaleString()}</p>
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Live Sheep Inventory</p>
+              <p className="text-6xl font-black tracking-tighter text-slate-900">{totalSheep}</p>
+              <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mt-1">Active Flock</p>
+            </div>
           </Card>
-        ))}
-      </div>
+          
+          <Card className="w-[300px] border-none shadow-xl rounded-[2.5rem] bg-white p-10 flex items-center gap-6">
+            <div className="h-16 w-16 rounded-2xl bg-rose-500 flex items-center justify-center text-white shadow-lg shadow-rose-500/20">
+              <Skull className="h-8 w-8" />
+            </div>
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Mortalities</p>
+              <p className="text-4xl font-black tracking-tighter text-rose-600">{totalDead}</p>
+              <p className="text-[10px] font-black text-rose-400 uppercase tracking-widest mt-1">Loss Record</p>
+            </div>
+          </Card>
+        </div>
+      </section>
+
+      {/* FINANCIAL SUMMARY */}
+      <section>
+        <h2 className="text-xl font-black uppercase tracking-tight text-slate-900 mb-6">Financial Summary</h2>
+        <div className="space-y-4">
+          {[
+            { label: 'Receivables Pending', val: totalReceivables, icon: TrendingUp, color: 'bg-blue-500' },
+            { label: 'Payables Due', val: totalPayables, icon: TrendingDown, color: 'bg-[#f59e0b]' },
+            { label: 'Total Cost Summary', val: totalExpenses, icon: ReceiptIndianRupee, color: 'bg-slate-900' },
+          ].map((row, i) => (
+            <div key={i} className="bg-white rounded-2xl h-16 px-8 flex items-center justify-between shadow-sm border border-slate-100 transition-all hover:bg-slate-50">
+              <div className="flex items-center gap-4">
+                <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center text-white shadow-sm", row.color)}>
+                  <row.icon className="h-4 w-4" />
+                </div>
+                <span className="text-[11px] font-black uppercase tracking-[0.1em] text-slate-600">{row.label}</span>
+              </div>
+              <span className="text-2xl font-black tracking-tighter text-slate-900">₹{row.val.toLocaleString()}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* OPERATIONAL BREAKDOWN */}
+      <section>
+        <div className="flex items-center justify-center gap-4 mb-8">
+          <div className="h-[1px] flex-1 bg-slate-100" />
+          <h2 className="text-sm font-black uppercase tracking-[0.3em] text-slate-400">Operational Breakdown</h2>
+          <div className="h-[1px] flex-1 bg-slate-100" />
+        </div>
+        <div className="grid grid-cols-4 gap-6">
+          {[
+            { label: 'Feed Usage', val: totalFeedCost, icon: Wheat, color: 'bg-[#f59e0b]' },
+            { label: 'Labor Cost', val: totalLaborCost, icon: Users, color: 'bg-blue-500' },
+            { label: 'Medical', val: totalMedicineCost, icon: Heart, color: 'bg-emerald-500' },
+            { label: 'Misc. Expenses', val: totalFarmExpenses, icon: Wallet, color: 'bg-amber-600' },
+          ].map((stat, i) => (
+            <Card key={i} className="border-none shadow-xl rounded-[2rem] bg-white p-8 group hover:-translate-y-1 transition-all text-center flex flex-col items-center">
+              <div className={cn("h-14 w-14 rounded-2xl flex items-center justify-center mb-4 text-white shadow-lg", stat.color)}>
+                <stat.icon className="h-7 w-7" />
+              </div>
+              <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">{stat.label}:</p>
+              <p className="text-2xl font-black tracking-tighter text-slate-900">₹{stat.val.toLocaleString()}</p>
+            </Card>
+          ))}
+        </div>
+      </section>
     </div>
   );
 
-  return isMobile ? MobileOverview : WebOverview;
+  return isMobile ? MobileView : WebView;
 }

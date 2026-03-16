@@ -6,7 +6,7 @@ import { AppSidebar } from '@/components/app-sidebar';
 import { MobileNav } from '@/components/mobile-nav';
 import { useFarm } from '@/context/FarmContext';
 import { useWindowDimensions } from '@/hooks/use-mobile';
-import { PanelLeft, MoreVertical, Loader2 } from 'lucide-react';
+import { PanelLeft, MoreVertical } from 'lucide-react';
 
 /**
  * @fileOverview Gatekeeper Layout.
