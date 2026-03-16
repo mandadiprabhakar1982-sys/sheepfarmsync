@@ -83,7 +83,7 @@ export default function DashboardPage() {
         <h2 className="text-xl font-black uppercase tracking-tight text-slate-900 mb-6 px-2">Financial Summary</h2>
         <div className="space-y-4">
           <Link href="/dashboard/monthly-ledger" className="block">
-            <div className="bg-white rounded-[1.5rem] p-5 flex items-center justify-between shadow-sm border border-slate-100 active:scale-[0.98] transition-all">
+            <div className="bg-white rounded-[1.5rem] p-5 flex items-center justify-between shadow-depth border border-slate-200 active:scale-[0.98] transition-all">
               <div className="flex items-center gap-4">
                 <div className="h-12 w-12 rounded-2xl flex items-center justify-center text-white shadow-md bg-emerald-600"><ArrowUpCircle className="h-6 w-6" /></div>
                 <span className="text-[11px] font-black uppercase tracking-widest text-slate-600">Total Cash Inflow</span>
@@ -95,7 +95,7 @@ export default function DashboardPage() {
             </div>
           </Link>
           <Link href="/dashboard/sales" className="block">
-            <div className="bg-white rounded-[1.5rem] p-5 flex items-center justify-between shadow-sm border border-slate-100 active:scale-[0.98] transition-all">
+            <div className="bg-white rounded-[1.5rem] p-5 flex items-center justify-between shadow-depth border border-slate-200 active:scale-[0.98] transition-all">
               <div className="flex items-center gap-4">
                 <div className="h-12 w-12 rounded-2xl flex items-center justify-center text-white shadow-md bg-blue-500"><TrendingUp className="h-6 w-6" /></div>
                 <span className="text-[11px] font-black uppercase tracking-widest text-slate-600">Receivables</span>
@@ -107,7 +107,7 @@ export default function DashboardPage() {
             </div>
           </Link>
           <Link href="/dashboard/purchase" className="block">
-            <div className="bg-white rounded-[1.5rem] p-5 flex items-center justify-between shadow-sm border border-slate-100 active:scale-[0.98] transition-all">
+            <div className="bg-white rounded-[1.5rem] p-5 flex items-center justify-between shadow-depth border border-slate-200 active:scale-[0.98] transition-all">
               <div className="flex items-center gap-4">
                 <div className="h-12 w-12 rounded-2xl flex items-center justify-center text-white shadow-md bg-[#f59e0b]"><TrendingDown className="h-6 w-6" /></div>
                 <span className="text-[11px] font-black uppercase tracking-widest text-slate-600">Payables</span>
@@ -127,7 +127,7 @@ export default function DashboardPage() {
         {/* FARM LEDGER ACTION CARD */}
         <div className="mb-6 px-2">
           <Link href="/dashboard/farm-ledger">
-            <div className="bg-emerald-900 rounded-[2rem] p-8 text-white shadow-2xl relative overflow-hidden active:scale-[0.98] transition-all">
+            <div className="bg-emerald-900 rounded-[2rem] p-8 text-white shadow-depth border border-white/10 relative overflow-hidden active:scale-[0.98] transition-all">
               <div className="absolute top-0 right-0 p-8 opacity-10 rotate-12">
                 <IconFarmCost className="h-32 w-32" />
               </div>
@@ -162,7 +162,7 @@ export default function DashboardPage() {
             { label: 'Medical', val: totalMedicineCost, icon: Heart, href: '/dashboard/medicine' },
             { label: 'Expenses', val: totalFarmExpenses, icon: Wallet, href: '/dashboard/expenses' },
           ].map((item, i) => (
-            <Link key={i} href={item.href} className="bg-white rounded-[2rem] p-6 flex flex-col items-center text-center shadow-sm border border-slate-100 aspect-square justify-center active:scale-[0.98] transition-all">
+            <Link key={i} href={item.href} className="bg-white rounded-[2rem] p-6 flex flex-col items-center text-center shadow-depth border border-slate-200 aspect-square justify-center active:scale-[0.98] transition-all">
               <div className="h-16 w-16 rounded-[1.5rem] bg-[#f59e0b] flex items-center justify-center text-white mb-4 shadow-lg shadow-amber-500/20">
                 <item.icon className="h-8 w-8" />
               </div>
@@ -185,7 +185,7 @@ export default function DashboardPage() {
   const HubCard = ({ item }: { item: any }) => {
     return (
       <Link href={item.href} className="group transition-all active:scale-95 block">
-        <div className="w-full h-[240px] bg-white/80 backdrop-blur-xl rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-6 shadow-xl hover:shadow-[0_20px_60px_rgba(6,78,59,0.15)] transition-all hover:-translate-y-1 border border-white relative overflow-hidden glass-sheen">
+        <div className="w-full h-[240px] bg-white/80 backdrop-blur-xl rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-6 border border-slate-200 shadow-depth group-hover:shadow-depth-hover transition-all duration-500 hover:-translate-y-1 relative overflow-hidden">
           <div className={cn("absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-700", item.color)} />
           <div className="relative w-20 h-20 transition-transform group-hover:scale-110 duration-700 z-10 text-primary group-hover:text-white flex items-center justify-center">
             <item.icon className="w-full h-full" />
