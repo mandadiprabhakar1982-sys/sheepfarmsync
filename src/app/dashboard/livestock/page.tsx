@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect, useRef } from 'react';
@@ -75,6 +74,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { PageHeader } from '@/components/page-header';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const assetSchema = z.object({
   tagId: z.string().min(1, 'Tag ID is required'),
@@ -124,6 +124,8 @@ export default function LivestockPage() {
   });
 
   const editAssetForm = useForm<AssetFormData>({ resolver: zodResolver(assetSchema) });
+
+  const defaultSheepImage = PlaceHolderImages.find(img => img.id === 'dash-flock')?.imageUrl || '';
 
   const startCamera = async () => {
     try {
@@ -254,7 +256,7 @@ export default function LivestockPage() {
       }
       updateTrackedSheep(editingAsset.id, { 
         ...data, 
-        imageUrl: finalUrl,
+        imageUrl: finalUrl, 
         registrationDate: format(data.registrationDate, 'yyyy-MM-dd') 
       }, editingAsset._path);
       setIsEditAssetOpen(false);
@@ -285,7 +287,7 @@ export default function LivestockPage() {
 
   const handleZoomAsset = (asset: any) => {
     setZoomedAsset(asset);
-    setZoomedPhoto(asset.imageUrl || null);
+    setZoomedPhoto(asset.imageUrl || defaultSheepImage);
   };
 
   if (isLoading) {
@@ -405,16 +407,17 @@ export default function LivestockPage() {
                     <TableCell className="py-6 pl-10">
                       <div className="flex items-center gap-6">
                         <div 
-                          className="h-16 w-16 rounded-full overflow-hidden bg-slate-100 border-2 border-slate-200 shrink-0 cursor-zoom-in group/img transition-transform active:scale-95 flex items-center justify-center" 
+                          className="h-16 w-16 rounded-full overflow-hidden bg-slate-100 border-2 border-slate-200 shrink-0 cursor-zoom-in group/img transition-transform active:scale-95 flex items-center justify-center relative shadow-inner" 
                           onClick={() => handleZoomAsset(sheep)}
                         >
-                          {sheep.imageUrl ? (
-                            <img src={sheep.imageUrl} className="h-full w-full object-cover group-hover/img:scale-110 transition-transform duration-500" alt="Sheep" />
-                          ) : (
-                            <div className="h-full w-full flex items-center justify-center bg-slate-100 text-slate-300">
-                              <Camera className="h-6 w-6" />
-                            </div>
-                          )}
+                          <img 
+                            src={sheep.imageUrl || defaultSheepImage} 
+                            className={cn(
+                              "h-full w-full object-cover group-hover/img:scale-110 transition-transform duration-500",
+                              !sheep.imageUrl && "p-2 opacity-40 grayscale"
+                            )} 
+                            alt="Sheep" 
+                          />
                         </div>
                         <div className="flex flex-col">
                           <span className="text-[16px] font-black text-slate-900 uppercase leading-none mb-1">{sheep.tagId}</span>
@@ -576,7 +579,9 @@ export default function LivestockPage() {
             <div className="flex flex-col h-full relative">
               <div className="absolute top-6 left-8 z-20"><Badge className="bg-emerald-500 text-neutral-900 border-none px-4 py-1.5 font-black text-[10px] uppercase tracking-[0.2em] shadow-lg">Identity Zoom: {zoomedAsset?.tagId}</Badge></div>
               <div className="absolute top-6 right-8 z-20"><Button variant="ghost" size="icon" onClick={() => setZoomedPhoto(null)} className="h-10 w-10 rounded-full bg-white/10 text-white hover:bg-white/20 backdrop-blur-md"><X className="h-5 w-5" /></Button></div>
-              <div className="w-full aspect-square md:aspect-video relative overflow-hidden bg-black flex items-center justify-center"><img src={zoomedPhoto} className="w-full h-full object-contain animate-in zoom-in-95 duration-500" alt="Sheep" /></div>
+              <div className="w-full aspect-square md:aspect-video relative overflow-hidden bg-black flex items-center justify-center">
+                <img src={zoomedPhoto} className="w-full h-full object-contain animate-in zoom-in-95 duration-500" alt="Sheep" />
+              </div>
               <div className="p-10 bg-neutral-900 text-white border-t border-white/5">
                 <div className="flex justify-between items-start">
                   <div className="space-y-4">
