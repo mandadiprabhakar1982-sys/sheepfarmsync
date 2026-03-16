@@ -10,7 +10,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { 
   Search, 
   ShieldCheck, 
-  Wallet, 
   X, 
   CheckCircle2,
   ArrowRightLeft
@@ -23,14 +22,13 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 /**
- * @fileOverview Farm Ledger (Renamed from Financial Ledger)
- * Strictly audits operational farm cash flow: Purchases, Sales, Labor, Feed, Health, Expenses.
- * Excludes private project/audit entries.
+ * @fileOverview Financial Ledger (Restored Unified Version)
+ * Audits all cash flow: Operational (Purchases, Sales, Labor, Feed, etc.) AND Private (Incomes, Household).
  */
-export default function FarmLedgerPage() {
-  const { toast } = useToast();
+export default function FinancialLedgerPage() {
   const { 
-    sales, purchases, feedCosts, laborCosts, medicineExpenses, healthTasks, farmExpenses
+    sales, purchases, feedCosts, laborCosts, medicineExpenses, 
+    healthTasks, farmExpenses, monthlyIncomes, monthlyExpenses
   } = useFarm();
 
   const [selectedMonth, setSelectedMonth] = useState(format(new Date(), 'MM'));
@@ -38,7 +36,17 @@ export default function FarmLedgerPage() {
   const [searchTerm, setSearchTerm] = useState('');
 
   const combinedData = useMemo(() => {
-    // 1. Trade Inflows (Sales)
+    // 1. Manual Private Incomes
+    const manualInflows = (monthlyIncomes || []).map(i => ({
+      id: i.id,
+      date: i.date,
+      source: i.source,
+      amount: i.amount,
+      type: 'income' as const,
+      cat: 'Private'
+    }));
+
+    // 2. Trade Inflows (Sales)
     const saleInflows = (sales || []).map(s => ({ 
       id: s.id, 
       date: s.saleDate, 
@@ -48,7 +56,7 @@ export default function FarmLedgerPage() {
       cat: 'Trade' 
     }));
     
-    // 2. Trade Outflows (Purchases)
+    // 3. Trade Outflows (Purchases)
     const purchaseOutflows = (purchases || []).map(p => ({ 
       id: p.id, 
       date: p.purchaseDate, 
@@ -58,7 +66,7 @@ export default function FarmLedgerPage() {
       cat: 'Trade' 
     }));
 
-    // 3. Operational Feed Costs
+    // 4. Operational Feed Costs
     const feedOutflows = (feedCosts || []).map(f => ({ 
       id: f.id, 
       date: f.date, 
@@ -68,7 +76,7 @@ export default function FarmLedgerPage() {
       cat: 'Feed' 
     }));
 
-    // 4. Operational Labor Costs
+    // 5. Operational Labor Costs
     const laborOutflows = (laborCosts || []).map(l => ({ 
       id: l.id, 
       date: l.date, 
@@ -78,7 +86,7 @@ export default function FarmLedgerPage() {
       cat: 'Labor' 
     }));
 
-    // 5. Operational Medicine Procurements
+    // 6. Operational Medicine Procurements
     const medicineOutflows = (medicineExpenses || []).map(m => ({ 
       id: m.id, 
       date: m.date, 
@@ -88,7 +96,7 @@ export default function FarmLedgerPage() {
       cat: 'Medicine' 
     }));
 
-    // 6. Clinical Treatment Costs
+    // 7. Clinical Treatment Costs
     const clinicalOutflows = (healthTasks || []).map(h => ({ 
       id: h.id, 
       date: h.date, 
@@ -98,7 +106,7 @@ export default function FarmLedgerPage() {
       cat: 'Health' 
     }));
 
-    // 7. Misc Farm Expenses
+    // 8. Misc Farm Expenses
     const miscOutflows = (farmExpenses || []).map(e => ({ 
       id: e.id, 
       date: e.expenseDate, 
@@ -108,11 +116,20 @@ export default function FarmLedgerPage() {
       cat: 'Expense' 
     }));
 
+    // 9. Manual Private Expenses (Household)
+    const privateOutflows = (monthlyExpenses || []).map(e => ({
+      id: e.id,
+      date: e.date,
+      source: e.source,
+      amount: e.amount,
+      type: 'expense' as const,
+      cat: 'Household'
+    }));
+
     const all = [
-      ...saleInflows, ...purchaseOutflows, 
-      ...feedOutflows, ...laborOutflows, 
-      ...medicineOutflows, ...clinicalOutflows, 
-      ...miscOutflows
+      ...manualInflows, ...saleInflows, ...purchaseOutflows, 
+      ...feedOutflows, ...laborOutflows, ...medicineOutflows, 
+      ...clinicalOutflows, ...miscOutflows, ...privateOutflows
     ].filter(item => {
       if (!item.date) return false;
       const d = parseISO(item.date);
@@ -126,7 +143,7 @@ export default function FarmLedgerPage() {
     });
 
     return all.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }, [sales, purchases, feedCosts, laborCosts, medicineExpenses, healthTasks, farmExpenses, selectedMonth, selectedYear, searchTerm]);
+  }, [sales, purchases, feedCosts, laborCosts, medicineExpenses, healthTasks, farmExpenses, monthlyIncomes, monthlyExpenses, selectedMonth, selectedYear, searchTerm]);
 
   // Grouping for Mobile
   const groupedData = useMemo(() => {
@@ -138,7 +155,7 @@ export default function FarmLedgerPage() {
     return Object.entries(groups).map(([date, items]) => ({ date, items }));
   }, [combinedData]);
 
-  const netFarmFlow = useMemo(() => {
+  const netCashFlow = useMemo(() => {
     return combinedData.reduce((acc, item) => {
       return item.type === 'income' ? acc + item.amount : acc - item.amount;
     }, 0);
@@ -155,24 +172,24 @@ export default function FarmLedgerPage() {
     <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col relative bg-white md:bg-transparent">
       {/* MOBILE HEADER - HIGH PROFILE */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-[110] bg-[#059669] text-white px-6 py-5 flex items-center justify-between shadow-lg">
-        <h2 className="text-xl font-black tracking-tight">Farm Ledger</h2>
+        <h2 className="text-xl font-black tracking-tight uppercase leading-none">Financial Ledger</h2>
         <div className="text-right">
-          <p className="text-[8px] font-black uppercase opacity-60 leading-none mb-1">Net Farm Flow</p>
-          <p className="text-xl font-black">₹{netFarmFlow.toLocaleString()}</p>
+          <p className="text-[8px] font-black uppercase opacity-60 leading-none mb-1">Net Cash Flow</p>
+          <p className="text-xl font-black">₹{netCashFlow.toLocaleString()}</p>
         </div>
       </div>
 
       <div className="md:hidden h-16 shrink-0" />
 
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-6 md:mb-8 shrink-0 px-4 md:px-0 mt-4 md:mt-0">
-        <PageHeader title="Farm Ledger" description="UNIFIED OPERATIONAL AUDIT" className="mb-0 hidden md:block" />
+        <PageHeader title="Financial Ledger" description="UNIFIED OPERATIONAL & PRIVATE AUDIT" className="mb-0 hidden md:block" />
 
         <div className="hidden md:flex items-center gap-4">
           <div className="px-6 py-3 bg-neutral-900 rounded-2xl text-white flex items-center gap-4 shadow-xl shrink-0">
             <ShieldCheck className="h-5 w-5 text-emerald-400" />
             <div>
-              <p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Net Farm Flow</p>
-              <p className="text-xl font-black tracking-tight text-white">₹{netFarmFlow.toLocaleString()}</p>
+              <p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Net Balance</p>
+              <p className="text-xl font-black tracking-tight text-white">₹{netCashFlow.toLocaleString()}</p>
             </div>
           </div>
         </div>
@@ -220,10 +237,10 @@ export default function FarmLedgerPage() {
           <CardHeader className="bg-emerald-600 text-white p-10 shrink-0 hidden md:block">
             <div className="flex justify-between items-end">
               <div className="space-y-1">
-                <div className="flex items-center gap-3"><ArrowRightLeft className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Operational Ledger</CardTitle></div>
-                <CardDescription className="text-emerald-100/60 text-[10px] font-black uppercase tracking-[0.2em]">Cross-Module Farm Audit</CardDescription>
+                <div className="flex items-center gap-3"><ArrowRightLeft className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Unified Ledger</CardTitle></div>
+                <CardDescription className="text-emerald-100/60 text-[10px] font-black uppercase tracking-[0.2em]">Cross-Module Unified Audit</CardDescription>
               </div>
-              <p className="text-4xl font-black tracking-tighter">₹{netFarmFlow.toLocaleString()}</p>
+              <p className="text-4xl font-black tracking-tighter">₹{netCashFlow.toLocaleString()}</p>
             </div>
           </CardHeader>
 
@@ -247,7 +264,7 @@ export default function FarmLedgerPage() {
                             <h3 className="text-lg font-black text-slate-900 truncate leading-none">{item.source}</h3>
                           </div>
                           <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-                            {item.type === 'income' ? 'Farm Inflow' : 'Operational Spend'}
+                            {item.type === 'income' ? 'Cash Inflow' : 'Disbursement'}
                           </p>
                         </div>
                         <div className="text-right shrink-0">
@@ -285,7 +302,7 @@ export default function FarmLedgerPage() {
                     <TableRow key={item.id} className="hover:bg-slate-50 border-b border-slate-100">
                       <TableCell className="py-6 pl-10 text-[11px] font-black text-slate-400">{item.date}</TableCell>
                       <TableCell>
-                        <div className="flex flex-col"><span className="text-[14px] font-black text-slate-900">{item.source}</span><span className="text-[9px] font-bold text-slate-400 uppercase">Audit ID: {item.id.slice(0,8)}</span></div>
+                        <div className="flex flex-col"><span className="text-[14px] font-black text-slate-900">{item.source}</span><span className="text-[9px] font-bold text-slate-400 uppercase">Ref ID: {item.id.slice(0,8)}</span></div>
                       </TableCell>
                       <TableCell className="text-center">
                         <Badge className="bg-neutral-100 text-neutral-600 border-none font-black text-[10px] px-3 uppercase tracking-widest">{item.cat}</Badge>
