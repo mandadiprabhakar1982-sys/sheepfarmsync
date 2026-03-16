@@ -50,7 +50,7 @@ export default function DashboardLayout({
                 <MoreVertical className="h-4 w-4 opacity-20 hidden md:block" />
               </div>
               <h2 className="text-[9px] md:text-[11px] font-black uppercase tracking-[0.3em] text-slate-500 whitespace-nowrap">
-                {isMobile ? 'MOBILE APP MODEL' : 'EXECUTIVE COMMAND CENTER'}
+                {isMobile ? 'Mobile App Model' : 'Executive Command Center'}
               </h2>
             </div>
             

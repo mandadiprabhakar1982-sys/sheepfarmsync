@@ -49,7 +49,7 @@ export function AppSidebar() {
 
   const groups = React.useMemo(() => [
     {
-      label: "MAIN CONTROL",
+      label: "Main Control",
       links: [
         { href: '/dashboard', label: "Home", icon: Home },
         { href: '/dashboard/overview', label: "Dashboard", icon: LayoutDashboard },
@@ -57,7 +57,7 @@ export function AppSidebar() {
       ]
     },
     {
-      label: "PRIVATE ACCOUNTS",
+      label: "Private Accounts",
       adminOnly: true,
       links: [
         { href: '/dashboard/monthly-ledger', label: "Finance Ledger", icon: Wallet },
@@ -65,7 +65,7 @@ export function AppSidebar() {
       ]
     },
     {
-      label: "FARM COST AUDIT",
+      label: "Farm Cost Audit",
       links: [
         { href: '/dashboard/farm-ledger', label: "Farm Ledger", icon: IconFarmCost },
         { href: '/dashboard/purchase', label: "Sheep Buying", icon: Package },
@@ -76,7 +76,7 @@ export function AppSidebar() {
       ]
     },
     {
-      label: "VILLAGE ECOSYSTEM",
+      label: "Village Ecosystem",
       links: [
         { href: '/dashboard/feed-calculator', label: "Calculator", icon: Calculator },
         { href: '/dashboard/marketplace', label: "Community Market", icon: Globe },
@@ -84,7 +84,7 @@ export function AppSidebar() {
       ]
     },
     {
-      label: "RECORDS",
+      label: "Records",
       links: [
         { href: '/dashboard/livestock', label: "Sheep List", icon: LayoutGrid },
         { href: '/dashboard/sales', label: "Selling Ledger", icon: ArrowRightLeft },
@@ -101,8 +101,8 @@ export function AppSidebar() {
             <Sparkles className="h-6 w-6 text-accent" />
           </div>
           <div className="text-center group-data-[collapsible=icon]:hidden">
-            <h1 className="text-xl font-black leading-none uppercase tracking-tighter text-slate-900">
-              MPR <span className="text-primary">FARMS</span>
+            <h1 className="text-xl font-black leading-none tracking-tighter text-slate-900">
+              Mpr <span className="text-primary">Farms</span>
             </h1>
             <p className="text-[8px] font-black tracking-[0.4em] text-accent mt-1.5 uppercase opacity-80 leading-none">Enterprise</p>
           </div>
@@ -139,7 +139,7 @@ export function AppSidebar() {
                           <Link href={link.href} className="flex items-center justify-between w-full">
                             <div className="flex items-center">
                               <link.icon className={cn("h-5 w-5", isActive ? "text-accent" : "opacity-40")} />
-                              <span className="ml-4 text-[13px] font-bold tracking-tight uppercase group-data-[collapsible=icon]:hidden">{link.label}</span>
+                              <span className="ml-4 text-[13px] font-bold tracking-tight group-data-[collapsible=icon]:hidden">{link.label}</span>
                             </div>
                             {isActive && <ChevronRight className="h-3 w-3 text-accent group-data-[collapsible=icon]:hidden" />}
                           </Link>
@@ -157,7 +157,7 @@ export function AppSidebar() {
       <SidebarFooter className="p-10 border-t border-slate-100 bg-white/40 group-data-[collapsible=icon]:p-4">
         <div className="flex items-center gap-3">
           <ShieldCheck className="h-4 w-4 text-emerald-600 opacity-40" />
-          <p className="text-[10px] font-black tracking-[0.4em] text-slate-900 uppercase opacity-30 leading-none group-data-[collapsible=icon]:hidden">MPR v5.0</p>
+          <p className="text-[10px] font-black tracking-[0.4em] text-slate-900 uppercase opacity-30 leading-none group-data-[collapsible=icon]:hidden">Mpr v5.0</p>
         </div>
       </SidebarFooter>
     </Sidebar>

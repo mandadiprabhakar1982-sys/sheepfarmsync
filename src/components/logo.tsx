@@ -12,8 +12,8 @@ export const Logo = ({ className }: { className?: string }) => (
       <Sparkles className="h-4 w-4 md:h-6 md:w-6 text-accent" />
     </div>
     <div className="flex flex-col">
-      <h1 className="text-base md:text-xl font-black leading-none uppercase tracking-tighter text-slate-900">
-        MPR <span className="text-primary">FARMS</span>
+      <h1 className="text-base md:text-xl font-black leading-none tracking-tighter text-slate-900">
+        Mpr <span className="text-primary">Farms</span>
       </h1>
       <p className="text-[6px] md:text-[8px] font-black tracking-[0.3em] md:tracking-[0.4em] text-accent/80 uppercase mt-0.5 md:mt-1">SheepSync Pro</p>
     </div>

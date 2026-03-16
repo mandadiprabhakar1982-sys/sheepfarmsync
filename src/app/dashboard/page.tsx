@@ -55,8 +55,13 @@ export default function DashboardPage() {
     isLoading
   } = useFarm();
 
-  // We only block the render if critical initialization is still occurring
-  if (!isHydrated || (isLoading && !userRole)) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || !isHydrated || (isLoading && !userRole)) {
     return (
       <div className="flex h-full w-full items-center justify-center min-h-[60vh]">
         <div className="flex flex-col items-center gap-6">
@@ -74,13 +79,13 @@ export default function DashboardPage() {
   const MobileHome = (
     <div className="max-w-lg mx-auto animate-in fade-in duration-500 dashboard-stack pb-24">
       <section>
-        <h2 className="text-xl font-black uppercase tracking-tight text-slate-900 mb-6 px-2">Financial Summary</h2>
+        <h2 className="text-xl font-black tracking-tight text-slate-900 mb-6 px-2">Financial Summary</h2>
         <div className="space-y-4">
           <Link href="/dashboard/monthly-ledger" className="block">
             <div className="premium-card p-5 flex items-center justify-between active:scale-[0.98]">
               <div className="flex items-center gap-4">
                 <div className="h-12 w-12 rounded-2xl flex items-center justify-center text-white shadow-md bg-emerald-600"><ArrowUpCircle className="h-6 w-6" /></div>
-                <span className="text-[11px] font-black uppercase tracking-widest text-slate-600">Total Cash Inflow</span>
+                <span className="text-[11px] font-black text-slate-600">Total Cash Inflow</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-2xl font-black tracking-tighter text-emerald-600">₹{totalCashInflow.toLocaleString()}</span>
@@ -92,7 +97,7 @@ export default function DashboardPage() {
             <div className="premium-card p-5 flex items-center justify-between active:scale-[0.98]">
               <div className="flex items-center gap-4">
                 <div className="h-12 w-12 rounded-2xl flex items-center justify-center text-white shadow-md bg-blue-500"><TrendingUp className="h-6 w-6" /></div>
-                <span className="text-[11px] font-black uppercase tracking-widest text-slate-600">Receivables</span>
+                <span className="text-[11px] font-black text-slate-600">Receivables</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-2xl font-black tracking-tighter text-slate-900">₹{totalReceivables.toLocaleString()}</span>
@@ -104,7 +109,7 @@ export default function DashboardPage() {
             <div className="premium-card p-5 flex items-center justify-between active:scale-[0.98]">
               <div className="flex items-center gap-4">
                 <div className="h-12 w-12 rounded-2xl flex items-center justify-center text-white shadow-md bg-[#f59e0b]"><TrendingDown className="h-6 w-6" /></div>
-                <span className="text-[11px] font-black uppercase tracking-widest text-slate-600">Payables</span>
+                <span className="text-[11px] font-black text-slate-600">Payables</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-2xl font-black tracking-tighter text-slate-900">₹{totalPayables.toLocaleString()}</span>
@@ -116,7 +121,7 @@ export default function DashboardPage() {
       </section>
 
       <section>
-        <h2 className="text-xl font-black uppercase tracking-tight text-slate-900 mb-6 px-2">Operational Audit</h2>
+        <h2 className="text-xl font-black tracking-tight text-slate-900 mb-6 px-2">Operational Audit</h2>
         
         {/* FARM LEDGER ACTION CARD */}
         <div className="mb-6 px-2">
@@ -131,7 +136,7 @@ export default function DashboardPage() {
                     <Zap className="h-5 w-5 text-accent" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-black tracking-tight uppercase leading-none">Daily Farm Ledger</h3>
+                    <h3 className="text-lg font-black tracking-tight leading-none">Daily Farm Ledger</h3>
                     <p className="text-[8px] font-bold uppercase tracking-widest text-white/40 mt-1">Operational Cost Center</p>
                   </div>
                 </div>
@@ -160,7 +165,7 @@ export default function DashboardPage() {
               <div className="h-16 w-16 rounded-[1.5rem] bg-[#f59e0b] flex items-center justify-center text-white mb-4 shadow-lg shadow-amber-500/20">
                 <item.icon className="h-8 w-8" />
               </div>
-              <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">{item.label}:</p>
+              <p className="text-[9px] font-black text-slate-400 mb-1">{item.label}:</p>
               <p className="text-xl font-black tracking-tighter text-slate-900">₹{item.val.toLocaleString()}</p>
             </Link>
           ))}
@@ -169,7 +174,7 @@ export default function DashboardPage() {
 
       <div className="pt-4 px-2">
         <Button onClick={() => router.push('/dashboard/expenses')} className="w-full h-16 rounded-2xl bg-neutral-900 hover:bg-black text-white font-black uppercase tracking-[0.2em] shadow-xl text-sm gap-3 border-none">
-          <Plus className="h-6 w-6 text-accent" /> LOG MISC EXPENSE
+          <Plus className="h-6 w-6 text-accent" /> Log Misc Expense
         </Button>
       </div>
     </div>
@@ -185,7 +190,7 @@ export default function DashboardPage() {
             <item.icon className="w-full h-full" />
           </div>
           <div className="text-center relative z-10">
-            <h3 className="text-[15px] font-black text-slate-900 tracking-widest leading-none mb-1 uppercase group-hover:text-white transition-colors">{item.title}</h3>
+            <h3 className="text-[15px] font-black text-slate-900 tracking-widest leading-none mb-1 group-hover:text-white transition-colors">{item.title}</h3>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em] group-hover:text-accent transition-colors">{item.subtitle}</p>
           </div>
         </div>
@@ -194,16 +199,16 @@ export default function DashboardPage() {
   };
 
   const hubItems = [
-    { title: "SUMMARY", subtitle: "EXECUTIVE REPORT", icon: IconOverview, href: '/dashboard/overview', color: "from-emerald-950/40 to-emerald-900/40" },
-    { title: "DAILY LEDGER", subtitle: "FARM COST AUDIT", icon: IconFarmCost, href: '/dashboard/farm-ledger', color: "from-amber-950/40 to-amber-900/40" },
-    { title: "FINANCE", subtitle: "UNIFIED ACCOUNTS", icon: IconLedger, href: '/dashboard/monthly-ledger', adminOnly: true, color: "from-emerald-900/40 to-emerald-800/40" },
-    { title: "DEBT & LOANS", subtitle: "DEBT PORTFOLIO", icon: IconLiabilities, href: '/dashboard/balance-sheet', adminOnly: true, color: "from-amber-900/40 to-amber-800/40" },
-    { title: "SHEEP LIST", subtitle: "FLOCK REGISTRY", icon: IconFlock, href: '/dashboard/livestock', color: "from-emerald-800/40 to-emerald-700/40" },
-    { title: "SELLING", subtitle: "REVENUE STREAM", icon: IconTrade, href: '/dashboard/sales', color: "from-emerald-700/40 to-emerald-600/40" },
-    { title: "MEDICAL", subtitle: "CLINICAL HISTORY", icon: IconHealth, href: '/dashboard/medicine', color: "from-red-900/40 to-red-800/40" },
-    { title: "FODDER", subtitle: "FEED INVENTORY", icon: IconFeed, href: '/dashboard/feed', color: "from-emerald-600/40 to-emerald-500/40" },
-    { title: "LABOUR", subtitle: "STAFF & COOLIE", icon: IconLabor, href: '/dashboard/labor', color: "from-slate-900/40 to-slate-800/40" },
-    { title: "EXPENSES", subtitle: "MISC OVERHEADS", icon: IconExpenses, href: '/dashboard/expenses', color: "from-slate-800/40 to-slate-700/40" },
+    { title: "Summary", subtitle: "Executive Report", icon: IconOverview, href: '/dashboard/overview', color: "from-emerald-950/40 to-emerald-900/40" },
+    { title: "Daily Ledger", subtitle: "Farm Cost Audit", icon: IconFarmCost, href: '/dashboard/farm-ledger', color: "from-amber-950/40 to-amber-900/40" },
+    { title: "Finance", subtitle: "Unified Accounts", icon: IconLedger, href: '/dashboard/monthly-ledger', adminOnly: true, color: "from-emerald-900/40 to-emerald-800/40" },
+    { title: "Debt & Loans", subtitle: "Debt Portfolio", icon: IconLiabilities, href: '/dashboard/balance-sheet', adminOnly: true, color: "from-amber-900/40 to-amber-800/40" },
+    { title: "Sheep List", subtitle: "Flock Registry", icon: IconFlock, href: '/dashboard/livestock', color: "from-emerald-800/40 to-emerald-700/40" },
+    { title: "Selling", subtitle: "Revenue Stream", icon: IconTrade, href: '/dashboard/sales', color: "from-emerald-700/40 to-emerald-600/40" },
+    { title: "Medical", subtitle: "Clinical History", icon: IconHealth, href: '/dashboard/medicine', color: "from-red-900/40 to-red-800/40" },
+    { title: "Fodder", subtitle: "Feed Inventory", icon: IconFeed, href: '/dashboard/feed', color: "from-emerald-600/40 to-emerald-500/40" },
+    { title: "Labour", subtitle: "Staff & Coolie", icon: IconLabor, href: '/dashboard/labor', color: "from-slate-900/40 to-slate-800/40" },
+    { title: "Expenses", subtitle: "Misc Overheads", icon: IconExpenses, href: '/dashboard/expenses', color: "from-slate-800/40 to-slate-700/40" },
   ];
 
   const WebDashboard = (
@@ -211,7 +216,7 @@ export default function DashboardPage() {
       <div className="flex items-center gap-10 mb-20 mt-10">
         <HubSparkle className="h-24 w-24 shrink-0" />
         <div className="space-y-3">
-          <h1 className="text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none">EXECUTIVE <span className="text-primary">CONTROL HUB</span></h1>
+          <h1 className="text-5xl font-black text-slate-900 tracking-tighter leading-none">Executive <span className="text-primary">Control Hub</span></h1>
           <p className="text-[11px] font-black text-primary/60 uppercase tracking-[0.5em]">High-Density Management Infrastructure</p>
         </div>
       </div>
