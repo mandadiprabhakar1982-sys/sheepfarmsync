@@ -6,7 +6,8 @@ import { AppSidebar } from '@/components/app-sidebar';
 import { MobileNav } from '@/components/mobile-nav';
 import { useFarm } from '@/context/FarmContext';
 import { useWindowDimensions } from '@/hooks/use-mobile';
-import { PanelLeft, MoreVertical } from 'lucide-react';
+import { PanelLeft, MoreVertical, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 /**
  * @fileOverview Gatekeeper Layout.
@@ -18,11 +19,11 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const { isLoadingProfile } = useFarm();
-  const { width } = useWindowDimensions();
-  const isMobile = width < 768;
+  const { width, isHydrated } = useWindowDimensions();
+  const isMobile = isHydrated ? width < 768 : false;
 
-  // AUTHENTICATION GATE
-  if (isLoadingProfile) {
+  // AUTHENTICATION & HYDRATION GATE
+  if (isLoadingProfile || !isHydrated) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-white fixed inset-0 z-[9999]">
         <div className="flex flex-col items-center gap-6">

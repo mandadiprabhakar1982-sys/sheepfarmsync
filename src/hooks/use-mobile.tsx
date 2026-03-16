@@ -27,13 +27,15 @@ export function useIsMobile() {
 }
 
 export function useWindowDimensions() {
-  // Initialize with common defaults or null to handle hydration correctly
+  // Use a flag to track if we've hydrated on the client
+  const [isHydrated, setIsHydrated] = React.useState(false)
   const [dimensions, setDimensions] = React.useState({ 
-    width: typeof window !== 'undefined' ? window.innerWidth : 1024, 
-    height: typeof window !== 'undefined' ? window.innerHeight : 768 
+    width: 1024, 
+    height: 768 
   })
 
   React.useEffect(() => {
+    setIsHydrated(true)
     function handleResize() {
       setDimensions({
         width: window.innerWidth,
@@ -48,5 +50,5 @@ export function useWindowDimensions() {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  return dimensions
+  return { ...dimensions, isHydrated }
 }

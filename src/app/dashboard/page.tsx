@@ -39,8 +39,7 @@ import {
  * @fileOverview Farm Executive Control Hub (Standard Indian English)
  */
 export default function DashboardPage() {
-  const [mounted, setMounted] = useState(false);
-  const { width } = useWindowDimensions();
+  const { width, isHydrated } = useWindowDimensions();
   const router = useRouter();
   
   const { 
@@ -56,13 +55,8 @@ export default function DashboardPage() {
     isLoading
   } = useFarm();
 
-  // Handle Hydration
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // We only block the render if the critical profile data is still loading
-  if (!mounted || (isLoading && !userRole)) {
+  // We only block the render if critical initialization is still occurring
+  if (!isHydrated || (isLoading && !userRole)) {
     return (
       <div className="flex h-full w-full items-center justify-center min-h-[60vh]">
         <div className="flex flex-col items-center gap-6">
