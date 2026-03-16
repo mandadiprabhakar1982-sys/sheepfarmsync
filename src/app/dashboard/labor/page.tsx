@@ -9,19 +9,17 @@ import {
   Calendar as CalendarIcon, 
   Trash2, 
   Users, 
-  Wallet, 
   Search,
   Pencil,
   Save,
   ShieldCheck,
   PlusCircle,
-  Banknote,
-  Receipt,
   ChevronDown,
   HandCoins
 } from 'lucide-react';
 import { format } from 'date-fns';
 
+import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
@@ -40,6 +38,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from '@/components/ui/dialog';
 import {
   DropdownMenu,
@@ -72,8 +71,6 @@ export default function LaborPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [isEntryDialogOpen, setIsEntryDialogOpen] = useState(false);
-  
-  // Edit States
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingCost, setEditingCost] = useState<LaborCost | null>(null);
 
@@ -92,18 +89,11 @@ export default function LaborPage() {
     },
   });
 
-  const editForm = useForm<LaborFormData>({
-    resolver: zodResolver(formSchema),
-  });
+  const editForm = useForm<LaborFormData>({ resolver: zodResolver(formSchema) });
 
   // Entry Form Calc Logic
   const watchedFields = form.watch([
-    'wages',
-    'numberOfLaborers',
-    'advancePayments',
-    'foodCosts',
-    'fuelCosts',
-    'amountPaid'
+    'wages', 'numberOfLaborers', 'advancePayments', 'foodCosts', 'fuelCosts', 'amountPaid'
   ]);
 
   useEffect(() => {
@@ -115,26 +105,6 @@ export default function LaborPage() {
     form.setValue('pendingAmount', pending);
   }, [watchedFields, form]);
 
-  // Edit Form Calc Logic
-  const watchedEditFields = editForm.watch([
-    'wages',
-    'numberOfLaborers',
-    'advancePayments',
-    'foodCosts',
-    'fuelCosts',
-    'amountPaid'
-  ]);
-
-  useEffect(() => {
-    if (!editingCost) return;
-    const [wages, num, advance, food, fuel, paid] = watchedEditFields;
-    const totalWages = (wages || 0) * (num || 1);
-    const total = totalWages + (advance || 0) + (food || 0) + (fuel || 0);
-    const pending = total - (paid || 0);
-    editForm.setValue('totalLaborCosts', total);
-    editForm.setValue('pendingAmount', pending);
-  }, [watchedEditFields, editForm, editingCost]);
-
   const sortedLaborCosts = useMemo(() => {
     if (!laborCosts) return [];
     const filtered = laborCosts.filter(c => c.employeeName.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -145,19 +115,12 @@ export default function LaborPage() {
     return (laborCosts || []).reduce((s, c) => s + (c.pendingAmount || 0), 0);
   }, [laborCosts]);
 
-  const totalAdvances = useMemo(() => {
-    return (laborCosts || []).reduce((s, c) => s + (c.advancePayments || 0), 0);
-  }, [laborCosts]);
-
   const onSubmit: SubmitHandler<LaborFormData> = (data) => {
     const newCost = { ...data, date: format(data.date, 'yyyy-MM-dd') };
     addLaborCost(newCost);
     form.reset();
     setIsEntryDialogOpen(false);
-    toast({
-      title: 'Success!',
-      description: 'Employee cost has been recorded.',
-    });
+    toast({ title: 'Success!', description: 'Employee cost has been recorded.' });
   };
 
   const onEditSubmit: SubmitHandler<LaborFormData> = (data) => {
@@ -166,31 +129,18 @@ export default function LaborPage() {
     updateLaborCost(editingCost.id, updatedData, editingCost._path);
     setIsEditDialogOpen(false);
     setEditingCost(null);
-    toast({
-      title: 'Synchronized!',
-      description: 'Disbursement record has been updated.',
-    });
+    toast({ title: 'Synchronized!', description: 'Disbursement record updated.' });
   };
 
   const handleEditClick = (cost: LaborCost) => {
     setEditingCost(cost);
-    editForm.reset({
-      ...cost,
-      date: new Date(cost.date),
-      amountPaid: cost.amountPaid || 0,
-      pendingAmount: cost.pendingAmount || 0,
-    });
+    editForm.reset({ ...cost, date: new Date(cost.date), amountPaid: cost.amountPaid || 0, pendingAmount: cost.pendingAmount || 0 });
     setIsEditDialogOpen(true);
-  };
-
-  const handleDeleteCost = (id: string, path?: string) => {
-    deleteLaborCost(id, path);
-    toast({ title: 'Deleted', description: 'Cost record removed.', variant: 'destructive' });
   };
 
   if (isLoading) {
     return (
-      <div className="flex h-[calc(100vh-120px)] w-full items-center justify-center">
+      <div className="flex h-full w-full items-center justify-center">
         <div className="flex flex-col items-center gap-6">
           <div className="w-12 h-12 border-4 border-slate-100 rounded-full border-t-emerald-500 animate-spin" />
           <p className="text-[12px] font-black text-slate-400 uppercase tracking-[0.3em]">SYNCHRONIZING LABOR DATA...</p>
@@ -248,11 +198,11 @@ export default function LaborPage() {
         </div>
 
         <Card className="border-none shadow-2xl rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden bg-white flex-1 min-h-0 flex flex-col">
-          <CardHeader className="bg-blue-600 text-white p-6 md:p-10 shrink-0">
+          <CardHeader className="bg-emerald-600 text-white p-6 md:p-10 shrink-0">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 md:gap-0">
               <div className="space-y-1">
                 <div className="flex items-center gap-3"><Users className="h-6 w-6" /><CardTitle className="text-xl md:text-2xl font-black tracking-tight leading-none uppercase">Staff Ledger</CardTitle></div>
-                <CardDescription className="text-blue-100/60 text-[10px] font-black uppercase tracking-[0.2em]">Operational Disbursement Audit</CardDescription>
+                <CardDescription className="text-emerald-100/60 text-[10px] font-black uppercase tracking-[0.2em]">Operational Disbursement Audit</CardDescription>
               </div>
               <p className="text-3xl md:text-4xl font-black tracking-tighter">₹{totalLaborCost.toLocaleString()}</p>
             </div>
@@ -271,7 +221,7 @@ export default function LaborPage() {
                       <span className="text-sm font-black text-slate-900 truncate">{cost.employeeName}</span>
                       {cost.pendingAmount && cost.pendingAmount > 0 ? <Badge className="bg-rose-50 text-rose-600 border-none font-black text-[7px] uppercase px-1.5 py-0.5">DUE</Badge> : <Badge className="bg-emerald-50 text-emerald-600 border-none font-black text-[7px] uppercase px-1.5 py-0.5">OK</Badge>}
                     </div>
-                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Wages: ₹{cost.wages} • {cost.numberOfLaborers} Staff</p>
+                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">₹{cost.wages} /Head • {cost.numberOfLaborers} Staff</p>
                   </div>
                   <div className="text-right shrink-0">
                     <p className="text-base font-black text-slate-900">₹{cost.amountPaid?.toLocaleString() || '0'}</p>
@@ -304,7 +254,7 @@ export default function LaborPage() {
                         {cost.pendingAmount && cost.pendingAmount > 0 ? <Badge className="bg-rose-500/10 text-rose-600 border-none font-black text-[10px] px-3 uppercase tracking-widest">₹{cost.pendingAmount.toLocaleString()} PENDING</Badge> : <Badge className="bg-emerald-500/10 text-emerald-600 border-none font-black text-[10px] px-3 uppercase tracking-widest">SETTLED</Badge>}
                       </TableCell>
                       <TableCell className="text-right pr-10">
-                        <div className="flex items-center justify-end gap-4"><div className="flex flex-col items-end"><span className="text-[16px] font-black text-slate-900">₹{cost.amountPaid?.toLocaleString() || '0'}</span><span className="text-[9px] font-black text-slate-400 uppercase">OF ₹{cost.totalLaborCosts.toLocaleString()}</span></div><div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all"><Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-emerald-50 text-emerald-600" onClick={(e) => { e.stopPropagation(); handleEditClick(cost); }}><Pencil className="h-4 w-4" /></Button><Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-rose-50 text-rose-600" onClick={(e) => { e.stopPropagation(); handleDeleteCost(cost.id, cost._path); }}><Trash2 className="h-4 w-4" /></Button></div></div>
+                        <div className="flex items-center justify-end gap-4"><div className="flex flex-col items-end"><span className="text-[16px] font-black text-slate-900">₹{cost.amountPaid?.toLocaleString() || '0'}</span><span className="text-[9px] font-black text-slate-400 uppercase">OF ₹{cost.totalLaborCosts.toLocaleString()}</span></div><div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all"><Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-emerald-50 text-emerald-600" onClick={(e) => { e.stopPropagation(); handleEditClick(cost); }}><Pencil className="h-4 w-4" /></Button><Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-rose-50 text-rose-600" onClick={(e) => { e.stopPropagation(); deleteLaborCost(cost.id, cost._path); }}><Trash2 className="h-4 w-4" /></Button></div></div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -315,7 +265,6 @@ export default function LaborPage() {
         </Card>
       </div>
 
-      {/* Dialogs continue with optimized mobile forms... */}
       <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>
         <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
@@ -341,6 +290,29 @@ export default function LaborPage() {
                 </div>
               </div>
               <Button type="submit" className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm uppercase tracking-widest shadow-xl">Log Disbursement</Button>
+            </form></Form>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
+          <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
+            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400"><Pencil className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase">Update Record</DialogTitle></div>
+            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Adjust historical disbursement parameters</DialogDescription>
+          </DialogHeader>
+          <div className="p-8 max-h-[70vh] overflow-y-auto no-scrollbar">
+            <Form {...editForm}><form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-8">
+              <div className="space-y-6">
+                <FormField control={editForm.control} name="employeeName" render={({ field }) => (
+                  <FormItem><Label className="form-label-tactical">Employee Name</Label><FormControl><Input className="form-input-tactical" {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={editForm.control} name="amountPaid" render={({ field }) => (<FormItem><Label className="form-label-tactical">Amount Paid (₹)</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+                  <FormField control={editForm.control} name="pendingAmount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Pending (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-rose-50 text-rose-600 font-bold" {...field} readOnly /></FormControl></FormItem>)} />
+                </div>
+              </div>
+              <Button type="submit" className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm uppercase tracking-widest shadow-xl">Save Adjustments</Button>
             </form></Form>
           </div>
         </DialogContent>

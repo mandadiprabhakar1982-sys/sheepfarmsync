@@ -8,20 +8,17 @@ import {
   Calendar as CalendarIcon, 
   Trash2,
   Plus,
-  Heart,
   Syringe,
   Pill,
   Search,
-  ShoppingCart,
-  Zap,
   PlusCircle,
   ShieldCheck,
   ChevronDown,
   Activity,
   History,
-  FileText,
   Pencil,
-  Save
+  Save,
+  Clock
 } from 'lucide-react';
 import { format, addMonths } from 'date-fns';
 
@@ -96,45 +93,30 @@ export default function MedicinePage() {
   const { 
     healthTasks, addHealthTask, deleteHealthTask, updateHealthTask,
     medicineExpenses, addMedicineExpense, deleteMedicineExpense, updateMedicineExpense,
-    trackedSheep, totalMedicineCost, isLoading
+    totalMedicineCost, isLoading
   } = useFarm();
   
   const [searchTerm, setSearchTerm] = useState('');
-  const [isTaskDateOpen, setIsTaskDateOpen] = useState(false);
-  const [isExpenseDateOpen, setIsExpenseDateOpen] = useState(false);
-  
-  // Modal Triggers
   const [isClinicalDialogOpen, setIsClinicalDialogOpen] = useState(false);
   const [isProcurementDialogOpen, setIsProcurementDialogOpen] = useState(false);
-  
-  // Edit States
-  const [editingTask, setEditingTask] = useState<HealthTask | null>(null);
-  const [editingExpense, setEditingExpense] = useState<MedicineExpense | null>(null);
   const [isEditTaskOpen, setIsEditTaskOpen] = useState(false);
   const [isEditExpenseOpen, setIsEditExpenseOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<HealthTask | null>(null);
+  const [editingExpense, setEditingExpense] = useState<MedicineExpense | null>(null);
 
   const healthTaskForm = useForm<HealthTaskFormData>({
     resolver: zodResolver(healthTaskFormSchema),
-    defaultValues: { 
-      date: new Date(), animalGroup: 'Adult', healthType: 'Treatment', symptom: 'None', unit: 'ml', route: 'Oral', administeredBy: '', cost: 0
-    },
+    defaultValues: { date: new Date(), animalGroup: 'Adult', healthType: 'Treatment', symptom: 'None', unit: 'ml', route: 'Oral', administeredBy: '', cost: 0 },
   });
-
-  const editTaskForm = useForm<HealthTaskFormData>({ resolver: zodResolver(healthTaskFormSchema) });
 
   const medicineExpenseForm = useForm<MedicineExpenseFormData>({
     resolver: zodResolver(medicineExpenseFormSchema),
     defaultValues: { shopName: '', date: new Date(), costOfMedicines: 0, totalAmountSpent: 0, outstandingDues: 0 }
   });
 
-  const editExpenseForm = useForm<MedicineExpenseFormData>({ resolver: zodResolver(medicineExpenseFormSchema) });
-
   const sortedHealthTasks = useMemo(() => {
     if (!healthTasks) return [];
-    const filtered = healthTasks.filter(t => 
-      (t.sheepId || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
-      (t.medicineName || '').toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filtered = healthTasks.filter(t => (t.sheepId || '').toLowerCase().includes(searchTerm.toLowerCase()) || (t.medicineName || '').toLowerCase().includes(searchTerm.toLowerCase()));
     return [...filtered].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [healthTasks, searchTerm]);
 
@@ -142,8 +124,6 @@ export default function MedicinePage() {
     if (!medicineExpenses) return [];
     return [...medicineExpenses].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [medicineExpenses]);
-
-  const totalOutstanding = useMemo(() => (medicineExpenses || []).reduce((s, e) => s + (e.outstandingDues || 0), 0), [medicineExpenses]);
 
   const onHealthTaskSubmit: SubmitHandler<HealthTaskFormData> = (data) => {
     addHealthTask({ ...data, date: format(data.date, 'yyyy-MM-dd'), nextDueDate: data.nextDueDate ? format(data.nextDueDate, 'yyyy-MM-dd') : format(addMonths(data.date, 3), 'yyyy-MM-dd') });
@@ -154,17 +134,6 @@ export default function MedicinePage() {
     addMedicineExpense({ ...data, date: format(data.date, 'yyyy-MM-dd') });
     medicineExpenseForm.reset(); setIsProcurementDialogOpen(false); toast({ title: 'Success!', description: 'Procurement cost recorded.' });
   };
-
-  const handleEditTaskClick = (task: HealthTask) => {
-    setEditingTask(task); editTaskForm.reset({ ...task, date: new Date(task.date), nextDueDate: task.nextDueDate ? new Date(task.nextDueDate) : undefined }); setIsEditTaskOpen(true);
-  };
-
-  const handleEditExpenseClick = (exp: MedicineExpense) => {
-    setEditingExpense(exp); editExpenseForm.reset({ ...exp, date: new Date(exp.date) }); setIsEditExpenseOpen(true);
-  };
-
-  const handleDeleteTask = (id: string, path?: string) => { deleteHealthTask(id, path); toast({ title: 'Deleted', description: 'Medical record removed.', variant: 'destructive' }); };
-  const handleDeleteExpense = (id: string, path?: string) => { deleteMedicineExpense(id, path); toast({ title: 'Deleted', description: 'Expense record removed.', variant: 'destructive' }); };
 
   if (isLoading) {
     return (
@@ -196,7 +165,6 @@ export default function MedicinePage() {
                 <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">Ledger Summary</p>
                 <div className="space-y-2">
                   <div className="flex justify-between items-center"><span className="text-[10px] font-bold text-slate-600">Pharma Total</span><span className="text-xs font-black text-emerald-600">₹{totalMedicineCost.toLocaleString()}</span></div>
-                  <div className="flex justify-between items-center"><span className="text-[10px] font-bold text-slate-600">Events Logged</span><span className="text-xs font-black text-slate-900">{healthTasks?.length || 0}</span></div>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-neutral-100" />
@@ -246,52 +214,45 @@ export default function MedicinePage() {
                   <p className="text-3xl md:text-4xl font-black tracking-tighter">{healthTasks?.length || 0} EVENTS</p>
                 </div>
               </CardHeader>
-              
-              <div className="block md:hidden flex-1 overflow-hidden">
+              <div className="flex-1 overflow-hidden">
                 <ScrollArea className="h-full">
-                  {sortedHealthTasks.length > 0 ? sortedHealthTasks.map((task) => (
-                    <div key={task.id} className="p-4 border-b border-slate-100 flex items-center gap-4 active:bg-slate-50 transition-colors" onClick={() => handleEditTaskClick(task)}>
-                      <div className="flex flex-col items-center min-w-[60px] text-center">
-                        <span className="text-[10px] font-black text-slate-300 leading-none">{task.date.split('-')[0]}</span>
-                        <span className="text-[14px] font-black text-slate-400 leading-none mt-1">{task.date.split('-').slice(1).join('-')}</span>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <Badge className="bg-emerald-50 text-emerald-600 border-none font-black text-[7px] uppercase px-1.5 py-0.5">{task.sheepId}</Badge>
-                          <span className="text-sm font-black text-slate-900 truncate">{task.medicineName}</span>
+                  <div className="md:hidden">
+                    {sortedHealthTasks.length > 0 ? sortedHealthTasks.map((task) => (
+                      <div key={task.id} className="p-4 border-b border-slate-100 flex items-center gap-4 active:bg-slate-50 transition-colors">
+                        <div className="flex flex-col items-center min-w-[60px] text-center">
+                          <span className="text-[10px] font-black text-slate-300 leading-none">{task.date.split('-')[0]}</span>
+                          <span className="text-[14px] font-black text-slate-400 leading-none mt-1">{task.date.split('-').slice(1).join('-')}</span>
                         </div>
-                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{task.healthType} • {task.dose}{task.unit}</p>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Badge className="bg-emerald-50 text-emerald-600 border-none font-black text-[7px] uppercase px-1.5 py-0.5">{task.sheepId}</Badge>
+                            <span className="text-sm font-black text-slate-900 truncate">{task.medicineName}</span>
+                          </div>
+                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{task.healthType} • {task.dose}{task.unit}</p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className="text-base font-black text-slate-900">₹{task.cost.toLocaleString()}</p>
+                        </div>
                       </div>
-                      <div className="text-right shrink-0">
-                        <p className="text-base font-black text-slate-900">₹{task.cost.toLocaleString()}</p>
-                      </div>
-                    </div>
-                  )) : <div className="py-20 text-center opacity-20 font-black uppercase text-xs">No clinical events</div>}
-                </ScrollArea>
-              </div>
-
-              <div className="hidden md:block flex-1 overflow-hidden">
-                <ScrollArea className="h-full">
-                  <Table>
-                    <TableHeader className="bg-slate-50/50 sticky top-0 z-10 backdrop-blur">
-                      <TableRow className="border-none hover:bg-transparent">
-                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-slate-400">Event Date</TableHead>
-                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-slate-400">Asset ID</TableHead>
-                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-slate-400">Treatment</TableHead>
-                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-slate-400">Impact</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {sortedHealthTasks.map((task) => (
-                        <TableRow key={task.id} className="hover:bg-slate-50 transition-colors border-b border-slate-100 group cursor-pointer" onClick={() => handleEditTaskClick(task)}>
-                          <TableCell className="py-6 pl-10 text-[11px] font-black text-slate-400 uppercase tracking-widest">{task.date}</TableCell>
-                          <TableCell><Badge className="bg-emerald-500/10 text-emerald-600 border-none font-black text-[10px] px-3 uppercase tracking-tight">{task.sheepId}</Badge></TableCell>
-                          <TableCell><div className="flex flex-col"><span className="text-[14px] font-black text-slate-900">{task.medicineName}</span><span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{task.healthType} • {task.dose}{task.unit}</span></div></TableCell>
-                          <TableCell className="text-right pr-10"><div className="flex items-center justify-end gap-4"><span className="text-[16px] font-black text-slate-900">₹{task.cost.toLocaleString()}</span><div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all"><Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-emerald-50 text-emerald-600" onClick={(e) => { e.stopPropagation(); handleEditTaskClick(task); }}><Pencil className="h-4 w-4" /></Button><Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-rose-50 text-rose-600" onClick={(e) => { e.stopPropagation(); handleDeleteTask(task.id, task._path); }}><Trash2 className="h-4 w-4" /></Button></div></div></TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                    )) : <div className="py-20 text-center opacity-20 font-black uppercase text-xs">No clinical events</div>}
+                  </div>
+                  <div className="hidden md:block">
+                    <Table>
+                      <TableHeader className="bg-slate-50/50 sticky top-0 z-10 backdrop-blur">
+                        <TableRow className="border-none"><TableHead className="py-8 pl-10 text-slate-400">Event Date</TableHead><TableHead className="py-8 text-slate-400">Asset ID</TableHead><TableHead className="py-8 text-slate-400">Treatment</TableHead><TableHead className="py-8 text-right pr-10 text-slate-400">Impact</TableHead></TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {sortedHealthTasks.map((task) => (
+                          <TableRow key={task.id} className="hover:bg-slate-50 border-b border-slate-100 cursor-pointer">
+                            <TableCell className="py-6 pl-10 text-[11px] font-black text-slate-400">{task.date}</TableCell>
+                            <TableCell><Badge className="bg-emerald-500/10 text-emerald-600 border-none font-black">{task.sheepId}</Badge></TableCell>
+                            <TableCell><div className="flex flex-col"><span className="text-[14px] font-black text-slate-900">{task.medicineName}</span><span className="text-[9px] font-bold text-slate-400 uppercase">{task.healthType} • {task.dose}{task.unit}</span></div></TableCell>
+                            <TableCell className="text-right pr-10"><span className="text-[16px] font-black text-slate-900">₹{task.cost.toLocaleString()}</span></TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
                 </ScrollArea>
               </div>
             </Card>
@@ -309,56 +270,82 @@ export default function MedicinePage() {
                 <p className="text-3xl md:text-4xl font-black tracking-tighter">₹{totalMedicineCost.toLocaleString()}</p>
               </div>
             </CardHeader>
-            
-            <div className="block md:hidden flex-1 overflow-hidden">
+            <div className="flex-1 overflow-hidden">
               <ScrollArea className="h-full">
-                {sortedMedicineExpenses.length > 0 ? sortedMedicineExpenses.map((exp) => (
-                  <div key={exp.id} className="p-4 border-b border-slate-100 flex items-center gap-4 active:bg-slate-50 transition-colors" onClick={() => handleEditExpenseClick(exp)}>
-                    <div className="flex flex-col items-center min-w-[60px] text-center">
-                      <span className="text-[10px] font-black text-slate-300 leading-none">{exp.date.split('-')[0]}</span>
-                      <span className="text-[14px] font-black text-slate-400 leading-none mt-1">{exp.date.split('-').slice(1).join('-')}</span>
+                <div className="md:hidden">
+                  {sortedMedicineExpenses.length > 0 ? sortedMedicineExpenses.map((exp) => (
+                    <div key={exp.id} className="p-4 border-b border-slate-100 flex items-center gap-4 active:bg-slate-50 transition-colors">
+                      <div className="flex flex-col items-center min-w-[60px] text-center">
+                        <span className="text-[10px] font-black text-slate-300 leading-none">{exp.date.split('-')[0]}</span>
+                        <span className="text-[14px] font-black text-slate-400 leading-none mt-1">{exp.date.split('-').slice(1).join('-')}</span>
+                      </div>
+                      <div className="flex-1 min-w-0"><span className="text-sm font-black text-slate-900 truncate block mb-1">{exp.shopName}</span></div>
+                      <div className="text-right shrink-0"><p className="text-base font-black text-slate-900">₹{exp.totalAmountSpent.toLocaleString()}</p></div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <span className="text-sm font-black text-slate-900 truncate block mb-1">{exp.shopName}</span>
-                      {exp.outstandingDues > 0 && <Badge className="bg-rose-50 text-rose-600 border-none font-black text-[7px] uppercase px-1.5 py-0.5">₹{exp.outstandingDues.toLocaleString()} DUE</Badge>}
-                    </div>
-                    <div className="text-right shrink-0">
-                      <p className="text-base font-black text-slate-900">₹{exp.totalAmountSpent.toLocaleString()}</p>
-                    </div>
-                  </div>
-                )) : <div className="py-20 text-center opacity-20 font-black uppercase text-xs">No records discovered</div>}
-              </ScrollArea>
-            </div>
-
-            <div className="hidden md:block flex-1 overflow-hidden">
-              <ScrollArea className="h-full">
-                <Table>
-                  <TableHeader className="bg-slate-50/50 sticky top-0 z-10 backdrop-blur">
-                    <TableRow className="border-none hover:bg-transparent">
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-slate-400">Temporal Node</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-slate-400">Supplier / Entity</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right text-slate-400">Outstanding</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-slate-400">Value Payload</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {sortedMedicineExpenses.map((exp) => (
-                      <TableRow key={exp.id} className="hover:bg-slate-50 transition-colors border-b border-slate-100 group cursor-pointer" onClick={() => handleEditExpenseClick(exp)}>
-                        <TableCell className="py-6 pl-10 text-[11px] font-black text-slate-400 uppercase tracking-widest">{exp.date}</TableCell>
-                        <TableCell><span className="text-[14px] font-black text-slate-900">{exp.shopName}</span></TableCell>
-                        <TableCell className="text-right">{exp.outstandingDues > 0 ? <Badge className="bg-rose-500/10 text-rose-600 border-none font-black text-[10px] px-3">₹{exp.outstandingDues.toLocaleString()} DUE</Badge> : <span className="text-[9px] font-black text-emerald-600 uppercase tracking-widest">CLEARED</span>}</TableCell>
-                        <TableCell className="text-right pr-10"><div className="flex items-center justify-end gap-4"><span className="text-[16px] font-black text-slate-900">₹{exp.totalAmountSpent.toLocaleString()}</span><div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all"><Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-blue-50 text-blue-600" onClick={(e) => { e.stopPropagation(); handleEditExpenseClick(exp); }}><Pencil className="h-4 w-4" /></Button><Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-rose-50 text-rose-600" onClick={(e) => { e.stopPropagation(); handleDeleteExpense(exp.id, exp._path); }}><Trash2 className="h-4 w-4" /></Button></div></div></TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                  )) : <div className="py-20 text-center opacity-20 font-black uppercase text-xs">No procurement records</div>}
+                </div>
+                <div className="hidden md:block">
+                  <Table>
+                    <TableHeader className="bg-slate-50/50 sticky top-0 z-10 backdrop-blur">
+                      <TableRow className="border-none"><TableHead className="py-8 pl-10 text-slate-400">Date</TableHead><TableHead className="py-8 text-slate-400">Supplier</TableHead><TableHead className="py-8 text-right pr-10 text-slate-400">Total Spent</TableHead></TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {sortedMedicineExpenses.map((exp) => (
+                        <TableRow key={exp.id} className="hover:bg-slate-50 border-b border-slate-100">
+                          <TableCell className="py-6 pl-10 text-[11px] font-black text-slate-400">{exp.date}</TableCell>
+                          <TableCell><span className="text-[14px] font-black text-slate-900">{exp.shopName}</span></TableCell>
+                          <TableCell className="text-right pr-10"><span className="text-[16px] font-black text-slate-900">₹{exp.totalAmountSpent.toLocaleString()}</span></TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               </ScrollArea>
             </div>
           </Card>
         </TabsContent>
       </Tabs>
-      
-      {/* Dialogs continue with same logic... */}
+
+      <Dialog open={isClinicalDialogOpen} onOpenChange={setIsClinicalDialogOpen}>
+        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
+          <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
+            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400"><Syringe className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase">Clinical Entry</DialogTitle></div>
+            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Document new treatment event into registry</DialogDescription>
+          </DialogHeader>
+          <div className="p-8 max-h-[70vh] overflow-y-auto no-scrollbar">
+            <Form {...healthTaskForm}><form onSubmit={healthTaskForm.handleSubmit(onHealthTaskSubmit)} className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <FormField control={healthTaskForm.control} name="sheepId" render={({ field }) => (<FormItem><Label className="form-label-tactical">Asset ID</Label><FormControl><Input placeholder="e.g. 101" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+                <FormField control={healthTaskForm.control} name="medicineName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Medicine</Label><FormControl><Input placeholder="e.g. Albendazole" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <FormField control={healthTaskForm.control} name="dose" render={({ field }) => (<FormItem><Label className="form-label-tactical">Dose Qty</Label><FormControl><Input type="number" step="0.1" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+                <FormField control={healthTaskForm.control} name="administeredBy" render={({ field }) => (<FormItem><Label className="form-label-tactical">Staff Name</Label><FormControl><Input placeholder="Who gave it?" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+              </div>
+              <Button type="submit" className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase shadow-xl">Commit Clinical Record</Button>
+            </form></Form>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isProcurementDialogOpen} onOpenChange={setIsProcurementDialogOpen}>
+        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
+          <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
+            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-blue-500/20 text-blue-400"><Pill className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase">Pharma Entry</DialogTitle></div>
+            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Commit new procurement to ledger</DialogDescription>
+          </DialogHeader>
+          <div className="p-8">
+            <Form {...medicineExpenseForm}><form onSubmit={medicineExpenseForm.handleSubmit(onMedicineExpenseSubmit)} className="space-y-6">
+              <FormField control={medicineExpenseForm.control} name="shopName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Medical Shop Name</Label><FormControl><Input className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+              <div className="grid grid-cols-2 gap-4">
+                <FormField control={medicineExpenseForm.control} name="totalAmountSpent" render={({ field }) => (<FormItem><Label className="form-label-tactical">Total Cost (₹)</Label><FormControl><Input type="number" step="0.01" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+                <FormField control={medicineExpenseForm.control} name="outstandingDues" render={({ field }) => (<FormItem><Label className="form-label-tactical">Dues (₹)</Label><FormControl><Input type="number" step="0.01" className="form-input-tactical text-rose-600 font-bold" {...field} /></FormControl></FormItem>)} />
+              </div>
+              <Button type="submit" className="w-full h-16 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black uppercase shadow-xl">Log Procurement</Button>
+            </form></Form>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
