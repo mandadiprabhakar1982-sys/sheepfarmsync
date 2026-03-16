@@ -6,26 +6,25 @@ import { cn } from '@/lib/utils';
 import { 
   Home as HomeIcon,
   Users, 
-  IndianRupee, 
-  Activity
+  LayoutPanelLeft,
+  MoreHorizontal
 } from 'lucide-react';
 
 /**
- * @fileOverview Native-style bottom navigation for mobile devices.
- * Synchronized with the design for Dashboard, Health, Flock, and Finance.
+ * @fileOverview Native-style bottom navigation matching FarmAudit reference.
  */
 export function MobileNav() {
   const pathname = usePathname();
 
   const links = [
-    { href: '/dashboard', label: 'Home', icon: HomeIcon },
-    { href: '/dashboard/medicine', label: 'Health', icon: Activity },
-    { href: '/dashboard/livestock', label: 'Flock', icon: Users },
-    { href: '/dashboard/monthly-ledger', label: 'Finance', icon: IndianRupee },
+    { href: '/dashboard', label: 'Dashboard', icon: HomeIcon },
+    { href: '/dashboard/livestock', label: 'Sheep Records', icon: Users },
+    { href: '/dashboard/farm-ledger', label: 'Reports', icon: LayoutPanelLeft },
+    { href: '/dashboard/help', label: 'More', icon: MoreHorizontal },
   ];
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white/95 backdrop-blur-3xl border-t border-border shadow-[0_-8px_30px_rgba(0,0,0,0.04)] px-2">
+    <div className="md:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white border-t border-[#D9D9D9] shadow-[0_-4px_12px_rgba(0,0,0,0.04)] px-2">
       <div className="flex items-center justify-between h-16 max-w-lg mx-auto">
         {links.map((link) => {
           const isActive = link.href === '/dashboard' 
@@ -38,15 +37,15 @@ export function MobileNav() {
               href={link.href}
               className={cn(
                 "flex flex-col items-center justify-center flex-1 gap-1 transition-all active:scale-90 h-full",
-                isActive ? "text-primary" : "text-slate-400"
+                isActive ? "text-[#0FA5A0]" : "text-slate-400"
               )}
             >
-              <div className="p-1 rounded-xl">
+              <div className="p-1">
                 <link.icon className={cn("h-5 w-5", isActive ? "stroke-[2.5px]" : "stroke-[2px]")} />
               </div>
               <span className={cn(
-                "text-[9px] font-black uppercase tracking-tight leading-none",
-                isActive ? "opacity-100" : "opacity-60"
+                "text-[9px] font-bold tracking-tight leading-none",
+                isActive ? "text-[#0FA5A0]" : "text-slate-400"
               )}>
                 {link.label}
               </span>
