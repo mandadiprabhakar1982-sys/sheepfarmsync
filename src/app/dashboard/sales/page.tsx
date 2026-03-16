@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useMemo, useRef } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -8,45 +8,27 @@ import {
   Calendar as CalendarIcon, 
   Trash2, 
   Pencil, 
-  Globe, 
-  ArrowUpRight, 
   ArrowRightLeft,
-  Save,
   ShieldCheck,
-  ArrowDownRight,
-  Camera,
-  Upload,
-  ImageIcon,
   X,
-  Loader2,
-  ChevronDown,
   Plus,
-  CheckCircle2
+  PlusCircle,
+  CheckCircle2,
+  Search
 } from 'lucide-react';
 import { format, parseISO, isToday, isYesterday } from 'date-fns';
 
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
-  FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import {
   Dialog,
   DialogContent,
@@ -54,24 +36,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
-import { useFarm } from '@/context/FarmContext';
-import { useStorage } from '@/firebase';
-import { uploadToStorage } from '@/lib/upload';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import type { AnimalSale, LivestockPurchase } from '@/lib/types';
+import { useFarm } from '@/context/FarmContext';
+import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 const salesFormSchema = z.object({
   saleDate: z.date({ required_error: 'A date is required.' }),
@@ -83,7 +52,6 @@ const salesFormSchema = z.object({
   outstandingDuesFromBuyer: z.coerce.number().nonnegative('Cannot be negative'),
   amountReceived: z.coerce.number().nonnegative('Cannot be negative'),
   isPublic: z.boolean().default(false),
-  imageUrl: z.string().optional(),
 });
 
 type SalesFormData = z.infer<typeof salesFormSchema>;
@@ -92,7 +60,7 @@ export default function TradeLedgerPage() {
   const { toast } = useToast();
   const { 
     sales, addSale, deleteSale, postToMarketplace,
-    purchases, totalPurchaseCost, totalSales, isLoading
+    purchases, totalSales, isLoading 
   } = useFarm();
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -100,7 +68,7 @@ export default function TradeLedgerPage() {
   
   const salesForm = useForm<SalesFormData>({
     resolver: zodResolver(salesFormSchema),
-    defaultValues: { buyerName: '', buyerVillage: '', animalCount: 1, animalWeightKg: 0, salePrice: 0, outstandingDuesFromBuyer: 0, amountReceived: 0, isPublic: false, imageUrl: '' },
+    defaultValues: { buyerName: '', buyerVillage: '', animalCount: 1, animalWeightKg: 0, salePrice: 0, outstandingDuesFromBuyer: 0, amountReceived: 0, isPublic: false },
   });
 
   const combinedLedger = useMemo(() => {
@@ -110,7 +78,6 @@ export default function TradeLedgerPage() {
     return filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [sales, purchases, searchTerm]);
 
-  // Grouping for Mobile
   const groupedLedger = useMemo(() => {
     const groups: { [key: string]: any[] } = {};
     combinedLedger.forEach(item => {
@@ -154,7 +121,7 @@ export default function TradeLedgerPage() {
 
   return (
     <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col relative bg-white md:bg-transparent">
-      {/* MOBILE HEADER (HIGH PROFILE) */}
+      {/* MOBILE HEADER */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-[110] bg-[#059669] text-white px-6 py-5 flex items-center justify-between shadow-lg">
         <h2 className="text-xl font-black tracking-tight">Trade Ledger</h2>
         <p className="text-xl font-black">₹{totalSales.toLocaleString()}</p>
@@ -163,18 +130,16 @@ export default function TradeLedgerPage() {
       <div className="md:hidden h-16 shrink-0" />
 
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-6 md:mb-8 shrink-0 px-4 md:px-0 mt-4 md:mt-0">
-        <PageHeader title="Trade Ledger" description="INTEGRATED DISPOSAL & ACQUISITION SUITE" className="mb-0 hidden md:block" />
+        <PageHeader title="Trade Ledger" description="DISPOSAL & ACQUISITION SUITE" className="mb-0 hidden md:block" />
 
-        <div className="flex items-center gap-2 md:gap-4 overflow-x-auto pb-2 md:pb-0 no-scrollbar md:w-auto w-full">
-          <div className="hidden md:flex items-center gap-4">
-            <Button onClick={() => setIsDisposalOpen(true)} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-xl border-none">
-              <PlusCircle className="h-5 w-5 text-accent" />
-              Log Sale
-            </Button>
-            <div className="px-6 py-3 bg-neutral-900 rounded-2xl text-white flex items-center gap-4 shadow-xl shrink-0">
-              <ShieldCheck className="h-5 w-5 text-emerald-400" />
-              <div><p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Total Value</p><p className="text-xl font-black tracking-tight">₹{totalSales.toLocaleString()}</p></div>
-            </div>
+        <div className="hidden md:flex items-center gap-4">
+          <Button onClick={() => setIsDisposalOpen(true)} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-xl border-none">
+            <PlusCircle className="h-5 w-5 text-accent" />
+            Log Sale
+          </Button>
+          <div className="px-6 py-3 bg-neutral-900 rounded-2xl text-white flex items-center gap-4 shadow-xl shrink-0">
+            <ShieldCheck className="h-5 w-5 text-emerald-400" />
+            <div><p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Total Value</p><p className="text-xl font-black tracking-tight text-white">₹{totalSales.toLocaleString()}</p></div>
           </div>
         </div>
       </div>
@@ -196,13 +161,13 @@ export default function TradeLedgerPage() {
             <div className="flex justify-between items-end">
               <div className="space-y-1">
                 <div className="flex items-center gap-3"><ArrowRightLeft className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Master Ledger</CardTitle></div>
-                <CardDescription className="text-emerald-100/60 text-[10px] font-black uppercase tracking-[0.2em]">Verified Disposals & Acquisitions</CardDescription>
+                <CardDescription className="text-emerald-100/60 text-[10px] font-black uppercase tracking-[0.2em]">Verified Cash Flow Audit</CardDescription>
               </div>
               <p className="text-4xl font-black tracking-tighter">₹{totalSales.toLocaleString()}</p>
             </div>
           </CardHeader>
 
-          {/* MOBILE VIEW: GROUPED LIST */}
+          {/* MOBILE VIEW */}
           <div className="block md:hidden flex-1 overflow-hidden bg-slate-50 -mx-4">
             <ScrollArea className="h-full px-4 pt-4">
               {groupedLedger.length > 0 ? groupedLedger.map((group) => (
@@ -218,9 +183,7 @@ export default function TradeLedgerPage() {
                             <Badge className={cn("border-none font-black text-[7px] uppercase px-1.5 py-0.5", item._type === 'sale' ? "bg-emerald-50 text-emerald-600" : "bg-blue-50 text-blue-600")}>{item._type === 'sale' ? 'SALE' : 'BUY'}</Badge>
                             <h3 className="text-lg font-black text-slate-900 truncate leading-none">{item.entity}</h3>
                           </div>
-                          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-                            {item.loc} • {item.animalCount} Head
-                          </p>
+                          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">{item.loc} • {item.animalCount} Head</p>
                         </div>
                         <div className="text-right shrink-0">
                           <p className={cn("text-xl font-black", item._type === 'sale' ? "text-[#059669]" : "text-slate-900")}>
@@ -246,41 +209,38 @@ export default function TradeLedgerPage() {
             </ScrollArea>
           </div>
 
-          {/* DESKTOP VIEW: TABLE */}
+          {/* DESKTOP VIEW */}
           <div className="hidden md:block flex-1 overflow-hidden">
             <ScrollArea className="h-full">
-              <Table>
-                <TableHeader className="bg-slate-50/50 sticky top-0 z-10 backdrop-blur">
-                  <TableRow className="border-none hover:bg-transparent">
-                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-slate-400">Date</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-slate-400">Counterparty</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-center text-slate-400">Asset Count</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-slate-400">Transaction Value</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {combinedLedger.map((item) => (
-                    <TableRow key={item.id} className="hover:bg-slate-50 border-b border-slate-100">
-                      <TableCell className="py-6 pl-10 text-[11px] font-black text-slate-400">{item.date}</TableCell>
-                      <TableCell>
-                        <div className="flex flex-col">
-                          <span className="text-[14px] font-black text-slate-900">{item.entity}</span>
-                          <span className="text-[9px] font-bold text-slate-400 uppercase">{item.loc} • {item._type.toUpperCase()}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-center"><span className="text-[14px] font-black">{item.animalCount} Head</span></TableCell>
-                      <TableCell className="text-right pr-10">
-                        <div className="flex flex-col items-end">
-                          <span className={cn("text-[18px] font-black", item._type === 'sale' ? "text-emerald-600" : "text-slate-900")}>
-                            {item._type === 'sale' ? '+' : '-'}₹{item.value.toLocaleString()}
-                          </span>
-                          {item.dues > 0 && <span className="text-[9px] font-bold text-rose-500 uppercase">₹{item.dues.toLocaleString()} OUTSTANDING</span>}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <div className="p-8">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                      <th className="py-4 px-4">Date</th>
+                      <th className="py-4 px-4">Counterparty</th>
+                      <th className="py-4 px-4 text-center">Asset Count</th>
+                      <th className="py-4 px-4 text-right">Transaction Value</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {combinedLedger.map((item) => (
+                      <tr key={item.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
+                        <td className="py-6 px-4 text-[11px] font-black text-slate-400">{item.date}</td>
+                        <td className="py-6 px-4">
+                          <div className="flex flex-col"><span className="text-[14px] font-black text-slate-900">{item.entity}</span><span className="text-[9px] font-bold text-slate-400 uppercase">{item.loc} • {item._type.toUpperCase()}</span></div>
+                        </td>
+                        <td className="py-6 px-4 text-center"><span className="text-[14px] font-black">{item.animalCount} Head</span></td>
+                        <td className="py-6 px-4 text-right">
+                          <div className="flex flex-col items-end">
+                            <span className={cn("text-[18px] font-black", item._type === 'sale' ? "text-emerald-600" : "text-slate-900")}>{item._type === 'sale' ? '+' : '-'}₹{item.value.toLocaleString()}</span>
+                            {item.dues > 0 && <span className="text-[9px] font-bold text-rose-500 uppercase">₹{item.dues.toLocaleString()} OUTSTANDING</span>}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </ScrollArea>
           </div>
         </div>
@@ -298,13 +258,11 @@ export default function TradeLedgerPage() {
         <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
             <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400"><Plus className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase">Disposal Entry</DialogTitle></div>
-            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Commit new livestock sale to ledger</DialogDescription>
+            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Commit new sale to ledger</DialogDescription>
           </DialogHeader>
           <div className="p-8 max-h-[70vh] overflow-y-auto no-scrollbar">
             <Form {...salesForm}><form onSubmit={salesForm.handleSubmit(onSalesSubmit)} className="space-y-6">
-              <FormField control={salesForm.control} name="buyerName" render={({ field }) => (
-                <FormItem><Label className="form-label-tactical">Buyer Identity</Label><FormControl><Input placeholder="e.g. John Doe" className="form-input-tactical" {...field} /></FormControl></FormItem>
-              )} />
+              <FormField control={salesForm.control} name="buyerName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Buyer Identity</Label><FormControl><Input placeholder="e.g. John Doe" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
               <div className="grid grid-cols-2 gap-4">
                 <FormField control={salesForm.control} name="animalCount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Head Count</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
                 <FormField control={salesForm.control} name="salePrice" render={({ field }) => (<FormItem><Label className="form-label-tactical">Total Price (₹)</Label><FormControl><Input type="number" className="form-input-tactical font-black text-emerald-600" {...field} /></FormControl></FormItem>)} />

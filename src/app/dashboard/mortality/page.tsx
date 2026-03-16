@@ -4,46 +4,36 @@ import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { 
-  Calendar as CalendarIcon, 
   Trash2, 
-  Pencil, 
   Skull, 
-  History, 
   Plus,
-  PlusCircle,
   ShieldCheck,
-  Save,
-  AlertCircle
+  CheckCircle2,
+  PlusCircle,
+  Search,
+  X
 } from 'lucide-react';
-import { format } from 'date-fns';
-import { useState, useEffect, useMemo } from 'react';
+import { format, parseISO, isToday, isYesterday } from 'date-fns';
+import { useState, useMemo } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useFarm } from '@/context/FarmContext';
-import { Textarea } from '@/components/ui/textarea';
-import type { DeadAnimal } from '@/lib/types';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
@@ -54,95 +44,54 @@ const formSchema = z.object({
   sheepCount: z.coerce.number().int().positive('Must be a positive number.'),
   tagId: z.string().optional(),
   causeOfDeath: z.string().min(1, 'Cause of death is required.'),
-  notes: z.string().optional(),
 });
 
 type MortalityFormData = z.infer<typeof formSchema>;
 
 export default function MortalityPage() {
   const { toast } = useToast();
-  const { 
-    deadAnimals, 
-    addDeadAnimal, 
-    deleteDeadAnimal, 
-    updateDeadAnimal, 
-    totalDead, 
-    isLoading 
-  } = useFarm();
-  
+  const { deadAnimals, addDeadAnimal, deleteDeadAnimal, totalDead, isLoading } = useFarm();
   const [isEntryDialogOpen, setIsEntryDialogOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [editingDeadAnimal, setEditingDeadAnimal] = useState<DeadAnimal | null>(null);
-  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const form = useForm<MortalityFormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      sheepCount: 1,
-      tagId: '',
-      causeOfDeath: '',
-      notes: '',
-    },
-  });
-
-  const editForm = useForm<MortalityFormData>({
-    resolver: zodResolver(formSchema),
+    defaultValues: { sheepCount: 1, tagId: '', causeOfDeath: '', dateOfDeath: new Date() },
   });
 
   const sortedDeadAnimals = useMemo(() => {
     if (!deadAnimals) return [];
-    return [...deadAnimals].sort((a, b) => new Date(b.dateOfDeath).getTime() - new Date(a.dateOfDeath).getTime());
-  }, [deadAnimals]);
+    const filtered = deadAnimals.filter(a => (a.tagId || '').toLowerCase().includes(searchTerm.toLowerCase()) || a.causeOfDeath.toLowerCase().includes(searchTerm.toLowerCase()));
+    return [...filtered].sort((a, b) => new Date(b.dateOfDeath).getTime() - new Date(a.dateOfDeath).getTime());
+  }, [deadAnimals, searchTerm]);
 
-  useEffect(() => {
-    if (editingDeadAnimal) {
-      editForm.reset({
-        ...editingDeadAnimal,
-        dateOfDeath: new Date(editingDeadAnimal.dateOfDeath),
-      });
-    }
-  }, [editingDeadAnimal, editForm]);
+  const groupedMortality = useMemo(() => {
+    const groups: { [key: string]: any[] } = {};
+    sortedDeadAnimals.forEach(a => {
+      if (!groups[a.dateOfDeath]) groups[a.dateOfDeath] = [];
+      groups[a.dateOfDeath].push(a);
+    });
+    return Object.entries(groups).map(([date, items]) => ({ date, items }));
+  }, [sortedDeadAnimals]);
 
   const onSubmit: SubmitHandler<MortalityFormData> = (data) => {
     const newRecord = { ...data, dateOfDeath: format(data.dateOfDeath, 'yyyy-MM-dd') };
     addDeadAnimal(newRecord);
     form.reset();
     setIsEntryDialogOpen(false);
-    toast({
-      title: 'Success!',
-      description: 'Mortality record committed to ledger.',
-    });
-  };
-  
-  const onEditSubmit: SubmitHandler<MortalityFormData> = (data) => {
-    if (!editingDeadAnimal) return;
-    const updatedData = { ...data, dateOfDeath: format(data.dateOfDeath, 'yyyy-MM-dd') };
-    updateDeadAnimal(editingDeadAnimal.id, updatedData, editingDeadAnimal._path);
-    setIsEditDialogOpen(false);
-    setEditingDeadAnimal(null);
-    toast({
-      title: 'Updated!',
-      description: 'Audit record adjusted.',
-    });
+    toast({ title: 'Success!', description: 'Mortality record committed.' });
   };
 
-  const handleDeleteRecord = (id: string, path?: string) => {
-    deleteDeadAnimal(id, path);
-    toast({
-      title: 'Deleted',
-      description: 'Record purged from ledger.',
-      variant: 'destructive'
-    });
-  }
-
-  const handleEditClick = (animal: DeadAnimal) => {
-    setEditingExpense(animal);
-    setIsEditDialogOpen(true);
+  const formatGroupDate = (dateStr: string) => {
+    const d = parseISO(dateStr);
+    if (isToday(d)) return `TODAY - ${dateStr}`;
+    if (isYesterday(d)) return `YESTERDAY - ${dateStr}`;
+    return dateStr;
   };
 
   if (isLoading) {
     return (
-      <div className="flex h-[calc(100vh-120px)] w-full items-center justify-center">
+      <div className="flex h-full w-full items-center justify-center">
         <div className="flex flex-col items-center gap-6">
           <div className="w-12 h-12 border-4 border-slate-100 rounded-full border-t-rose-500 animate-spin" />
           <p className="text-[12px] font-black text-slate-400 uppercase tracking-[0.3em]">SYNCHRONIZING MORTALITY DATA...</p>
@@ -152,201 +101,142 @@ export default function MortalityPage() {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 md:px-10 max-w-7xl animate-in fade-in duration-700">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
-        <PageHeader
-          title="Loss Log"
-          description="ANIMAL MORTALITIES & PATHOLOGICAL CAUSES"
-          className="mb-0"
-        />
-        
-        <div className="flex items-center gap-4">
-          <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={() => { form.reset(); setIsEntryDialogOpen(true); }} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-neutral-900 hover:bg-neutral-800 text-white gap-2 shadow-xl">
-                <PlusCircle className="h-5 w-5 text-rose-500" />
-                Log Loss Event
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
-              <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2.5 rounded-xl bg-rose-500/20 text-rose-500">
-                    <Plus className="h-5 w-5" />
-                  </div>
-                  <DialogTitle className="text-xl font-black tracking-tight uppercase">Loss Entry</DialogTitle>
-                </div>
-                <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Commit livestock mortality to master audit ledger</DialogDescription>
-              </DialogHeader>
-              
-              <div className="p-8">
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                    <div className="space-y-6">
-                      <FormField control={form.control} name="dateOfDeath" render={({ field }) => (
-                        <FormItem className="flex flex-col">
-                          <Label className="form-label-tactical text-slate-400">Event Date</Label>
-                          <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
-                            <PopoverTrigger asChild>
-                              <Button variant="outline" className="form-input-tactical w-full text-left justify-between bg-slate-50 border-slate-200">
-                                {field.value ? format(field.value, "MMMM do, yyyy") : "Pick date"}
-                                <CalendarIcon className="h-4 w-4 opacity-20" />
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0 border-slate-200 bg-white shadow-2xl">
-                              <Calendar mode="single" selected={field.value} onSelect={(d) => { field.onChange(d); setIsDatePickerOpen(false); }} initialFocus className="text-slate-900" />
-                            </PopoverContent>
-                          </Popover>
-                        </FormItem>
-                      )} />
+    <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col relative bg-white md:bg-transparent">
+      {/* MOBILE HEADER */}
+      <div className="md:hidden fixed top-0 left-0 right-0 z-[110] bg-[#059669] text-white px-6 py-5 flex items-center justify-between shadow-lg">
+        <h2 className="text-xl font-black tracking-tight">Loss Log</h2>
+        <p className="text-xl font-black">{totalDead} Head</p>
+      </div>
 
-                      <div className="grid grid-cols-2 gap-6">
-                        <FormField control={form.control} name="sheepCount" render={({ field }) => (
-                          <FormItem><Label className="form-label-tactical text-slate-400">Qty (Head)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
-                        )} />
-                        <FormField control={form.control} name="tagId" render={({ field }) => (
-                          <FormItem><Label className="form-label-tactical text-slate-400">Tag ID (Optional)</Label><FormControl><Input placeholder="e.g. A-102" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
-                        )} />
-                      </div>
+      <div className="md:hidden h-16 shrink-0" />
 
-                      <FormField control={form.control} name="causeOfDeath" render={({ field }) => (
-                        <FormItem><Label className="form-label-tactical text-slate-400">Pathological Cause</Label><FormControl><Input placeholder="e.g. Fever, Injury, Illness" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
-                      )} />
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-6 md:mb-8 shrink-0 px-4 md:px-0 mt-4 md:mt-0">
+        <PageHeader title="Loss Log" description="MORTALITIES & PATHOLOGICAL CAUSES" className="mb-0 hidden md:block" />
 
-                      <FormField control={form.control} name="notes" render={({ field }) => (
-                        <FormItem><Label className="form-label-tactical text-slate-400">Clinical Notes</Label><FormControl><Textarea placeholder="Additional context..." className="min-h-[100px] form-input-tactical bg-slate-50 border-slate-200 pt-4" {...field} /></FormControl></FormItem>
-                      )} />
-                    </div>
-
-                    <Button type="submit" className="w-full h-16 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black text-sm uppercase tracking-[0.25em] transition-all active:scale-95 shadow-xl">
-                      Synchronize Loss Record
-                    </Button>
-                  </form>
-                </Form>
-              </div>
-            </DialogContent>
-          </Dialog>
-
-          <div className="px-6 py-3 bg-neutral-900 rounded-2xl text-white flex items-center gap-4 shadow-xl">
+        <div className="hidden md:flex items-center gap-4">
+          <Button onClick={() => setIsEntryDialogOpen(true)} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-rose-600 hover:bg-rose-700 text-white gap-2 shadow-xl border-none">
+            <PlusCircle className="h-5 w-5 text-white" />
+            Log Loss
+          </Button>
+          <div className="px-6 py-3 bg-neutral-900 rounded-2xl text-white flex items-center gap-4 shadow-xl shrink-0">
             <ShieldCheck className="h-5 w-5 text-emerald-400" />
-            <div>
-              <p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Total Loss</p>
-              <p className="text-xl font-black tracking-tight">{totalDead} Head</p>
-            </div>
+            <div><p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Total Loss</p><p className="text-xl font-black tracking-tight text-white">{totalDead} Head</p></div>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-        <div className="glass-card glow-coral rounded-[32px] p-8 h-[180px] flex flex-col justify-between bg-white shadow-xl">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Total Loss Count</p>
-              <p className="text-5xl font-black tracking-tighter text-rose-600">{totalDead.toString()} <span className="text-2xl opacity-20">Head</span></p>
-            </div>
-            <div className="h-10 w-10 rounded-full bg-rose-50 flex items-center justify-center">
-              <Skull className="h-5 w-5 text-rose-600" />
-            </div>
-          </div>
-          <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest">FLOCK DEPLETION</p>
+      <div className="space-y-6 flex-1 min-h-0 flex flex-col px-4 md:px-0">
+        <div className="relative shrink-0 w-full max-w-xl mx-auto md:mx-0">
+          <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
+          <Input 
+            placeholder="Filter by Tag ID or Cause..." 
+            value={searchTerm} 
+            onChange={(e) => setSearchTerm(e.target.value)} 
+            className="h-12 md:h-14 pl-12 pr-12 rounded-2xl md:rounded-full bg-neutral-100/50 md:bg-white border-none text-slate-900 font-bold shadow-sm" 
+          />
+          {searchTerm && <button onClick={() => setSearchTerm('')} className="absolute right-5 top-1/2 -translate-y-1/2"><X className="h-4 w-4 text-slate-300" /></button>}
         </div>
 
-        <div className="glass-card glow-purple rounded-[32px] p-8 h-[180px] flex flex-col justify-between bg-white shadow-xl">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Audit Entries</p>
-              <p className="text-5xl font-black tracking-tighter text-slate-900">{(deadAnimals || []).length}</p>
-            </div>
-            <div className="h-10 w-10 rounded-full bg-purple-50 flex items-center justify-center">
-              <History className="h-5 w-5 text-purple-600" />
-            </div>
-          </div>
-          <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest">HISTORICAL RECORDS</p>
-        </div>
-      </div>
-
-      <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
-        <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
-          <CardHeader className="bg-neutral-900 text-white p-10 py-12">
+        <div className="flex-1 min-h-0 flex flex-col md:bg-white md:rounded-[2.5rem] md:shadow-2xl md:overflow-hidden">
+          <CardHeader className="bg-neutral-900 text-white p-10 shrink-0 hidden md:block">
             <div className="flex justify-between items-end">
               <div className="space-y-1">
-                <div className="flex items-center gap-3">
-                  <Skull className="h-6 w-6 text-rose-500" />
-                  <CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Mortality Ledger</CardTitle>
-                </div>
-                <CardDescription className="text-white/40 text-xs font-black uppercase tracking-[0.2em]">Verified pathological loss audit</CardDescription>
+                <div className="flex items-center gap-3"><Skull className="h-6 w-6 text-rose-500" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Mortality Ledger</CardTitle></div>
+                <CardDescription className="text-white/40 text-[10px] font-black uppercase tracking-[0.2em]">Verified Pathological Loss Audit</CardDescription>
               </div>
-              <p className="text-4xl font-black tracking-tighter">{totalDead} Head</p>
+              <p className="text-4xl font-black tracking-tighter text-rose-500">{totalDead} Head</p>
             </div>
           </CardHeader>
-          <CardContent className="p-0 overflow-x-auto">
-            <Table>
-              <TableHeader className="bg-slate-50 border-none">
-                <TableRow>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-slate-400">Temporal Node</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-slate-400">Asset / Cause</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-center text-slate-400">Quantity</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-slate-400">Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {sortedDeadAnimals.length > 0 ? sortedDeadAnimals.map((animal) => (
-                  <TableRow key={animal.id} className="hover:bg-slate-50 transition-colors border-b border-slate-100 group" onClick={() => handleEditClick(animal)}>
-                    <TableCell className="py-6 pl-10 text-[11px] font-black text-slate-400 uppercase tracking-widest">{animal.dateOfDeath}</TableCell>
-                    <TableCell>
-                      <div className="flex flex-col">
-                        <span className="text-[14px] font-black text-slate-900">{animal.tagId || 'UNTAGGED'}</span>
-                        <span className="text-[10px] font-bold text-slate-400 uppercase mt-1 tracking-widest">{animal.causeOfDeath}</span>
+
+          {/* MOBILE VIEW */}
+          <div className="block md:hidden flex-1 overflow-hidden bg-slate-50 -mx-4">
+            <ScrollArea className="h-full px-4 pt-4">
+              {groupedMortality.length > 0 ? groupedMortality.map((group) => (
+                <div key={group.date} className="mb-8">
+                  <div className="px-2 py-2 mb-3 bg-[#e7eddc] rounded-lg">
+                    <p className="text-[11px] font-black uppercase tracking-widest text-slate-600">{formatGroupDate(group.date)}</p>
+                  </div>
+                  <div className="space-y-4">
+                    {group.items.map((a) => (
+                      <div key={a.id} className="bg-white rounded-[1.25rem] p-5 flex items-center justify-between shadow-sm border border-white/60 active:scale-[0.98] transition-all">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-lg font-black text-slate-900 truncate leading-none mb-1">{a.tagId || 'UNTAGGED'}</h3>
+                          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">{a.causeOfDeath} • Pathological</p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className="text-xl font-black text-rose-600">{a.sheepCount} Head</p>
+                          <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-rose-50 text-rose-600 border border-rose-100 mt-1">
+                            <CheckCircle2 className="h-2.5 w-2.5" />
+                            <span className="text-[9px] font-black uppercase tracking-widest">VERIFIED</span>
+                          </div>
+                        </div>
                       </div>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Badge className="bg-rose-50 text-rose-600 border-none font-black text-[10px] px-3">{animal.sheepCount} Head</Badge>
-                    </TableCell>
-                    <TableCell className="text-right pr-10">
-                      <div className="flex items-center justify-end gap-4">
-                        <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-rose-50 text-rose-600 opacity-0 group-hover:opacity-100 transition-all" onClick={(evt) => { evt.stopPropagation(); handleDeleteRecord(animal.id, animal._path); }}><Trash2 className="h-4 w-4" /></Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                )) : (
-                  <TableRow><TableCell colSpan={4} className="text-center py-32 opacity-20 font-black uppercase text-xs">No mortality events discovered</TableCell></TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+                    ))}
+                  </div>
+                </div>
+              )) : <div className="py-20 text-center opacity-20 font-black uppercase text-xs">No records discovered</div>}
+              <div className="h-32" />
+            </ScrollArea>
+          </div>
+
+          {/* DESKTOP VIEW */}
+          <div className="hidden md:block flex-1 overflow-hidden">
+            <ScrollArea className="h-full">
+              <div className="p-8">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                      <th className="py-4 px-4">Temporal Node</th>
+                      <th className="py-4 px-4">Asset / Cause</th>
+                      <th className="py-4 px-4 text-center">Quantity</th>
+                      <th className="py-4 px-4 text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sortedDeadAnimals.map((a) => (
+                      <tr key={a.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
+                        <td className="py-6 px-4 text-[11px] font-black text-slate-400">{a.dateOfDeath}</td>
+                        <td className="py-6 px-4">
+                          <div className="flex flex-col"><span className="text-[14px] font-black text-slate-900">{a.tagId || 'UNTAGGED'}</span><span className="text-[10px] font-bold text-slate-400 uppercase">{a.causeOfDeath}</span></div>
+                        </td>
+                        <td className="py-6 px-4 text-center"><Badge className="bg-rose-50 text-rose-600 border-none font-black text-[10px] px-3">{a.sheepCount} Head</Badge></td>
+                        <td className="py-6 px-4 text-right">
+                          <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-rose-600 hover:bg-rose-50" onClick={() => deleteDeadAnimal(a.id, a._path)}><Trash2 className="h-4 w-4" /></Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </ScrollArea>
+          </div>
+        </div>
       </div>
 
-      {/* --- EDIT MODAL --- */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="sm:max-w-md rounded-[32px] p-0 overflow-hidden border-slate-200 bg-white shadow-2xl">
-          <DialogHeader className="bg-slate-50 p-8 border-b border-slate-100 text-left">
-            <DialogTitle className="text-xl font-black uppercase flex items-center gap-3 text-slate-900">
-              <Pencil className="h-5 w-5 text-emerald-600" /> Adjust Record
-            </DialogTitle>
-            <DialogDescription className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Update historical mortality parameters</DialogDescription>
+      {/* MOBILE FAB */}
+      <button 
+        onClick={() => { form.reset(); setIsEntryDialogOpen(true); }}
+        className="md:hidden fixed bottom-24 right-6 h-14 w-14 rounded-full bg-rose-600 text-white shadow-2xl flex items-center justify-center active:scale-90 transition-all z-[120]"
+      >
+        <Plus className="h-7 w-7" />
+      </button>
+
+      <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>
+        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
+          <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
+            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-rose-500/20 text-rose-500"><Plus className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase">Loss Entry</DialogTitle></div>
+            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Commit mortality to master audit ledger</DialogDescription>
           </DialogHeader>
-          <Form {...editForm}>
-            <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="p-8 space-y-6">
-              <FormField control={editForm.control} name="causeOfDeath" render={({ field }) => (
-                <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2">Pathological Cause</Label><FormControl><Input className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
-              )} />
+          <div className="p-8">
+            <Form {...form}><form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField control={form.control} name="causeOfDeath" render={({ field }) => (<FormItem><Label className="form-label-tactical">Pathological Cause</Label><FormControl><Input placeholder="e.g. Fever" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
               <div className="grid grid-cols-2 gap-4">
-                <FormField control={editForm.control} name="sheepCount" render={({ field }) => (
-                  <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2">Count (Head)</Label><FormControl><Input type="number" className="h-14 rounded-2xl bg-slate-50 border-slate-200 font-black text-lg px-6" {...field} /></FormControl></FormItem>
-                )} />
-                <FormField control={editForm.control} name="tagId" render={({ field }) => (
-                  <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2">Tag ID</Label><FormControl><Input className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
-                )} />
+                <FormField control={form.control} name="sheepCount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Head Count</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+                <FormField control={form.control} name="tagId" render={({ field }) => (<FormItem><Label className="form-label-tactical">Tag ID (Opt)</Label><FormControl><Input className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
               </div>
-              <div className="flex gap-4 pt-4">
-                <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)} className="h-14 flex-1 rounded-2xl border-slate-200 font-black uppercase text-xs">Cancel</Button>
-                <Button type="submit" className="h-14 flex-1 rounded-2xl bg-emerald-600 text-white font-black uppercase text-xs shadow-xl">
-                  <Save className="mr-2 h-4 w-4" /> Save Adjustments
-                </Button>
-              </div>
-            </form>
-          </Form>
+              <Button type="submit" className="w-full h-16 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black uppercase shadow-xl">Synchronize Loss Record</Button>
+            </form></Form>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
