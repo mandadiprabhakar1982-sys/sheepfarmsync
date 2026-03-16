@@ -40,6 +40,7 @@ import {
   FormControl,
   FormField,
   FormItem,
+  FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -124,6 +125,12 @@ export default function TradeLedgerPage() {
   const [isAcquisitionOpen, setIsAcquisitionOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
+  // Edit States
+  const [editingSale, setEditingSale] = useState<AnimalSale | null>(null);
+  const [editingPurchase, setEditingPurchase] = useState<LivestockPurchase | null>(null);
+  const [isEditSaleOpen, setIsEditSaleOpen] = useState(false);
+  const [isEditPurchaseOpen, setIsEditPurchaseOpen] = useState(false);
+
   // Photo Zoom State
   const [zoomedPhoto, setZoomedPhoto] = useState<string | null>(null);
   
@@ -138,10 +145,14 @@ export default function TradeLedgerPage() {
     defaultValues: { buyerName: '', buyerVillage: '', animalCount: 1, animalWeightKg: 0, salePrice: 0, outstandingDuesFromBuyer: 0, amountReceived: 0, isPublic: false, imageUrl: '' },
   });
 
+  const editSalesForm = useForm<SalesFormData>({ resolver: zodResolver(salesFormSchema) });
+
   const purchaseForm = useForm<PurchaseFormData>({
     resolver: zodResolver(purchaseFormSchema),
     defaultValues: { villageName: '', farmerName: '', animalCount: 1, purchasePrice: 0, transportCost: 0, amountPaid: 0, dueAmount: 0, payingTimePeriod: '', imageUrl: '' },
   });
+
+  const editPurchaseForm = useForm<PurchaseFormData>({ resolver: zodResolver(purchaseFormSchema) });
 
   // Camera Handlers
   const startCamera = async () => {
@@ -188,11 +199,23 @@ export default function TradeLedgerPage() {
     salesForm.setValue('outstandingDuesFromBuyer', Math.max(0, (price || 0) - (received || 0)));
   }, [watchedSalesFields, salesForm]);
 
+  const watchedEditSalesFields = editSalesForm.watch(['salePrice', 'amountReceived']);
+  useEffect(() => {
+    const [price, received] = watchedEditSalesFields;
+    editSalesForm.setValue('outstandingDuesFromBuyer', Math.max(0, (price || 0) - (received || 0)));
+  }, [watchedEditSalesFields, editSalesForm]);
+
   const watchedPurchaseFields = purchaseForm.watch(['purchasePrice', 'amountPaid']);
   useEffect(() => {
     const [price, paid] = watchedPurchaseFields;
     purchaseForm.setValue('dueAmount', Math.max(0, (price || 0) - (paid || 0)));
   }, [watchedPurchaseFields, purchaseForm]);
+
+  const watchedEditPurchaseFields = editPurchaseForm.watch(['purchasePrice', 'amountPaid']);
+  useEffect(() => {
+    const [price, paid] = watchedEditPurchaseFields;
+    editPurchaseForm.setValue('dueAmount', Math.max(0, (price || 0) - (paid || 0)));
+  }, [watchedEditPurchaseFields, editPurchaseForm]);
 
   // --- HANDLERS ---
   const onSalesSubmit: SubmitHandler<SalesFormData> = async (data) => {
@@ -225,6 +248,27 @@ export default function TradeLedgerPage() {
     }
   };
 
+  const onEditSalesSubmit: SubmitHandler<SalesFormData> = async (data) => {
+    if (!editingSale) return;
+    setIsUploading(true);
+    try {
+      let finalUrl = data.imageUrl;
+      if (storage && data.imageUrl?.startsWith('data:')) {
+        finalUrl = await uploadToStorage(storage, data.imageUrl, 'disposals');
+      }
+      updateSale(editingSale.id, { 
+        ...data, 
+        imageUrl: finalUrl || editingSale.imageUrl,
+        saleDate: format(data.saleDate, 'yyyy-MM-dd') 
+      }, editingSale._path);
+      setIsEditSaleOpen(false);
+      setEditingSale(null);
+      toast({ title: 'Sale Synchronized', description: 'Disposal record adjusted.' });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const onPurchaseSubmit: SubmitHandler<PurchaseFormData> = async (data) => {
     setIsUploading(true);
     try {
@@ -245,6 +289,54 @@ export default function TradeLedgerPage() {
       toast({ variant: 'destructive', title: 'Sync Error', description: 'Failed to persist visual.' });
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const onEditPurchaseSubmit: SubmitHandler<PurchaseFormData> = async (data) => {
+    if (!editingPurchase) return;
+    setIsUploading(true);
+    try {
+      let finalUrl = data.imageUrl;
+      if (storage && data.imageUrl?.startsWith('data:')) {
+        finalUrl = await uploadToStorage(storage, data.imageUrl, 'acquisitions');
+      }
+      updatePurchase(editingPurchase.id, { 
+        ...data, 
+        imageUrl: finalUrl || editingPurchase.imageUrl,
+        purchaseDate: format(data.purchaseDate, 'yyyy-MM-dd') 
+      }, editingPurchase._path);
+      setIsEditPurchaseOpen(false);
+      setEditingPurchase(null);
+      toast({ title: 'Acquisition Synchronized', description: 'Trade record adjusted.' });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleEditClick = (item: any) => {
+    if (item._type === 'sale') {
+      setEditingSale(item);
+      editSalesForm.reset({
+        ...item,
+        saleDate: new Date(item.date),
+        animalWeightKg: item.animalWeightKg,
+        salePrice: item.value,
+        amountReceived: item.amountReceived || 0,
+        buyerName: item.entity,
+        buyerVillage: item.buyerVillage || '',
+      });
+      setIsEditSaleOpen(true);
+    } else {
+      setEditingPurchase(item);
+      editPurchaseForm.reset({
+        ...item,
+        purchaseDate: new Date(item.date),
+        purchasePrice: item.value,
+        amountPaid: item.amountPaid || 0,
+        farmerName: item.entity,
+        villageName: item.villageName || '',
+      });
+      setIsEditPurchaseOpen(true);
     }
   };
 
@@ -359,11 +451,11 @@ export default function TradeLedgerPage() {
                 </TableHeader>
                 <TableBody>
                   {combinedLedger.length > 0 ? combinedLedger.map((item: any) => (
-                    <TableRow key={item.id} className="hover:bg-slate-50 transition-colors border-b border-slate-100 group">
+                    <TableRow key={item.id} className="hover:bg-slate-50 transition-colors border-b border-slate-100 group cursor-pointer" onClick={() => handleEditClick(item)}>
                       <TableCell className="py-6 pl-10 text-[11px] font-black text-slate-400 uppercase tracking-widest">{item.date}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-4">
-                          <div className="h-10 w-10 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden cursor-zoom-in active:scale-95 transition-transform" onClick={() => { if (item.img) setZoomedPhoto(item.img); }}>
+                          <div className="h-10 w-10 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden cursor-zoom-in active:scale-95 transition-transform" onClick={(e) => { if (item.img) { e.stopPropagation(); setZoomedPhoto(item.img); } }}>
                             {item.img ? <img src={item.img} className="h-full w-full object-cover" alt="Asset" /> : <div className="h-full w-full flex items-center justify-center"><ImageIcon className="h-4 w-4 text-slate-300" /></div>}
                           </div>
                           <Badge className={cn("border-none font-black text-[8px] uppercase tracking-wider px-2 py-0.5", item._type === 'sale' ? "bg-emerald-50 text-emerald-600" : "bg-blue-50 text-blue-600")}>{item._type === 'sale' ? 'OUT / SALE' : 'IN / BUY'}</Badge>
@@ -371,7 +463,7 @@ export default function TradeLedgerPage() {
                       </TableCell>
                       <TableCell><div className="flex flex-col"><span className="text-[14px] font-black text-slate-900">{item.entity}</span><span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{item.buyerVillage || item.villageName}</span></div></TableCell>
                       <TableCell className="text-center"><span className="text-[14px] font-black text-slate-900">{item.animalCount} Head</span></TableCell>
-                      <TableCell className="text-right pr-10"><div className="flex flex-col items-end"><span className={cn("text-[18px] font-black", item._type === 'sale' ? "text-emerald-600" : "text-slate-900")}>{item._type === 'sale' ? '+' : '-'}₹{item.value.toLocaleString()}</span>{item.dues > 0 && <span className="text-[9px] font-bold text-rose-500 uppercase">₹{item.dues.toLocaleString()} OUTSTANDING</span>}</div></TableCell>
+                      <TableCell className="text-right pr-10"><div className="flex items-center justify-end gap-4"><div className="flex flex-col items-end"><span className={cn("text-[18px] font-black", item._type === 'sale' ? "text-emerald-600" : "text-slate-900")}>{item._type === 'sale' ? '+' : '-'}₹{item.value.toLocaleString()}</span>{item.dues > 0 && <span className="text-[9px] font-bold text-rose-500 uppercase">₹{item.dues.toLocaleString()} OUTSTANDING</span>}</div><div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all"><Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-slate-50" onClick={(e) => { e.stopPropagation(); handleEditClick(item); }}><Pencil className="h-3.5 w-3.5" /></Button><Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-rose-50 text-rose-600" onClick={(e) => { e.stopPropagation(); item._type === 'sale' ? deleteSale(item.id, item._path) : deletePurchase(item.id, item._path); }}><Trash2 className="h-3.5 w-3.5" /></Button></div></div></TableCell>
                     </TableRow>
                   )) : (
                     <TableRow><TableCell colSpan={5} className="text-center py-32 opacity-20 font-black uppercase text-xs">No trade records discovered</TableCell></TableRow>
@@ -415,19 +507,19 @@ export default function TradeLedgerPage() {
               )}
             </div>
             <Form {...salesForm}><form onSubmit={salesForm.handleSubmit(onSalesSubmit)} className="space-y-6">
-              <FormField control={salesForm.control} name="saleDate" render={({ field }) => (<FormItem className="flex flex-col"><Label className="form-label-tactical">Date of Sale</Label><Popover><PopoverTrigger asChild><Button variant="outline" className="form-input-tactical w-full text-left">{field.value ? format(field.value, "MMM dd, yyyy") : "Select"}</Button></PopoverTrigger><PopoverContent className="w-auto p-0 border-none shadow-2xl"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover></FormItem>)} />
+              <FormField control={salesForm.control} name="saleDate" render={({ field }) => (<FormItem className="flex flex-col"><Label className="form-label-tactical">Date of Sale</Label><Popover><PopoverTrigger asChild><Button variant="outline" className="form-input-tactical w-full text-left">{field.value ? format(field.value, "MMM dd, yyyy") : "Select"}</Button></PopoverTrigger><PopoverContent className="w-auto p-0 border-none shadow-2xl"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>)} />
               <div className="grid grid-cols-2 gap-4">
-                <FormField control={salesForm.control} name="buyerName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Buyer</Label><FormControl><Input className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>)} />
-                <FormField control={salesForm.control} name="buyerVillage" render={({ field }) => (<FormItem><Label className="form-label-tactical">Village</Label><FormControl><Input className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>)} />
+                <FormField control={salesForm.control} name="buyerName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Buyer</Label><FormControl><Input className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={salesForm.control} name="buyerVillage" render={({ field }) => (<FormItem><Label className="form-label-tactical">Village</Label><FormControl><Input className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl><FormMessage /></FormItem>)} />
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <FormField control={salesForm.control} name="animalCount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Count</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>)} />
-                <FormField control={salesForm.control} name="animalWeightKg" render={({ field }) => (<FormItem><Label className="form-label-tactical">Total KG</Label><FormControl><Input type="number" step="0.1" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>)} />
+                <FormField control={salesForm.control} name="animalCount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Count</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={salesForm.control} name="animalWeightKg" render={({ field }) => (<FormItem><Label className="form-label-tactical">Total KG</Label><FormControl><Input type="number" step="0.1" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl><FormMessage /></FormItem>)} />
               </div>
-              <FormField control={salesForm.control} name="salePrice" render={({ field }) => (<FormItem><Label className="form-label-tactical">Price (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200 font-black text-emerald-600" {...field} /></FormControl></FormItem>)} />
+              <FormField control={salesForm.control} name="salePrice" render={({ field }) => (<FormItem><Label className="form-label-tactical">Price (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200 font-black text-emerald-600" {...field} /></FormControl><FormMessage /></FormItem>)} />
               <div className="grid grid-cols-2 gap-4">
-                <FormField control={salesForm.control} name="amountReceived" render={({ field }) => (<FormItem><Label className="form-label-tactical">Received (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>)} />
-                <FormField control={salesForm.control} name="outstandingDuesFromBuyer" render={({ field }) => (<FormItem><Label className="form-label-tactical">Due (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-rose-50 border-rose-100 text-rose-600 font-black" {...field} readOnly /></FormControl></FormItem>)} />
+                <FormField control={salesForm.control} name="amountReceived" render={({ field }) => (<FormItem><Label className="form-label-tactical">Received (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={salesForm.control} name="outstandingDuesFromBuyer" render={({ field }) => (<FormItem><Label className="form-label-tactical">Due (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-rose-50 border-rose-100 text-rose-600 font-black" {...field} readOnly /></FormControl><FormMessage /></FormItem>)} />
               </div>
               <FormField control={salesForm.control} name="isPublic" render={({ field }) => (<FormItem className="flex items-center space-x-3 space-y-0 rounded-2xl border border-slate-100 p-4 bg-slate-50"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><div className="leading-none"><Label className="text-[10px] font-black uppercase tracking-wider flex items-center gap-2 text-slate-600">Post to Marketplace <Globe className="h-3 w-3 text-primary" /></Label></div></FormItem>)} />
               <Button type="submit" disabled={isUploading} className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm uppercase tracking-[0.25em] transition-all active:scale-95 shadow-xl">
@@ -468,22 +560,64 @@ export default function TradeLedgerPage() {
               )}
             </div>
             <Form {...purchaseForm}><form onSubmit={purchaseForm.handleSubmit(onPurchaseSubmit)} className="space-y-6">
-              <FormField control={purchaseForm.control} name="purchaseDate" render={({ field }) => (<FormItem className="flex flex-col"><Label className="form-label-tactical">Date of Entry</Label><Popover><PopoverTrigger asChild><Button variant="outline" className="form-input-tactical w-full text-left">{field.value ? format(field.value, "MMM dd, yyyy") : "Select"}</Button></PopoverTrigger><PopoverContent className="w-auto p-0 border-none shadow-2xl"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover></FormItem>)} />
+              <FormField control={purchaseForm.control} name="purchaseDate" render={({ field }) => (<FormItem className="flex flex-col"><Label className="form-label-tactical">Date of Entry</Label><Popover><PopoverTrigger asChild><Button variant="outline" className="form-input-tactical w-full text-left">{field.value ? format(field.value, "MMM dd, yyyy") : "Select"}</Button></PopoverTrigger><PopoverContent className="w-auto p-0 border-none shadow-2xl"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>)} />
               <div className="grid grid-cols-2 gap-4">
-                <FormField control={purchaseForm.control} name="farmerName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Origin Farmer</Label><FormControl><Input className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>)} />
-                <FormField control={purchaseForm.control} name="villageName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Village</Label><FormControl><Input className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>)} />
+                <FormField control={purchaseForm.control} name="farmerName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Origin Farmer</Label><FormControl><Input className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={purchaseForm.control} name="villageName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Village</Label><FormControl><Input className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl><FormMessage /></FormItem>)} />
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <FormField control={purchaseForm.control} name="animalCount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Count</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>)} />
-                <FormField control={purchaseForm.control} name="purchasePrice" render={({ field }) => (<FormItem><Label className="form-label-tactical">Cost (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200 font-black text-blue-600" {...field} /></FormControl></FormItem>)} />
+                <FormField control={purchaseForm.control} name="animalCount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Count</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={purchaseForm.control} name="purchasePrice" render={({ field }) => (<FormItem><Label className="form-label-tactical">Cost (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200 font-black text-blue-600" {...field} /></FormControl><FormMessage /></FormItem>)} />
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <FormField control={purchaseForm.control} name="amountPaid" render={({ field }) => (<FormItem><Label className="form-label-tactical">Paid (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>)} />
-                <FormField control={purchaseForm.control} name="dueAmount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Due (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-rose-50 border-rose-100 text-rose-600 font-black" {...field} readOnly /></FormControl></FormItem>)} />
+                <FormField control={purchaseForm.control} name="amountPaid" render={({ field }) => (<FormItem><Label className="form-label-tactical">Paid (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={purchaseForm.control} name="dueAmount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Due (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-rose-50 border-rose-100 text-rose-600 font-black" {...field} readOnly /></FormControl><FormMessage /></FormItem>)} />
               </div>
               <Button type="submit" disabled={isUploading} className="w-full h-16 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black text-sm uppercase tracking-[0.25em] transition-all active:scale-95 shadow-xl">
                 {isUploading ? <><Loader2 className="mr-3 h-5 w-5 animate-spin" /> Persisting Trade Data...</> : 'Commit Acquisition'}
               </Button>
+            </form></Form>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* --- EDIT SALE DIALOG --- */}
+      <Dialog open={isEditSaleOpen} onOpenChange={setIsEditSaleOpen}>
+        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
+          <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
+            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400"><Pencil className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase">Update Disposal Record</DialogTitle></div>
+            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Adjust historical sale parameters</DialogDescription>
+          </DialogHeader>
+          <div className="p-8 max-h-[70vh] overflow-y-auto no-scrollbar">
+            <Form {...editSalesForm}><form onSubmit={editSalesForm.handleSubmit(onEditSalesSubmit)} className="space-y-6">
+              <FormField control={editSalesForm.control} name="saleDate" render={({ field }) => (<FormItem className="flex flex-col"><Label className="form-label-tactical text-slate-400">Sale Date</Label><Popover><PopoverTrigger asChild><Button variant="outline" className="form-input-tactical w-full text-left">{field.value ? format(field.value, "MMM dd, yyyy") : "Select"}</Button></PopoverTrigger><PopoverContent className="w-auto p-0 border-none shadow-2xl"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>)} />
+              <FormField control={editSalesForm.control} name="buyerName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Buyer Identity</Label><FormControl><Input className="form-input-tactical bg-slate-50" {...field} /></FormControl><FormMessage /></FormItem>)} />
+              <div className="grid grid-cols-2 gap-4">
+                <FormField control={editSalesForm.control} name="salePrice" render={({ field }) => (<FormItem><Label className="form-label-tactical">Total Price (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 font-black text-emerald-600" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={editSalesForm.control} name="amountReceived" render={({ field }) => (<FormItem><Label className="form-label-tactical">Received (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50" {...field} /></FormControl><FormMessage /></FormItem>)} />
+              </div>
+              <Button type="submit" disabled={isUploading} className="w-full h-16 rounded-2xl bg-emerald-600 text-white font-black text-sm uppercase tracking-widest shadow-xl"><Save className="mr-2 h-4 w-4" /> Save Adjustments</Button>
+            </form></Form>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* --- EDIT PURCHASE DIALOG --- */}
+      <Dialog open={isEditPurchaseOpen} onOpenChange={setIsEditPurchaseOpen}>
+        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
+          <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
+            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-blue-500/20 text-blue-400"><Pencil className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase">Update Acquisition</DialogTitle></div>
+            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Adjust historical trade parameters</DialogDescription>
+          </DialogHeader>
+          <div className="p-8 max-h-[70vh] overflow-y-auto no-scrollbar">
+            <Form {...editPurchaseForm}><form onSubmit={editPurchaseForm.handleSubmit(onEditPurchaseSubmit)} className="space-y-6">
+              <FormField control={editPurchaseForm.control} name="purchaseDate" render={({ field }) => (<FormItem className="flex flex-col"><Label className="form-label-tactical text-slate-400">Entry Date</Label><Popover><PopoverTrigger asChild><Button variant="outline" className="form-input-tactical w-full text-left">{field.value ? format(field.value, "MMM dd, yyyy") : "Select"}</Button></PopoverTrigger><PopoverContent className="w-auto p-0 border-none shadow-2xl"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>)} />
+              <FormField control={editPurchaseForm.control} name="farmerName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Counterparty</Label><FormControl><Input className="form-input-tactical bg-slate-50" {...field} /></FormControl><FormMessage /></FormItem>)} />
+              <div className="grid grid-cols-2 gap-4">
+                <FormField control={editPurchaseForm.control} name="purchasePrice" render={({ field }) => (<FormItem><Label className="form-label-tactical">Acquisition Cost (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 font-black text-blue-600" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={editPurchaseForm.control} name="amountPaid" render={({ field }) => (<FormItem><Label className="form-label-tactical">Paid (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50" {...field} /></FormControl><FormMessage /></FormItem>)} />
+              </div>
+              <Button type="submit" disabled={isUploading} className="w-full h-16 rounded-2xl bg-blue-600 text-white font-black text-sm uppercase tracking-widest shadow-xl"><Save className="mr-2 h-4 w-4" /> Save Adjustments</Button>
             </form></Form>
           </div>
         </DialogContent>

@@ -24,7 +24,7 @@ import { format } from 'date-fns';
 
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
-import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -361,40 +361,41 @@ export default function LaborPage() {
                           <Calendar mode="single" selected={field.value} onSelect={(d) => { field.onChange(d); setIsDatePickerOpen(false); }} initialFocus className="text-slate-900" />
                         </PopoverContent>
                       </Popover>
+                      <FormMessage />
                     </FormItem>
                   )} />
 
                   <FormField control={form.control} name="employeeName" render={({ field }) => (
-                    <FormItem><Label className="form-label-tactical text-slate-400">Employee Name</Label><FormControl><Input placeholder="e.g. Ram Singh" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
+                    <FormItem><Label className="form-label-tactical text-slate-400">Employee Name</Label><FormControl><Input placeholder="e.g. Ram Singh" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl><FormMessage /></FormItem>
                   )} />
 
                   <div className="grid grid-cols-2 gap-6">
                     <FormField control={form.control} name="numberOfLaborers" render={({ field }) => (
-                      <FormItem><Label className="form-label-tactical text-slate-400">Staff Count</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
+                      <FormItem><Label className="form-label-tactical text-slate-400">Staff Count</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
                     <FormField control={form.control} name="wages" render={({ field }) => (
-                      <FormItem><Label className="form-label-tactical text-slate-400">Wage / Head (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
+                      <FormItem><Label className="form-label-tactical text-slate-400">Wage / Head (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
                   </div>
 
                   <div className="grid grid-cols-3 gap-4">
                     <FormField control={form.control} name="advancePayments" render={({ field }) => (
-                      <FormItem><Label className="form-label-tactical text-slate-400">Advance</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
+                      <FormItem><Label className="form-label-tactical text-slate-400">Advance</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
                     <FormField control={form.control} name="foodCosts" render={({ field }) => (
-                      <FormItem><Label className="form-label-tactical text-slate-400">Food</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
+                      <FormItem><Label className="form-label-tactical text-slate-400">Food</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
                     <FormField control={form.control} name="fuelCosts" render={({ field }) => (
-                      <FormItem><Label className="form-label-tactical text-slate-400">Fuel</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
+                      <FormItem><Label className="form-label-tactical text-slate-400">Fuel</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
                   </div>
 
                   <div className="grid grid-cols-2 gap-6">
                     <FormField control={form.control} name="amountPaid" render={({ field }) => (
-                      <FormItem><Label className="form-label-tactical text-slate-400">Amount Disbursed (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200 font-black text-emerald-600" {...field} /></FormControl></FormItem>
+                      <FormItem><Label className="form-label-tactical text-slate-400">Amount Disbursed (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200 font-black text-emerald-600" {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
                     <FormField control={form.control} name="pendingAmount" render={({ field }) => (
-                      <FormItem><Label className="form-label-tactical text-slate-400">Pending Balance (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-rose-50 border-rose-100 text-rose-600 font-black" {...field} readOnly /></FormControl></FormItem>
+                      <FormItem><Label className="form-label-tactical text-slate-400">Pending Balance (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-rose-50 border-rose-100 text-rose-600 font-black" {...field} readOnly /></FormControl><FormMessage /></FormItem>
                     )} />
                   </div>
 
@@ -402,6 +403,7 @@ export default function LaborPage() {
                     <FormItem>
                       <Label className="form-label-tactical text-slate-400">Total Commitment (₹)</Label>
                       <FormControl><Input type="number" className="h-16 rounded-2xl bg-slate-900 border-none text-white font-black text-xl px-6" {...field} readOnly /></FormControl>
+                      <FormMessage />
                     </FormItem>
                   )} />
                 </div>
@@ -416,37 +418,42 @@ export default function LaborPage() {
       </Dialog>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="sm:max-w-md rounded-[32px] p-0 overflow-hidden border-slate-200 bg-white shadow-2xl">
-          <DialogHeader className="bg-slate-50 p-8 border-b border-slate-100 text-left">
-            <DialogTitle className="text-xl font-black uppercase flex items-center gap-3 text-slate-900">
-              <Pencil className="h-5 w-5 text-emerald-600" /> Adjust Record
-            </DialogTitle>
-            <DialogDescription className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Update historical disbursement parameters</DialogDescription>
+        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
+          <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400">
+                <Pencil className="h-5 w-5" />
+              </div>
+              <DialogTitle className="text-xl font-black tracking-tight uppercase">Update Audit Record</DialogTitle>
+            </div>
+            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Adjust historical disbursement parameters</DialogDescription>
           </DialogHeader>
-          <Form {...editForm}>
-            <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="p-8 space-y-6">
-              <FormField control={editForm.control} name="employeeName" render={({ field }) => (
-                <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2">Employee Name</Label><FormControl><Input className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
-              )} />
-              <div className="grid grid-cols-2 gap-4">
-                <FormField control={editForm.control} name="amountPaid" render={({ field }) => (
-                  <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2">Amount Paid (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200 font-bold" {...field} /></FormControl></FormItem>
+          <div className="p-8 max-h-[70vh] overflow-y-auto no-scrollbar">
+            <Form {...editForm}>
+              <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-6">
+                <FormField control={editForm.control} name="employeeName" render={({ field }) => (
+                  <FormItem><Label className="form-label-tactical text-slate-400">Employee Name</Label><FormControl><Input className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
-                <FormField control={editForm.control} name="pendingAmount" render={({ field }) => (
-                  <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2">Pending (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-rose-50 border-rose-100 font-black text-rose-600" {...field} readOnly /></FormControl></FormItem>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={editForm.control} name="amountPaid" render={({ field }) => (
+                    <FormItem><Label className="form-label-tactical text-slate-400">Amount Paid (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200 font-bold" {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                  <FormField control={editForm.control} name="pendingAmount" render={({ field }) => (
+                    <FormItem><Label className="form-label-tactical text-slate-400">Pending (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-rose-50 border-rose-100 font-black text-rose-600" {...field} readOnly /></FormControl><FormMessage /></FormItem>
+                  )} />
+                </div>
+                <FormField control={editForm.control} name="totalLaborCosts" render={({ field }) => (
+                  <FormItem><Label className="form-label-tactical text-slate-400">Total Impact (₹)</Label><FormControl><Input type="number" className="h-14 rounded-2xl bg-slate-900 border-none font-black text-lg px-6 text-white" {...field} readOnly /></FormControl><FormMessage /></FormItem>
                 )} />
-              </div>
-              <FormField control={editForm.control} name="totalLaborCosts" render={({ field }) => (
-                <FormItem><Label className="text-xs font-black uppercase opacity-40 ml-2">Total Impact (₹)</Label><FormControl><Input type="number" className="h-14 rounded-2xl bg-slate-900 border-none font-black text-lg px-6 text-white" {...field} readOnly /></FormControl></FormItem>
-              )} />
-              <div className="flex gap-4 pt-4">
-                <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)} className="h-14 flex-1 rounded-2xl border-slate-200 font-black uppercase text-xs">Cancel</Button>
-                <Button type="submit" className="h-14 flex-1 rounded-2xl bg-emerald-600 text-white font-black uppercase text-xs shadow-xl">
-                  <Save className="mr-2 h-4 w-4" /> Save Adjustments
-                </Button>
-              </div>
-            </form>
-          </Form>
+                <div className="flex gap-4 pt-4">
+                  <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)} className="h-14 flex-1 rounded-2xl border-slate-200 font-black uppercase text-xs">Cancel</Button>
+                  <Button type="submit" className="h-14 flex-1 rounded-2xl bg-emerald-600 text-white font-black uppercase text-xs shadow-xl">
+                    <Save className="mr-2 h-4 w-4" /> Save Adjustments
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
