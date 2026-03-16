@@ -487,7 +487,7 @@ export default function LivestockPage() {
       </Dialog>
 
       {/* --- EDIT DIALOG --- */}
-      <Dialog open={isEditAssetOpen} onOpenChange={setIsEditAssetOpen}>
+      <Dialog open={isEditAssetOpen} onOpenChange={(o) => { if (!o) stopCamera(); setIsEditAssetOpen(o); }}>
         <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
             <div className="flex items-center gap-3 mb-2">
@@ -499,6 +499,46 @@ export default function LivestockPage() {
             <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Adjust asset biological parameters</DialogDescription>
           </DialogHeader>
           <div className="p-8 max-h-[70vh] overflow-y-auto no-scrollbar">
+            {/* --- Image Section for Edit --- */}
+            <div className="mb-8 space-y-4">
+              <Label className="form-label-tactical">Update Asset Visual</Label>
+              <div className="w-full aspect-video rounded-3xl bg-slate-50 border-2 border-dashed border-slate-200 overflow-hidden flex items-center justify-center relative">
+                {isCameraActive ? (
+                  <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
+                ) : editAssetForm.watch('imageUrl') ? (
+                  <div className="relative w-full h-full">
+                    <img src={editAssetForm.watch('imageUrl')} className="w-full h-full object-cover" alt="Preview" />
+                    <Button size="icon" variant="destructive" className="absolute top-4 right-4 h-10 w-10 rounded-full" onClick={() => editAssetForm.setValue('imageUrl', '')}><X className="h-4 w-4" /></Button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="p-6 rounded-full bg-white shadow-sm border border-slate-100 text-slate-300"><ImageIcon className="h-8 w-8" /></div>
+                    <p className="text-[10px] font-black text-slate-400 uppercase">Awaiting Media</p>
+                  </div>
+                )}
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                {isCameraActive ? (
+                  <Button type="button" onClick={() => capturePhoto(editAssetForm)} className="col-span-2 h-14 rounded-xl bg-emerald-600 text-white font-black uppercase text-xs">Capture Photo</Button>
+                ) : (
+                  <>
+                    <Button type="button" onClick={startCamera} className="h-12 rounded-xl bg-neutral-900 text-white font-black text-[10px] uppercase gap-2"><Camera className="h-4 w-4 text-emerald-400" /> Open Camera</Button>
+                    <div className="relative">
+                      <input type="file" accept="image/*" onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => { editAssetForm.setValue('imageUrl', reader.result as string); };
+                          reader.readAsDataURL(file);
+                        }
+                      }} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
+                      <Button type="button" variant="outline" className="w-full h-12 rounded-xl border-slate-200 font-black text-[10px] uppercase gap-2"><Upload className="h-4 w-4 text-blue-500" /> Gallery</Button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
             <Form {...editAssetForm}><form onSubmit={editAssetForm.handleSubmit(onEditAssetSubmit)} className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <FormField control={editAssetForm.control} name="tagId" render={({ field }) => (<FormItem><Label className="form-label-tactical">Tag ID</Label><FormControl><Input className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl><FormMessage /></FormItem>)} />
@@ -521,11 +561,11 @@ export default function LivestockPage() {
                 )} />
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <FormField control={editAssetForm.control} name="breed" render={({ field }) => (<FormItem><Label className="form-label-tactical">Breed</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="form-input-tactical bg-slate-50"><SelectValue /></SelectTrigger></FormControl><SelectContent>{['Standard', 'Nellore', 'Deccani'].map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)} />
+                <FormField control={editAssetForm.control} name="breed" render={({ field }) => (<FormItem><Label className="form-label-tactical">Breed</Label><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger className="form-input-tactical bg-slate-50"><SelectValue /></SelectTrigger></FormControl><SelectContent>{['Standard', 'Nellore', 'Deccani'].map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)} />
                 <FormField control={editAssetForm.control} name="currentWeight" render={({ field }) => (<FormItem><Label className="form-label-tactical">Weight (KG)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50" {...field} /></FormControl><FormMessage /></FormItem>)} />
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <FormField control={editAssetForm.control} name="gender" render={({ field }) => (<FormItem><Label className="form-label-tactical">Gender</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="form-input-tactical bg-slate-50"><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="male">MALE</SelectItem><SelectItem value="female">FEMALE</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
+                <FormField control={editAssetForm.control} name="gender" render={({ field }) => (<FormItem><Label className="form-label-tactical">Gender</Label><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger className="form-input-tactical bg-slate-50"><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="male">MALE</SelectItem><SelectItem value="female">FEMALE</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
                 <FormField control={editAssetForm.control} name="age" render={({ field }) => (<FormItem><Label className="form-label-tactical">Age (Months)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50" {...field} /></FormControl><FormMessage /></FormItem>)} />
               </div>
               <Button type="submit" disabled={isUploading} className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm uppercase tracking-widest shadow-xl">
