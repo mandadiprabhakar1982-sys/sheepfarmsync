@@ -57,7 +57,7 @@ export function AppSidebar() {
       label: "PRIVATE ASSETS",
       adminOnly: true,
       links: [
-        { href: '/dashboard/monthly-ledger', label: "Monthly Balance Sheet", icon: Wallet },
+        { href: '/dashboard/monthly-ledger', label: "Farm Ledger", icon: Wallet },
         { href: '/dashboard/balance-sheet', label: "Liability Portfolio", icon: BookOpen },
       ]
     },

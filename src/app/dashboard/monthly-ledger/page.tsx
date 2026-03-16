@@ -6,81 +6,110 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
-  Plus, 
   Search, 
   ShieldCheck, 
   Wallet, 
-  PlusCircle, 
   X, 
-  CheckCircle2 
+  CheckCircle2,
+  ArrowRightLeft
 } from 'lucide-react';
 import { useFarm } from '@/context/FarmContext';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { format, parseISO, isValid, isToday, isYesterday } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
-export default function MonthlyLedgerPage() {
+/**
+ * @fileOverview Farm Ledger (Renamed from Financial Ledger)
+ * Strictly audits operational farm cash flow: Purchases, Sales, Labor, Feed, Health, Expenses.
+ * Excludes private project/audit entries.
+ */
+export default function FarmLedgerPage() {
   const { toast } = useToast();
   const { 
-    monthlyIncomes, addMonthlyIncome,
-    monthlyExpenses, addMonthlyExpense,
-    sales, purchases, feedCosts, laborCosts, medicineExpenses, healthTasks, farmExpenses,
-    totalCashInflow
+    sales, purchases, feedCosts, laborCosts, medicineExpenses, healthTasks, farmExpenses
   } = useFarm();
 
   const [selectedMonth, setSelectedMonth] = useState(format(new Date(), 'MM'));
   const [selectedYear, setSelectedYear] = useState(format(new Date(), 'yyyy'));
   const [searchTerm, setSearchTerm] = useState('');
-  
-  const [isEntryDialogOpen, setIsEntryDialogOpen] = useState(false);
-
-  const [date, setDate] = useState(format(new Date(), 'yyyy-MM-dd'));
-  const [source, setSource] = useState('');
-  const [amount, setAmount] = useState('');
-  const [type, setType] = useState<'income' | 'expense'>('income');
 
   const combinedData = useMemo(() => {
-    // 1. Manual Incomes
-    const incomes = (monthlyIncomes || []).map(i => ({ id: i.id, date: i.date, source: i.source, amount: i.amount, type: 'income' as const, cat: 'Manual' }));
+    // 1. Trade Inflows (Sales)
+    const saleInflows = (sales || []).map(s => ({ 
+      id: s.id, 
+      date: s.saleDate, 
+      source: `Sale: ${s.buyerName}`, 
+      amount: s.amountReceived, 
+      type: 'income' as const, 
+      cat: 'Trade' 
+    }));
     
-    // 2. Trade Inflows (Sales)
-    const saleInflows = (sales || []).map(s => ({ id: s.id, date: s.saleDate, source: `Sale: ${s.buyerName}`, amount: s.amountReceived, type: 'income' as const, cat: 'Trade' }));
-    
-    // 3. Manual Expenses
-    const manualExpenses = (monthlyExpenses || []).map(e => ({ id: e.id, date: e.date, source: e.source, amount: e.amount, type: 'expense' as const, cat: 'Private' }));
-    
-    // 4. Trade Outflows (Purchases)
-    const purchaseOutflows = (purchases || []).map(p => ({ id: p.id, date: p.purchaseDate, source: `Purchase: ${p.farmerName}`, amount: p.amountPaid, type: 'expense' as const, cat: 'Trade' }));
+    // 2. Trade Outflows (Purchases)
+    const purchaseOutflows = (purchases || []).map(p => ({ 
+      id: p.id, 
+      date: p.purchaseDate, 
+      source: `Purchase: ${p.farmerName}`, 
+      amount: p.amountPaid, 
+      type: 'expense' as const, 
+      cat: 'Trade' 
+    }));
 
-    // 5. Operational Feed Costs
-    const feedOutflows = (feedCosts || []).map(f => ({ id: f.id, date: f.date, source: `Feed: ${f.feedType}`, amount: f.cost, type: 'expense' as const, cat: 'Feed' }));
+    // 3. Operational Feed Costs
+    const feedOutflows = (feedCosts || []).map(f => ({ 
+      id: f.id, 
+      date: f.date, 
+      source: `Feed: ${f.feedType}`, 
+      amount: f.cost, 
+      type: 'expense' as const, 
+      cat: 'Feed' 
+    }));
 
-    // 6. Operational Labor Costs
-    const laborOutflows = (laborCosts || []).map(l => ({ id: l.id, date: l.date, source: `Staff: ${l.employeeName}`, amount: l.amountPaid || 0, type: 'expense' as const, cat: 'Labor' }));
+    // 4. Operational Labor Costs
+    const laborOutflows = (laborCosts || []).map(l => ({ 
+      id: l.id, 
+      date: l.date, 
+      source: `Staff: ${l.employeeName}`, 
+      amount: l.amountPaid || 0, 
+      type: 'expense' as const, 
+      cat: 'Labor' 
+    }));
 
-    // 7. Operational Medicine Procurements
-    const medicineOutflows = (medicineExpenses || []).map(m => ({ id: m.id, date: m.date, source: `Pharma: ${m.shopName}`, amount: m.totalAmountSpent, type: 'expense' as const, cat: 'Medicine' }));
+    // 5. Operational Medicine Procurements
+    const medicineOutflows = (medicineExpenses || []).map(m => ({ 
+      id: m.id, 
+      date: m.date, 
+      source: `Pharma: ${m.shopName}`, 
+      amount: m.totalAmountSpent, 
+      type: 'expense' as const, 
+      cat: 'Medicine' 
+    }));
 
-    // 8. Clinical Treatment Costs
-    const clinicalOutflows = (healthTasks || []).map(h => ({ id: h.id, date: h.date, source: `Treatment: ${h.medicineName}`, amount: h.cost, type: 'expense' as const, cat: 'Health' }));
+    // 6. Clinical Treatment Costs
+    const clinicalOutflows = (healthTasks || []).map(h => ({ 
+      id: h.id, 
+      date: h.date, 
+      source: `Treatment: ${h.medicineName}`, 
+      amount: h.cost, 
+      type: 'expense' as const, 
+      cat: 'Health' 
+    }));
 
-    // 9. Misc Farm Expenses
-    const miscOutflows = (farmExpenses || []).map(e => ({ id: e.id, date: e.expenseDate, source: `Misc: ${e.description}`, amount: e.amount, type: 'expense' as const, cat: 'Expense' }));
+    // 7. Misc Farm Expenses
+    const miscOutflows = (farmExpenses || []).map(e => ({ 
+      id: e.id, 
+      date: e.expenseDate, 
+      source: `Misc: ${e.description}`, 
+      amount: e.amount, 
+      type: 'expense' as const, 
+      cat: 'Expense' 
+    }));
 
     const all = [
-      ...incomes, ...saleInflows, 
-      ...manualExpenses, ...purchaseOutflows, 
+      ...saleInflows, ...purchaseOutflows, 
       ...feedOutflows, ...laborOutflows, 
       ...medicineOutflows, ...clinicalOutflows, 
       ...miscOutflows
@@ -97,7 +126,7 @@ export default function MonthlyLedgerPage() {
     });
 
     return all.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }, [monthlyIncomes, monthlyExpenses, sales, purchases, feedCosts, laborCosts, medicineExpenses, healthTasks, farmExpenses, selectedMonth, selectedYear, searchTerm]);
+  }, [sales, purchases, feedCosts, laborCosts, medicineExpenses, healthTasks, farmExpenses, selectedMonth, selectedYear, searchTerm]);
 
   // Grouping for Mobile
   const groupedData = useMemo(() => {
@@ -109,14 +138,11 @@ export default function MonthlyLedgerPage() {
     return Object.entries(groups).map(([date, items]) => ({ date, items }));
   }, [combinedData]);
 
-  const handleAdd = () => {
-    if (!source || !amount || !date) return;
-    const val = parseFloat(amount);
-    if (type === 'income') addMonthlyIncome({ date, source, amount: val });
-    else addMonthlyExpense({ date, source, amount: val, category: 'household' });
-    setSource(''); setAmount(''); setIsEntryDialogOpen(false);
-    toast({ title: 'Ledger Synchronized', description: 'Entry committed.' });
-  };
+  const netFarmFlow = useMemo(() => {
+    return combinedData.reduce((acc, item) => {
+      return item.type === 'income' ? acc + item.amount : acc - item.amount;
+    }, 0);
+  }, [combinedData]);
 
   const formatGroupDate = (dateStr: string) => {
     const d = parseISO(dateStr);
@@ -127,26 +153,26 @@ export default function MonthlyLedgerPage() {
 
   return (
     <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col relative bg-white md:bg-transparent">
-      {/* MOBILE HEADER */}
+      {/* MOBILE HEADER - HIGH PROFILE */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-[110] bg-[#059669] text-white px-6 py-5 flex items-center justify-between shadow-lg">
-        <h2 className="text-xl font-black tracking-tight">Financial Ledger</h2>
-        <p className="text-xl font-black">₹{totalCashInflow.toLocaleString()}</p>
+        <h2 className="text-xl font-black tracking-tight">Farm Ledger</h2>
+        <div className="text-right">
+          <p className="text-[8px] font-black uppercase opacity-60 leading-none mb-1">Net Farm Flow</p>
+          <p className="text-xl font-black">₹{netFarmFlow.toLocaleString()}</p>
+        </div>
       </div>
 
       <div className="md:hidden h-16 shrink-0" />
 
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-6 md:mb-8 shrink-0 px-4 md:px-0 mt-4 md:mt-0">
-        <PageHeader title="Finance & Ledger" description="UNIFIED CASH FLOW AUDIT" className="mb-0 hidden md:block" />
+        <PageHeader title="Farm Ledger" description="UNIFIED OPERATIONAL AUDIT" className="mb-0 hidden md:block" />
 
-        <div className="flex items-center gap-2 md:gap-4 overflow-x-auto pb-2 md:pb-0 no-scrollbar md:w-auto w-full">
-          <div className="hidden md:flex items-center gap-4">
-            <Button onClick={() => setIsEntryDialogOpen(true)} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-xl border-none">
-              <PlusCircle className="h-5 w-5 text-accent" />
-              Log Entry
-            </Button>
-            <div className="px-6 py-3 bg-neutral-900 rounded-2xl text-white flex items-center gap-4 shadow-xl shrink-0">
-              <ShieldCheck className="h-5 w-5 text-emerald-400" />
-              <div><p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Net Inflow</p><p className="text-xl font-black tracking-tight text-white">₹{totalCashInflow.toLocaleString()}</p></div>
+        <div className="hidden md:flex items-center gap-4">
+          <div className="px-6 py-3 bg-neutral-900 rounded-2xl text-white flex items-center gap-4 shadow-xl shrink-0">
+            <ShieldCheck className="h-5 w-5 text-emerald-400" />
+            <div>
+              <p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Net Farm Flow</p>
+              <p className="text-xl font-black tracking-tight text-white">₹{netFarmFlow.toLocaleString()}</p>
             </div>
           </div>
         </div>
@@ -157,7 +183,7 @@ export default function MonthlyLedgerPage() {
           <div className="relative flex-1">
             <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
             <Input 
-              placeholder="Filter by Source or Counterparty..." 
+              placeholder="Filter by Source or Category..." 
               value={searchTerm} 
               onChange={(e) => setSearchTerm(e.target.value)} 
               className="h-12 md:h-14 pl-12 pr-12 rounded-2xl md:rounded-full bg-neutral-100/50 md:bg-white border-none text-slate-900 font-bold shadow-sm" 
@@ -194,10 +220,10 @@ export default function MonthlyLedgerPage() {
           <CardHeader className="bg-emerald-600 text-white p-10 shrink-0 hidden md:block">
             <div className="flex justify-between items-end">
               <div className="space-y-1">
-                <div className="flex items-center gap-3"><Wallet className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Unified Ledger</CardTitle></div>
-                <CardDescription className="text-emerald-100/60 text-[10px] font-black uppercase tracking-[0.2em]">Cross-Module Financial Audit</CardDescription>
+                <div className="flex items-center gap-3"><ArrowRightLeft className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Operational Ledger</CardTitle></div>
+                <CardDescription className="text-emerald-100/60 text-[10px] font-black uppercase tracking-[0.2em]">Cross-Module Farm Audit</CardDescription>
               </div>
-              <p className="text-4xl font-black tracking-tighter">₹{totalCashInflow.toLocaleString()}</p>
+              <p className="text-4xl font-black tracking-tighter">₹{netFarmFlow.toLocaleString()}</p>
             </div>
           </CardHeader>
 
@@ -221,7 +247,7 @@ export default function MonthlyLedgerPage() {
                             <h3 className="text-lg font-black text-slate-900 truncate leading-none">{item.source}</h3>
                           </div>
                           <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-                            {item.type === 'income' ? 'Cash Inflow' : 'Disbursement'}
+                            {item.type === 'income' ? 'Farm Inflow' : 'Operational Spend'}
                           </p>
                         </div>
                         <div className="text-right shrink-0">
@@ -250,7 +276,7 @@ export default function MonthlyLedgerPage() {
                   <TableRow className="border-none hover:bg-transparent">
                     <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-slate-400">Date</TableHead>
                     <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-slate-400">Transaction Origin</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-center text-slate-400">Channel</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-center text-slate-400">Category</TableHead>
                     <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-slate-400">Value Intensity</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -277,35 +303,6 @@ export default function MonthlyLedgerPage() {
           </div>
         </div>
       </div>
-
-      {/* MOBILE FAB */}
-      <button 
-        onClick={() => setIsEntryDialogOpen(true)}
-        className="md:hidden fixed bottom-24 right-6 h-14 w-14 rounded-full bg-[#059669] text-white shadow-2xl flex items-center justify-center active:scale-90 transition-all z-[120]"
-      >
-        <Plus className="h-7 w-7" />
-      </button>
-
-      <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>
-        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
-          <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
-            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400"><Plus className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase">Ledger Entry</DialogTitle></div>
-            <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Manual financial record injection</p>
-          </DialogHeader>
-          <div className="p-8 space-y-6">
-            <div className="grid grid-cols-2 gap-4">
-              <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="h-14 rounded-2xl bg-neutral-50 border-none font-bold" />
-              <Select value={type} onValueChange={(v: any) => setType(v)}>
-                <SelectTrigger className="h-14 rounded-2xl bg-neutral-50 border-none font-bold"><SelectValue /></SelectTrigger>
-                <SelectContent><SelectItem value="income">Inflow (+)</SelectItem><SelectItem value="expense">Outflow (-)</SelectItem></SelectContent>
-              </Select>
-            </div>
-            <Input value={source} onChange={(e) => setSource(e.target.value)} placeholder="Source (e.g. Salary, Rent)" className="h-14 rounded-2xl bg-neutral-50 px-6 font-bold border-none" />
-            <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" className="h-16 rounded-2xl bg-neutral-50 px-6 font-black text-2xl border-none" />
-            <Button onClick={handleAdd} className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase shadow-xl tracking-widest">Commit Entry</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
