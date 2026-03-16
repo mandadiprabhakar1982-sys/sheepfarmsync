@@ -124,13 +124,13 @@ function generateId() {
 
 export function FarmProvider({ children }: { children: ReactNode }) {
   const [mounted, setMounted] = useState(false);
-  const { user } = useUser();
+  const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
 
   const userProfileRef = useMemo(() => (firestore && user) ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
   const { data: userProfile, isLoading: isProfileDocLoading } = useDoc<UserProfile>(userProfileRef);
   
-  const isLoadingProfile = isProfileDocLoading || (user && !userProfile);
+  const isLoadingProfile = isUserLoading || isProfileDocLoading || (user && !userProfile);
   
   const isVerified = useMemo(() => !isLoadingProfile && (userProfile?.role === 'collaborator' || userProfile?.role === 'admin'), [userProfile, isLoadingProfile]);
   const isAdmin = useMemo(() => !isLoadingProfile && userProfile?.role === 'admin', [userProfile, isLoadingProfile]);
@@ -254,7 +254,6 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     return { 
       totalSheep: liveSheepCount,
       totalTracked: trackedCount,
-      // REMOVED mExpense LINK: Only operational costs are summed here
       totalExpenses: pTotal + fCost + mCost + lCost + eCost, 
       totalSales: rev,
       totalDead: deadCount,

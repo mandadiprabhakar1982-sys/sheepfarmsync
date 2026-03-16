@@ -38,7 +38,7 @@ import {
  */
 export default function DashboardPage() {
   const { width } = useWindowDimensions();
-  const isMobile = width < 768;
+  const isMobile = width < 768 && width !== 0;
   const router = useRouter();
   
   const { 
@@ -53,7 +53,8 @@ export default function DashboardPage() {
     isLoading
   } = useFarm();
 
-  if (isLoading || width === 0) {
+  // We only block the render if the critical profile data is still loading
+  if (isLoading && !userRole) {
     return (
       <div className="flex h-full w-full items-center justify-center">
         <div className="flex flex-col items-center gap-6">

@@ -43,7 +43,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
       const userEmail = (user.email || '').toLowerCase();
       const isWhitelisted = ADMIN_EMAILS.some(email => email.toLowerCase() === userEmail);
       
-      if (!isProfileLoading && !profile) {
+      if (!isProfileLoading && !profile && !isProvisioning) {
         setIsProvisioning(true);
         try {
           await setDoc(userRef, {
@@ -87,7 +87,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     };
 
     syncProfile();
-  }, [mounted, isUserLoading, isProfileLoading, user, profile, firestore]);
+  }, [mounted, isUserLoading, isProfileLoading, user, profile, firestore, isProvisioning]);
 
   useEffect(() => {
     if (!mounted || isUserLoading) return;
@@ -96,15 +96,15 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     if (!user && !isPublic) {
       router.push('/login');
     }
-    if (user && publicPaths.includes(pathname)) {
+    if (user && isPublic) {
       router.push('/dashboard');
     }
   }, [mounted, isUserLoading, user, pathname, router]);
 
   if (!mounted) return null;
 
-  // Wait for Firebase Auth, then wait for the profile doc to be fetched or created
-  const isAuthChecking = isUserLoading || (user && (isProfileLoading || (!profile && !isProvisioning && isProfileLoading === false) || isProvisioning));
+  // Resilient loading check
+  const isAuthChecking = isUserLoading || (user && isProfileLoading && !profile && !isProvisioning);
   
   if (isAuthChecking && !publicPaths.includes(pathname)) {
     return (
