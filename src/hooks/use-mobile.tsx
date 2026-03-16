@@ -27,9 +27,10 @@ export function useIsMobile() {
 }
 
 export function useWindowDimensions() {
+  // Initialize with common defaults or null to handle hydration correctly
   const [dimensions, setDimensions] = React.useState({ 
-    width: typeof window !== 'undefined' ? window.innerWidth : 0, 
-    height: typeof window !== 'undefined' ? window.innerHeight : 0 
+    width: typeof window !== 'undefined' ? window.innerWidth : 1024, 
+    height: typeof window !== 'undefined' ? window.innerHeight : 768 
   })
 
   React.useEffect(() => {

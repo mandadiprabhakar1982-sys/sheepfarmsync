@@ -36,8 +36,8 @@ import { Calendar } from '@/components/ui/calendar';
 import { IconFarmCost } from '@/components/logo';
 
 /**
- * @fileOverview Pure Operational Farm Ledger
- * Audits only farm-related disbursements: Purchase, Feed, Labor, Medicine, Expenses.
+ * @fileOverview Pure Operational Farm Ledger (Standard Indian English)
+ * Audits only farm-related disbursements: Buying, Feed, Labour, Medicine, Expenses.
  */
 export default function FarmLedgerPage() {
   const { 
@@ -61,13 +61,13 @@ export default function FarmLedgerPage() {
   const combinedData = useMemo(() => {
     // Aggregating all operational outflows
     const purchaseOutflows = (purchases || []).map(p => ({ 
-      id: p.id, date: p.purchaseDate, source: `Acquisition: ${p.farmerName}`, amount: p.amountPaid, cat: 'ACQUISITION', color: 'bg-blue-50 text-blue-600' 
+      id: p.id, date: p.purchaseDate, source: `Sheep Buying: ${p.farmerName}`, amount: p.amountPaid, cat: 'BUYING', color: 'bg-blue-50 text-blue-600' 
     }));
     const feedOutflows = (feedCosts || []).map(f => ({ 
-      id: f.id, date: f.date, source: `Feed: ${f.feedType}`, amount: f.cost, cat: 'INVENTORY', color: 'bg-orange-50 text-orange-600' 
+      id: f.id, date: f.date, source: `Fodder: ${f.feedType}`, amount: f.cost, cat: 'FEED', color: 'bg-orange-50 text-orange-600' 
     }));
     const laborOutflows = (laborCosts || []).map(l => ({ 
-      id: l.id, date: l.date, source: `Staff: ${l.employeeName}`, amount: l.amountPaid || 0, cat: 'STAFF', color: 'bg-emerald-50 text-emerald-600' 
+      id: l.id, date: l.date, source: `Staff: ${l.employeeName}`, amount: l.amountPaid || 0, cat: 'LABOUR', color: 'bg-emerald-50 text-emerald-600' 
     }));
     const medicineOutflows = (medicineExpenses || []).map(m => ({ 
       id: m.id, date: m.date, source: `Pharma: ${m.shopName}`, amount: m.totalAmountSpent, cat: 'PHARMA', color: 'bg-rose-50 text-rose-600' 
@@ -105,7 +105,7 @@ export default function FarmLedgerPage() {
     setIsSaving(true);
     const dateStr = format(entryDate, 'yyyy-MM-dd');
     try {
-      if (pCost && parseFloat(pCost) > 0) addPurchase({ purchaseDate: dateStr, villageName: 'Quick Entry', farmerName: 'General Supplier', animalCount: 0, purchasePrice: parseFloat(pCost), amountPaid: parseFloat(pCost), dueAmount: 0 });
+      if (pCost && parseFloat(pCost) > 0) addPurchase({ purchaseDate: dateStr, villageName: 'Quick Entry', farmerName: 'Supplier', animalCount: 0, purchasePrice: parseFloat(pCost), amountPaid: parseFloat(pCost), dueAmount: 0 });
       if (fCost && parseFloat(fCost) > 0) addFeedCost({ date: dateStr, feedType: 'Other', cost: parseFloat(fCost), quantity: 0 });
       if (mCost && parseFloat(mCost) > 0) addMedicineExpense({ date: dateStr, shopName: 'Quick Pharma', costOfMedicines: parseFloat(mCost), totalAmountSpent: parseFloat(mCost), outstandingDues: 0 });
       if (lCost && parseFloat(lCost) > 0) addLaborCost({ employeeName: 'Quick Staff', date: dateStr, wages: parseFloat(lCost), numberOfLaborers: 1, totalLaborCosts: parseFloat(lCost), amountPaid: parseFloat(lCost), pendingAmount: 0 });
@@ -128,7 +128,7 @@ export default function FarmLedgerPage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-full w-full items-center justify-center">
+      <div className="flex h-full w-full items-center justify-center min-h-[60vh]">
         <Loader2 className="h-10 w-10 animate-spin text-primary opacity-20" />
       </div>
     );
@@ -138,9 +138,9 @@ export default function FarmLedgerPage() {
     <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col relative bg-white md:bg-transparent">
       {/* MOBILE HEADER */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-[110] bg-[#059669] text-white px-6 py-5 flex items-center justify-between shadow-lg">
-        <h2 className="text-xl font-black tracking-tight uppercase">Farm Ledger</h2>
+        <h2 className="text-xl font-black tracking-tight uppercase">Daily Ledger</h2>
         <div className="text-right">
-          <p className="text-[8px] font-black uppercase opacity-60 leading-none mb-1">Operational Flow</p>
+          <p className="text-[8px] font-black uppercase opacity-60 leading-none mb-1">Operational Spend</p>
           <p className="text-xl font-black">₹{totalExpenses.toLocaleString()}</p>
         </div>
       </div>
@@ -230,10 +230,10 @@ export default function FarmLedgerPage() {
               <Table>
                 <TableHeader className="bg-slate-50/50 sticky top-0 z-10 backdrop-blur">
                   <TableRow className="border-none hover:bg-transparent">
-                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-slate-400">Temporal Node</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-slate-400">Transaction Node</TableHead>
                     <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-slate-400">Disbursement Source</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-center text-slate-400">Module</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-slate-400">Value Intensity</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-center text-slate-400">Cost Center</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-slate-400">Amount Paid</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -241,7 +241,7 @@ export default function FarmLedgerPage() {
                     <TableRow key={item.id} className="hover:bg-slate-50 border-b border-slate-100">
                       <TableCell className="py-6 pl-10 text-[11px] font-black text-slate-400">{item.date}</TableCell>
                       <TableCell>
-                        <div className="flex flex-col"><span className="text-[14px] font-black text-slate-900">{item.source}</span><span className="text-[9px] font-bold text-slate-400 uppercase">Ref ID: {item.id.slice(0,8)}</span></div>
+                        <div className="flex flex-col"><span className="text-[14px] font-black text-slate-900">{item.source}</span><span className="text-[9px] font-bold text-slate-400 uppercase">Ref: {item.id.slice(0,8)}</span></div>
                       </TableCell>
                       <TableCell className="text-center">
                         <Badge className={cn("border-none font-black text-[10px] px-3 uppercase tracking-widest", item.color)}>{item.cat}</Badge>
@@ -263,7 +263,7 @@ export default function FarmLedgerPage() {
         onClick={() => setIsQuickEntryOpen(true)}
         className="md:hidden fixed bottom-24 right-6 h-14 w-14 rounded-full bg-[#059669] text-white shadow-2xl flex items-center justify-center active:scale-90 transition-all z-[120]"
       >
-        <Plus className="h-7 w-7" />
+        <Plus className="h-7 w-7 text-accent" />
       </button>
 
       {/* QUICK COST SYNC DIALOG */}
@@ -280,7 +280,7 @@ export default function FarmLedgerPage() {
               <DialogTitle className="text-xl font-black tracking-tight uppercase">Quick Ledger Sync</DialogTitle>
             </div>
             <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest relative z-10">
-              Synchronize operational disbursements
+              Synchronize multiple cost centers
             </DialogDescription>
           </DialogHeader>
           
@@ -303,22 +303,22 @@ export default function FarmLedgerPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="form-label-tactical ml-2">Purchase Cost (₹)</Label>
+                  <Label className="form-label-tactical ml-2">Buying Cost (₹)</Label>
                   <Input type="number" value={pCost} onChange={(e) => setPCost(e.target.value)} placeholder="0" className="form-input-tactical bg-neutral-50 border-none font-black text-lg" />
                 </div>
                 <div className="space-y-2">
-                  <Label className="form-label-tactical ml-2">Feed Cost (₹)</Label>
+                  <Label className="form-label-tactical ml-2">Fodder Cost (₹)</Label>
                   <Input type="number" value={fCost} onChange={(e) => setFCost(e.target.value)} placeholder="0" className="form-input-tactical bg-neutral-50 border-none font-black text-lg" />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="form-label-tactical ml-2">Medicine Cost (₹)</Label>
+                  <Label className="form-label-tactical ml-2">Pharma Cost (₹)</Label>
                   <Input type="number" value={mCost} onChange={(e) => setMCost(e.target.value)} placeholder="0" className="form-input-tactical bg-neutral-50 border-none font-black text-lg text-rose-600" />
                 </div>
                 <div className="space-y-2">
-                  <Label className="form-label-tactical ml-2">Labor Cost (₹)</Label>
+                  <Label className="form-label-tactical ml-2">Labour Cost (₹)</Label>
                   <Input type="number" value={lCost} onChange={(e) => setLCost(e.target.value)} placeholder="0" className="form-input-tactical bg-neutral-50 border-none font-black text-lg text-emerald-600" />
                 </div>
               </div>
