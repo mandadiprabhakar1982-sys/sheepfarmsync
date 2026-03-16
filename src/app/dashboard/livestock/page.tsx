@@ -20,7 +20,7 @@ import {
   CalendarDays,
   Save,
 } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, parseISO, isValid } from 'date-fns';
 import Image from 'next/image';
 
 import { Button } from '@/components/ui/button';
@@ -89,6 +89,10 @@ export default function LivestockPage() {
   const [editingAsset, setEditingAsset] = useState<any>(null);
   const [isEditAssetOpen, setIsEditAssetOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  
+  // Date Picker States
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [isEditDatePickerOpen, setIsEditDatePickerOpen] = useState(false);
   
   const [zoomedAsset, setZoomedAsset] = useState<any>(null);
 
@@ -196,9 +200,10 @@ export default function LivestockPage() {
 
   const handleEditClick = (sheep: any) => {
     setEditingAsset(sheep); 
+    const regDate = sheep.registrationDate ? parseISO(sheep.registrationDate) : new Date();
     editAssetForm.reset({ 
       ...sheep, 
-      registrationDate: sheep.registrationDate ? new Date(sheep.registrationDate) : new Date() 
+      registrationDate: isValid(regDate) ? regDate : new Date() 
     }); 
     setIsEditAssetOpen(true); 
   };
@@ -455,7 +460,7 @@ export default function LivestockPage() {
                 <FormField control={assetForm.control} name="registrationDate" render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <Label className="form-label-tactical">Registration Date</Label>
-                    <Popover>
+                    <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
                       <PopoverTrigger asChild>
                         <Button variant="outline" className="form-input-tactical w-full text-left justify-between bg-slate-50 border-slate-200">
                           {field.value ? format(field.value, "MMM dd, yyyy") : "Select date"}
@@ -463,7 +468,7 @@ export default function LivestockPage() {
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0 border-none shadow-2xl">
-                        <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
+                        <Calendar mode="single" selected={field.value} onSelect={(d) => { field.onChange(d); setIsDatePickerOpen(false); }} initialFocus />
                       </PopoverContent>
                     </Popover>
                     <FormMessage />
@@ -545,7 +550,7 @@ export default function LivestockPage() {
                 <FormField control={editAssetForm.control} name="registrationDate" render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <Label className="form-label-tactical">Registration Date</Label>
-                    <Popover>
+                    <Popover open={isEditDatePickerOpen} onOpenChange={setIsEditDatePickerOpen}>
                       <PopoverTrigger asChild>
                         <Button variant="outline" className="form-input-tactical w-full text-left justify-between bg-slate-50 border-slate-200">
                           {field.value ? format(field.value, "MMM dd, yyyy") : "Select date"}
@@ -553,7 +558,7 @@ export default function LivestockPage() {
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0 border-none shadow-2xl">
-                        <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
+                        <Calendar mode="single" selected={field.value} onSelect={(d) => { field.onChange(d); setIsEditDatePickerOpen(false); }} initialFocus />
                       </PopoverContent>
                     </Popover>
                     <FormMessage />
