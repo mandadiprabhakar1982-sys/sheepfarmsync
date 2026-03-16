@@ -1,6 +1,6 @@
 'use client';
 
-import { useIsMobile, useWindowDimensions } from '@/hooks/use-mobile';
+import { useWindowDimensions } from '@/hooks/use-mobile';
 import { useFarm } from '@/context/FarmContext';
 import { useRouter } from 'next/navigation';
 import { 
@@ -33,12 +33,15 @@ import {
 } from '@/components/logo';
 
 /**
- * @fileOverview Gatekeeper Page: Dispatches between Web Dashboard and Mobile App Model
- * Based on viewport dimensions, this serves the appropriate UI layout.
+ * @fileOverview Command Hub Gatekeeper
+ * Width > 768px: Deep Web Hub (Laptop)
+ * Width < 768px: Streamlined Tactical Home (Mobile)
  */
 export default function DashboardPage() {
   const { width } = useWindowDimensions();
   const isMobile = width < 768;
+  const router = useRouter();
+  
   const { 
     userRole, 
     totalExpenses, 
@@ -50,15 +53,13 @@ export default function DashboardPage() {
     totalFarmExpenses,
     isLoading 
   } = useFarm();
-  const router = useRouter();
 
-  // GATEKEEPER LOADING STATE: Prevents UI flickering during device detection
   if (isLoading || width === 0) {
     return (
-      <div className="flex h-[calc(100vh-180px)] w-full items-center justify-center">
+      <div className="flex h-full w-full items-center justify-center">
         <div className="flex flex-col items-center gap-6">
           <Loader2 className="h-10 w-10 animate-spin text-primary opacity-20" />
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">Dispatching Command Hub</p>
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">Dispatching Hub</p>
         </div>
       </div>
     );
@@ -66,88 +67,80 @@ export default function DashboardPage() {
 
   const isAdmin = userRole === 'admin';
 
-  // --- MODEL A: MOBILE APP (STREAMLINED FINANCIAL VIEW) ---
-  const FinancialRow = ({ title, value, icon: Icon, color, href }: { title: string, value: string, icon: any, color: string, href: string }) => (
-    <Link href={href} className="block w-full">
-      <div className="bg-white rounded-[1.5rem] p-5 flex items-center justify-between shadow-sm border border-slate-100 mb-4 active:scale-[0.98] transition-all">
-        <div className="flex items-center gap-4">
-          <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center text-white shadow-md", color)}>
-            <Icon className="h-6 w-6" />
-          </div>
-          <span className="text-[11px] font-black uppercase tracking-widest text-slate-600">{title}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-2xl font-black tracking-tighter text-slate-900">{value}</span>
-          <ChevronRight className="h-4 w-4 text-slate-300" />
-        </div>
-      </div>
-    </Link>
-  );
-
-  const BreakdownCard = ({ title, value, icon: Icon, href }: { title: string, value: string, icon: any, href: string }) => (
-    <Link href={href} className="block aspect-square">
-      <div className="bg-white rounded-[2rem] p-6 flex flex-col items-center text-center shadow-sm border border-slate-100 h-full justify-center active:scale-[0.98] transition-all">
-        <div className="h-16 w-16 rounded-[1.5rem] bg-[#f59e0b] flex items-center justify-center text-white mb-4 shadow-lg shadow-amber-500/20">
-          <Icon className="h-8 w-8" />
-        </div>
-        <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">{title}:</p>
-        <p className="text-xl font-black tracking-tighter text-slate-900">{value}</p>
-      </div>
-    </Link>
-  );
-
+  // --- MOBILE MODEL (Phone) ---
   const MobileHome = (
     <div className="max-w-lg mx-auto space-y-10 py-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <section>
         <h2 className="text-xl font-black uppercase tracking-tight text-slate-900 mb-6 px-2">Financial Summary</h2>
         <div className="space-y-1">
-          <FinancialRow 
-            title="Receivables Pending" 
-            value={`₹${totalReceivables.toLocaleString()}`} 
-            icon={TrendingUp} 
-            color="bg-blue-500"
-            href="/dashboard/sales"
-          />
-          <FinancialRow 
-            title="Payables Due" 
-            value={`₹${totalPayables.toLocaleString()}`} 
-            icon={TrendingDown} 
-            color="bg-[#f59e0b]"
-            href="/dashboard/purchase"
-          />
-          <FinancialRow 
-            title="Total Cost Summary" 
-            value={`₹${totalExpenses.toLocaleString()}`} 
-            icon={ReceiptIndianRupee} 
-            color="bg-slate-800"
-            href="/dashboard/monthly-ledger"
-          />
+          <Link href="/dashboard/sales" className="block">
+            <div className="bg-white rounded-[1.5rem] p-5 flex items-center justify-between shadow-sm border border-slate-100 mb-4 active:scale-[0.98] transition-all">
+              <div className="flex items-center gap-4">
+                <div className="h-12 w-12 rounded-2xl flex items-center justify-center text-white shadow-md bg-blue-500"><TrendingUp className="h-6 w-6" /></div>
+                <span className="text-[11px] font-black uppercase tracking-widest text-slate-600">Receivables</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-2xl font-black tracking-tighter text-slate-900">₹{totalReceivables.toLocaleString()}</span>
+                <ChevronRight className="h-4 w-4 text-slate-300" />
+              </div>
+            </div>
+          </Link>
+          <Link href="/dashboard/purchase" className="block">
+            <div className="bg-white rounded-[1.5rem] p-5 flex items-center justify-between shadow-sm border border-slate-100 mb-4 active:scale-[0.98] transition-all">
+              <div className="flex items-center gap-4">
+                <div className="h-12 w-12 rounded-2xl flex items-center justify-center text-white shadow-md bg-[#f59e0b]"><TrendingDown className="h-6 w-6" /></div>
+                <span className="text-[11px] font-black uppercase tracking-widest text-slate-600">Payables</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-2xl font-black tracking-tighter text-slate-900">₹{totalPayables.toLocaleString()}</span>
+                <ChevronRight className="h-4 w-4 text-slate-300" />
+              </div>
+            </div>
+          </Link>
+          <Link href="/dashboard/monthly-ledger" className="block">
+            <div className="bg-white rounded-[1.5rem] p-5 flex items-center justify-between shadow-sm border border-slate-100 mb-4 active:scale-[0.98] transition-all">
+              <div className="flex items-center gap-4">
+                <div className="h-12 w-12 rounded-2xl flex items-center justify-center text-white shadow-md bg-slate-800"><ReceiptIndianRupee className="h-6 w-6" /></div>
+                <span className="text-[11px] font-black uppercase tracking-widest text-slate-600">Total Cost</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-2xl font-black tracking-tighter text-slate-900">₹{totalExpenses.toLocaleString()}</span>
+                <ChevronRight className="h-4 w-4 text-slate-300" />
+              </div>
+            </div>
+          </Link>
         </div>
       </section>
 
       <section>
         <h2 className="text-xl font-black uppercase tracking-tight text-slate-900 mb-6 px-2">Operational Breakdown</h2>
         <div className="grid grid-cols-2 gap-4">
-          <BreakdownCard title="Feed Usage" value={`₹${totalFeedCost.toLocaleString()}`} icon={Wheat} href="/dashboard/feed" />
-          <BreakdownCard title="Labor Cost" value={`₹${totalLaborCost.toLocaleString()}`} icon={Users} href="/dashboard/labor" />
-          <BreakdownCard title="Medical" value={`₹${totalMedicineCost.toLocaleString()}`} icon={Heart} href="/dashboard/medicine" />
-          <BreakdownCard title="Misc. Expenses" value={`₹${totalFarmExpenses.toLocaleString()}`} icon={Wallet} href="/dashboard/expenses" />
+          {[
+            { label: 'Feed', val: totalFeedCost, icon: Wheat, href: '/dashboard/feed' },
+            { label: 'Labor', val: totalLaborCost, icon: Users, href: '/dashboard/labor' },
+            { label: 'Medical', val: totalMedicineCost, icon: Heart, href: '/dashboard/medicine' },
+            { label: 'Misc', val: totalFarmExpenses, icon: Wallet, href: '/dashboard/expenses' },
+          ].map((item, i) => (
+            <Link key={i} href={item.href} className="bg-white rounded-[2rem] p-6 flex flex-col items-center text-center shadow-sm border border-slate-100 aspect-square justify-center active:scale-[0.98] transition-all">
+              <div className="h-16 w-16 rounded-[1.5rem] bg-[#f59e0b] flex items-center justify-center text-white mb-4 shadow-lg shadow-amber-500/20">
+                <item.icon className="h-8 w-8" />
+              </div>
+              <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">{item.label}:</p>
+              <p className="text-xl font-black tracking-tighter text-slate-900">₹{item.val.toLocaleString()}</p>
+            </Link>
+          ))}
         </div>
       </section>
 
       <div className="pt-4 pb-10">
-        <Button 
-          onClick={() => router.push('/dashboard/expenses')}
-          className="w-full h-16 rounded-2xl bg-[#f59e0b] hover:bg-amber-600 text-white font-black uppercase tracking-[0.2em] shadow-xl shadow-amber-500/20 text-sm gap-3 border-none"
-        >
-          <Plus className="h-6 w-6" />
-          Record Expense
+        <Button onClick={() => router.push('/dashboard/expenses')} className="w-full h-16 rounded-2xl bg-[#f59e0b] hover:bg-amber-600 text-white font-black uppercase tracking-[0.2em] shadow-xl shadow-amber-500/20 text-sm gap-3 border-none">
+          <Plus className="h-6 w-6" /> RECORD EXPENSE
         </Button>
       </div>
     </div>
   );
 
-  // --- MODEL B: WEB DASHBOARD (HIGH-DENSITY GRID) ---
+  // --- WEB MODEL (Laptop) ---
   const HubCard = ({ item }: { item: any }) => (
     <Link href={item.href} className="group transition-all active:scale-95 block">
       <div className="w-full h-[240px] bg-white/80 backdrop-blur-xl rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-6 shadow-xl hover:shadow-[0_20px_60px_rgba(6,78,59,0.15)] transition-all hover:-translate-y-1 border border-white relative overflow-hidden glass-sheen">
@@ -180,46 +173,15 @@ export default function DashboardPage() {
       <div className="flex items-center gap-10 mb-20">
         <HubSparkle className="h-24 w-24 shrink-0" />
         <div className="space-y-3">
-          <h1 className="text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none">
-            MPR <span className="text-primary">SHEEP FARMS</span>
-          </h1>
-          <div className="flex items-center gap-4">
-            <span className="h-px w-12 bg-accent opacity-50" />
-            <p className="text-[11px] font-black text-primary/60 uppercase tracking-[0.5em] leading-none">
-              Precision Operational Environment
-            </p>
-          </div>
+          <h1 className="text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none">MPR <span className="text-primary">SHEEP FARMS</span></h1>
+          <p className="text-[11px] font-black text-primary/60 uppercase tracking-[0.5em]">High-Density Executive Hub</p>
         </div>
       </div>
-
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
-        {hubItems.map((item, idx) => {
-          if (item.adminOnly && !isAdmin) return null;
-          return <HubCard key={idx} item={item} />;
-        })}
-      </div>
-      
-      <div className="mt-32 border-t border-slate-200 pt-10 opacity-40">
-        <div className="flex justify-between items-center px-2">
-          <div>
-            <p className="text-[12px] font-black uppercase tracking-[0.5em] text-slate-900">MPR ENTERPRISE SYSTEM</p>
-            <p className="text-[9px] font-bold text-emerald-600 uppercase tracking-widest mt-2">V5.0.0 TACTICAL DEPLOYMENT</p>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-              <p className="text-[10px] font-black text-slate-900 uppercase">Status: Nominal</p>
-              <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Biometric Link Active</p>
-            </div>
-            <div className="h-12 w-12 flex items-center justify-center relative bg-white rounded-2xl shadow-xl border border-slate-100">
-               <div className="absolute inset-0 bg-primary/5 rounded-2xl animate-pulse" />
-               <ShieldCheck className="h-6 w-6 text-primary relative z-10" />
-            </div>
-          </div>
-        </div>
+        {hubItems.map((item, idx) => (item.adminOnly && !isAdmin ? null : <HubCard key={idx} item={item} />))}
       </div>
     </div>
   );
 
-  // GATEKEEPER REDIRECT: Dispatch the correct model based on viewport
   return isMobile ? MobileHome : WebDashboard;
 }

@@ -5,12 +5,12 @@ import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/app-sidebar';
 import { MobileNav } from '@/components/mobile-nav';
 import { useFarm } from '@/context/FarmContext';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useWindowDimensions } from '@/hooks/use-mobile';
 import { PanelLeft, MoreVertical, Loader2 } from 'lucide-react';
 
 /**
- * @fileOverview Structural Gatekeeper Layout.
- * Manages the transition between Desktop Sidebar and Mobile Bottom Navigation models.
+ * @fileOverview Gatekeeper Layout.
+ * Synchronizes the UI shell between Desktop Navigation and Mobile Tab models.
  */
 export default function DashboardLayout({
   children,
@@ -18,9 +18,10 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const { isLoadingProfile } = useFarm();
-  const isMobile = useIsMobile();
+  const { width } = useWindowDimensions();
+  const isMobile = width < 768;
 
-  // AUTHENTICATION GATE: Prevent UI leaks during profile sync
+  // AUTHENTICATION GATE
   if (isLoadingProfile) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-white fixed inset-0 z-[9999]">
@@ -36,19 +37,19 @@ export default function DashboardLayout({
     <SidebarProvider>
       <div className="app-container dashboard-backdrop">
         
-        {/* DESKTOP GATE: Only show full sidebar if NOT on mobile */}
-        {isMobile === false && <AppSidebar />}
+        {/* DESKTOP VIEW: Sidebar is visible if width > 768 */}
+        {!isMobile && <AppSidebar />}
 
         <SidebarInset className="flex flex-col h-full bg-transparent overflow-hidden">
-          {/* STICKY TOP HEADER - Universal across models */}
+          {/* FIXED HEADER - Universal across models */}
           <header className="top-header">
             <div className="flex items-center gap-4 md:gap-6">
               <div className="flex items-center gap-2 text-slate-400">
                 <PanelLeft className="h-4 w-4 cursor-pointer hover:text-slate-900 transition-colors hidden md:block" />
                 <MoreVertical className="h-4 w-4 opacity-20 hidden md:block" />
               </div>
-              <h2 className="text-[9px] md:text-[11px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] text-slate-500 whitespace-nowrap">
-                FARM MANAGEMENT SYSTEM
+              <h2 className="text-[9px] md:text-[11px] font-black uppercase tracking-[0.3em] text-slate-500 whitespace-nowrap">
+                {isMobile ? 'MOBILE APP MODEL' : 'EXECUTIVE COMMAND CENTER'}
               </h2>
             </div>
             
@@ -57,14 +58,16 @@ export default function DashboardLayout({
             </div>
           </header>
           
-          {/* INDEPENDENT SCROLLABLE CONTENT */}
+          {/* INDEPENDENT SCROLL AREA */}
           <main className="scroll-content p-4 md:p-12">
-            {children}
+            <div className="max-w-7xl mx-auto h-full">
+              {children}
+            </div>
           </main>
         </SidebarInset>
         
-        {/* MOBILE GATE: Show slide-over sidebar and bottom nav if on mobile */}
-        {isMobile === true && (
+        {/* MOBILE VIEW: Tab bar and Menu trigger */}
+        {isMobile && (
           <>
             <AppSidebar /> 
             <MobileNav />
