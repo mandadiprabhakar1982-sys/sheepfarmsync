@@ -273,6 +273,18 @@ export default function MedicinePage() {
             </div>
 
             <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
+              <CardHeader className="bg-emerald-600 text-white p-10 py-12">
+                <div className="flex justify-between items-end">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-3">
+                      <Activity className="h-6 w-6" />
+                      <CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Clinical Log</CardTitle>
+                    </div>
+                    <CardDescription className="text-emerald-100/60 text-xs font-black uppercase tracking-[0.2em]">Bio-Security & Treatment Records</CardDescription>
+                  </div>
+                  <p className="text-4xl font-black tracking-tighter">{healthTasks?.length || 0} EVENTS</p>
+                </div>
+              </CardHeader>
               <ScrollArea className="h-[600px] w-full">
                 <Table>
                   <TableHeader className="bg-slate-50 border-none">
@@ -315,6 +327,18 @@ export default function MedicinePage() {
 
         <TabsContent value="cost" className="m-0 animate-in fade-in slide-in-from-bottom-2 duration-500">
           <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
+            <CardHeader className="bg-blue-600 text-white p-10 py-12">
+              <div className="flex justify-between items-end">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-3">
+                    <History className="h-6 w-6" />
+                    <CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Pharma Procurement</CardTitle>
+                  </div>
+                  <CardDescription className="text-blue-100/60 text-xs font-black uppercase tracking-[0.2em]">Historical Supply Ledger</CardDescription>
+                </div>
+                <p className="text-4xl font-black tracking-tighter">₹{totalMedicineCost.toLocaleString()}</p>
+              </div>
+            </CardHeader>
             <ScrollArea className="h-[600px] w-full">
               <Table>
                 <TableHeader className="bg-slate-50 border-none">

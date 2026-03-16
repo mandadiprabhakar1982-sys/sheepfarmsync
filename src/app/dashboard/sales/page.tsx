@@ -334,6 +334,18 @@ export default function TradeLedgerPage() {
         </div>
         <TabsContent value="master" className="m-0 animate-in fade-in slide-in-from-bottom-2 duration-500">
           <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
+            <CardHeader className="bg-neutral-900 text-white p-10 py-12">
+              <div className="flex justify-between items-end">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-3">
+                    <ArrowRightLeft className="h-6 w-6 text-emerald-400" />
+                    <CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Master Trade Ledger</CardTitle>
+                  </div>
+                  <CardDescription className="text-white/40 text-xs font-black uppercase tracking-[0.2em]">Audited Acquisitions & Disposals</CardDescription>
+                </div>
+                <p className="text-4xl font-black tracking-tighter">₹{totalSales.toLocaleString()}</p>
+              </div>
+            </CardHeader>
             <ScrollArea className="h-[600px] w-full">
               <Table>
                 <TableHeader className="bg-slate-50 border-none">

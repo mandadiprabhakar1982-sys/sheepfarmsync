@@ -33,7 +33,7 @@ import { useFarm } from '@/context/FarmContext';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -268,7 +268,19 @@ export default function LaborPage() {
           />
         </div>
 
-        <Card className="border-none shadow-2xl rounded-[40px] overflow-hidden bg-white">
+        <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
+          <CardHeader className="bg-blue-600 text-white p-10 py-12">
+            <div className="flex justify-between items-end">
+              <div className="space-y-1">
+                <div className="flex items-center gap-3">
+                  <Users className="h-6 w-6" />
+                  <CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Staff Ledger</CardTitle>
+                </div>
+                <CardDescription className="text-blue-100/60 text-xs font-black uppercase tracking-[0.2em]">Operational Disbursement Audit</CardDescription>
+              </div>
+              <p className="text-4xl font-black tracking-tighter">₹{totalLaborCost.toLocaleString()}</p>
+            </div>
+          </CardHeader>
           <ScrollArea className="h-[600px] w-full">
             <Table>
               <TableHeader className="bg-slate-50 border-none">
