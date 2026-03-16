@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -7,49 +8,72 @@ import {
   Home as HomeIcon,
   Users, 
   LayoutPanelLeft,
-  MoreHorizontal
+  Menu
 } from 'lucide-react';
+import { useSidebar } from '@/components/ui/sidebar';
 
 /**
  * @fileOverview Native-style bottom navigation matching FarmAudit reference.
+ * Replaces "More" with "Menu" to trigger the main navigation drawer on mobile.
  */
 export function MobileNav() {
   const pathname = usePathname();
+  const { setOpenMobile } = useSidebar();
 
-  const links = [
-    { href: '/dashboard', label: 'Dashboard', icon: HomeIcon },
-    { href: '/dashboard/livestock', label: 'Sheep Records', icon: Users },
-    { href: '/dashboard/farm-ledger', label: 'Reports', icon: LayoutPanelLeft },
-    { href: '/dashboard/help', label: 'More', icon: MoreHorizontal },
+  const navItems = [
+    { href: '/dashboard', label: 'Dashboard', icon: HomeIcon, type: 'link' as const },
+    { href: '/dashboard/livestock', label: 'Sheep Records', icon: Users, type: 'link' as const },
+    { href: '/dashboard/farm-ledger', label: 'Reports', icon: LayoutPanelLeft, type: 'link' as const },
+    { label: 'Menu', icon: Menu, type: 'button' as const, onClick: () => setOpenMobile(true) },
   ];
 
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white border-t border-[#D9D9D9] shadow-[0_-4px_12px_rgba(0,0,0,0.04)] px-2">
       <div className="flex items-center justify-between h-16 max-w-lg mx-auto">
-        {links.map((link) => {
-          const isActive = link.href === '/dashboard' 
-            ? pathname === '/dashboard' 
-            : pathname.startsWith(link.href);
-            
+        {navItems.map((item, index) => {
+          const Icon = item.icon;
+          
+          if (item.type === 'link') {
+            const isActive = item.href === '/dashboard' 
+              ? pathname === '/dashboard' 
+              : pathname.startsWith(item.href!);
+              
+            return (
+              <Link 
+                key={index} 
+                href={item.href!}
+                className={cn(
+                  "flex flex-col items-center justify-center flex-1 gap-1 transition-all active:scale-90 h-full",
+                  isActive ? "text-[#0FA5A0]" : "text-slate-400"
+                )}
+              >
+                <div className="p-1">
+                  <Icon className={cn("h-5 w-5", isActive ? "stroke-[2.5px]" : "stroke-[2px]")} />
+                </div>
+                <span className={cn(
+                  "text-[9px] font-bold tracking-tight leading-none",
+                  isActive ? "text-[#0FA5A0]" : "text-slate-400"
+                )}>
+                  {item.label}
+                </span>
+              </Link>
+            );
+          }
+
+          // Render tactical button for Menu trigger
           return (
-            <Link 
-              key={link.href} 
-              href={link.href}
-              className={cn(
-                "flex flex-col items-center justify-center flex-1 gap-1 transition-all active:scale-90 h-full",
-                isActive ? "text-[#0FA5A0]" : "text-slate-400"
-              )}
+            <button 
+              key={index} 
+              onClick={item.onClick}
+              className="flex flex-col items-center justify-center flex-1 gap-1 transition-all active:scale-90 h-full text-slate-400"
             >
               <div className="p-1">
-                <link.icon className={cn("h-5 w-5", isActive ? "stroke-[2.5px]" : "stroke-[2px]")} />
+                <Icon className="h-5 w-5 stroke-[2px]" />
               </div>
-              <span className={cn(
-                "text-[9px] font-bold tracking-tight leading-none",
-                isActive ? "text-[#0FA5A0]" : "text-slate-400"
-              )}>
-                {link.label}
+              <span className="text-[9px] font-bold tracking-tight leading-none">
+                {item.label}
               </span>
-            </Link>
+            </button>
           );
         })}
       </div>
