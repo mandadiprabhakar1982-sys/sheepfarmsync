@@ -134,7 +134,7 @@ export default function OverviewPage() {
 
       <div className="px-2">
         <Button onClick={() => router.push('/dashboard/farm-ledger')} className="w-full h-14 rounded-xl bg-neutral-900 hover:bg-black text-white font-black uppercase tracking-[0.1em] shadow-lg text-xs gap-2 border-none">
-          <Plus className="h-4 w-4 text-accent" /> RECORD FARM DATA
+          <Plus className="h-4 w-4 text-accent" /> Record Farm Data
         </Button>
       </div>
     </div>
@@ -155,7 +155,7 @@ export default function OverviewPage() {
             </div>
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Live Sheep Count</p>
-              <p className="text-6xl font-black tracking-tighter text-slate-900">{totalSheep}</p>
+              <p className="text-6xl font-black tracking-tighter text-secondary-foreground">{totalSheep}</p>
               <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mt-1">Active Registry</p>
             </div>
           </div>
@@ -191,7 +191,7 @@ export default function OverviewPage() {
                 <span className="text-[11px] font-black uppercase tracking-[0.1em] text-slate-600">{row.label}</span>
               </div>
               <div className="flex items-center gap-4">
-                <span className={cn("text-2xl font-black tracking-tighter", row.label.includes('Inflow') ? 'text-emerald-600' : 'text-slate-900')}>₹{row.val.toLocaleString()}</span>
+                <span className={cn("text-2xl font-black tracking-tighter", row.label.includes('Inflow') ? 'text-emerald-600' : 'text-secondary-foreground')}>₹{row.val.toLocaleString()}</span>
                 <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-primary transition-colors" />
               </div>
             </Link>
@@ -219,7 +219,7 @@ export default function OverviewPage() {
                   <stat.icon className="h-7 w-7" />
                 </div>
                 <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">{stat.label}:</p>
-                <p className="text-2xl font-black tracking-tighter text-slate-900">₹{stat.val.toLocaleString()}</p>
+                <p className="text-2xl font-black tracking-tighter text-secondary-foreground">₹{stat.val.toLocaleString()}</p>
               </div>
             </Link>
           ))}

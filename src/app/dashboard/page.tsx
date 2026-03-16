@@ -161,7 +161,7 @@ export default function DashboardPage() {
                 <item.icon className="h-8 w-8" />
               </div>
               <p className="text-[9px] font-black text-slate-400 mb-1">{item.label}:</p>
-              <p className="text-xl font-black tracking-tighter text-foreground">₹{item.val.toLocaleString()}</p>
+              <p className="text-xl font-black tracking-tighter text-secondary-foreground">₹{item.val.toLocaleString()}</p>
             </Link>
           ))}
         </div>
@@ -184,7 +184,7 @@ export default function DashboardPage() {
             <item.icon className="w-full h-full" />
           </div>
           <div className="text-center relative z-10">
-            <h3 className="text-[15px] font-black text-foreground tracking-widest leading-none mb-1 group-hover:text-white transition-colors">{item.title}</h3>
+            <h3 className="text-[15px] font-black text-secondary-foreground tracking-widest leading-none mb-1 group-hover:text-white transition-colors">{item.title}</h3>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em] group-hover:text-white/60 transition-colors">{item.subtitle}</p>
           </div>
         </div>
@@ -193,7 +193,7 @@ export default function DashboardPage() {
   };
 
   const hubItems = [
-    { title: "Summary", subtitle: "Executive Report", icon: IconOverview, href: '/dashboard/overview', color: "from-primary/20 to-primary/40" },
+    { title: "Home", subtitle: "Main Control", icon: IconOverview, href: '/dashboard/overview', color: "from-primary/20 to-primary/40" },
     { title: "Daily Ledger", subtitle: "Farm Cost Audit", icon: IconFarmCost, href: '/dashboard/farm-ledger', color: "from-primary/20 to-primary/40" },
     { title: "Personal Finance", subtitle: "Unified Accounts", icon: IconLedger, href: '/dashboard/monthly-ledger', adminOnly: true, color: "from-primary/20 to-primary/40" },
     { title: "Debt & Loans", subtitle: "Debt Portfolio", icon: IconLiabilities, href: '/dashboard/balance-sheet', adminOnly: true, color: "from-primary/20 to-primary/40" },
@@ -210,7 +210,7 @@ export default function DashboardPage() {
       <div className="flex items-center gap-10 mb-20 mt-10">
         <HubSparkle className="h-24 w-24 shrink-0" />
         <div className="space-y-3">
-          <h1 className="text-5xl font-black text-foreground tracking-tighter leading-none">Executive <span className="text-primary">Control Hub</span></h1>
+          <h1 className="text-5xl font-black text-secondary-foreground tracking-tighter leading-none">Executive <span className="text-primary">Control Hub</span></h1>
           <p className="text-[11px] font-black text-primary/60 uppercase tracking-[0.5em]">High-Density Management Infrastructure</p>
         </div>
       </div>
