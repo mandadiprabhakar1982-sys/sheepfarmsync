@@ -1,6 +1,6 @@
 'use client';
 
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useIsMobile, useWindowDimensions } from '@/hooks/use-mobile';
 import { useFarm } from '@/context/FarmContext';
 import { useRouter } from 'next/navigation';
 import { 
@@ -34,10 +34,11 @@ import {
 
 /**
  * @fileOverview Gatekeeper Page: Dispatches between Web Dashboard and Mobile App Model
- * This acts as the "Logic Gate" described in the Responsive Routing Strategy.
+ * Based on viewport dimensions, this serves the appropriate UI layout.
  */
 export default function DashboardPage() {
-  const isMobile = useIsMobile();
+  const { width } = useWindowDimensions();
+  const isMobile = width < 768;
   const { 
     userRole, 
     totalExpenses, 
@@ -52,7 +53,7 @@ export default function DashboardPage() {
   const router = useRouter();
 
   // GATEKEEPER LOADING STATE: Prevents UI flickering during device detection
-  if (isLoading || isMobile === undefined) {
+  if (isLoading || width === 0) {
     return (
       <div className="flex h-[calc(100vh-180px)] w-full items-center justify-center">
         <div className="flex flex-col items-center gap-6">

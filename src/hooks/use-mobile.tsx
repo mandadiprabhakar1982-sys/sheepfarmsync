@@ -3,18 +3,15 @@ import * as React from "react"
 const MOBILE_BREAKPOINT = 768
 
 /**
- * @fileOverview A robust dimension-aware hook mimicking useWindowDimensions.
+ * @fileOverview A robust dimension-aware hook.
  * Handles SSR hydration safely and provides real-time viewport tracking.
  */
 export function useIsMobile() {
   const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
-  const [dimensions, setDimensions] = React.useState({ width: 0, height: 0 })
 
   React.useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth
-      const height = window.innerHeight
-      setDimensions({ width, height })
       setIsMobile(width < MOBILE_BREAKPOINT)
     }
 
