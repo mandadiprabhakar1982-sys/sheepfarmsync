@@ -126,6 +126,10 @@
   .glow-gold { border-bottom: 4px solid hsl(var(--accent)); }
   .glow-emerald { border-bottom: 4px solid #10b981; }
   .glow-forest { border-bottom: 4px solid hsl(var(--primary)); }
+
+  .tab-trigger-tactical {
+    @apply inline-flex items-center justify-center whitespace-nowrap rounded-[1rem] px-6 py-2 text-[10px] font-black uppercase tracking-widest ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-white data-[state=active]:text-[#059669] data-[state=active]:shadow-lg data-[state=active]:scale-[1.05] flex-shrink-0;
+  }
 }
 
 .dashboard-backdrop {
