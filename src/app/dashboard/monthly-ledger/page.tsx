@@ -43,6 +43,7 @@ import {
   DialogTrigger,
   DialogFooter,
 } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 export default function MonthlyLedgerPage() {
   const { toast } = useToast();
@@ -56,33 +57,27 @@ export default function MonthlyLedgerPage() {
   const [selectedYear, setSelectedYear] = useState(format(new Date(), 'yyyy'));
   const [searchTerm, setSearchTerm] = useState('');
   
-  // UI States
   const [isEntryDialogOpen, setIsEntryDialogOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isZoomViewOpen, setIsZoomViewOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
   const [viewingItem, setViewingItem] = useState<any>(null);
 
-  // Form States
   const [date, setDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [source, setSource] = useState('');
   const [amount, setAmount] = useState('');
   const [type, setType] = useState<'income' | 'expense'>('income');
   const [category, setCategory] = useState<'loan' | 'card' | 'private' | 'household'>('household');
 
-  // Logic: Combine and Filter Data
   const combinedData = useMemo(() => {
     const incomes = (monthlyIncomes || []).map(i => ({ ...i, type: 'income' }));
     const expenses = (monthlyExpenses || []).map(e => ({ ...e, type: 'expense' }));
-    
-    return [...incomes, ...expenses]
-      .filter(item => {
-        const d = parseISO(item.date);
-        const matchesDate = format(d, 'MM') === selectedMonth && format(d, 'yyyy') === selectedYear;
-        const matchesSearch = item.source.toLowerCase().includes(searchTerm.toLowerCase());
-        return matchesDate && matchesSearch;
-      })
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    return [...incomes, ...expenses].filter(item => {
+      const d = parseISO(item.date);
+      const matchesDate = format(d, 'MM') === selectedMonth && format(d, 'yyyy') === selectedYear;
+      const matchesSearch = item.source.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesDate && matchesSearch;
+    }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [monthlyIncomes, monthlyExpenses, selectedMonth, selectedYear, searchTerm]);
 
   const filteredIncomes = useMemo(() => combinedData.filter(i => i.type === 'income'), [combinedData]);
@@ -92,578 +87,144 @@ export default function MonthlyLedgerPage() {
   const filteredHousehold = useMemo(() => combinedData.filter(e => e.type === 'expense' && e.category === 'household'), [combinedData]);
 
   const totalInflow = useMemo(() => filteredIncomes.reduce((s, i) => s + Number(i.amount || 0), 0), [filteredIncomes]);
-  const totalOutflow = useMemo(() => {
-    const institutional = filteredInstitutional.reduce((s, e) => s + Number(e.amount || 0), 0);
-    const cards = filteredCards.reduce((s, e) => s + Number(e.amount || 0), 0);
-    const privateDebt = filteredPrivate.reduce((s, e) => s + Number(e.amount || 0), 0);
-    const household = filteredHousehold.reduce((s, e) => s + Number(e.amount || 0), 0);
-    return institutional + cards + privateDebt + household;
-  }, [filteredInstitutional, filteredCards, filteredPrivate, filteredHousehold]);
-
+  const totalOutflow = useMemo(() => combinedData.filter(i => i.type === 'expense').reduce((s, e) => s + Number(e.amount || 0), 0), [combinedData]);
   const netBalance = totalInflow - totalOutflow;
 
   const handleAdd = () => {
-    if (!source || !amount || !date) {
-      toast({ variant: 'destructive', title: 'Input Required', description: 'Please fill all required fields.' });
-      return;
-    }
+    if (!source || !amount || !date) return;
     const val = parseFloat(amount);
-    if (type === 'income') {
-      addMonthlyIncome({ date, source, amount: val });
-      toast({ title: "Inflow Recorded", description: "Income record synchronized." });
-    } else {
-      addMonthlyExpense({ date, source, amount: val, category });
-      toast({ title: "Outflow Recorded", description: "Expense record synchronized." });
-    }
-    resetForm();
-    setIsEntryDialogOpen(false);
+    if (type === 'income') addMonthlyIncome({ date, source, amount: val });
+    else addMonthlyExpense({ date, source, amount: val, category });
+    resetForm(); setIsEntryDialogOpen(false);
   };
 
   const handleEditClick = (item: any) => {
-    setEditingItem(item);
-    setDate(item.date);
-    setSource(item.source);
-    setAmount(item.amount.toString());
-    setType(item.type);
-    setCategory(item.category || 'household');
-    setIsEditModalOpen(true);
+    setEditingItem(item); setDate(item.date); setSource(item.source); setAmount(item.amount.toString()); setType(item.type); setCategory(item.category || 'household'); setIsEditModalOpen(true);
   };
 
-  const handleZoomClick = (item: any) => {
-    setViewingItem(item);
-    setIsZoomViewOpen(true);
-  };
+  const handleZoomClick = (item: any) => { setViewingItem(item); setIsZoomViewOpen(true); };
 
   const handleUpdate = () => {
     if (!editingItem) return;
     const val = parseFloat(amount);
     const data = type === 'income' ? { date, source, amount: val } : { date, source, amount: val, category };
-    
-    if (type === 'income') {
-      updateMonthlyIncome(editingItem.id, data, editingItem._path);
-    } else {
-      updateMonthlyExpense(editingItem.id, data as any, editingItem._path);
-    }
-    
-    toast({ title: "Record Adjusted", description: "Ledger has been synchronized." });
-    setIsEditModalOpen(false);
-    setEditingItem(null);
-    resetForm();
+    if (type === 'income') updateMonthlyIncome(editingItem.id, data, editingItem._path);
+    else updateMonthlyExpense(editingItem.id, data as any, editingItem._path);
+    setIsEditModalOpen(false); setEditingItem(null); resetForm();
   };
 
-  const resetForm = () => {
-    setDate(format(new Date(), 'yyyy-MM-dd'));
-    setSource('');
-    setAmount('');
-    setType('income');
-    setCategory('household');
-  };
+  const resetForm = () => { setDate(format(new Date(), 'yyyy-MM-dd')); setSource(''); setAmount(''); setType('income'); setCategory('household'); };
 
   const SummaryCard = ({ title, value, icon: Icon, color, subtitle }: { title: string, value: number, icon: any, color: string, subtitle: string }) => (
-    <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white group transition-all hover:-translate-y-1">
-      <CardContent className="p-8 flex items-center gap-6">
-        <div className={cn("p-4 rounded-2xl text-white shadow-lg", color)}>
-          <Icon className="h-7 w-7" />
-        </div>
+    <Card className="border-none shadow-xl rounded-[1.5rem] md:rounded-[2rem] overflow-hidden bg-white group transition-all hover:-translate-y-1">
+      <CardContent className="p-6 md:p-8 flex items-center gap-4 md:gap-6">
+        <div className={cn("p-3 md:p-4 rounded-xl md:rounded-2xl text-white shadow-lg", color)}><Icon className="h-5 w-5 md:h-7 md:w-7" /></div>
         <div className="min-w-0">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 mb-1">{title}</p>
-          <div className="flex items-baseline gap-2">
-            <p className="text-3xl font-black tracking-tighter">₹{value.toLocaleString()}</p>
-          </div>
-          <p className="text-[8px] font-bold text-slate-300 uppercase tracking-widest mt-1">{subtitle}</p>
+          <p className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 mb-1">{title}</p>
+          <p className="text-xl md:text-3xl font-black tracking-tighter">₹{value.toLocaleString()}</p>
+          <p className="text-[7px] md:text-[8px] font-bold text-slate-300 uppercase tracking-widest mt-1">{subtitle}</p>
         </div>
       </CardContent>
     </Card>
   );
 
   const LedgerTable = ({ data, emptyMsg, badgeLabel, badgeClass }: { data: any[], emptyMsg: string, badgeLabel?: string, badgeClass?: string }) => (
-    <CardContent className="p-0 overflow-x-auto">
-      <Table>
-        <TableHeader className="bg-white border-b">
-          <TableRow className="hover:bg-transparent">
-            <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-slate-400">Date</TableHead>
-            <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-slate-400">Origin</TableHead>
-            <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-slate-400">Value</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {data.length > 0 ? (
-            data.map(item => (
-              <TableRow 
-                key={item.id} 
-                className="group hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-0 cursor-zoom-in active:scale-[0.99]"
-                onClick={() => handleZoomClick(item)}
-              >
-                <TableCell className="pl-10 py-10">
-                  <span className="text-sm font-black text-slate-300 tracking-tight leading-none whitespace-nowrap block">
-                    {item.date.split('-').slice(0, 2).join('-')}
-                  </span>
-                  <span className="text-sm font-black text-slate-300 tracking-tight leading-none whitespace-nowrap block mt-1">
-                    {item.date.split('-')[2]}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <div className="flex flex-col gap-1.5">
-                    <span className="text-[16px] font-black text-slate-900 leading-tight">{item.source}</span>
-                    <div className="flex items-center">
-                      <Badge className={cn("border-none font-black text-[8px] uppercase tracking-wider px-2 py-0.5 rounded-md", badgeClass || "bg-slate-100 text-slate-600")}>
-                        {badgeLabel || (item.category || 'Loan').toUpperCase()}
-                      </Badge>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell className="text-right pr-10">
-                  <div className="flex items-center justify-end gap-2">
-                    <span className="text-xl font-black text-slate-900 tracking-tight mr-4">₹{item.amount.toLocaleString()}</span>
-                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-8 w-8 text-blue-500 hover:bg-blue-50" 
-                        onClick={(e) => { e.stopPropagation(); handleEditClick(item); }}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-8 w-8 text-rose-500 hover:bg-rose-50" 
-                        onClick={(e) => { e.stopPropagation(); item.type === 'income' ? deleteMonthlyIncome(item.id, item._path) : deleteMonthlyExpense(item.id, item._path); }}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={3} className="text-center py-32 opacity-40 italic uppercase text-[12px] font-black tracking-widest bg-slate-50/50">
-                {emptyMsg}
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-    </CardContent>
+    <div className="flex-1 overflow-hidden flex flex-col">
+      <div className="block md:hidden flex-1 overflow-hidden">
+        <ScrollArea className="h-full">
+          {data.length > 0 ? data.map(item => (
+            <div key={item.id} className="p-4 border-b border-slate-100 flex items-center gap-4 active:bg-slate-50 transition-colors" onClick={() => handleZoomClick(item)}>
+              <div className="flex flex-col items-center min-w-[60px] text-center">
+                <span className="text-[10px] font-black text-slate-300 leading-none">{item.date.split('-')[0]}</span>
+                <span className="text-[14px] font-black text-slate-400 leading-none mt-1">{item.date.split('-').slice(1).join('-')}</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <span className="text-sm font-black text-slate-900 truncate block mb-1">{item.source}</span>
+                <Badge className={cn("border-none font-black text-[7px] uppercase px-1.5 py-0.5", badgeClass || "bg-slate-100 text-slate-600")}>{badgeLabel || (item.category || 'Loan').toUpperCase()}</Badge>
+              </div>
+              <div className="text-right shrink-0">
+                <p className={cn("text-base font-black", item.type === 'income' ? "text-emerald-600" : "text-slate-900")}>₹{item.amount.toLocaleString()}</p>
+              </div>
+            </div>
+          )) : <div className="py-20 text-center opacity-20 font-black uppercase text-xs">{emptyMsg}</div>}
+        </ScrollArea>
+      </div>
+      <div className="hidden md:block flex-1 overflow-hidden">
+        <ScrollArea className="h-full">
+          <Table>
+            <TableHeader className="bg-slate-50/50 sticky top-0 z-10 backdrop-blur"><TableRow className="border-none"><TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-slate-400">Date</TableHead><TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-slate-400">Origin</TableHead><TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-slate-400">Value</TableHead></TableRow></TableHeader>
+            <TableBody>
+              {data.map(item => (
+                <TableRow key={item.id} className="group hover:bg-slate-50 transition-colors border-b border-slate-100 cursor-zoom-in" onClick={() => handleZoomClick(item)}>
+                  <TableCell className="pl-10 py-10"><span className="text-sm font-black text-slate-300">{item.date}</span></TableCell>
+                  <TableCell><div className="flex flex-col"><span className="text-[16px] font-black text-slate-900">{item.source}</span><Badge className={cn("w-fit mt-1 border-none font-black text-[8px] uppercase tracking-wider px-2 py-0.5", badgeClass || "bg-slate-100 text-slate-600")}>{badgeLabel || (item.category || 'Loan').toUpperCase()}</Badge></div></TableCell>
+                  <TableCell className="text-right pr-10"><div className="flex items-center justify-end gap-2"><span className="text-xl font-black text-slate-900 mr-4">₹{item.amount.toLocaleString()}</span><div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity"><Button variant="ghost" size="icon" className="h-8 w-8 text-blue-500" onClick={(e) => { e.stopPropagation(); handleEditClick(item); }}><Pencil className="h-4 w-4" /></Button></div></div></TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </ScrollArea>
+      </div>
+    </div>
   );
 
   return (
-    <div className="container mx-auto py-8 px-4 md:px-10 max-w-7xl animate-in fade-in duration-700">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
-        <PageHeader
-          title="Monthly Balance Sheet"
-          description="TEMPORAL STREAM AUDIT"
-          className="mb-0"
-        />
-        
-        <div className="flex flex-wrap items-center gap-4 bg-white p-2 rounded-2xl shadow-xl">
-           <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>
-             <DialogTrigger asChild>
-               <Button onClick={() => { resetForm(); setIsEntryDialogOpen(true); }} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-emerald-600 hover:bg-emerald-700 text-white gap-2">
-                 <PlusCircle className="h-5 w-5 text-accent" />
-                 Ledger Entry
-               </Button>
-             </DialogTrigger>
-             <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
-               <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
-                 <div className="flex items-center gap-3 mb-2">
-                   <div className="p-2.5 rounded-xl bg-primary/20 text-primary">
-                     <Plus className="h-5 w-5" />
-                   </div>
-                   <DialogTitle className="text-xl font-black tracking-tight uppercase">Ledger Entry</DialogTitle>
-                 </div>
-                 <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Update your temporal financial stream</DialogDescription>
-               </DialogHeader>
-               <div className="p-8 space-y-6">
-                 <div className="grid grid-cols-2 gap-4">
-                   <div className="space-y-2">
-                     <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Transaction Date</Label>
-                     <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="h-14 rounded-2xl bg-neutral-50 border-none font-bold" />
-                   </div>
-                   <div className="space-y-2">
-                     <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Stream Type</Label>
-                     <Select value={type} onValueChange={(v: any) => setType(v)}>
-                       <SelectTrigger className="h-14 rounded-2xl bg-neutral-50 border-none font-bold"><SelectValue /></SelectTrigger>
-                       <SelectContent className="rounded-2xl shadow-2xl border-none">
-                         <SelectItem value="income" className="font-bold">Inflow (+)</SelectItem>
-                         <SelectItem value="expense" className="font-bold">Outflow (-)</SelectItem>
-                       </SelectContent>
-                     </Select>
-                   </div>
-                 </div>
-
-                 <div className="space-y-2">
-                   <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Origin / Entity</Label>
-                   <Input 
-                     value={source} 
-                     onChange={(e) => setSource(e.target.value)} 
-                     placeholder="e.g. Salary, HDFC Bank, Personal" 
-                     className="h-14 rounded-2xl bg-neutral-50 border-none font-bold px-6"
-                   />
-                 </div>
-
-                 <div className="space-y-2">
-                   <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Value Payload (₹)</Label>
-                   <Input 
-                     type="number" 
-                     value={amount} 
-                     onChange={(e) => setAmount(e.target.value)} 
-                     placeholder="0.00"
-                     className="h-16 rounded-2xl bg-neutral-50 border-none font-black text-2xl px-6"
-                   />
-                 </div>
-
-                 {type === 'expense' && (
-                   <div className="space-y-2">
-                     <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Fiscal Category</Label>
-                     <Select value={category} onValueChange={(v: any) => setCategory(v)}>
-                       <SelectTrigger className="h-14 rounded-2xl bg-neutral-50 border-none font-bold"><SelectValue /></SelectTrigger>
-                       <SelectContent className="rounded-2xl shadow-2xl border-none">
-                         <SelectItem value="loan" className="font-bold">Institutional Loan</SelectItem>
-                         <SelectItem value="card" className="font-bold">Credit Card</SelectItem>
-                         <SelectItem value="private" className="font-bold">Unsecured Debt</SelectItem>
-                         <SelectItem value="household" className="font-bold">Household Spends</SelectItem>
-                       </SelectContent>
-                     </Select>
-                   </div>
-                 )}
-
-                 <Button onClick={handleAdd} className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase tracking-[0.2em] shadow-2xl transition-all active:scale-95">
-                   Commit Payload
-                 </Button>
-               </div>
-             </DialogContent>
-           </Dialog>
-
-           <div className="h-10 w-px bg-slate-100 hidden md:block" />
-
-           <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-              <SelectTrigger className="w-[140px] border-none font-bold bg-slate-50 rounded-xl">
-                <SelectValue placeholder="Month" />
-              </SelectTrigger>
-              <SelectContent>
-                {Array.from({length: 12}, (_, i) => (
-                  <SelectItem key={i} value={format(new Date(2024, i, 1), 'MM')}>
-                    {format(new Date(2024, i, 1), 'MMMM')}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-           </Select>
-           <Select value={selectedYear} onValueChange={setSelectedYear}>
-              <SelectTrigger className="w-[100px] border-none font-bold bg-slate-50 rounded-xl">
-                <SelectValue placeholder="Year" />
-              </SelectTrigger>
-              <SelectContent>
-                {['2024', '2025', '2026'].map(y => <SelectItem key={y} value={y}>{y}</SelectItem>)}
-              </SelectContent>
-           </Select>
+    <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-6 md:mb-8 shrink-0">
+        <PageHeader title="Monthly Balance Sheet" description="TEMPORAL STREAM AUDIT" className="mb-0" />
+        <div className="flex items-center gap-2 md:gap-4 overflow-x-auto pb-2 md:pb-0 no-scrollbar">
+          <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>
+            <DialogTrigger asChild><Button onClick={() => { resetForm(); setIsEntryDialogOpen(true); }} className="h-10 md:h-12 px-4 md:px-6 rounded-xl font-black uppercase tracking-widest bg-emerald-600 text-white gap-2 text-[10px] md:text-sm"><PlusCircle className="h-4 w-4" /> Ledger Entry</Button></DialogTrigger>
+            <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
+              <DialogHeader className="bg-neutral-900 p-8 text-left text-white"><div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-primary/20 text-primary"><Plus className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase">Ledger Entry</DialogTitle></div></DialogHeader>
+              <div className="p-8 space-y-6"><div className="grid grid-cols-2 gap-4"><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="h-14 rounded-2xl bg-neutral-50" /><Select value={type} onValueChange={(v: any) => setType(v)}><SelectTrigger className="h-14 rounded-2xl bg-neutral-50 font-bold"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="income">Inflow (+)</SelectItem><SelectItem value="expense">Outflow (-)</SelectItem></SelectContent></Select></div><Input value={source} onChange={(e) => setSource(e.target.value)} placeholder="Origin" className="h-14 rounded-2xl bg-neutral-50 px-6 font-bold" /><Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" className="h-16 rounded-2xl bg-neutral-50 px-6 font-black text-2xl" /><Button onClick={handleAdd} className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase">Commit Payload</Button></div>
+            </DialogContent>
+          </Dialog>
+          <div className="flex gap-2 shrink-0"><Select value={selectedMonth} onValueChange={setSelectedMonth}><SelectTrigger className="w-[100px] md:w-[140px] border-none font-bold bg-white rounded-xl"><SelectValue /></SelectTrigger><SelectContent>{Array.from({length: 12}, (_, i) => (<SelectItem key={i} value={format(new Date(2024, i, 1), 'MM')}>{format(new Date(2024, i, 1), 'MMMM')}</SelectItem>))}</SelectContent></Select></div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-        <SummaryCard 
-          title="Net Savings" 
-          value={netBalance} 
-          icon={ShieldCheck} 
-          color="bg-primary" 
-          subtitle="Remaining Liquidity"
-        />
-        <SummaryCard 
-          title="Total Inflow" 
-          value={totalInflow} 
-          icon={ArrowUpCircle} 
-          color="bg-[#059669]" 
-          subtitle="Cumulative Inbound"
-        />
-        <SummaryCard 
-          title="Total Outflow" 
-          value={totalOutflow} 
-          icon={ArrowDownCircle} 
-          color="bg-[#e11d48]" 
-          subtitle="All Liability Spends"
-        />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-12 shrink-0">
+        <SummaryCard title="Net Savings" value={netBalance} icon={ShieldCheck} color="bg-primary" subtitle="Remaining Liquidity" />
+        <SummaryCard title="Total Inflow" value={totalInflow} icon={ArrowUpCircle} color="bg-[#059669]" subtitle="Cumulative Inbound" />
+        <SummaryCard title="Total Outflow" value={totalOutflow} icon={ArrowDownCircle} color="bg-[#e11d48]" subtitle="All Liability Spends" />
       </div>
 
-      <div className="flex flex-col md:flex-row gap-4 mb-8">
+      <div className="flex flex-col md:flex-row gap-4 mb-6 shrink-0">
         <div className="relative flex-1">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <Input 
-            placeholder="Easy lookup: search origin..." 
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="h-12 pl-12 rounded-xl bg-white border-none shadow-sm font-bold text-sm"
-          />
+          <Input placeholder="lookup origin..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="h-12 pl-12 rounded-xl bg-white border-none shadow-sm font-bold text-sm" />
         </div>
-        <Tabs defaultValue="income" className="w-auto" onValueChange={setActiveTab}>
-          <TabsList className="p-1 bg-white rounded-xl flex items-center h-12 shadow-sm border border-slate-100 gap-1">
-            <TabsTrigger value="income" className="rounded-lg font-black text-[8px] tracking-widest uppercase data-[state=active]:bg-emerald-600 data-[state=active]:text-white">Inflow</TabsTrigger>
-            <TabsTrigger value="institutional" className="rounded-lg font-black text-[8px] tracking-widest uppercase data-[state=active]:bg-primary data-[state=active]:text-white">Inst.</TabsTrigger>
-            <TabsTrigger value="cards" className="rounded-lg font-black text-[8px] tracking-widest uppercase data-[state=active]:bg-[#ea580c] data-[state=active]:text-white">Card</TabsTrigger>
-            <TabsTrigger value="private" className="rounded-lg font-black text-[8px] tracking-widest uppercase data-[state=active]:bg-slate-700 data-[state=active]:text-white">Priv.</TabsTrigger>
-            <TabsTrigger value="household" className="rounded-lg font-black text-[8px] tracking-widest uppercase data-[state=active]:bg-rose-600 data-[state=active]:text-white">House.</TabsTrigger>
+        <Tabs defaultValue="income" className="w-fit self-center md:self-auto" onValueChange={setActiveTab}>
+          <TabsList className="bg-white rounded-xl flex items-center h-12 shadow-sm border border-slate-100 p-1 gap-1">
+            <TabsTrigger value="income" className="rounded-lg font-black text-[8px] tracking-widest uppercase px-4 data-[state=active]:bg-emerald-600 data-[state=active]:text-white">Inflow</TabsTrigger>
+            <TabsTrigger value="institutional" className="rounded-lg font-black text-[8px] tracking-widest uppercase px-4 data-[state=active]:bg-primary data-[state=active]:text-white">Inst.</TabsTrigger>
+            <TabsTrigger value="cards" className="rounded-lg font-black text-[8px] tracking-widest uppercase px-4 data-[state=active]:bg-[#ea580c] data-[state=active]:text-white">Card</TabsTrigger>
+            <TabsTrigger value="household" className="rounded-lg font-black text-[8px] tracking-widest uppercase px-4 data-[state=active]:bg-rose-600 data-[state=active]:text-white">House.</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
 
-      <div className="mt-4">
-        <Tabs value={activeTab}>
-          <TabsContent value="income" className="m-0">
-            <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
-              <CardHeader className="bg-[#059669] text-white p-10 py-12">
-                <div className="flex justify-between items-center">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-3">
-                      <ArrowUpCircle className="h-6 w-6" />
-                      <CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Monthly Balance Sheet</CardTitle>
-                    </div>
-                    <CardDescription className="text-emerald-100/60 text-xs font-black uppercase tracking-[0.2em]">Temporal Stream Audit</CardDescription>
-                  </div>
-                  <p className="text-4xl font-black tracking-tighter">₹{totalInflow.toLocaleString()}</p>
-                </div>
-              </CardHeader>
-              <LedgerTable data={filteredIncomes} emptyMsg="No inflow transactions logged" badgeLabel="OPERATIONAL INFLOW" badgeClass="bg-[#ecfdf5] text-[#059669]" />
-            </Card>
+      <Card className="border-none shadow-2xl rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden bg-white flex-1 min-h-0 flex flex-col">
+        <Tabs value={activeTab} className="flex-1 flex flex-col min-h-0">
+          <TabsContent value="income" className="m-0 flex-1 flex flex-col min-h-0">
+            <CardHeader className="bg-[#059669] text-white p-6 md:p-10 shrink-0"><div className="flex justify-between items-center"><div className="space-y-1"><div className="flex items-center gap-3"><ArrowUpCircle className="h-6 w-6" /><CardTitle className="text-xl md:text-2xl font-black tracking-tight leading-none uppercase">Monthly Inflow</CardTitle></div></div><p className="text-3xl md:text-4xl font-black tracking-tighter">₹{totalInflow.toLocaleString()}</p></div></CardHeader>
+            <LedgerTable data={filteredIncomes} emptyMsg="No inflow logged" badgeLabel="OPERATIONAL INFLOW" badgeClass="bg-[#ecfdf5] text-[#059669]" />
           </TabsContent>
-
-          <TabsContent value="institutional" className="m-0">
-            <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
-              <CardHeader className="bg-primary text-white p-10 py-12">
-                <div className="flex justify-between items-center">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-3">
-                      <Landmark className="h-6 w-6" />
-                      <CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Institutional EMI</CardTitle>
-                    </div>
-                    <CardDescription className="text-blue-100/60 text-xs font-black uppercase tracking-[0.2em]">Temporal Stream Audit</CardDescription>
-                  </div>
-                  <p className="text-4xl font-black tracking-tighter">₹{filteredInstitutional.reduce((s, e) => s + Number(e.amount || 0), 0).toLocaleString()}</p>
-                </div>
-              </CardHeader>
-              <LedgerTable data={filteredInstitutional} emptyMsg="No institutional records discovered" badgeClass="bg-blue-50 text-primary" />
-            </Card>
+          <TabsContent value="institutional" className="m-0 flex-1 flex flex-col min-h-0">
+            <CardHeader className="bg-primary text-white p-6 md:p-10 shrink-0"><div className="flex justify-between items-center"><div className="space-y-1"><div className="flex items-center gap-3"><Landmark className="h-6 w-6" /><CardTitle className="text-xl md:text-2xl font-black tracking-tight leading-none uppercase">Institutional EMI</CardTitle></div></div><p className="text-3xl md:text-4xl font-black tracking-tighter">₹{filteredInstitutional.reduce((s, e) => s + Number(e.amount || 0), 0).toLocaleString()}</p></div></CardHeader>
+            <LedgerTable data={filteredInstitutional} emptyMsg="No institutional records" badgeClass="bg-blue-50 text-primary" />
           </TabsContent>
-
-          <TabsContent value="cards" className="m-0">
-            <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
-              <CardHeader className="bg-[#ea580c] text-white p-10 py-12">
-                <div className="flex justify-between items-center">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-3">
-                      <CreditCard className="h-6 w-6" />
-                      <CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Revolving Lines</CardTitle>
-                    </div>
-                    <CardDescription className="text-orange-100/60 text-xs font-black uppercase tracking-[0.2em]">Temporal Stream Audit</CardDescription>
-                  </div>
-                  <p className="text-4xl font-black tracking-tighter">₹{filteredCards.reduce((s, e) => s + Number(e.amount || 0), 0).toLocaleString()}</p>
-                </div>
-              </CardHeader>
-              <LedgerTable data={filteredCards} emptyMsg="No card transactions discovered" badgeLabel="CARD" badgeClass="bg-pink-50 text-pink-600" />
-            </Card>
+          <TabsContent value="cards" className="m-0 flex-1 flex flex-col min-h-0">
+            <CardHeader className="bg-[#ea580c] text-white p-6 md:p-10 shrink-0"><div className="flex justify-between items-center"><div className="space-y-1"><div className="flex items-center gap-3"><CreditCard className="h-6 w-6" /><CardTitle className="text-xl md:text-2xl font-black tracking-tight leading-none uppercase">Revolving Lines</CardTitle></div></div><p className="text-3xl md:text-4xl font-black tracking-tighter">₹{filteredCards.reduce((s, e) => s + Number(e.amount || 0), 0).toLocaleString()}</p></div></CardHeader>
+            <LedgerTable data={filteredCards} emptyMsg="No card records" badgeLabel="CARD" badgeClass="bg-pink-50 text-pink-600" />
           </TabsContent>
-
-          <TabsContent value="private" className="m-0">
-            <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
-              <CardHeader className="bg-[#334155] text-white p-10 py-12">
-                <div className="flex justify-between items-center">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-3">
-                      <ShieldCheck className="h-6 w-6" />
-                      <CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Unsecured Debt</CardTitle>
-                    </div>
-                    <CardDescription className="text-slate-100/60 text-xs font-black uppercase tracking-[0.2em]">Temporal Stream Audit</CardDescription>
-                  </div>
-                  <p className="text-4xl font-black tracking-tighter">₹{filteredPrivate.reduce((s, e) => s + Number(e.amount || 0), 0).toLocaleString()}</p>
-                </div>
-              </CardHeader>
-              <LedgerTable data={filteredPrivate} emptyMsg="No private debt entries discovered" badgeLabel="PRIVATE" badgeClass="bg-rose-50 text-rose-600" />
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="household" className="m-0">
-            <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
-              <CardHeader className="bg-[#e11d48] text-white p-10 py-12">
-                <div className="flex justify-between items-center">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-3">
-                      <ShoppingBag className="h-6 w-6" />
-                      <CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Household Audit</CardTitle>
-                    </div>
-                    <CardDescription className="text-rose-100/60 text-xs font-black uppercase tracking-[0.2em]">Temporal Stream Audit</CardDescription>
-                  </div>
-                  <p className="text-4xl font-black tracking-tighter">₹{filteredHousehold.reduce((s, e) => s + Number(e.amount || 0), 0).toLocaleString()}</p>
-                </div>
-              </CardHeader>
-              <LedgerTable data={filteredHousehold} emptyMsg="No household spends recorded" badgeLabel="HOUSEHOLD" badgeClass="bg-rose-50 text-rose-600" />
-            </Card>
+          <TabsContent value="household" className="m-0 flex-1 flex flex-col min-h-0">
+            <CardHeader className="bg-[#e11d48] text-white p-6 md:p-10 shrink-0"><div className="flex justify-between items-center"><div className="space-y-1"><div className="flex items-center gap-3"><ShoppingBag className="h-6 w-6" /><CardTitle className="text-xl md:text-2xl font-black tracking-tight leading-none uppercase">Household Audit</CardTitle></div></div><p className="text-3xl md:text-4xl font-black tracking-tighter">₹{filteredHousehold.reduce((s, e) => s + Number(e.amount || 0), 0).toLocaleString()}</p></div></CardHeader>
+            <LedgerTable data={filteredHousehold} emptyMsg="No household spends" badgeLabel="HOUSEHOLD" badgeClass="bg-rose-50 text-rose-600" />
           </TabsContent>
         </Tabs>
-      </div>
-
-      {/* --- ZOOM DETAIL DIALOG (31-1 FOCUS) --- */}
-      <Dialog open={isZoomViewOpen} onOpenChange={setIsZoomViewOpen}>
-        <DialogContent className="sm:max-w-3xl rounded-[3rem] p-0 overflow-hidden border-none shadow-2xl bg-neutral-50">
-          {viewingItem && (
-            <div className="flex flex-col h-full">
-              <DialogHeader className={cn(
-                "p-12 text-white relative",
-                viewingItem.type === 'income' ? "bg-emerald-600" : "bg-neutral-900"
-              )}>
-                <div className="absolute top-0 right-0 p-12 opacity-10">
-                  <Maximize2 className="h-48 w-48 rotate-12" />
-                </div>
-                <div className="relative z-10 space-y-6">
-                  <div className="flex items-center gap-4">
-                    <Badge className="bg-white/20 text-white border-none px-4 py-1.5 font-black text-[10px] uppercase tracking-[0.2em]">Temporal Node Insight</Badge>
-                    <span className="text-white/40 text-[10px] font-black uppercase tracking-widest">STAMP: {viewingItem.date}</span>
-                  </div>
-                  <div>
-                    <h2 className="text-5xl font-black tracking-tighter uppercase leading-none">{viewingItem.source}</h2>
-                    <p className="text-white/60 text-xs font-bold uppercase tracking-[0.3em] mt-2">Verified Ledger Event</p>
-                  </div>
-                </div>
-              </DialogHeader>
-
-              <div className="p-12 space-y-10">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <Card className="border-none shadow-xl rounded-[2.5rem] bg-white p-8 flex items-center gap-6">
-                    <div className={cn(
-                      "h-16 w-16 rounded-2xl flex items-center justify-center text-white shadow-lg",
-                      viewingItem.type === 'income' ? "bg-emerald-500" : "bg-rose-500"
-                    )}>
-                      {viewingItem.type === 'income' ? <ArrowUpCircle className="h-8 w-8" /> : <ArrowDownCircle className="h-8 w-8" />}
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 mb-1">Fiscal Impact</p>
-                      <p className="text-4xl font-black tracking-tighter text-neutral-900">₹{viewingItem.amount.toLocaleString()}</p>
-                    </div>
-                  </Card>
-
-                  <Card className="border-none shadow-xl rounded-[2.5rem] bg-white p-8 relative overflow-hidden">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 mb-1">Cycle Position</p>
-                        <h3 className="text-lg font-black tracking-tight text-neutral-900">Day {viewingItem.date.split('-')[2]} of 31</h3>
-                      </div>
-                      <Clock className="h-6 w-6 text-primary opacity-20" />
-                    </div>
-                    <div className="mt-6 flex gap-1 h-2">
-                      {Array.from({ length: 31 }, (_, i) => (
-                        <div 
-                          key={i} 
-                          className={cn(
-                            "flex-1 rounded-full",
-                            (i + 1) === parseInt(viewingItem.date.split('-')[2]) ? "bg-primary" : "bg-slate-100"
-                          )} 
-                        />
-                      ))}
-                    </div>
-                  </Card>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {[
-                    { label: "Category", val: (viewingItem.category || viewingItem.type).toUpperCase(), icon: History },
-                    { label: "Temporal Lock", val: viewingItem.date, icon: Clock },
-                    { label: "Status", val: "CONFIRMED", icon: ShieldCheck },
-                  ].map((stat, i) => (
-                    <div key={i} className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex items-center gap-4">
-                      <div className="h-10 w-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400">
-                        <stat.icon className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <p className="text-[8px] font-black uppercase tracking-widest text-slate-400 leading-none mb-1">{stat.label}</p>
-                        <p className="text-sm font-black text-slate-900">{stat.val}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="p-12 pt-0 mt-auto flex justify-end gap-4">
-                <Button variant="outline" onClick={() => setIsZoomViewOpen(false)} className="h-14 px-8 rounded-2xl font-black uppercase text-xs tracking-widest">Close Audit</Button>
-                <Button onClick={() => { setIsZoomViewOpen(false); handleEditClick(viewingItem); }} className="h-14 px-10 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase text-xs tracking-widest gap-2">
-                  <Pencil className="h-4 w-4" /> Adjust Record
-                </Button>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* --- EDIT DIALOG --- */}
-      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
-          <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2.5 rounded-xl bg-blue-500/20 text-blue-400">
-                <Pencil className="h-5 w-5" />
-              </div>
-              <DialogTitle className="text-xl font-black tracking-tight uppercase">Update Audit Record</DialogTitle>
-            </div>
-            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Adjust temporal fiscal parameters</DialogDescription>
-          </DialogHeader>
-          <div className="p-8 space-y-6">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Transaction Date</Label>
-                <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="h-14 rounded-2xl bg-neutral-50 border-none font-bold" />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Stream Type</Label>
-                <Select value={type} onValueChange={(v: any) => setType(v)}>
-                  <SelectTrigger className="h-14 rounded-2xl bg-neutral-50 border-none font-bold"><SelectValue /></SelectTrigger>
-                  <SelectContent className="rounded-2xl shadow-2xl border-none">
-                    <SelectItem value="income" className="font-bold">Inflow (+)</SelectItem>
-                    <SelectItem value="expense" className="font-bold">Outflow (-)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Origin / Entity</Label>
-              <Input 
-                value={source} 
-                onChange={(e) => setSource(e.target.value)} 
-                placeholder="e.g. Salary, HDFC Bank, Personal" 
-                className="h-14 rounded-2xl bg-neutral-50 border-none font-bold px-6"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Value Payload (₹)</Label>
-              <Input 
-                type="number" 
-                value={amount} 
-                onChange={(e) => setAmount(e.target.value)} 
-                placeholder="0.00"
-                className="h-16 rounded-2xl bg-neutral-50 border-none font-black text-2xl px-6 text-blue-600"
-              />
-            </div>
-
-            {type === 'expense' && (
-              <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Fiscal Category</Label>
-                <Select value={category} onValueChange={(v: any) => setCategory(v)}>
-                  <SelectTrigger className="h-14 rounded-2xl bg-neutral-50 border-none font-bold"><SelectValue /></SelectTrigger>
-                  <SelectContent className="rounded-2xl shadow-2xl border-none">
-                    <SelectItem value="loan" className="font-bold">Institutional Loan</SelectItem>
-                    <SelectItem value="card" className="font-bold">Credit Card</SelectItem>
-                    <SelectItem value="private" className="font-bold">Unsecured Debt</SelectItem>
-                    <SelectItem value="household" className="font-bold">Household Spends</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-
-            <Button onClick={handleUpdate} className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase tracking-[0.2em] shadow-2xl transition-all active:scale-95">
-              <Save className="mr-2 h-5 w-5" /> Save Ledger Changes
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      </Card>
     </div>
   );
 }
