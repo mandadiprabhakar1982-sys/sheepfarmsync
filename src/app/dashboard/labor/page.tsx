@@ -15,9 +15,11 @@ import {
   ShieldCheck,
   PlusCircle,
   ChevronDown,
-  HandCoins
+  HandCoins,
+  CheckCircle2,
+  AlertCircle
 } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, isToday, isYesterday, parseISO } from 'date-fns';
 
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
@@ -111,6 +113,16 @@ export default function LaborPage() {
     return [...filtered].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [laborCosts, searchTerm]);
 
+  // Grouping for Mobile View
+  const groupedLaborCosts = useMemo(() => {
+    const groups: { [key: string]: LaborCost[] } = {};
+    sortedLaborCosts.forEach(cost => {
+      if (!groups[cost.date]) groups[cost.date] = [];
+      groups[cost.date].push(cost);
+    });
+    return Object.entries(groups).map(([date, items]) => ({ date, items }));
+  }, [sortedLaborCosts]);
+
   const totalPendingLiability = useMemo(() => {
     return (laborCosts || []).reduce((s, c) => s + (c.pendingAmount || 0), 0);
   }, [laborCosts]);
@@ -138,6 +150,13 @@ export default function LaborPage() {
     setIsEditDialogOpen(true);
   };
 
+  const formatGroupDate = (dateStr: string) => {
+    const d = parseISO(dateStr);
+    if (isToday(d)) return `TODAY - ${dateStr}`;
+    if (isYesterday(d)) return `YESTERDAY - ${dateStr}`;
+    return dateStr;
+  };
+
   if (isLoading) {
     return (
       <div className="flex h-full w-full items-center justify-center">
@@ -150,55 +169,67 @@ export default function LaborPage() {
   }
 
   return (
-    <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col">
+    <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col relative">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-6 md:mb-8 shrink-0">
-        <PageHeader title="Labor Management" description="OPERATIONAL STAFF & DISBURSEMENTS" className="mb-0" />
+        <PageHeader title="Labor Management" description="OPERATIONAL STAFF & DISBURSEMENTS" className="mb-0 hidden md:block" />
 
-        <div className="flex items-center gap-2 md:gap-4 overflow-x-auto pb-2 md:pb-0 no-scrollbar">
-          <DropdownMenu modal={false}>
-            <DropdownMenuTrigger asChild>
-              <Button className="h-10 md:h-12 px-4 md:px-6 rounded-xl font-black uppercase tracking-widest bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-xl border-none text-[10px] md:text-sm">
-                <Users className="h-4 w-4 md:h-5 md:w-5 text-accent" />
-                Record Labor
-                <ChevronDown className="h-3 w-3 md:h-4 md:w-4 opacity-40 ml-1" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-72 rounded-2xl shadow-2xl p-2 border-none mt-2">
-              <DropdownMenuLabel className="p-4 bg-neutral-50 rounded-xl mb-2">
-                <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">Staff Audit Summary</p>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center"><span className="text-[10px] font-bold text-slate-600">Net Staff Spend</span><span className="text-xs font-black text-emerald-600">₹{totalLaborCost.toLocaleString()}</span></div>
-                  <div className="flex justify-between items-center"><span className="text-[10px] font-bold text-slate-600">Pending Liability</span><span className="text-xs font-black text-rose-600">₹{totalPendingLiability.toLocaleString()}</span></div>
+        <div className="flex items-center gap-2 md:gap-4 overflow-x-auto pb-2 md:pb-0 no-scrollbar md:w-auto w-full">
+          <div className="md:hidden flex items-center justify-between w-full bg-emerald-600 p-4 rounded-2xl text-white shadow-xl mb-2">
+            <h2 className="text-lg font-black tracking-tight uppercase">Staff Ledger</h2>
+            <p className="text-xl font-black">₹{totalLaborCost.toLocaleString()}</p>
+          </div>
+
+          <div className="hidden md:flex items-center gap-4">
+            <DropdownMenu modal={false}>
+              <DropdownMenuTrigger asChild>
+                <Button className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-xl border-none">
+                  <Users className="h-5 w-5 text-accent" />
+                  Record Labor
+                  <ChevronDown className="h-4 w-4 opacity-40 ml-1" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-72 rounded-2xl shadow-2xl p-2 border-none mt-2">
+                <DropdownMenuLabel className="p-4 bg-neutral-50 rounded-xl mb-2">
+                  <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">Staff Audit Summary</p>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center"><span className="text-[10px] font-bold text-slate-600">Net Staff Spend</span><span className="text-xs font-black text-emerald-600">₹{totalLaborCost.toLocaleString()}</span></div>
+                    <div className="flex justify-between items-center"><span className="text-[10px] font-bold text-slate-600">Pending Liability</span><span className="text-xs font-black text-rose-600">₹{totalPendingLiability.toLocaleString()}</span></div>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator className="bg-neutral-100" />
+                <div className="p-1">
+                  <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setTimeout(() => setIsEntryDialogOpen(true), 100); }} className="rounded-lg h-12 gap-3 cursor-pointer focus:bg-emerald-50 focus:text-emerald-700">
+                    <HandCoins className="h-4 w-4" />
+                    <span className="text-[11px] font-black uppercase tracking-wider">Log Disbursement</span>
+                  </DropdownMenuItem>
                 </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator className="bg-neutral-100" />
-              <div className="p-1">
-                <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setTimeout(() => setIsEntryDialogOpen(true), 100); }} className="rounded-lg h-12 gap-3 cursor-pointer focus:bg-emerald-50 focus:text-emerald-700">
-                  <HandCoins className="h-4 w-4" />
-                  <span className="text-[11px] font-black uppercase tracking-wider">Log Disbursement</span>
-                </DropdownMenuItem>
-              </div>
-            </DropdownMenuContent>
-          </DropdownMenu>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
-          <div className="px-4 md:px-6 py-2 md:py-3 bg-neutral-900 rounded-xl md:rounded-2xl text-white flex items-center gap-3 md:gap-4 shadow-xl shrink-0">
-            <ShieldCheck className="h-4 w-4 md:h-5 md:w-5 text-emerald-400" />
-            <div>
-              <p className="text-[7px] md:text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Net Staff Spend</p>
-              <p className="text-sm md:text-xl font-black tracking-tight text-white">₹{totalLaborCost.toLocaleString()}</p>
+            <div className="px-6 py-3 bg-neutral-900 rounded-2xl text-white flex items-center gap-4 shadow-xl shrink-0">
+              <ShieldCheck className="h-5 w-5 text-emerald-400" />
+              <div>
+                <p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Net Staff Spend</p>
+                <p className="text-xl font-black tracking-tight text-white">₹{totalLaborCost.toLocaleString()}</p>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       <div className="space-y-6 flex-1 min-h-0 flex flex-col">
-        <div className="relative shrink-0">
+        <div className="relative shrink-0 md:block hidden">
           <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
           <Input placeholder="Filter by Employee Name..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="h-14 pl-16 rounded-full bg-white border-none text-slate-900 font-bold shadow-sm" />
         </div>
 
+        <div className="relative shrink-0 md:hidden block mb-2 px-1">
+          <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
+          <Input placeholder="Filter by Employee Name..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="h-12 pl-12 rounded-xl bg-white border-none text-slate-900 font-bold shadow-sm" />
+        </div>
+
         <Card className="border-none shadow-2xl rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden bg-white flex-1 min-h-0 flex flex-col">
-          <CardHeader className="bg-emerald-600 text-white p-6 md:p-10 shrink-0">
+          <CardHeader className="bg-emerald-600 text-white p-6 md:p-10 shrink-0 md:block hidden">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 md:gap-0">
               <div className="space-y-1">
                 <div className="flex items-center gap-3"><Users className="h-6 w-6" /><CardTitle className="text-xl md:text-2xl font-black tracking-tight leading-none uppercase">Staff Ledger</CardTitle></div>
@@ -208,30 +239,44 @@ export default function LaborPage() {
             </div>
           </CardHeader>
 
+          {/* MOBILE VIEW: GROUPED LIST */}
           <div className="block md:hidden flex-1 overflow-hidden">
             <ScrollArea className="h-full">
-              {sortedLaborCosts.length > 0 ? sortedLaborCosts.map((cost) => (
-                <div key={cost.id} className="p-4 border-b border-slate-100 flex items-center gap-4 active:bg-slate-50 transition-colors" onClick={() => handleEditClick(cost)}>
-                  <div className="flex flex-col items-center min-w-[60px] text-center">
-                    <span className="text-[10px] font-black text-slate-300 leading-none">{cost.date.split('-')[0]}</span>
-                    <span className="text-[14px] font-black text-slate-400 leading-none mt-1">{cost.date.split('-').slice(1).join('-')}</span>
+              {groupedLaborCosts.length > 0 ? groupedLaborCosts.map((group) => (
+                <div key={group.date} className="mb-6">
+                  <div className="px-4 py-2 bg-neutral-50/80 border-y border-neutral-100">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{formatGroupDate(group.date)}</p>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-sm font-black text-slate-900 truncate">{cost.employeeName}</span>
-                      {cost.pendingAmount && cost.pendingAmount > 0 ? <Badge className="bg-rose-50 text-rose-600 border-none font-black text-[7px] uppercase px-1.5 py-0.5">DUE</Badge> : <Badge className="bg-emerald-50 text-emerald-600 border-none font-black text-[7px] uppercase px-1.5 py-0.5">OK</Badge>}
+                  {group.items.map((cost) => (
+                    <div key={cost.id} className="p-5 border-b border-slate-50 flex items-center gap-4 active:bg-slate-50 transition-colors" onClick={() => handleEditClick(cost)}>
+                      <div className="flex-1 min-w-0">
+                        <span className="text-base font-black text-slate-900 truncate block mb-0.5">{cost.employeeName}</span>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                          Wages • {cost.numberOfLaborers} Staff {cost.wages > 0 && `• ₹${cost.wages}`}
+                        </p>
+                      </div>
+                      <div className="text-right shrink-0 flex flex-col items-end gap-1.5">
+                        <p className="text-lg font-black text-emerald-600">₹{cost.amountPaid?.toLocaleString() || '0'}</p>
+                        {cost.pendingAmount && cost.pendingAmount > 0 ? (
+                          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-50 text-rose-600 border border-rose-100">
+                            <AlertCircle className="h-2 w-2" />
+                            <span className="text-[8px] font-black uppercase tracking-widest">₹{cost.pendingAmount.toLocaleString()} DUE</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100">
+                            <CheckCircle2 className="h-2 w-2" />
+                            <span className="text-[8px] font-black uppercase tracking-widest">SETTLED</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">₹{cost.wages} /Head • {cost.numberOfLaborers} Staff</p>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <p className="text-base font-black text-slate-900">₹{cost.amountPaid?.toLocaleString() || '0'}</p>
-                    <p className="text-[8px] font-bold text-slate-300 uppercase">OF ₹{cost.totalLaborCosts.toLocaleString()}</p>
-                  </div>
+                  ))}
                 </div>
               )) : <div className="py-20 text-center opacity-20 font-black uppercase text-xs">No records discovered</div>}
             </ScrollArea>
           </div>
 
+          {/* DESKTOP VIEW: TABLE */}
           <div className="hidden md:block flex-1 overflow-hidden">
             <ScrollArea className="h-full">
               <Table>
@@ -265,6 +310,14 @@ export default function LaborPage() {
         </Card>
       </div>
 
+      {/* MOBILE FAB */}
+      <button 
+        onClick={() => { form.reset(); setIsEntryDialogOpen(true); }}
+        className="md:hidden fixed bottom-24 right-6 h-14 w-14 rounded-full bg-emerald-600 text-white shadow-2xl flex items-center justify-center active:scale-90 transition-all z-[110]"
+      >
+        <Plus className="h-7 w-7" />
+      </button>
+
       <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>
         <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
@@ -278,7 +331,7 @@ export default function LaborPage() {
                   <FormItem className="flex flex-col"><Label className="form-label-tactical text-slate-400">Transaction Date</Label><Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}><PopoverTrigger asChild><Button variant="outline" className="form-input-tactical w-full text-left justify-between">{field.value ? format(field.value, "MMM dd, yyyy") : "Pick date"}<CalendarIcon className="h-4 w-4 opacity-20" /></Button></PopoverTrigger><PopoverContent className="w-auto p-0 border-slate-200 bg-white shadow-2xl"><Calendar mode="single" selected={field.value} onSelect={(d) => { field.onChange(d); setIsDatePickerOpen(false); }} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="employeeName" render={({ field }) => (
-                  <FormItem><Label className="form-label-tactical">Employee Name</Label><FormControl><Input placeholder="e.g. Ram Singh" className="form-input-tactical" {...field} /></FormControl><FormMessage /></FormItem>
+                  <FormItem><Label className="form-label-tactical">Employee Name</Label><FormControl><Input placeholder="e.g. Samel" className="form-input-tactical" {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
                 <div className="grid grid-cols-2 gap-4">
                   <FormField control={form.control} name="numberOfLaborers" render={({ field }) => (<FormItem><Label className="form-label-tactical">Staff Count</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
