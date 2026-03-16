@@ -21,7 +21,8 @@ import {
   Calculator,
   Globe,
   Smartphone,
-  ShieldCheck
+  ShieldCheck,
+  Package
 } from 'lucide-react';
 
 import {
@@ -38,6 +39,7 @@ import {
 } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 import { useFarm } from '@/context/FarmContext';
+import { IconFarmCost } from '@/components/logo';
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -62,11 +64,13 @@ export function AppSidebar() {
       ]
     },
     {
-      label: "STAFF & CLINICAL",
+      label: "FARM COST AUDIT",
       links: [
-        { href: '/dashboard/labor', label: "Labor", icon: Users },
-        { href: '/dashboard/medicine', label: "Health", icon: Syringe },
-        { href: '/dashboard/feed', label: "Feed", icon: Wheat },
+        { href: '/dashboard/purchase', label: "Acquisitions", icon: Package },
+        { href: '/dashboard/feed', label: "Feed Inventory", icon: Wheat },
+        { href: '/dashboard/medicine', label: "Health & Pharma", icon: Syringe },
+        { href: '/dashboard/labor', label: "Staff Labor", icon: Users },
+        { href: '/dashboard/expenses', label: "Farm Overheads", icon: Receipt },
       ]
     },
     {
@@ -83,7 +87,6 @@ export function AppSidebar() {
         { href: '/dashboard/livestock', label: "Livestock Hub", icon: LayoutGrid },
         { href: '/dashboard/sales', label: "Trade Ledger", icon: ArrowRightLeft },
         { href: '/dashboard/mortality', label: "Loss Log", icon: Skull },
-        { href: '/dashboard/expenses', label: "Expenses", icon: Receipt },
       ]
     }
   ], []); 

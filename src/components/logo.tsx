@@ -110,6 +110,14 @@ export const IconExpenses = ({ className }: { className?: string }) => (
   </svg>
 );
 
+export const IconFarmCost = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    <path d="M20 20H80V85L70 75L60 85L50 75L40 85L30 75L20 85V20Z" stroke="currentColor" strokeWidth="5" strokeLinejoin="round" />
+    <circle cx="50" cy="45" r="15" stroke="currentColor" strokeWidth="5" />
+    <path d="M50 38V52M43 45H57" stroke="currentColor" strokeWidth="4" strokeLinecap="round" className="text-accent" />
+  </svg>
+);
+
 // --- COMPATIBILITY ALIASES ---
 export const IconInventory = IconFlock;
 export const IconMortality = ({ className }: { className?: string }) => (
