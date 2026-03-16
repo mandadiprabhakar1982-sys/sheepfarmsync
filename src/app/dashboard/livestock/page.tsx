@@ -167,7 +167,6 @@ export default function LivestockPage() {
         registrationDate: format(data.registrationDate, 'yyyy-MM-dd') 
       });
       
-      // RESET FORM THOROUGHLY
       assetForm.reset({
         tagId: '',
         registrationDate: new Date(),
@@ -240,8 +239,8 @@ export default function LivestockPage() {
         <div className="flex items-center gap-4">
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
-              <Button className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-neutral-900 hover:bg-neutral-800 text-white gap-2 shadow-xl border-none">
-                <LayoutGrid className="h-5 w-5 text-emerald-400" />
+              <Button className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-xl border-none">
+                <LayoutGrid className="h-5 w-5 text-accent" />
                 Record Asset
                 <ChevronDown className="h-4 w-4 opacity-40 ml-1" />
               </Button>
@@ -259,7 +258,6 @@ export default function LivestockPage() {
                 <DropdownMenuItem 
                   onSelect={(e) => {
                     e.preventDefault();
-                    // Clean delay to ensure dropdown closes before dialog opens to avoid focus conflicts
                     setTimeout(() => setIsEntryDialogOpen(true), 100);
                   }} 
                   className="rounded-lg h-12 gap-3 cursor-pointer focus:bg-emerald-50 focus:text-emerald-700"
@@ -384,7 +382,6 @@ export default function LivestockPage() {
         </Card>
       </div>
 
-      {/* --- IDENTITY ZOOM DIALOG --- */}
       <Dialog open={!!zoomedAsset} onOpenChange={(o) => !o && setZoomedAsset(null)}>
         <DialogContent className="sm:max-w-3xl rounded-[3rem] p-0 overflow-hidden border-none shadow-2xl bg-neutral-50">
           <DialogHeader className="sr-only">
@@ -436,7 +433,6 @@ export default function LivestockPage() {
         </DialogContent>
       </Dialog>
 
-      {/* --- ENROLL ASSET DIALOG --- */}
       <Dialog open={isEntryDialogOpen} onOpenChange={(o) => { if (!o) stopCamera(); setIsEntryDialogOpen(o); }}>
         <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
@@ -557,7 +553,6 @@ export default function LivestockPage() {
         </DialogContent>
       </Dialog>
 
-      {/* --- UPDATE AUDIT RECORD DIALOG --- */}
       <Dialog open={isEditAssetOpen} onOpenChange={(o) => { if (!o) stopCamera(); setIsEditAssetOpen(o); }}>
         <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white">

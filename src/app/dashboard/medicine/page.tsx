@@ -249,8 +249,8 @@ export default function MedicinePage() {
         <div className="flex items-center gap-4">
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
-              <Button className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-neutral-900 hover:bg-neutral-800 text-white gap-2 shadow-xl border-none">
-                <PlusCircle className="h-5 w-5 text-emerald-400" />
+              <Button className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-xl border-none">
+                <PlusCircle className="h-5 w-5 text-accent" />
                 Record Health
                 <ChevronDown className="h-4 w-4 opacity-40 ml-1" />
               </Button>
@@ -445,8 +445,6 @@ export default function MedicinePage() {
         </TabsContent>
       </Tabs>
 
-      {/* --- ENTRY DIALOGS --- */}
-
       <Dialog open={isClinicalDialogOpen} onOpenChange={setIsClinicalDialogOpen}>
         <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
@@ -540,7 +538,6 @@ export default function MedicinePage() {
         </DialogContent>
       </Dialog>
 
-      {/* --- EDIT TASK DIALOG --- */}
       <Dialog open={isEditTaskOpen} onOpenChange={setIsEditTaskOpen}>
         <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
@@ -556,7 +553,7 @@ export default function MedicinePage() {
                 <FormField control={editTaskForm.control} name="medicineName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Medicine</Label><FormControl><Input className="form-input-tactical bg-slate-50" {...field} /></FormControl><FormMessage /></FormItem>)} />
                 <FormField control={editTaskForm.control} name="cost" render={({ field }) => (<FormItem><Label className="form-label-tactical">Impact (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 font-black text-emerald-600" {...field} /></FormControl><FormMessage /></FormItem>)} />
               </div>
-              <Button type="submit" className="w-full h-16 rounded-2xl bg-emerald-600 text-white font-black text-sm uppercase tracking-widest shadow-xl"><Save className="mr-2 h-4 w-4" /> Save Adjustments</Button>
+              <Button type="submit" className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm uppercase tracking-widest shadow-xl"><Save className="mr-2 h-4 w-4" /> Save Adjustments</Button>
             </form></Form>
           </div>
         </DialogContent>
@@ -619,7 +616,6 @@ export default function MedicinePage() {
         </DialogContent>
       </Dialog>
 
-      {/* --- EDIT EXPENSE DIALOG --- */}
       <Dialog open={isEditExpenseOpen} onOpenChange={setIsEditExpenseOpen}>
         <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
@@ -636,7 +632,7 @@ export default function MedicinePage() {
                 <FormField control={editExpenseForm.control} name="totalAmountSpent" render={({ field }) => (<FormItem><Label className="form-label-tactical">Spend (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 font-black text-blue-600" {...field} /></FormControl><FormMessage /></FormItem>)} />
                 <FormField control={editExpenseForm.control} name="outstandingDues" render={({ field }) => (<FormItem><Label className="form-label-tactical">Dues (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-rose-50 border-rose-100 text-rose-600 font-black" {...field} /></FormControl><FormMessage /></FormItem>)} />
               </div>
-              <Button type="submit" className="w-full h-16 rounded-2xl bg-blue-600 text-white font-black text-sm uppercase tracking-widest shadow-xl"><Save className="mr-2 h-4 w-4" /> Save Adjustments</Button>
+              <Button type="submit" className="w-full h-16 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black text-sm uppercase tracking-widest shadow-xl"><Save className="mr-2 h-4 w-4" /> Save Adjustments</Button>
             </form></Form>
           </div>
         </DialogContent>

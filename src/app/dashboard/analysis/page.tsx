@@ -28,7 +28,6 @@ export default function AnalysisPage() {
     setError(null);
     setAnalysis(null);
     try {
-      // SANITIZATION: Only pass plain serializable fields to the Server Action
       const input = {
         livestockPurchases: (purchases || []).map(p => ({
           purchaseDate: p.purchaseDate,
@@ -114,7 +113,7 @@ export default function AnalysisPage() {
             <Button
               onClick={handleAnalysis}
               disabled={isLoading || isFarmDataLoading}
-              className="h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-black uppercase tracking-[0.2em] shadow-xl px-10 transition-all active:scale-95 border-none"
+              className="h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase tracking-[0.2em] shadow-xl px-10 transition-all active:scale-95 border-none"
             >
               {isLoading ? (
                 <>

@@ -164,12 +164,10 @@ export default function ExpensesPage() {
     setIsUploading(true);
     try {
       let finalUrl = data.imageUrl;
-      // Step 1: Upload to Storage if a new photo was captured
       if (storage && data.imageUrl?.startsWith('data:')) {
         finalUrl = await uploadToStorage(storage, data.imageUrl, 'expense_receipts');
       }
 
-      // Step 2: Save to Firestore
       const newExpense = { 
         ...data, 
         imageUrl: finalUrl,
@@ -225,8 +223,8 @@ export default function ExpensesPage() {
         <div className="flex items-center gap-4">
           <Dialog open={isEntryDialogOpen} onOpenChange={(o) => { if (!o) { stopCamera(); resetPhoto(); } setIsEntryDialogOpen(o); }}>
             <DialogTrigger asChild>
-              <Button onClick={() => { form.reset(); setIsEntryDialogOpen(true); }} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-neutral-900 hover:bg-neutral-800 text-white gap-2 shadow-xl">
-                <PlusCircle className="h-5 w-5 text-emerald-400" />
+              <Button onClick={() => { form.reset(); setIsEntryDialogOpen(true); }} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-xl">
+                <PlusCircle className="h-5 w-5 text-accent" />
                 Commit Expense
               </Button>
             </DialogTrigger>
@@ -310,7 +308,7 @@ export default function ExpensesPage() {
                       )} />
 
                       <FormField control={form.control} name="amount" render={({ field }) => (
-                        <FormItem><Label className="form-label-tactical text-slate-400">Total Impact (₹)</Label><FormControl><Input type="number" step="0.01" className="h-16 rounded-2xl bg-slate-900 border-none text-white font-black text-xl px-6" {...field} /></FormControl></FormItem>
+                        <FormItem><Label className="form-label-tactical text-slate-400">Total Impact (₹)</Label><FormControl><Input type="number" step="0.01" className="h-16 rounded-2xl bg-neutral-900 border-none text-white font-black text-xl px-6" {...field} /></FormControl></FormItem>
                       )} />
                     </div>
                     <Button type="submit" disabled={isUploading} className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm uppercase tracking-[0.25em] transition-all active:scale-95 shadow-xl">
@@ -431,7 +429,7 @@ export default function ExpensesPage() {
               )} />
               <div className="flex gap-4 pt-4">
                 <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)} className="h-14 flex-1 rounded-2xl border-slate-200 font-black uppercase text-xs">Cancel</Button>
-                <Button type="submit" className="h-14 flex-1 rounded-2xl bg-emerald-600 text-white font-black uppercase text-xs shadow-xl"><Save className="mr-2 h-4 w-4" /> Save Changes</Button>
+                <Button type="submit" className="h-14 flex-1 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase text-xs shadow-xl"><Save className="mr-2 h-4 w-4" /> Save Changes</Button>
               </div>
             </form>
           </Form>

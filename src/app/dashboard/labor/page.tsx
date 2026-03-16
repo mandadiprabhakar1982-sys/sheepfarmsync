@@ -210,8 +210,8 @@ export default function LaborPage() {
         <div className="flex items-center gap-4">
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
-              <Button className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-neutral-900 hover:bg-neutral-800 text-white gap-2 shadow-xl border-none">
-                <Users className="h-5 w-5 text-emerald-400" />
+              <Button className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-xl border-none">
+                <Users className="h-5 w-5 text-accent" />
                 Record Labor
                 <ChevronDown className="h-4 w-4 opacity-40 ml-1" />
               </Button>
@@ -333,7 +333,6 @@ export default function LaborPage() {
         </Card>
       </div>
 
-      {/* --- ENTRY DIALOG --- */}
       <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>
         <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
@@ -450,7 +449,7 @@ export default function LaborPage() {
                 )} />
                 <div className="flex gap-4 pt-4">
                   <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)} className="h-14 flex-1 rounded-2xl border-slate-200 font-black uppercase text-xs">Cancel</Button>
-                  <Button type="submit" className="h-14 flex-1 rounded-2xl bg-emerald-600 text-white font-black uppercase text-xs shadow-xl">
+                  <Button type="submit" className="h-14 flex-1 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase text-xs shadow-xl">
                     <Save className="mr-2 h-4 w-4" /> Save Adjustments
                   </Button>
                 </div>

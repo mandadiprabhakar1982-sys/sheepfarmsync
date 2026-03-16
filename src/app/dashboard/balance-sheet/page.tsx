@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -286,8 +285,8 @@ export default function BalanceSheetPage() {
         <div className="flex items-center gap-4">
           <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>
             <DialogTrigger asChild>
-              <Button onClick={() => { resetForms(); setIsEntryDialogOpen(true); }} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-neutral-900 hover:bg-neutral-800 text-white gap-2 shadow-xl">
-                <PlusCircle className="h-5 w-5 text-emerald-400" />
+              <Button onClick={() => { resetForms(); setIsEntryDialogOpen(true); }} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-xl">
+                <PlusCircle className="h-5 w-5 text-accent" />
                 Ledger Entry
               </Button>
             </DialogTrigger>
@@ -306,7 +305,7 @@ export default function BalanceSheetPage() {
                 {activeTab === 'loans' && (
                   <div className="space-y-6">
                     <div className="space-y-4">
-                      <Label className="text-[10px] font-black uppercase tracking-widest opacity-40">Account Details</Label>
+                      <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Account Details</Label>
                       <Input value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="Bank Name" className="h-14 rounded-2xl bg-neutral-50 border-none font-bold text-base px-6" />
                       <div className="grid grid-cols-2 gap-4">
                         <Input type="number" value={totalLoan} onChange={(e) => setTotalLoan(e.target.value)} placeholder="Total Loan Amount" className="h-12 rounded-xl bg-neutral-50 border-none font-black" />
@@ -315,7 +314,7 @@ export default function BalanceSheetPage() {
                     </div>
 
                     <div className="space-y-4">
-                      <Label className="text-[10px] font-black uppercase tracking-widest opacity-40">Repayment Schedule</Label>
+                      <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Repayment Schedule</Label>
                       <div className="relative">
                         <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="h-14 rounded-2xl bg-neutral-50 border-none font-bold px-6 pr-12" />
                         <Wand2 className="absolute right-5 top-1/2 -translate-y-1/2 h-5 w-5 text-primary opacity-20" />
@@ -379,8 +378,8 @@ export default function BalanceSheetPage() {
                   </div>
                 )}
 
-                <Button onClick={handleAdd} className="w-full h-16 rounded-[1.25rem] font-black text-sm uppercase tracking-[0.2em] shadow-2xl shadow-primary/20 bg-neutral-900 hover:bg-neutral-800 transition-all active:scale-95">
-                  <ShieldCheck className="mr-3 h-6 w-6 text-emerald-400" />
+                <Button onClick={handleAdd} className="w-full h-16 rounded-[1.25rem] font-black text-sm uppercase tracking-[0.2em] shadow-2xl shadow-emerald-500/20 bg-emerald-600 hover:bg-emerald-700 transition-all active:scale-95">
+                  <ShieldCheck className="mr-3 h-6 w-6 text-accent" />
                   Synchronize Account
                 </Button>
               </div>
@@ -629,7 +628,6 @@ export default function BalanceSheetPage() {
         </Tabs>
       </div>
 
-      {/* --- ZOOM DETAIL DIALOG (31-1 FOCUS) --- */}
       <Dialog open={isZoomViewOpen} onOpenChange={setIsZoomViewOpen}>
         <DialogContent className="sm:max-w-3xl rounded-[3rem] p-0 overflow-hidden border-none shadow-2xl bg-neutral-50">
           {viewingItem && (
@@ -655,7 +653,6 @@ export default function BalanceSheetPage() {
               </DialogHeader>
 
               <div className="p-12 space-y-10">
-                {/* 31-1 Temporal Cycle Visualization */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                   <Card className="col-span-2 border-none shadow-xl rounded-[2.5rem] bg-white p-8 relative overflow-hidden">
                     <div className="flex justify-between items-start mb-10">
@@ -669,7 +666,6 @@ export default function BalanceSheetPage() {
                     </div>
                     
                     <div className="relative pt-4 pb-8">
-                      {/* Timeline Day Indicators (1 to 31) */}
                       <div className="flex justify-between items-end h-16 gap-1">
                         {Array.from({ length: 31 }, (_, i) => {
                           const day = i + 1;
@@ -741,7 +737,7 @@ export default function BalanceSheetPage() {
 
               <div className="p-12 pt-0 mt-auto flex justify-end gap-4">
                 <Button variant="outline" onClick={() => setIsZoomViewOpen(false)} className="h-14 px-8 rounded-2xl font-black uppercase text-xs tracking-widest">Close Audit</Button>
-                <Button onClick={() => { setIsZoomViewOpen(false); handleEditClick(viewingItem, viewingItem._type); }} className="h-14 px-10 rounded-2xl bg-neutral-900 text-white font-black uppercase text-xs tracking-widest gap-2">
+                <Button onClick={() => { setIsZoomViewOpen(false); handleEditClick(viewingItem, viewingItem._type); }} className="h-14 px-10 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase text-xs tracking-widest gap-2">
                   <Pencil className="h-4 w-4" /> Adjust Parameters
                 </Button>
               </div>
@@ -750,7 +746,6 @@ export default function BalanceSheetPage() {
         </DialogContent>
       </Dialog>
 
-      {/* --- EDIT DIALOG --- */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
@@ -848,8 +843,8 @@ export default function BalanceSheetPage() {
 
           <DialogFooter className="p-8 bg-neutral-50 gap-4">
             <Button variant="outline" onClick={() => setIsEditDialogOpen(false)} className="h-12 px-8 rounded-xl font-bold border-neutral-200">Cancel</Button>
-            <Button onClick={handleSaveEdit} className="h-12 px-10 rounded-xl font-black uppercase tracking-widest shadow-2xl shadow-primary/20 bg-neutral-900 hover:bg-neutral-800 text-white">
-              <Save className="mr-2 h-4 w-4 text-emerald-400" /> Save Audit Changes
+            <Button onClick={handleSaveEdit} className="h-12 px-10 rounded-xl font-black uppercase tracking-widest shadow-2xl shadow-emerald-500/20 bg-emerald-600 hover:bg-emerald-700 text-white">
+              <Save className="mr-2 h-4 w-4 text-accent" /> Save Audit Changes
             </Button>
           </DialogFooter>
         </DialogContent>

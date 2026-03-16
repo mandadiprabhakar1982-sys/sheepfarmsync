@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -262,8 +261,8 @@ export default function MonthlyLedgerPage() {
         <div className="flex flex-wrap items-center gap-4 bg-white p-2 rounded-2xl shadow-xl">
            <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>
              <DialogTrigger asChild>
-               <Button onClick={() => { resetForm(); setIsEntryDialogOpen(true); }} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-neutral-900 hover:bg-neutral-800 text-white gap-2">
-                 <PlusCircle className="h-5 w-5 text-emerald-400" />
+               <Button onClick={() => { resetForm(); setIsEntryDialogOpen(true); }} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-emerald-600 hover:bg-emerald-700 text-white gap-2">
+                 <PlusCircle className="h-5 w-5 text-accent" />
                  Ledger Entry
                </Button>
              </DialogTrigger>
@@ -331,7 +330,7 @@ export default function MonthlyLedgerPage() {
                    </div>
                  )}
 
-                 <Button onClick={handleAdd} className="w-full h-16 rounded-2xl bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-[0.2em] shadow-2xl transition-all active:scale-95">
+                 <Button onClick={handleAdd} className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase tracking-[0.2em] shadow-2xl transition-all active:scale-95">
                    Commit Payload
                  </Button>
                </div>
@@ -584,7 +583,7 @@ export default function MonthlyLedgerPage() {
 
               <div className="p-12 pt-0 mt-auto flex justify-end gap-4">
                 <Button variant="outline" onClick={() => setIsZoomViewOpen(false)} className="h-14 px-8 rounded-2xl font-black uppercase text-xs tracking-widest">Close Audit</Button>
-                <Button onClick={() => { setIsZoomViewOpen(false); handleEditClick(viewingItem); }} className="h-14 px-10 rounded-2xl bg-neutral-900 text-white font-black uppercase text-xs tracking-widest gap-2">
+                <Button onClick={() => { setIsZoomViewOpen(false); handleEditClick(viewingItem); }} className="h-14 px-10 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase text-xs tracking-widest gap-2">
                   <Pencil className="h-4 w-4" /> Adjust Record
                 </Button>
               </div>
@@ -659,7 +658,7 @@ export default function MonthlyLedgerPage() {
               </div>
             )}
 
-            <Button onClick={handleUpdate} className="w-full h-16 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-[0.2em] shadow-2xl transition-all active:scale-95">
+            <Button onClick={handleUpdate} className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase tracking-[0.2em] shadow-2xl transition-all active:scale-95">
               <Save className="mr-2 h-5 w-5" /> Save Ledger Changes
             </Button>
           </div>

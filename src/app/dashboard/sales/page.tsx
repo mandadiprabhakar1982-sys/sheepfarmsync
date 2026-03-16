@@ -364,8 +364,8 @@ export default function TradeLedgerPage() {
         <div className="flex items-center gap-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-neutral-900 hover:bg-neutral-800 text-white gap-2 shadow-xl border-none">
-                <ArrowRightLeft className="h-5 w-5 text-emerald-400" />
+              <Button className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-xl border-none">
+                <ArrowRightLeft className="h-5 w-5 text-accent" />
                 Record Trade
                 <ChevronDown className="h-4 w-4 opacity-40 ml-1" />
               </Button>
@@ -581,7 +581,6 @@ export default function TradeLedgerPage() {
         </DialogContent>
       </Dialog>
 
-      {/* --- EDIT SALE DIALOG --- */}
       <Dialog open={isEditSaleOpen} onOpenChange={setIsEditSaleOpen}>
         <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
@@ -596,13 +595,12 @@ export default function TradeLedgerPage() {
                 <FormField control={editSalesForm.control} name="salePrice" render={({ field }) => (<FormItem><Label className="form-label-tactical">Total Price (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 font-black text-emerald-600" {...field} /></FormControl><FormMessage /></FormItem>)} />
                 <FormField control={editSalesForm.control} name="amountReceived" render={({ field }) => (<FormItem><Label className="form-label-tactical">Received (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50" {...field} /></FormControl><FormMessage /></FormItem>)} />
               </div>
-              <Button type="submit" disabled={isUploading} className="w-full h-16 rounded-2xl bg-emerald-600 text-white font-black text-sm uppercase tracking-widest shadow-xl"><Save className="mr-2 h-4 w-4" /> Save Adjustments</Button>
+              <Button type="submit" disabled={isUploading} className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm uppercase tracking-widest shadow-xl"><Save className="mr-2 h-4 w-4" /> Save Adjustments</Button>
             </form></Form>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* --- EDIT PURCHASE DIALOG --- */}
       <Dialog open={isEditPurchaseOpen} onOpenChange={setIsEditPurchaseOpen}>
         <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
@@ -617,7 +615,7 @@ export default function TradeLedgerPage() {
                 <FormField control={editPurchaseForm.control} name="purchasePrice" render={({ field }) => (<FormItem><Label className="form-label-tactical">Acquisition Cost (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 font-black text-blue-600" {...field} /></FormControl><FormMessage /></FormItem>)} />
                 <FormField control={editPurchaseForm.control} name="amountPaid" render={({ field }) => (<FormItem><Label className="form-label-tactical">Paid (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50" {...field} /></FormControl><FormMessage /></FormItem>)} />
               </div>
-              <Button type="submit" disabled={isUploading} className="w-full h-16 rounded-2xl bg-blue-600 text-white font-black text-sm uppercase tracking-widest shadow-xl"><Save className="mr-2 h-4 w-4" /> Save Adjustments</Button>
+              <Button type="submit" disabled={isUploading} className="w-full h-16 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black text-sm uppercase tracking-widest shadow-xl"><Save className="mr-2 h-4 w-4" /> Save Adjustments</Button>
             </form></Form>
           </div>
         </DialogContent>
