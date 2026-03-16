@@ -254,7 +254,8 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     return { 
       totalSheep: liveSheepCount,
       totalTracked: trackedCount,
-      totalExpenses: pTotal + fCost + mCost + lCost + eCost + mExpense,
+      // REMOVED mExpense LINK: Only operational costs are summed here
+      totalExpenses: pTotal + fCost + mCost + lCost + eCost, 
       totalSales: rev,
       totalDead: deadCount,
       totalFeedCost: fCost,
