@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import Link from 'next/link';
+import Link from 'next/navigation';
 import { usePathname } from 'next/navigation';
 import {
   Home,
@@ -89,7 +89,7 @@ export function AppSidebar() {
   ], []); 
 
   return (
-    <Sidebar collapsible="none" className="sidebar border-none shadow-2xl bg-white/80 backdrop-blur-2xl">
+    <Sidebar className="border-none shadow-2xl bg-white/80 backdrop-blur-2xl">
       <SidebarHeader className="h-32 flex flex-col items-center justify-center px-10 mb-4 border-b border-slate-100">
         <div className="flex flex-col items-center gap-3 select-none group">
           <div className="bg-primary p-3 rounded-2xl shadow-2xl border border-white/10 group-hover:scale-110 transition-transform duration-500">
