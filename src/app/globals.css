@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    /* Primary Dashboard Color Palette Mapping */
+    /* Precise Dashboard Color Palette Mapping */
     --background: 200 14% 97%;    /* #F5F7F8 - Light Gray */
     --foreground: 180 25% 25%;    /* #2F4F4F - Text Dark */
     --card: 0 0% 100%;
@@ -24,15 +24,15 @@
     --border: 0 0% 85%;          /* #D9D9D9 - Border Gray */
     --input: 0 0% 85%;
     --ring: 178 83% 35%;
-    --radius: 1.75rem;
+    --radius: 0.5rem;            /* 8px as requested */
 
-    --sidebar-background: 178 100% 28%; /* #008F8B - Sidebar Teal */
+    --sidebar-background: 178 83% 35%; /* #0FA5A0 - Sidebar Teal */
     --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 178 83% 35%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 178 65% 26%;
+    --sidebar-accent: 178 65% 26%;     /* #176E6C - Dark Teal for Active state */
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 178 100% 20%;
+    --sidebar-border: 178 83% 30%;
     --sidebar-ring: 178 83% 35%;
   }
 }
@@ -68,8 +68,8 @@
 /* PREMIUM DEPTH PROTOCOL */
 .premium-card {
   background: #ffffff;
-  border: 1px solid rgba(217, 217, 217, 0.5); /* Using border-gray */
-  border-radius: 1.5rem;
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 
     0 4px 6px -1px rgba(15, 23, 42, 0.05), 
@@ -78,23 +78,15 @@
 
 .premium-card:hover {
   transform: translateY(-4px);
-  border-color: #0FA5A0; /* Glows with primary teal */
+  border-color: #0FA5A0; 
   box-shadow: 
     0 10px 15px -3px rgba(15, 165, 160, 0.1), 
     0 4px 6px -4px rgba(15, 165, 160, 0.1);
 }
 
-/* MOBILE TACTICAL CLASSES */
-.dashboard-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 16px;
-}
-
 /* TACTICAL FORM ELEMENTS */
 .form-input-tactical {
-  @apply h-14 rounded-2xl bg-white border border-border shadow-sm font-bold text-foreground px-6 focus-visible:ring-primary/20 transition-all text-sm md:text-base;
+  @apply h-14 rounded-xl bg-white border border-border shadow-sm font-bold text-foreground px-6 focus-visible:ring-primary/20 transition-all text-sm md:text-base;
 }
 
 .form-label-tactical {
@@ -118,7 +110,7 @@
   .pt-safe { padding-top: env(safe-area-inset-top); }
 
   .tab-trigger-tactical {
-    @apply inline-flex items-center justify-center whitespace-nowrap rounded-[1rem] px-6 py-2 text-[10px] font-black uppercase tracking-widest ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-lg data-[state=active]:scale-[1.05] flex-shrink-0;
+    @apply inline-flex items-center justify-center whitespace-nowrap rounded-[0.75rem] px-6 py-2 text-[10px] font-black uppercase tracking-widest ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-lg data-[state=active]:scale-[1.05] flex-shrink-0;
   }
 }
 

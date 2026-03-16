@@ -96,7 +96,7 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="border-none shadow-2xl bg-sidebar text-white">
       <SidebarHeader className="h-32 flex flex-col items-center justify-center px-10 mb-4 border-b border-white/10">
         <div className="flex flex-col items-center gap-3 select-none group">
-          <div className="bg-white/20 p-3 rounded-2xl shadow-xl border border-white/10 group-hover:scale-110 transition-transform duration-500">
+          <div className="bg-white/20 p-3 rounded-xl shadow-xl border border-white/10 group-hover:scale-110 transition-transform duration-500">
             <Sparkles className="h-6 w-6 text-white" />
           </div>
           <div className="text-center group-data-[collapsible=icon]:hidden">
@@ -129,18 +129,18 @@ export function AppSidebar() {
                           isActive={isActive}
                           tooltip={link.label}
                           className={cn(
-                            "h-12 px-5 rounded-2xl transition-all duration-500",
+                            "h-12 px-5 rounded-xl transition-all duration-500",
                             isActive 
-                              ? "bg-white text-sidebar-background shadow-xl scale-[1.03] font-black" 
+                              ? "bg-sidebar-accent text-white shadow-xl scale-[1.03] font-black" 
                               : "text-white/70 hover:bg-white/10 hover:text-white"
                           )}
                         >
                           <Link href={link.href} className="flex items-center justify-between w-full">
                             <div className="flex items-center">
-                              <link.icon className={cn("h-5 w-5", isActive ? "text-sidebar-background" : "opacity-40")} />
+                              <link.icon className={cn("h-5 w-5", isActive ? "text-white" : "opacity-40")} />
                               <span className="ml-4 text-[13px] font-bold tracking-tight group-data-[collapsible=icon]:hidden">{link.label}</span>
                             </div>
-                            {isActive && <ChevronRight className="h-3 w-3 text-sidebar-background group-data-[collapsible=icon]:hidden" />}
+                            {isActive && <ChevronRight className="h-3 w-3 text-white group-data-[collapsible=icon]:hidden" />}
                           </Link>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
