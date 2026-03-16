@@ -10,7 +10,6 @@ import {
   Plus,
   Activity,
   History,
-  Pencil,
   PlusCircle,
   ShieldCheck,
   Search,
@@ -18,7 +17,8 @@ import {
   CheckCircle2,
   ShoppingBag,
   Stethoscope,
-  Heart
+  Heart,
+  Loader2
 } from 'lucide-react';
 import { format, addMonths, parseISO, isToday, isYesterday } from 'date-fns';
 
@@ -121,7 +121,6 @@ export default function MedicinePage() {
     return [...filtered].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [medicineExpenses, searchTerm]);
 
-  // Grouping logic
   const groupData = (list: any[], dateKey: string) => {
     const groups: { [key: string]: any[] } = {};
     list.forEach(item => {
@@ -158,111 +157,100 @@ export default function MedicinePage() {
 
   const formatGroupDate = (dateStr: string) => {
     const d = parseISO(dateStr);
-    if (isToday(d)) return `TODAY - ${dateStr}`;
-    if (isYesterday(d)) return `YESTERDAY - ${dateStr}`;
+    if (isToday(d)) return `Today - ${dateStr}`;
+    if (isYesterday(d)) return `Yesterday - ${dateStr}`;
     return dateStr;
   };
 
   if (isLoading) {
     return (
-      <div className="flex h-full w-full items-center justify-center">
-        <div className="flex flex-col items-center gap-6">
-          <div className="w-12 h-12 border-4 border-slate-100 rounded-full border-t-emerald-500 animate-spin" />
-          <p className="text-[12px] font-black text-slate-400 uppercase tracking-[0.3em]">SYNCHRONIZING MEDICAL DATA...</p>
-        </div>
+      <div className="flex h-full w-full items-center justify-center min-h-[60vh]">
+        <Loader2 className="h-10 w-10 animate-spin text-primary opacity-20" />
       </div>
     );
   }
 
   return (
-    <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col relative bg-white md:bg-transparent">
-      {/* MOBILE HEADER */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-[110] bg-[#059669] text-white px-6 py-5 flex items-center justify-between shadow-lg">
-        <h2 className="text-xl font-black tracking-tight uppercase">Medical Hub</h2>
-        <div className="text-right">
-          <p className="text-[8px] font-black uppercase opacity-60 leading-none mb-1">Medicine Spend</p>
-          <p className="text-xl font-black">₹{totalMedicineCost.toLocaleString()}</p>
-        </div>
-      </div>
+    <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col relative">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-8 shrink-0">
+        <PageHeader title="Medical & Health" description="Clinical History & Medicine Costs" className="mb-0" />
 
-      <div className="md:hidden h-16 shrink-0" />
-
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-6 md:mb-8 shrink-0 px-4 md:px-0 mt-4 md:mt-0">
-        <PageHeader title="Medical & Health" description="CLINICAL HISTORY & MEDICINE COSTS" className="mb-0 hidden md:block" />
-
-        <div className="hidden md:flex items-center gap-4">
+        <div className="flex items-center gap-4">
           <Button 
             onClick={() => activeTab === 'clinical' ? setIsClinicalDialogOpen(true) : setIsProcurementDialogOpen(true)} 
-            className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-xl border-none"
+            className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-[#0FA5A0] hover:bg-[#176E6C] text-white gap-2 shadow-xl border-none"
           >
-            <PlusCircle className="h-5 w-5 text-accent" />
+            <PlusCircle className="h-5 w-5 text-white" />
             {activeTab === 'clinical' ? 'Log Treatment' : 'Buy Medicine'}
           </Button>
           <div className="px-6 py-3 bg-neutral-900 rounded-2xl text-white flex items-center gap-4 shadow-xl shrink-0">
             <ShieldCheck className="h-5 w-5 text-emerald-400" />
-            <div><p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Net Med Spend</p><p className="text-xl font-black tracking-tight text-white">₹{totalMedicineCost.toLocaleString()}</p></div>
+            <div>
+              <p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Net Med Spend</p>
+              <p className="text-xl font-black tracking-tight text-white">₹{totalMedicineCost.toLocaleString()}</p>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="space-y-6 flex-1 min-h-0 flex flex-col px-4 md:px-0">
-        <div className="relative shrink-0 w-full max-w-xl mx-auto md:mx-0">
+      <div className="space-y-6 flex-1 min-h-0 flex flex-col">
+        <div className="relative shrink-0 w-full max-w-xl">
           <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
           <Input 
-            placeholder={activeTab === 'clinical' ? "Search Pashu ID or Mundu..." : "Search Supplier or Mundu..."} 
+            placeholder={activeTab === 'clinical' ? "Search Sheep ID or Medicine..." : "Search Supplier or Item..."} 
             value={searchTerm} 
             onChange={(e) => setSearchTerm(e.target.value)} 
-            className="h-12 md:h-14 pl-12 pr-12 rounded-2xl md:rounded-full bg-neutral-100/50 md:bg-white border-none text-slate-900 font-bold shadow-sm" 
+            className="h-12 md:h-14 pl-12 pr-12 rounded-2xl md:rounded-full bg-white border-none text-[#2F4F4F] font-bold shadow-sm" 
           />
           {searchTerm && <button onClick={() => setSearchTerm('')} className="absolute right-5 top-1/2 -translate-y-1/2"><X className="h-4 w-4 text-slate-300" /></button>}
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
-          <TabsList className="grid w-full grid-cols-2 mb-8 p-1.5 bg-[#e7eddc] rounded-2xl h-14 md:h-16 md:max-w-md shadow-inner">
-            <TabsTrigger value="clinical" className="rounded-xl font-black text-[10px] uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:text-[#059669] data-[state=active]:shadow-lg flex items-center gap-2">
-              <Activity className="h-3.5 w-3.5" /> CLINICAL
+          <TabsList className="grid w-full grid-cols-2 mb-8 p-1.5 bg-[#D7F2F1] rounded-2xl h-14 md:h-16 md:max-w-md shadow-inner">
+            <TabsTrigger value="clinical" className="tab-trigger-tactical">
+              <Activity className="h-3.5 w-3.5" /> Clinical
             </TabsTrigger>
-            <TabsTrigger value="pharma" className="rounded-xl font-black text-[10px] uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:text-[#059669] data-[state=active]:shadow-lg flex items-center gap-2">
-              <History className="h-3.5 w-3.5" /> MED COST
+            <TabsTrigger value="pharma" className="tab-trigger-tactical">
+              <History className="h-3.5 w-3.5" /> Med Cost
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="clinical" className="flex-1 flex flex-col min-h-0 m-0">
-            <div className="flex-1 min-h-0 flex flex-col md:bg-white md:rounded-[2.5rem] md:shadow-2xl md:overflow-hidden">
-              <CardHeader className="bg-emerald-600 text-white p-10 shrink-0 hidden md:block">
+            <div className="flex-1 min-h-0 flex flex-col premium-card overflow-hidden bg-white">
+              <CardHeader className="bg-[#0FA5A0] text-white p-10 shrink-0">
                 <div className="flex justify-between items-end">
                   <div className="space-y-1">
-                    <div className="flex items-center gap-3"><Heart className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Clinical History</CardTitle></div>
-                    <CardDescription className="text-emerald-100/60 text-[10px] font-black uppercase tracking-[0.2em]">Medical Protocol & Pashu Treatment Audit</CardDescription>
+                    <div className="flex items-center gap-3"><Heart className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase text-white">Clinical History</CardTitle></div>
+                    <CardDescription className="text-white/60 text-[10px] font-black uppercase tracking-[0.2em]">Medical Protocol & Treatment Audit</CardDescription>
                   </div>
                 </div>
               </CardHeader>
 
-              {/* MOBILE VIEW */}
-              <div className="block md:hidden flex-1 overflow-hidden bg-slate-50 -mx-4">
-                <ScrollArea className="h-full px-4 pt-4">
+              <ScrollArea className="flex-1 overflow-hidden">
+                {/* MOBILE VIEW */}
+                <div className="block md:hidden p-4 space-y-8">
                   {groupedClinical.length > 0 ? groupedClinical.map((group) => (
-                    <div key={group.date} className="mb-8">
-                      <div className="px-2 py-2 mb-3 bg-[#e7eddc] rounded-lg">
-                        <p className="text-[11px] font-black uppercase tracking-widest text-slate-600">{formatGroupDate(group.date)}</p>
+                    <div key={group.date} className="space-y-4">
+                      <div className="px-2 py-2 mb-3 bg-[#D7F2F1] rounded-lg">
+                        <p className="text-[11px] font-black uppercase tracking-widest text-[#176E6C]">{formatGroupDate(group.date)}</p>
                       </div>
                       <div className="space-y-4">
                         {group.items.map((task) => (
-                          <div key={task.id} className="bg-white rounded-[1.25rem] p-5 flex items-center justify-between shadow-sm border border-white/60 active:scale-[0.98] transition-all">
+                          <div key={task.id} className="bg-white rounded-[1.25rem] p-5 flex items-center justify-between shadow-sm border border-slate-100 active:scale-[0.98] transition-all">
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1">
-                                <Badge className="bg-emerald-50 text-emerald-600 border-none font-black text-[7px] uppercase px-1.5 py-0.5 tracking-tighter">ID: {task.sheepId}</Badge>
-                                <h3 className="text-lg font-black text-slate-900 truncate leading-none">{task.medicineName}</h3>
+                                <Badge className="bg-[#D7F2F1] text-[#0FA5A0] border-none font-black text-[7px] uppercase px-1.5 py-0.5 tracking-tighter">ID: {task.sheepId}</Badge>
+                                <h3 className="text-lg font-black text-[#2F4F4F] truncate leading-none">{task.medicineName}</h3>
                               </div>
                               <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest truncate">
                                 {task.healthType} • By {task.administeredBy}
                               </p>
                             </div>
                             <div className="text-right shrink-0">
-                              <p className="text-xl font-black text-[#059669]">₹{task.cost.toLocaleString()}</p>
-                              <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#ecfdf5] text-[#059669] border border-[#d1fae5] mt-1">
+                              <p className="text-xl font-black text-[#0FA5A0]">₹{task.cost.toLocaleString()}</p>
+                              <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#ecfdf5] text-[#43A047] border border-[#d1fae5] mt-1">
                                 <CheckCircle2 className="h-2.5 w-2.5" />
-                                <span className="text-[9px] font-black uppercase tracking-widest">RECORDED</span>
+                                <span className="text-[9px] font-black uppercase tracking-widest">Recorded</span>
                               </div>
                             </div>
                           </div>
@@ -270,33 +258,30 @@ export default function MedicinePage() {
                       </div>
                     </div>
                   )) : <div className="py-20 text-center opacity-20 font-black uppercase text-xs">No clinical records found</div>}
-                  <div className="h-32" />
-                </ScrollArea>
-              </div>
+                </div>
 
-              {/* DESKTOP VIEW */}
-              <div className="hidden md:block flex-1 overflow-hidden">
-                <ScrollArea className="h-full">
+                {/* DESKTOP VIEW */}
+                <div className="hidden md:block">
                   <Table>
-                    <TableHeader className="bg-slate-50/50 sticky top-0 z-10 backdrop-blur">
+                    <TableHeader className="bg-[#0FA5A0] sticky top-0 z-10">
                       <TableRow className="border-none hover:bg-transparent">
-                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-slate-400">Date</TableHead>
-                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-slate-400">Pashu / Mundu (Medicine)</TableHead>
-                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-center text-slate-400">Treatment Type</TableHead>
-                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-slate-400">Cost</TableHead>
+                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-white">Date</TableHead>
+                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-white">Sheep (Medicine)</TableHead>
+                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-center text-white">Treatment Type</TableHead>
+                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-white">Cost</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {sortedHealthTasks.map((task) => (
-                        <TableRow key={task.id} className="hover:bg-slate-50 border-b border-slate-100 group">
+                        <TableRow key={task.id} className="hover:bg-slate-50 border-b border-slate-100 group transition-colors">
                           <TableCell className="py-6 pl-10 text-[11px] font-black text-slate-400">{task.date}</TableCell>
                           <TableCell>
-                            <div className="flex flex-col"><span className="text-[14px] font-black text-slate-900">{task.medicineName} (ID: {task.sheepId})</span><span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{task.administeredBy}</span></div>
+                            <div className="flex flex-col"><span className="text-[14px] font-black text-[#2F4F4F]">{task.medicineName} (ID: {task.sheepId})</span><span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{task.administeredBy}</span></div>
                           </TableCell>
-                          <TableCell className="text-center"><Badge className="bg-emerald-500/10 text-emerald-600 border-none font-black text-[10px] px-3 uppercase tracking-widest">{task.healthType}</Badge></TableCell>
+                          <TableCell className="text-center"><Badge className="bg-[#D7F2F1] text-[#0FA5A0] border-none font-black text-[10px] px-3 uppercase tracking-widest">{task.healthType}</Badge></TableCell>
                           <TableCell className="text-right pr-10">
                             <div className="flex items-center justify-end gap-4">
-                              <span className="text-[16px] font-black text-slate-900">₹{task.cost.toLocaleString()}</span>
+                              <span className="text-[16px] font-black text-[#2F4F4F]">₹{task.cost.toLocaleString()}</span>
                               <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-rose-600 opacity-0 group-hover:opacity-100 transition-all" onClick={() => deleteHealthTask(task.id, task._path)}><Trash2 className="h-4 w-4" /></Button>
                             </div>
                           </TableCell>
@@ -304,47 +289,47 @@ export default function MedicinePage() {
                       ))}
                     </TableBody>
                   </Table>
-                </ScrollArea>
-              </div>
+                </div>
+              </ScrollArea>
             </div>
           </TabsContent>
 
           <TabsContent value="pharma" className="flex-1 flex flex-col min-h-0 m-0">
-            <div className="flex-1 min-h-0 flex flex-col md:bg-white md:rounded-[2.5rem] md:shadow-2xl md:overflow-hidden">
-              <CardHeader className="bg-emerald-600 text-white p-10 shrink-0 hidden md:block">
+            <div className="flex-1 min-h-0 flex flex-col premium-card overflow-hidden bg-white">
+              <CardHeader className="bg-[#0FA5A0] text-white p-10 shrink-0">
                 <div className="flex justify-between items-end">
                   <div className="space-y-1">
-                    <div className="flex items-center gap-3"><ShoppingBag className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Medical Bills</CardTitle></div>
-                    <CardDescription className="text-emerald-100/60 text-[10px] font-black uppercase tracking-[0.2em]">Medicine Buying & Payment Audit</CardDescription>
+                    <div className="flex items-center gap-3"><ShoppingBag className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase text-white">Medical Bills</CardTitle></div>
+                    <CardDescription className="text-white/60 text-[10px] font-black uppercase tracking-[0.2em]">Medicine Procurement & Payment Audit</CardDescription>
                   </div>
                 </div>
               </CardHeader>
 
-              {/* MOBILE VIEW */}
-              <div className="block md:hidden flex-1 overflow-hidden bg-slate-50 -mx-4">
-                <ScrollArea className="h-full px-4 pt-4">
+              <ScrollArea className="flex-1 overflow-hidden">
+                {/* MOBILE VIEW */}
+                <div className="block md:hidden p-4 space-y-8">
                   {groupedPharma.length > 0 ? groupedPharma.map((group) => (
-                    <div key={group.date} className="mb-8">
-                      <div className="px-2 py-2 mb-3 bg-[#e7eddc] rounded-lg">
-                        <p className="text-[11px] font-black uppercase tracking-widest text-slate-600">{formatGroupDate(group.date)}</p>
+                    <div key={group.date} className="space-y-4">
+                      <div className="px-2 py-2 mb-3 bg-[#D7F2F1] rounded-lg">
+                        <p className="text-[11px] font-black uppercase tracking-widest text-[#176E6C]">{formatGroupDate(group.date)}</p>
                       </div>
                       <div className="space-y-4">
                         {group.items.map((expense) => (
-                          <div key={expense.id} className="bg-white rounded-[1.25rem] p-5 flex items-center justify-between shadow-sm border border-white/60 active:scale-[0.98] transition-all">
+                          <div key={expense.id} className="bg-white rounded-[1.25rem] p-5 flex items-center justify-between shadow-sm border border-slate-100 active:scale-[0.98] transition-all">
                             <div className="flex-1 min-w-0">
-                              <h3 className="text-lg font-black text-slate-900 truncate leading-none mb-1">{expense.shopName}</h3>
+                              <h3 className="text-lg font-black text-[#2F4F4F] truncate leading-none mb-1">{expense.shopName}</h3>
                               <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest truncate">
                                 {expense.description || 'Verified Bill'}
                               </p>
                             </div>
                             <div className="text-right shrink-0">
-                              <p className="text-xl font-black text-slate-900">₹{expense.totalAmountSpent.toLocaleString()}</p>
+                              <p className="text-xl font-black text-[#2F4F4F]">₹{expense.totalAmountSpent.toLocaleString()}</p>
                               {expense.outstandingDues > 0 ? (
-                                <Badge className="bg-rose-50 text-rose-600 border-none font-black text-[8px] uppercase px-2 py-0.5 mt-1 tracking-tighter">₹{expense.outstandingDues} BAAKI</Badge>
+                                <Badge className="bg-rose-50 text-rose-600 border-none font-black text-[8px] uppercase px-2 py-0.5 mt-1 tracking-tighter">₹{expense.outstandingDues} Due</Badge>
                               ) : (
-                                <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#ecfdf5] text-[#059669] border border-[#d1fae5] mt-1">
+                                <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#ecfdf5] text-[#43A047] border border-[#d1fae5] mt-1">
                                   <CheckCircle2 className="h-2.5 w-2.5" />
-                                  <span className="text-[9px] font-black uppercase tracking-widest">PAID</span>
+                                  <span className="text-[9px] font-black uppercase tracking-widest">Paid</span>
                                 </div>
                               )}
                             </div>
@@ -353,35 +338,32 @@ export default function MedicinePage() {
                       </div>
                     </div>
                   )) : <div className="py-20 text-center opacity-20 font-black uppercase text-xs">No medicine bills discovered</div>}
-                  <div className="h-32" />
-                </ScrollArea>
-              </div>
+                </div>
 
-              {/* DESKTOP VIEW */}
-              <div className="hidden md:block flex-1 overflow-hidden">
-                <ScrollArea className="h-full">
+                {/* DESKTOP VIEW */}
+                <div className="hidden md:block">
                   <Table>
-                    <TableHeader className="bg-slate-50/50 sticky top-0 z-10 backdrop-blur">
+                    <TableHeader className="bg-[#0FA5A0] sticky top-0 z-10">
                       <TableRow className="border-none hover:bg-transparent">
-                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-slate-400">Bill Date</TableHead>
-                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-slate-400">Shop / Mundulu</TableHead>
-                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-center text-slate-400">Status</TableHead>
-                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-slate-400">Amount Paid</TableHead>
+                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-white">Bill Date</TableHead>
+                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-white">Shop Identity</TableHead>
+                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-center text-white">Status</TableHead>
+                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-white">Amount Paid</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {sortedMedicineExpenses.map((expense) => (
-                        <TableRow key={expense.id} className="hover:bg-slate-50 border-b border-slate-100 group">
+                        <TableRow key={expense.id} className="hover:bg-slate-50 border-b border-slate-100 group transition-colors">
                           <TableCell className="py-6 pl-10 text-[11px] font-black text-slate-400">{expense.date}</TableCell>
                           <TableCell>
-                            <div className="flex flex-col"><span className="text-[14px] font-black text-slate-900">{expense.shopName}</span><span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{expense.description || 'Medicine Bill'}</span></div>
+                            <div className="flex flex-col"><span className="text-[14px] font-black text-[#2F4F4F]">{expense.shopName}</span><span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{expense.description || 'Medicine Bill'}</span></div>
                           </TableCell>
                           <TableCell className="text-center">
-                            {expense.outstandingDues > 0 ? <Badge variant="destructive" className="font-black text-[10px] uppercase tracking-widest shadow-sm">₹{expense.outstandingDues} Baaki</Badge> : <Badge className="bg-emerald-500/10 text-emerald-600 border-none font-black text-[10px] px-3 uppercase tracking-widest">Paid</Badge>}
+                            {expense.outstandingDues > 0 ? <Badge variant="destructive" className="font-black text-[10px] uppercase tracking-widest shadow-sm">₹{expense.outstandingDues} Due</Badge> : <Badge className="bg-[#ecfdf5] text-[#43A047] border-none font-black text-[10px] px-3 uppercase tracking-widest">Paid</Badge>}
                           </TableCell>
                           <TableCell className="text-right pr-10">
                             <div className="flex items-center justify-end gap-4">
-                              <span className="text-[16px] font-black text-slate-900">₹{expense.totalAmountSpent.toLocaleString()}</span>
+                              <span className="text-[16px] font-black text-[#2F4F4F]">₹{expense.totalAmountSpent.toLocaleString()}</span>
                               <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-rose-600 opacity-0 group-hover:opacity-100 transition-all" onClick={() => deleteMedicineExpense(expense.id, expense._path)}><Trash2 className="h-4 w-4" /></Button>
                             </div>
                           </TableCell>
@@ -389,58 +371,50 @@ export default function MedicinePage() {
                       ))}
                     </TableBody>
                   </Table>
-                </ScrollArea>
-              </div>
+                </div>
+              </ScrollArea>
             </div>
           </TabsContent>
         </Tabs>
       </div>
 
-      {/* MOBILE FAB */}
-      <button 
-        onClick={() => activeTab === 'clinical' ? setIsClinicalDialogOpen(true) : setIsProcurementDialogOpen(true)}
-        className="md:hidden fixed bottom-24 right-6 h-14 w-14 rounded-full bg-[#059669] text-white shadow-2xl flex items-center justify-center active:scale-90 transition-all z-[120]"
-      >
-        <Plus className="h-7 w-7" />
-      </button>
-
       {/* DIALOGS */}
       <Dialog open={isClinicalDialogOpen} onOpenChange={setIsClinicalDialogOpen}>
-        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
-            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400"><Stethoscope className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase">Treatment Entry</DialogTitle></div>
+            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]"><Stethoscope className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase text-white">Treatment Entry</DialogTitle></div>
             <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Record medical treatment or vaccination</DialogDescription>
           </DialogHeader>
           <div className="p-8 max-h-[75vh] overflow-y-auto no-scrollbar">
             <Form {...healthTaskForm}><form onSubmit={healthTaskForm.handleSubmit(onHealthTaskSubmit)} className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
-                <FormField control={healthTaskForm.control} name="sheepId" render={({ field }) => (<FormItem><Label className="form-label-tactical">Pashu Tag ID</Label><FormControl><Input placeholder="e.g. 101" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
-                <FormField control={healthTaskForm.control} name="medicineName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Mundu (Medicine)</Label><FormControl><Input placeholder="e.g. Albendazole" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+                <FormField control={healthTaskForm.control} name="sheepId" render={({ field }) => (<FormItem><Label className="form-label-tactical">Sheep Tag ID</Label><FormControl><Input placeholder="e.g. 101" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+                <FormField control={healthTaskForm.control} name="medicineName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Medicine Name</Label><FormControl><Input placeholder="e.g. Albendazole" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <FormField control={healthTaskForm.control} name="cost" render={({ field }) => (<FormItem><Label className="form-label-tactical">Mundu Cost (₹)</Label><FormControl><Input type="number" className="form-input-tactical font-black text-emerald-600" {...field} /></FormControl></FormItem>)} />
-                <FormField control={healthTaskForm.control} name="administeredBy" render={({ field }) => (<FormItem><Label className="form-label-tactical">By Staff/Vet</Label><FormControl><Input placeholder="Who gave mundu" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+                <FormField control={healthTaskForm.control} name="cost" render={({ field }) => (<FormItem><Label className="form-label-tactical">Medicine Cost (₹)</Label><FormControl><Input type="number" className="form-input-tactical font-black text-[#0FA5A0]" {...field} /></FormControl></FormItem>)} />
+                <FormField control={healthTaskForm.control} name="administeredBy" render={({ field }) => (<FormItem><Label className="form-label-tactical">By Staff/Vet</Label><FormControl><Input placeholder="Who gave medicine" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
               </div>
-              <Button type="submit" className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase tracking-widest shadow-xl">Record Treatment</Button>
+              <Button type="submit" className="w-full h-16 rounded-2xl bg-[#0FA5A0] hover:bg-[#176E6C] text-white font-black uppercase tracking-widest shadow-xl">Record Treatment</Button>
             </form></Form>
           </div>
         </DialogContent>
       </Dialog>
 
       <Dialog open={isProcurementDialogOpen} onOpenChange={setIsProcurementDialogOpen}>
-        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
-            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400"><ShoppingBag className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase">Medicine Purchase</DialogTitle></div>
-            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Document mundu purchase from shop</DialogDescription>
+            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]"><ShoppingBag className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase text-white">Medicine Purchase</DialogTitle></div>
+            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Document medicine purchase from shop</DialogDescription>
           </DialogHeader>
           <div className="p-8 max-h-[75vh] overflow-y-auto no-scrollbar">
             <Form {...medicineForm}><form onSubmit={medicineForm.handleSubmit(onMedicineExpenseSubmit)} className="space-y-6">
               <FormField control={medicineForm.control} name="shopName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Shop Name</Label><FormControl><Input placeholder="Medical Shop Identity" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
               <div className="grid grid-cols-2 gap-4">
-                <FormField control={medicineForm.control} name="totalAmountSpent" render={({ field }) => (<FormItem><Label className="form-label-tactical">Total Bill (₹)</Label><FormControl><Input type="number" className="form-input-tactical font-black text-emerald-600" {...field} /></FormControl></FormItem>)} />
-                <FormField control={medicineForm.control} name="outstandingDues" render={({ field }) => (<FormItem><Label className="form-label-tactical">Baaki (₹)</Label><FormControl><Input type="number" className="form-input-tactical text-rose-600" {...field} /></FormControl></FormItem>)} />
+                <FormField control={medicineForm.control} name="totalAmountSpent" render={({ field }) => (<FormItem><Label className="form-label-tactical">Total Bill (₹)</Label><FormControl><Input type="number" className="form-input-tactical font-black text-[#0FA5A0]" {...field} /></FormControl></FormItem>)} />
+                <FormField control={medicineForm.control} name="outstandingDues" render={({ field }) => (<FormItem><Label className="form-label-tactical">Due Amount (₹)</Label><FormControl><Input type="number" className="form-input-tactical text-rose-600" {...field} /></FormControl></FormItem>)} />
               </div>
-              <Button type="submit" className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase tracking-widest shadow-xl">Record Medicine Bill</Button>
+              <Button type="submit" className="w-full h-16 rounded-2xl bg-[#0FA5A0] hover:bg-[#176E6C] text-white font-black uppercase tracking-widest shadow-xl">Record Medicine Bill</Button>
             </form></Form>
           </div>
         </DialogContent>

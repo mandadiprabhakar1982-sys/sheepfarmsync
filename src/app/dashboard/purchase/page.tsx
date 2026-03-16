@@ -15,8 +15,7 @@ import {
   Plus,
   ShieldCheck,
   CheckCircle2,
-  ChevronRight,
-  ArrowRightLeft
+  Loader2
 } from 'lucide-react';
 import { format, parseISO, isToday, isYesterday } from 'date-fns';
 
@@ -87,7 +86,6 @@ export default function PurchasePage() {
     resolver: zodResolver(purchaseFormSchema),
   });
 
-  // Entry Form Calc Logic
   const watchedPurchaseFields = purchaseForm.watch(['purchasePrice', 'amountPaid']);
   useEffect(() => {
     const [price, paid] = watchedPurchaseFields;
@@ -101,7 +99,7 @@ export default function PurchasePage() {
       p.farmerName.toLowerCase().includes(searchTerm.toLowerCase()) || 
       p.villageName.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    return [...filtered].sort((a, b) => new Date(b.purchaseDate).getTime() - new Date(a.purchaseDate).getTime());
+    return [...filtered].sort((a, b) => new Date(b.purchaseDate).getTime() - new Date(a.date).getTime());
   }, [purchases, searchTerm]);
 
   const groupedPurchases = useMemo(() => {
@@ -142,41 +140,27 @@ export default function PurchasePage() {
 
   const formatGroupDate = (dateStr: string) => {
     const d = parseISO(dateStr);
-    if (isToday(d)) return `TODAY - ${dateStr}`;
-    if (isYesterday(d)) return `YESTERDAY - ${dateStr}`;
+    if (isToday(d)) return `Today - ${dateStr}`;
+    if (isYesterday(d)) return `Yesterday - ${dateStr}`;
     return dateStr;
   };
 
   if (isLoading) {
     return (
-      <div className="flex h-full w-full items-center justify-center">
-        <div className="flex flex-col items-center gap-6">
-          <div className="w-12 h-12 border-4 border-slate-100 rounded-full border-t-emerald-500 animate-spin" />
-          <p className="text-[12px] font-black text-slate-400 uppercase tracking-[0.3em]">SYNCHRONIZING BUYING DATA...</p>
-        </div>
+      <div className="flex h-full w-full items-center justify-center min-h-[60vh]">
+        <Loader2 className="h-10 w-10 animate-spin text-primary opacity-20" />
       </div>
     );
   }
 
   return (
-    <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col relative bg-white md:bg-transparent">
-      {/* MOBILE HEADER */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-[110] bg-[#059669] text-white px-6 py-5 flex items-center justify-between shadow-lg">
-        <h2 className="text-xl font-black tracking-tight uppercase">Buy Records</h2>
-        <div className="text-right">
-          <p className="text-[8px] font-black uppercase opacity-60 leading-none mb-1">Total Konna</p>
-          <p className="text-xl font-black">₹{totalPurchaseCost.toLocaleString()}</p>
-        </div>
-      </div>
+    <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col relative">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-8 shrink-0">
+        <PageHeader title="Sheep Buying" description="Record Purchases from Farmers" className="mb-0" />
 
-      <div className="md:hidden h-16 shrink-0" />
-
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-6 md:mb-8 shrink-0 px-4 md:px-0 mt-4 md:mt-0">
-        <PageHeader title="Pashu Buying" description="RECORD NEW PURCHASES FROM FARMERS" className="mb-0 hidden md:block" />
-
-        <div className="hidden md:flex items-center gap-4">
-          <Button onClick={() => setIsEntryDialogOpen(true)} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-xl border-none">
-            <PlusCircle className="h-5 w-5 text-accent" />
+        <div className="flex items-center gap-4">
+          <Button onClick={() => setIsEntryDialogOpen(true)} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-[#0FA5A0] hover:bg-[#176E6C] text-white gap-2 shadow-xl border-none">
+            <PlusCircle className="h-5 w-5 text-white" />
             Record Buying
           </Button>
           <div className="px-6 py-3 bg-neutral-900 rounded-2xl text-white flex items-center gap-4 shadow-xl shrink-0">
@@ -189,54 +173,54 @@ export default function PurchasePage() {
         </div>
       </div>
 
-      <div className="space-y-6 flex-1 min-h-0 flex flex-col px-4 md:px-0">
-        <div className="relative shrink-0 w-full max-w-xl mx-auto md:mx-0">
+      <div className="space-y-6 flex-1 min-h-0 flex flex-col">
+        <div className="relative shrink-0 w-full max-w-xl">
           <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
           <Input 
             placeholder="Search Farmer or Village..." 
             value={searchTerm} 
             onChange={(e) => setSearchTerm(e.target.value)} 
-            className="h-12 md:h-14 pl-12 pr-12 rounded-2xl md:rounded-full bg-neutral-100/50 md:bg-white border-none text-slate-900 font-bold shadow-sm" 
+            className="h-12 md:h-14 pl-12 pr-12 rounded-2xl md:rounded-full bg-white border-none text-[#2F4F4F] font-bold shadow-sm" 
           />
           {searchTerm && <button onClick={() => setSearchTerm('')} className="absolute right-5 top-1/2 -translate-y-1/2"><X className="h-4 w-4 text-slate-300" /></button>}
         </div>
 
-        <div className="flex-1 min-h-0 flex flex-col md:bg-white md:rounded-[2.5rem] md:shadow-2xl md:overflow-hidden">
-          <CardHeader className="bg-emerald-600 text-white p-10 shrink-0 hidden md:block">
+        <div className="flex-1 min-h-0 flex flex-col premium-card overflow-hidden bg-white">
+          <CardHeader className="bg-[#0FA5A0] text-white p-10 shrink-0">
             <div className="flex justify-between items-end">
               <div className="space-y-1">
-                <div className="flex items-center gap-3"><ShoppingBag className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Buying Ledger</CardTitle></div>
-                <CardDescription className="text-emerald-100/60 text-[10px] font-black uppercase tracking-[0.2em]">Verified Cattle Procurement Stream</CardDescription>
+                <div className="flex items-center gap-3"><ShoppingBag className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase text-white">Buying Ledger</CardTitle></div>
+                <CardDescription className="text-white/60 text-[10px] font-black uppercase tracking-[0.2em]">Verified Sheep Procurement Stream</CardDescription>
               </div>
               <p className="text-4xl font-black tracking-tighter">₹{totalPurchaseCost.toLocaleString()}</p>
             </div>
           </CardHeader>
 
-          {/* MOBILE VIEW */}
-          <div className="block md:hidden flex-1 overflow-hidden bg-slate-50 -mx-4">
-            <ScrollArea className="h-full px-4 pt-4">
+          <ScrollArea className="flex-1 overflow-hidden">
+            {/* MOBILE VIEW */}
+            <div className="block md:hidden p-4 space-y-8">
               {groupedPurchases.length > 0 ? groupedPurchases.map((group) => (
-                <div key={group.date} className="mb-8">
-                  <div className="px-2 py-2 mb-3 bg-[#e7eddc] rounded-lg">
-                    <p className="text-[11px] font-black uppercase tracking-widest text-slate-600">{formatGroupDate(group.date)}</p>
+                <div key={group.date} className="space-y-4">
+                  <div className="px-2 py-2 mb-3 bg-[#D7F2F1] rounded-lg">
+                    <p className="text-[11px] font-black uppercase tracking-widest text-[#176E6C]">{formatGroupDate(group.date)}</p>
                   </div>
                   <div className="space-y-4">
                     {group.items.map((p) => (
-                      <div key={p.id} className="bg-white rounded-[1.25rem] p-5 flex items-center justify-between shadow-sm border border-white/60 active:scale-[0.98] transition-all" onClick={() => handleEditClick(p)}>
+                      <div key={p.id} className="bg-white rounded-[1.25rem] p-5 flex items-center justify-between shadow-sm border border-slate-100 active:scale-[0.98] transition-all" onClick={() => handleEditClick(p)}>
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-lg font-black text-slate-900 truncate leading-none mb-1">{p.farmerName}</h3>
+                          <h3 className="text-lg font-black text-[#2F4F4F] truncate leading-none mb-1">{p.farmerName}</h3>
                           <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
                             {p.villageName} • {p.animalCount} Head
                           </p>
                         </div>
                         <div className="text-right shrink-0">
-                          <p className="text-xl font-black text-slate-900">₹{p.purchasePrice.toLocaleString()}</p>
+                          <p className="text-xl font-black text-[#2F4F4F]">₹{p.purchasePrice.toLocaleString()}</p>
                           {p.dueAmount > 0 ? (
-                            <Badge className="bg-rose-50 text-rose-600 border-none font-black text-[8px] uppercase px-2 py-0.5 mt-1 tracking-tighter">₹{p.dueAmount} DUE</Badge>
+                            <Badge className="bg-rose-50 text-rose-600 border-none font-black text-[8px] uppercase px-2 py-0.5 mt-1 tracking-tighter">₹{p.dueAmount} Due</Badge>
                           ) : (
-                            <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#ecfdf5] text-[#059669] border border-[#d1fae5] mt-1">
+                            <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#ecfdf5] text-[#43A047] border border-[#d1fae5] mt-1">
                               <CheckCircle2 className="h-2.5 w-2.5" />
-                              <span className="text-[9px] font-black uppercase tracking-widest">SETTLED</span>
+                              <span className="text-[9px] font-black uppercase tracking-widest">Settled</span>
                             </div>
                           )}
                         </div>
@@ -245,40 +229,37 @@ export default function PurchasePage() {
                   </div>
                 </div>
               )) : <div className="py-20 text-center opacity-20 font-black uppercase text-xs">No buying records found</div>}
-              <div className="h-32" />
-            </ScrollArea>
-          </div>
+            </div>
 
-          {/* DESKTOP VIEW */}
-          <div className="hidden md:block flex-1 overflow-hidden">
-            <ScrollArea className="h-full">
+            {/* DESKTOP VIEW */}
+            <div className="hidden md:block">
               <Table>
-                <TableHeader className="bg-slate-50/50 sticky top-0 z-10 backdrop-blur">
+                <TableHeader className="bg-[#0FA5A0] sticky top-0 z-10">
                   <TableRow className="border-none hover:bg-transparent">
-                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-slate-400">Buying Date</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-slate-400">Farmer / Village</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-center text-slate-400">Head Count</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-slate-400">Purchase Value</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-white">Buying Date</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-white">Farmer / Village</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-center text-white">Head Count</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-white">Purchase Value</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredPurchases.map((p) => (
-                    <TableRow key={p.id} className="hover:bg-slate-50 border-b border-slate-100 group cursor-pointer" onClick={() => handleEditClick(p)}>
+                    <TableRow key={p.id} className="hover:bg-slate-50 border-b border-slate-100 group cursor-pointer transition-colors" onClick={() => handleEditClick(p)}>
                       <TableCell className="py-6 pl-10 text-[11px] font-black text-slate-400">{p.purchaseDate}</TableCell>
                       <TableCell>
-                        <div className="flex flex-col"><span className="text-[14px] font-black text-slate-900">{p.farmerName}</span><span className="text-[9px] font-bold text-slate-400 uppercase">{p.villageName}</span></div>
+                        <div className="flex flex-col"><span className="text-[14px] font-black text-[#2F4F4F]">{p.farmerName}</span><span className="text-[9px] font-bold text-slate-400 uppercase">{p.villageName}</span></div>
                       </TableCell>
                       <TableCell className="text-center">
-                        <Badge className="bg-neutral-100 text-neutral-600 border-none font-black text-[10px] px-3 uppercase tracking-widest">{p.animalCount} Head</Badge>
+                        <Badge className="bg-[#D7F2F1] text-[#0FA5A0] border-none font-black text-[10px] px-3 uppercase tracking-widest">{p.animalCount} Head</Badge>
                       </TableCell>
                       <TableCell className="text-right pr-10">
                         <div className="flex items-center justify-end gap-4">
                           <div className="flex flex-col items-end">
-                            <span className="text-[18px] font-black text-slate-900">₹{p.purchasePrice.toLocaleString()}</span>
+                            <span className="text-[18px] font-black text-[#2F4F4F]">₹{p.purchasePrice.toLocaleString()}</span>
                             {p.dueAmount > 0 && <span className="text-[9px] font-bold text-rose-500 uppercase">₹{p.dueAmount.toLocaleString()} Pending</span>}
                           </div>
                           <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
-                            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-emerald-50 text-emerald-600" onClick={(e) => { e.stopPropagation(); handleEditClick(p); }}><Pencil className="h-4 w-4" /></Button>
+                            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-emerald-50 text-[#43A047]" onClick={(e) => { e.stopPropagation(); handleEditClick(p); }}><Pencil className="h-4 w-4" /></Button>
                             <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-rose-50 text-rose-600" onClick={(e) => { e.stopPropagation(); deletePurchase(p.id, p._path); }}><Trash2 className="h-4 w-4" /></Button>
                           </div>
                         </div>
@@ -287,25 +268,16 @@ export default function PurchasePage() {
                   ))}
                 </TableBody>
               </Table>
-            </ScrollArea>
-          </div>
+            </div>
+          </ScrollArea>
         </div>
       </div>
 
-      {/* MOBILE FAB */}
-      <button 
-        onClick={() => { purchaseForm.reset(); setIsEntryDialogOpen(true); }}
-        className="md:hidden fixed bottom-24 right-6 h-14 w-14 rounded-full bg-[#059669] text-white shadow-2xl flex items-center justify-center active:scale-90 transition-all z-[120]"
-      >
-        <Plus className="h-7 w-7" />
-      </button>
-
-      {/* ENTRY DIALOG */}
       <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>
-        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
-            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400"><Plus className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase">Buying Entry</DialogTitle></div>
-            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Enroll new pashu purchase into records</DialogDescription>
+            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]"><Plus className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase text-white">Buying Entry</DialogTitle></div>
+            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Enroll new purchase into records</DialogDescription>
           </DialogHeader>
           <div className="p-8 max-h-[75vh] overflow-y-auto no-scrollbar">
             <Form {...purchaseForm}><form onSubmit={purchaseForm.handleSubmit(onPurchaseSubmit)} className="space-y-6">
@@ -318,24 +290,23 @@ export default function PurchasePage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <FormField control={purchaseForm.control} name="animalCount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Head Count</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
-                <FormField control={purchaseForm.control} name="purchasePrice" render={({ field }) => (<FormItem><Label className="form-label-tactical">Total Price (₹)</Label><FormControl><Input type="number" className="form-input-tactical font-black text-slate-900" {...field} /></FormControl></FormItem>)} />
+                <FormField control={purchaseForm.control} name="purchasePrice" render={({ field }) => (<FormItem><Label className="form-label-tactical">Total Price (₹)</Label><FormControl><Input type="number" className="form-input-tactical font-black text-[#2F4F4F]" {...field} /></FormControl></FormItem>)} />
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <FormField control={purchaseForm.control} name="amountPaid" render={({ field }) => (<FormItem><Label className="form-label-tactical">Amount Paid (₹)</Label><FormControl><Input type="number" className="form-input-tactical font-black text-emerald-600" {...field} /></FormControl></FormItem>)} />
-                <FormField control={purchaseForm.control} name="dueAmount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Ivvalasina (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-rose-50 text-rose-600 font-black" {...field} readOnly /></FormControl></FormItem>)} />
+                <FormField control={purchaseForm.control} name="amountPaid" render={({ field }) => (<FormItem><Label className="form-label-tactical">Amount Paid (₹)</Label><FormControl><Input type="number" className="form-input-tactical font-black text-[#0FA5A0]" {...field} /></FormControl></FormItem>)} />
+                <FormField control={purchaseForm.control} name="dueAmount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Payable (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-rose-50 text-rose-600 font-black" {...field} readOnly /></FormControl></FormItem>)} />
               </div>
-              <Button type="submit" className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase tracking-widest shadow-xl">Record Pashu Buy</Button>
+              <Button type="submit" className="w-full h-16 rounded-2xl bg-[#0FA5A0] hover:bg-[#176E6C] text-white font-black uppercase tracking-widest shadow-xl">Record Sheep Buy</Button>
             </form></Form>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* EDIT DIALOG */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
-            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400"><Pencil className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase">Update Pashu Buy</DialogTitle></div>
-            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Adjust historical purchase records</DialogDescription>
+            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]"><Pencil className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase text-white">Update Purchase</DialogTitle></div>
+            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Adjust historical records</DialogDescription>
           </DialogHeader>
           <div className="p-8 max-h-[75vh] overflow-y-auto no-scrollbar">
             <Form {...editForm}><form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-6">
@@ -344,7 +315,7 @@ export default function PurchasePage() {
                 <FormField control={editForm.control} name="purchasePrice" render={({ field }) => (<FormItem><Label className="form-label-tactical">Purchase Price (₹)</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
                 <FormField control={editForm.control} name="amountPaid" render={({ field }) => (<FormItem><Label className="form-label-tactical">Amount Paid (₹)</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
               </div>
-              <Button type="submit" className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase tracking-widest shadow-xl">Save Changes</Button>
+              <Button type="submit" className="w-full h-16 rounded-2xl bg-[#0FA5A0] hover:bg-[#176E6C] text-white font-black uppercase tracking-widest shadow-xl">Save Changes</Button>
             </form></Form>
           </div>
         </DialogContent>

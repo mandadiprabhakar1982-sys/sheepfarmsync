@@ -19,9 +19,6 @@ import {
   Landmark,
   Home,
   User,
-  LayoutGrid,
-  PlusCircle,
-  Plus,
   ArrowDownCircle,
   ArrowUpCircle,
   Loader2
@@ -43,7 +40,7 @@ import { Label } from '@/components/ui/label';
 
 /**
  * @fileOverview Personal Finance Ledger (Standard Indian English)
- * Tactical tabs for Income, Bank EMI, Credit Card, Personal Spend, and Household.
+ * Unified private & business accounts visualization.
  */
 export default function PersonalFinancePage() {
   const { 
@@ -58,22 +55,18 @@ export default function PersonalFinancePage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('income');
 
-  // Modal States
   const [isIncomeDialogOpen, setIsIncomeDialogOpen] = useState(false);
   const [isExpenseDialogOpen, setIsExpenseDialogOpen] = useState(false);
 
-  // Form States
   const [entryDate, setEntryDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [source, setSource] = useState('');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState<'loan' | 'card' | 'private' | 'household'>('household');
 
   const combinedData = useMemo(() => {
-    // Inflows
     const manualInflows = (monthlyIncomes || []).map(i => ({ id: i.id, date: i.date, source: i.source, amount: i.amount, type: 'income' as const, cat: 'Manual' }));
     const saleInflows = (sales || []).map(s => ({ id: s.id, date: s.saleDate, source: `Sheep Selling: ${s.buyerName}`, amount: s.amountReceived, type: 'income' as const, cat: 'Selling' }));
     
-    // Outflows (Operational)
     const pOut = (purchases || []).map(p => ({ id: p.id, date: p.purchaseDate, source: `Sheep Buying: ${p.farmerName}`, amount: p.amountPaid, type: 'expense' as const, cat: 'Buying' }));
     const fOut = (feedCosts || []).map(f => ({ id: f.id, date: f.date, source: `Fodder: ${f.feedType}`, amount: f.cost, type: 'expense' as const, cat: 'Fodder' }));
     const lOut = (laborCosts || []).map(l => ({ id: l.id, date: l.date, source: `Labour: ${l.employeeName}`, amount: l.amountPaid || 0, type: 'expense' as const, cat: 'Labour' }));
@@ -81,7 +74,6 @@ export default function PersonalFinancePage() {
     const cOut = (healthTasks || []).map(h => ({ id: h.id, date: h.date, source: `Clinical: ${h.medicineName}`, amount: h.cost, type: 'expense' as const, cat: 'Clinical' }));
     const eOut = (farmExpenses || []).map(e => ({ id: e.id, date: e.expenseDate, source: `Overhead: ${e.description}`, amount: e.amount, type: 'expense' as const, cat: 'Farm' }));
 
-    // Outflows (Private)
     const privateOutflows = (monthlyExpenses || []).map(e => ({
       id: e.id,
       date: e.date,
@@ -162,24 +154,13 @@ export default function PersonalFinancePage() {
   }
 
   return (
-    <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col relative bg-white md:bg-transparent">
-      {/* MOBILE HEADER */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-[110] bg-[#059669] text-white px-6 py-5 flex items-center justify-between shadow-lg">
-        <h2 className="text-xl font-black tracking-tight">Personal Finance</h2>
-        <div className="text-right">
-          <p className="text-[8px] font-black uppercase opacity-60 leading-none mb-1">Period Balance</p>
-          <p className="text-xl font-black">₹{netCashFlow.toLocaleString()}</p>
-        </div>
-      </div>
+    <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col relative">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-8 shrink-0">
+        <PageHeader title="Personal Finance" description="Unified Private & Business Accounts" className="mb-0" />
 
-      <div className="md:hidden h-16 shrink-0" />
-
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-6 md:mb-8 shrink-0 px-4 md:px-0 mt-4 md:mt-0">
-        <PageHeader title="Personal Finance" description="Unified private & business accounts" className="mb-0 hidden md:block" />
-
-        <div className="flex items-center gap-2 md:gap-4 overflow-x-auto pb-2 md:pb-0 no-scrollbar md:w-auto w-full">
-          <Button onClick={() => setIsIncomeDialogOpen(true)} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-xl border-none shrink-0">
-            <ArrowUpCircle className="h-5 w-5 text-accent" />
+        <div className="flex items-center gap-2 md:gap-4 overflow-x-auto pb-2 no-scrollbar md:w-auto w-full">
+          <Button onClick={() => setIsIncomeDialogOpen(true)} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-[#0FA5A0] hover:bg-[#176E6C] text-white gap-2 shadow-xl border-none shrink-0">
+            <ArrowUpCircle className="h-5 w-5 text-white" />
             Record Income
           </Button>
           <Button onClick={() => setIsExpenseDialogOpen(true)} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-rose-600 hover:bg-rose-700 text-white gap-2 shadow-xl border-none shrink-0">
@@ -196,8 +177,8 @@ export default function PersonalFinancePage() {
         </div>
       </div>
 
-      <div className="space-y-6 flex-1 min-h-0 flex flex-col px-4 md:px-0">
-        <div className="flex flex-col md:flex-row gap-4 items-center">
+      <div className="space-y-6 flex-1 min-h-0 flex flex-col">
+        <div className="flex flex-col md:flex-row gap-4 items-center shrink-0">
           <div className="relative flex-1 w-full">
             <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
             <Input placeholder="Search finance records..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="h-12 md:h-14 pl-12 pr-12 rounded-2xl md:rounded-full bg-white border-none font-bold shadow-sm" />
@@ -210,7 +191,7 @@ export default function PersonalFinancePage() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full flex-1 flex flex-col min-h-0">
-          <TabsList className="w-full h-14 md:h-16 bg-[#e7eddc] rounded-2xl p-1.5 flex justify-start md:justify-center overflow-x-auto no-scrollbar shadow-inner mb-8">
+          <TabsList className="w-full h-14 md:h-16 bg-[#D7F2F1] rounded-2xl p-1.5 flex justify-start md:justify-center overflow-x-auto no-scrollbar shadow-inner mb-8">
             <TabsTrigger value="income" className="tab-trigger-tactical"><ArrowUpCircle className="h-3.5 w-3.5 mr-2" /> Income</TabsTrigger>
             <TabsTrigger value="bank_emi" className="tab-trigger-tactical"><Landmark className="h-3.5 w-3.5 mr-2" /> Bank EMI</TabsTrigger>
             <TabsTrigger value="card" className="tab-trigger-tactical"><CreditCard className="h-3.5 w-3.5 mr-2" /> Card</TabsTrigger>
@@ -219,38 +200,38 @@ export default function PersonalFinancePage() {
           </TabsList>
 
           <TabsContent value={activeTab} className="flex-1 min-h-0 flex flex-col m-0">
-            <div className="flex-1 min-h-0 flex flex-col md:bg-white md:rounded-[2.5rem] md:shadow-2xl md:overflow-hidden">
-              <CardHeader className="bg-emerald-600 text-white p-10 shrink-0 hidden md:block">
+            <div className="flex-1 min-h-0 flex flex-col premium-card overflow-hidden bg-white">
+              <CardHeader className="bg-[#0FA5A0] text-white p-10 shrink-0">
                 <div className="flex justify-between items-end">
                   <div className="space-y-1">
-                    <div className="flex items-center gap-3"><ArrowRightLeft className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">{activeTab.replace('_', ' ')} Audit</CardTitle></div>
-                    <CardDescription className="text-emerald-100/60 text-[10px] font-black uppercase tracking-[0.2em]">Verified personal financial cash flow</CardDescription>
+                    <div className="flex items-center gap-3"><ArrowRightLeft className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase text-white">{activeTab.replace('_', ' ')} Audit</CardTitle></div>
+                    <CardDescription className="text-white/60 text-[10px] font-black uppercase tracking-[0.2em]">Verified Personal Financial Cash Flow</CardDescription>
                   </div>
                   <p className="text-4xl font-black tracking-tighter">₹{netCashFlow.toLocaleString()}</p>
                 </div>
               </CardHeader>
 
-              {/* MOBILE VIEW */}
-              <div className="block md:hidden flex-1 overflow-hidden bg-slate-50 -mx-4">
-                <ScrollArea className="h-full px-4 pt-4">
+              <ScrollArea className="flex-1 overflow-hidden">
+                {/* MOBILE VIEW */}
+                <div className="block md:hidden p-4 space-y-8">
                   {groupedData.length > 0 ? groupedData.map((group) => (
-                    <div key={group.date} className="mb-8">
-                      <div className="px-2 py-2 mb-3 bg-[#e7eddc] rounded-lg">
-                        <p className="text-[11px] font-black uppercase tracking-widest text-slate-600">{formatGroupDate(group.date)}</p>
+                    <div key={group.date} className="space-y-4">
+                      <div className="px-2 py-2 mb-3 bg-[#D7F2F1] rounded-lg">
+                        <p className="text-[11px] font-black uppercase tracking-widest text-[#176E6C]">{formatGroupDate(group.date)}</p>
                       </div>
                       <div className="space-y-4">
                         {group.items.map((item) => (
-                          <div key={item.id} className="bg-white rounded-[1.25rem] p-5 flex items-center justify-between shadow-sm border border-white/60 active:scale-[0.98] transition-all">
+                          <div key={item.id} className="bg-white rounded-[1.25rem] p-5 flex items-center justify-between shadow-sm border border-slate-100 active:scale-[0.98] transition-all">
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1">
-                                <Badge className={cn("border-none font-black text-[7px] uppercase px-1.5 py-0.5 tracking-widest", item.type === 'income' ? "bg-emerald-50 text-emerald-600" : "bg-slate-100 text-slate-600")}>{item.cat}</Badge>
-                                <h3 className="text-lg font-black text-slate-900 truncate leading-none">{item.source}</h3>
+                                <Badge className={cn("border-none font-black text-[7px] uppercase px-1.5 py-0.5 tracking-widest", item.type === 'income' ? "bg-emerald-50 text-[#43A047]" : "bg-slate-100 text-slate-600")}>{item.cat}</Badge>
+                                <h3 className="text-lg font-black text-[#2F4F4F] truncate leading-none">{item.source}</h3>
                               </div>
                               <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">{item.type === 'income' ? 'Cash Receipt' : 'Disbursement'}</p>
                             </div>
                             <div className="text-right shrink-0">
-                              <p className={cn("text-xl font-black", item.type === 'income' ? "text-[#059669]" : "text-slate-900")}>{item.type === 'income' ? '+' : '-'}₹{item.amount.toLocaleString()}</p>
-                              <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#ecfdf5] text-[#059669] border border-[#d1fae5] mt-1">
+                              <p className={cn("text-xl font-black", item.type === 'income' ? "text-[#43A047]" : "text-[#2F4F4F]")}>{item.type === 'income' ? '+' : '-'}₹{item.amount.toLocaleString()}</p>
+                              <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#ecfdf5] text-[#43A047] border border-[#d1fae5] mt-1">
                                 <CheckCircle2 className="h-2.5 w-2.5" />
                                 <span className="text-[9px] font-black uppercase tracking-widest">Verified</span>
                               </div>
@@ -259,68 +240,57 @@ export default function PersonalFinancePage() {
                         ))}
                       </div>
                     </div>
-                  )) : <div className="py-20 text-center opacity-20 font-black uppercase text-xs">No records discovered for this category</div>}
-                  <div className="h-32" />
-                </ScrollArea>
-              </div>
+                  )) : <div className="py-20 text-center opacity-20 font-black uppercase text-xs">No records discovered</div>}
+                </div>
 
-              {/* DESKTOP VIEW */}
-              <div className="hidden md:block flex-1 overflow-hidden">
-                <ScrollArea className="h-full">
+                {/* DESKTOP VIEW */}
+                <div className="hidden md:block">
                   <Table>
-                    <TableHeader className="bg-slate-50/50 sticky top-0 z-10 backdrop-blur">
+                    <TableHeader className="bg-[#0FA5A0] sticky top-0 z-10">
                       <TableRow className="border-none hover:bg-transparent">
-                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-slate-400">Transaction Date</TableHead>
-                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-slate-400">Origin / Description</TableHead>
-                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-center text-slate-400">Ledger Category</TableHead>
-                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-slate-400">Amount</TableHead>
+                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-white">Transaction Date</TableHead>
+                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-white">Origin / Description</TableHead>
+                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-center text-white">Ledger Category</TableHead>
+                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-white">Amount</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {combinedData.map((item) => (
-                        <TableRow key={item.id} className="hover:bg-slate-50 border-b border-slate-100">
+                        <TableRow key={item.id} className="hover:bg-slate-50 border-b border-slate-100 transition-colors">
                           <TableCell className="py-6 pl-10 text-[11px] font-black text-slate-400">{item.date}</TableCell>
-                          <TableCell><div className="flex flex-col"><span className="text-[14px] font-black text-slate-900">{item.source}</span><span className="text-[9px] font-bold text-slate-400 uppercase">Ref ID: {item.id.slice(0,8)}</span></div></TableCell>
-                          <TableCell className="text-center"><Badge className="bg-neutral-100 text-neutral-600 border-none font-black text-[10px] px-3 uppercase tracking-widest">{item.cat}</Badge></TableCell>
-                          <TableCell className="text-right pr-10"><span className={cn("text-[18px] font-black", item.type === 'income' ? "text-emerald-600" : "text-slate-900")}>{item.type === 'income' ? '+' : '-'}₹{item.amount.toLocaleString()}</span></TableCell>
+                          <TableCell><div className="flex flex-col"><span className="text-[14px] font-black text-[#2F4F4F]">{item.source}</span><span className="text-[9px] font-bold text-slate-400 uppercase">Ref: {item.id.slice(0,8)}</span></div></TableCell>
+                          <TableCell className="text-center"><Badge className="bg-slate-50 text-slate-600 border-none font-black text-[10px] px-3 uppercase tracking-widest">{item.cat}</Badge></TableCell>
+                          <TableCell className="text-right pr-10"><span className={cn("text-[18px] font-black", item.type === 'income' ? "text-[#43A047]" : "text-[#2F4F4F]")}>{item.type === 'income' ? '+' : '-'}₹{item.amount.toLocaleString()}</span></TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
                   </Table>
-                </ScrollArea>
-              </div>
+                </div>
+              </ScrollArea>
             </div>
           </TabsContent>
         </Tabs>
       </div>
 
-      {/* MOBILE FAB */}
-      <div className="md:hidden fixed bottom-24 right-6 flex flex-col gap-4 z-[120]">
-        <button onClick={() => setIsExpenseDialogOpen(true)} className="h-12 w-12 rounded-full bg-rose-600 text-white shadow-2xl flex items-center justify-center active:scale-90 transition-all"><Plus className="h-6 w-6" /></button>
-        <button onClick={() => setIsIncomeDialogOpen(true)} className="h-14 w-14 rounded-full bg-[#059669] text-white shadow-2xl flex items-center justify-center active:scale-90 transition-all"><ArrowUpCircle className="h-7 w-7 text-accent" /></button>
-      </div>
-
-      {/* INCOME DIALOG */}
       <Dialog open={isIncomeDialogOpen} onOpenChange={setIsIncomeDialogOpen}>
-        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
-            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400"><ArrowUpCircle className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase">Income Entry</DialogTitle></div>
+            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]"><ArrowUpCircle className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase text-white">Income Entry</DialogTitle></div>
             <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Document new cash inflow receipt</DialogDescription>
           </DialogHeader>
           <div className="p-8 space-y-6">
             <div className="space-y-2"><Label className="form-label-tactical">Transaction Date</Label><Input type="date" value={entryDate} onChange={(e) => setEntryDate(e.target.value)} className="form-input-tactical" /></div>
             <div className="space-y-2"><Label className="form-label-tactical">Income Source</Label><Input placeholder="e.g. Salary, Rent, Bonus" value={source} onChange={(e) => setSource(e.target.value)} className="form-input-tactical" /></div>
-            <div className="space-y-2"><Label className="form-label-tactical">Amount (₹)</Label><Input type="number" placeholder="0" value={amount} onChange={(e) => setAmount(e.target.value)} className="form-input-tactical font-black text-xl text-emerald-600" /></div>
-            <Button onClick={handleAddIncome} className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase shadow-xl">Commit Income</Button>
+            <div className="space-y-2"><Label className="form-label-tactical">Amount (₹)</Label><Input type="number" placeholder="0" value={amount} onChange={(e) => setAmount(e.target.value)} className="form-input-tactical font-black text-xl text-[#43A047]" /></div>
+            <Button onClick={handleAddIncome} className="w-full h-16 rounded-2xl bg-[#0FA5A0] hover:bg-[#176E6C] text-white font-black uppercase shadow-xl">Commit Income</Button>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* EXPENSE DIALOG */}
       <Dialog open={isExpenseDialogOpen} onOpenChange={setIsExpenseDialogOpen}>
-        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
-            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-rose-500/20 text-rose-400"><ArrowDownCircle className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase">Expense Entry</DialogTitle></div>
+            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-rose-500/20 text-rose-400"><ArrowDownCircle className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase text-white">Expense Entry</DialogTitle></div>
             <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Document new personal disbursement</DialogDescription>
           </DialogHeader>
           <div className="p-8 space-y-6">

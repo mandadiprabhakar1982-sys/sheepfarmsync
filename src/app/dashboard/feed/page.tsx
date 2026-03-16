@@ -9,7 +9,8 @@ import {
   Trash2, 
   Plus,
   ShieldCheck,
-  Wheat
+  Wheat,
+  Loader2
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -95,101 +96,24 @@ export default function FeedPage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-[calc(100vh-120px)] w-full items-center justify-center">
-        <div className="flex flex-col items-center gap-6">
-          <div className="w-12 h-12 border-4 border-slate-100 rounded-full border-t-emerald-500 animate-spin" />
-          <p className="text-[12px] font-black text-slate-400 uppercase tracking-[0.3em]">SYNCHRONIZING FODDER DATA...</p>
-        </div>
+      <div className="flex h-full w-full items-center justify-center min-h-[60vh]">
+        <Loader2 className="h-10 w-10 animate-spin text-primary opacity-20" />
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 md:px-10 max-w-7xl animate-in fade-in duration-700">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
-        <PageHeader
-          title="Fodder & Feed"
-          description="FARM INVENTORY & FEED BUYING LOG"
-          className="mb-0"
-        />
+    <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col relative">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-8 shrink-0">
+        <PageHeader title="Fodder & Feed" description="Inventory & Cost Tracking" className="mb-0" />
         
         <div className="flex items-center gap-4">
-          <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={() => { form.reset(); setIsEntryDialogOpen(true); }} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-neutral-900 hover:bg-neutral-800 text-white gap-2 shadow-xl">
-                <PlusCircle className="h-5 w-5 text-emerald-400" />
-                Record Fodder
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
-              <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400">
-                    <Plus className="h-5 w-5" />
-                  </div>
-                  <DialogTitle className="text-xl font-black tracking-tight uppercase">Fodder Entry</DialogTitle>
-                </div>
-                <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Commit fodder procurement to farm records</DialogDescription>
-              </DialogHeader>
-              
-              <div className="p-8">
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                    <div className="space-y-6">
-                      <FormField control={form.control} name="date" render={({ field }) => (
-                        <FormItem className="flex flex-col">
-                          <Label className="form-label-tactical text-slate-400">Date of Buying</Label>
-                          <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
-                            <PopoverTrigger asChild>
-                              <Button variant="outline" className="form-input-tactical w-full text-left justify-between bg-slate-50 border-slate-200">
-                                {field.value ? format(field.value, "MMMM do, yyyy") : "Pick date"}
-                                <CalendarIcon className="h-4 w-4 opacity-20" />
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0 border-slate-200 bg-white shadow-2xl">
-                              <Calendar mode="single" selected={field.value} onSelect={(d) => { field.onChange(d); setIsDatePickerOpen(false); }} initialFocus className="text-slate-900" />
-                            </PopoverContent>
-                          </Popover>
-                        </FormItem>
-                      )} />
+          <Button onClick={() => setIsEntryDialogOpen(true)} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-[#0FA5A0] hover:bg-[#176E6C] text-white gap-2 shadow-xl border-none">
+            <PlusCircle className="h-5 w-5 text-white" />
+            Record Fodder
+          </Button>
 
-                      <div className="grid grid-cols-2 gap-6">
-                        <FormField control={form.control} name="feedType" render={({ field }) => (
-                          <FormItem>
-                            <Label className="form-label-tactical text-slate-400">Category</Label>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl><SelectTrigger className="form-input-tactical bg-slate-50 border-slate-200"><SelectValue placeholder="Select" /></SelectTrigger></FormControl>
-                              <SelectContent className="bg-white border-slate-200">
-                                {feedTypes.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                              </SelectContent>
-                            </Select>
-                          </FormItem>
-                        )} />
-                        <FormField control={form.control} name="quantity" render={({ field }) => (
-                          <FormItem><Label className="form-label-tactical text-slate-400">Weight (KG)</Label><FormControl><Input type="number" step="0.1" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
-                        )} />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-6">
-                        <FormField control={form.control} name="bags" render={({ field }) => (
-                          <FormItem><Label className="form-label-tactical text-slate-400">Bags (Optional)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
-                        )} />
-                        <FormField control={form.control} name="cost" render={({ field }) => (
-                          <FormItem><Label className="form-label-tactical text-slate-400">Total Price (₹)</Label><FormControl><Input type="number" step="0.01" className="form-input-tactical bg-slate-50 border-slate-200 text-emerald-600 font-black" {...field} /></FormControl></FormItem>
-                        )} />
-                      </div>
-                    </div>
-
-                    <Button type="submit" className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm uppercase tracking-[0.25em] transition-all active:scale-95 shadow-xl">
-                      Record Fodder Buy
-                    </Button>
-                  </form>
-                </Form>
-              </div>
-            </DialogContent>
-          </Dialog>
-
-          <div className="px-6 py-3 bg-neutral-900 rounded-2xl text-white flex items-center gap-4 shadow-xl">
+          <div className="px-6 py-3 bg-neutral-900 rounded-2xl text-white flex items-center gap-4 shadow-xl shrink-0">
             <ShieldCheck className="h-5 w-5 text-emerald-400" />
             <div>
               <p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Net Fodder Cost</p>
@@ -199,55 +123,140 @@ export default function FeedPage() {
         </div>
       </div>
 
-      <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
-        <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
-          <CardHeader className="bg-[#84cc16] text-white p-10 py-12">
-            <div className="flex justify-between items-end">
-              <div className="space-y-1">
-                <div className="flex items-center gap-3">
-                  <Wheat className="h-6 w-6" />
-                  <CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Fodder Ledger</CardTitle>
-                </div>
-                <CardDescription className="text-emerald-100/60 text-xs font-black uppercase tracking-[0.2em]">High-fidelity fodder inventory records</CardDescription>
+      <div className="flex-1 min-h-0 flex flex-col premium-card overflow-hidden bg-white">
+        <CardHeader className="bg-[#0FA5A0] text-white p-10 shrink-0">
+          <div className="flex justify-between items-end">
+            <div className="space-y-1">
+              <div className="flex items-center gap-3">
+                <Wheat className="h-6 w-6" />
+                <CardTitle className="text-2xl font-black tracking-tight leading-none uppercase text-white">Fodder Ledger</CardTitle>
               </div>
-              <p className="text-4xl font-black tracking-tighter">₹{totalFeedCost.toLocaleString()}</p>
+              <CardDescription className="text-white/60 text-[10px] font-black uppercase tracking-[0.2em]">Inventory Procurement History</CardDescription>
             </div>
-          </CardHeader>
-          <CardContent className="p-0 overflow-x-auto">
+            <p className="text-4xl font-black tracking-tighter">₹{totalFeedCost.toLocaleString()}</p>
+          </div>
+        </CardHeader>
+
+        <ScrollArea className="flex-1 overflow-hidden">
+          {/* MOBILE VIEW */}
+          <div className="block md:hidden p-4 space-y-4">
+            {sortedFeedCosts.length > 0 ? sortedFeedCosts.map((c) => (
+              <div key={c.id} className="bg-white rounded-[1.25rem] p-5 flex items-center justify-between shadow-sm border border-slate-100">
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg font-black text-[#2F4F4F] truncate leading-none mb-1">{c.feedType}</h3>
+                  <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">{c.date} • {c.quantity} KG</p>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className="text-xl font-black text-[#0FA5A0]">₹{c.cost.toLocaleString()}</p>
+                  <Badge className="bg-[#D7F2F1] text-[#0FA5A0] border-none font-black text-[8px] uppercase px-2 py-0.5 mt-1 tracking-tighter">{c.bags || 0} Bags</Badge>
+                </div>
+              </div>
+            )) : <div className="py-20 text-center opacity-20 font-black uppercase text-xs">No fodder records found</div>}
+          </div>
+
+          {/* DESKTOP VIEW */}
+          <div className="hidden md:block">
             <Table>
-              <TableHeader className="bg-neutral-50">
-                <TableRow>
-                  <TableHead className="text-[10px] font-black uppercase py-6 pl-10">Bill Date</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase">Category</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase text-center">Packaging</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase text-right">Quantity</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase text-right pr-10">Bill Amount</TableHead>
+              <TableHeader className="bg-[#0FA5A0] sticky top-0 z-10">
+                <TableRow className="border-none hover:bg-transparent">
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-white">Bill Date</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-white">Category</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-center text-white">Packaging</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right text-white">Quantity</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-white">Bill Amount</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {sortedFeedCosts.length > 0 ? sortedFeedCosts.map((c) => (
-                  <TableRow key={c.id} className="group hover:bg-neutral-50 transition-colors border-b border-slate-100">
+                {sortedFeedCosts.map((c) => (
+                  <TableRow key={c.id} className="group hover:bg-slate-50 transition-colors border-b border-slate-100">
                     <TableCell className="pl-10 py-8 text-[11px] font-black text-slate-400 uppercase tracking-widest">{c.date}</TableCell>
-                    <TableCell><span className="text-[14px] font-black text-slate-900 uppercase">{c.feedType}</span></TableCell>
+                    <TableCell><span className="text-[14px] font-black text-[#2F4F4F] uppercase">{c.feedType}</span></TableCell>
                     <TableCell className="text-center">
-                      {c.bags ? <Badge className="bg-emerald-50 text-emerald-700 border-none font-black text-[10px] px-3">{c.bags} BAGS</Badge> : <span className="text-[10px] text-slate-300 font-bold uppercase">BULK</span>}
+                      {c.bags ? <Badge className="bg-[#D7F2F1] text-[#0FA5A0] border-none font-black text-[10px] px-3">{c.bags} Bags</Badge> : <span className="text-[10px] text-slate-300 font-bold uppercase">Bulk</span>}
                     </TableCell>
-                    <TableCell className="text-right"><span className="text-[16px] font-black text-slate-900">{c.quantity} KG</span></TableCell>
+                    <TableCell className="text-right"><span className="text-[16px] font-black text-[#2F4F4F]">{c.quantity} KG</span></TableCell>
                     <TableCell className="text-right pr-10">
                       <div className="flex items-center justify-end gap-4">
-                        <span className="text-[18px] font-black text-emerald-700">₹{c.cost.toLocaleString()}</span>
+                        <span className="text-[18px] font-black text-[#0FA5A0]">₹{c.cost.toLocaleString()}</span>
                         <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-rose-50 text-rose-600 opacity-0 group-hover:opacity-100 transition-all" onClick={() => deleteFeedCost(c.id, c._path)}><Trash2 className="h-4 w-4" /></Button>
                       </div>
                     </TableCell>
                   </TableRow>
-                )) : (
-                  <TableRow><TableCell colSpan={5} className="text-center py-32 opacity-20 font-black uppercase text-xs">No records found</TableCell></TableRow>
-                )}
+                ))}
               </TableBody>
             </Table>
-          </CardContent>
-        </Card>
+          </div>
+        </ScrollArea>
       </div>
+
+      <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
+          <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]">
+                <Plus className="h-5 w-5" />
+              </div>
+              <DialogTitle className="text-xl font-black tracking-tight uppercase text-white">Fodder Entry</DialogTitle>
+            </div>
+            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Commit fodder procurement to records</DialogDescription>
+          </DialogHeader>
+          
+          <div className="p-8">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                <div className="space-y-6">
+                  <FormField control={form.control} name="date" render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <Label className="form-label-tactical">Date of Buying</Label>
+                      <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" className="form-input-tactical w-full text-left justify-between">
+                            {field.value ? format(field.value, "MMMM do, yyyy") : "Pick date"}
+                            <CalendarIcon className="h-4 w-4 opacity-20" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0 border-none bg-white shadow-2xl">
+                          <Calendar mode="single" selected={field.value} onSelect={(d) => { field.onChange(d); setIsDatePickerOpen(false); }} initialFocus className="text-slate-900" />
+                        </PopoverContent>
+                      </Popover>
+                    </FormItem>
+                  )} />
+
+                  <div className="grid grid-cols-2 gap-6">
+                    <FormField control={form.control} name="feedType" render={({ field }) => (
+                      <FormItem>
+                        <Label className="form-label-tactical">Category</Label>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl><SelectTrigger className="form-input-tactical"><SelectValue placeholder="Select" /></SelectTrigger></FormControl>
+                          <SelectContent>
+                            {feedTypes.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="quantity" render={({ field }) => (
+                      <FormItem><Label className="form-label-tactical">Weight (KG)</Label><FormControl><Input type="number" step="0.1" className="form-input-tactical" {...field} /></FormControl></FormItem>
+                    )} />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-6">
+                    <FormField control={form.control} name="bags" render={({ field }) => (
+                      <FormItem><Label className="form-label-tactical">Bags (Optional)</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>
+                    )} />
+                    <FormField control={form.control} name="cost" render={({ field }) => (
+                      <FormItem><Label className="form-label-tactical">Total Price (₹)</Label><FormControl><Input type="number" step="0.01" className="form-input-tactical text-[#0FA5A0] font-black" {...field} /></FormControl></FormItem>
+                    )} />
+                  </div>
+                </div>
+
+                <Button type="submit" className="w-full h-16 rounded-2xl bg-[#0FA5A0] hover:bg-[#176E6C] text-white font-black text-sm uppercase tracking-[0.2em] transition-all shadow-xl">
+                  Record Fodder Buy
+                </Button>
+              </form>
+            </Form>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

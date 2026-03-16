@@ -11,14 +11,11 @@ import {
   Users, 
   Search,
   Pencil,
-  Save,
   ShieldCheck,
   PlusCircle,
-  ChevronDown,
-  HandCoins,
   CheckCircle2,
-  AlertCircle,
-  X
+  X,
+  Loader2
 } from 'lucide-react';
 import { format, isToday, isYesterday, parseISO } from 'date-fns';
 
@@ -41,16 +38,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from '@/components/ui/dialog';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import type { LaborCost } from '@/lib/types';
 
 const formSchema = z.object({
@@ -94,7 +82,6 @@ export default function LaborPage() {
 
   const editForm = useForm<LaborFormData>({ resolver: zodResolver(formSchema) });
 
-  // Entry Form Calc Logic
   const watchedFields = form.watch([
     'wages', 'numberOfLaborers', 'advancePayments', 'foodCosts', 'fuelCosts', 'amountPaid'
   ]);
@@ -114,7 +101,6 @@ export default function LaborPage() {
     return [...filtered].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [laborCosts, searchTerm]);
 
-  // Grouping for Mobile View
   const groupedLaborCosts = useMemo(() => {
     const groups: { [key: string]: LaborCost[] } = {};
     sortedLaborCosts.forEach(cost => {
@@ -123,10 +109,6 @@ export default function LaborPage() {
     });
     return Object.entries(groups).map(([date, items]) => ({ date, items }));
   }, [sortedLaborCosts]);
-
-  const totalPendingLiability = useMemo(() => {
-    return (laborCosts || []).reduce((s, c) => s + (c.pendingAmount || 0), 0);
-  }, [laborCosts]);
 
   const onSubmit: SubmitHandler<LaborFormData> = (data) => {
     const newCost = { ...data, date: format(data.date, 'yyyy-MM-dd') };
@@ -153,98 +135,85 @@ export default function LaborPage() {
 
   const formatGroupDate = (dateStr: string) => {
     const d = parseISO(dateStr);
-    if (isToday(d)) return `TODAY - ${dateStr}`;
-    if (isYesterday(d)) return `YESTERDAY - ${dateStr}`;
+    if (isToday(d)) return `Today - ${dateStr}`;
+    if (isYesterday(d)) return `Yesterday - ${dateStr}`;
     return dateStr;
   };
 
   if (isLoading) {
     return (
-      <div className="flex h-full w-full items-center justify-center">
-        <div className="flex flex-col items-center gap-6">
-          <div className="w-12 h-12 border-4 border-slate-100 rounded-full border-t-emerald-500 animate-spin" />
-          <p className="text-[12px] font-black text-slate-400 uppercase tracking-[0.3em]">SYNCHRONIZING LABOUR DATA...</p>
-        </div>
+      <div className="flex h-full w-full items-center justify-center min-h-[60vh]">
+        <Loader2 className="h-10 w-10 animate-spin text-primary opacity-20" />
       </div>
     );
   }
 
   return (
-    <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col relative bg-white md:bg-transparent">
-      {/* MOBILE HEADER */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-[110] bg-[#059669] text-white px-6 py-5 flex items-center justify-between shadow-lg">
-        <h2 className="text-xl font-black tracking-tight">Staff Ledger</h2>
-        <p className="text-xl font-black">₹{totalLaborCost.toLocaleString()}</p>
-      </div>
+    <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col relative">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-8 shrink-0">
+        <PageHeader title="Labour & Staff" description="Staff Disbursements & Coolie Audit" className="mb-0" />
 
-      <div className="md:hidden h-16 shrink-0" />
+        <div className="flex items-center gap-4">
+          <Button onClick={() => setIsEntryDialogOpen(true)} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-[#0FA5A0] hover:bg-[#176E6C] text-white gap-2 shadow-xl border-none">
+            <Users className="h-5 w-5 text-white" />
+            Log Payment
+          </Button>
 
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-6 md:mb-8 shrink-0 px-4 md:px-0">
-        <PageHeader title="Labour & Staff" description="STAFF DISBURSEMENTS & COOLIE AUDIT" className="mb-0 hidden md:block" />
-
-        <div className="flex items-center gap-2 md:gap-4 overflow-x-auto pb-2 md:pb-0 no-scrollbar md:w-auto w-full mt-4 md:mt-0">
-          <div className="hidden md:flex items-center gap-4">
-            <Button onClick={() => setIsEntryDialogOpen(true)} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-xl border-none">
-              <Users className="h-5 w-5 text-accent" />
-              Log Payment
-            </Button>
-
-            <div className="px-6 py-3 bg-neutral-900 rounded-2xl text-white flex items-center gap-4 shadow-xl shrink-0">
-              <ShieldCheck className="h-5 w-5 text-emerald-400" />
-              <div>
-                <p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Net Staff Spend</p>
-                <p className="text-xl font-black tracking-tight text-white">₹{totalLaborCost.toLocaleString()}</p>
-              </div>
+          <div className="px-6 py-3 bg-neutral-900 rounded-2xl text-white flex items-center gap-4 shadow-xl shrink-0">
+            <ShieldCheck className="h-5 w-5 text-emerald-400" />
+            <div>
+              <p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Net Staff Spend</p>
+              <p className="text-xl font-black tracking-tight text-white">₹{totalLaborCost.toLocaleString()}</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="space-y-6 flex-1 min-h-0 flex flex-col px-4 md:px-0">
-        <div className="relative shrink-0 w-full max-w-xl mx-auto md:mx-0">
+      <div className="space-y-6 flex-1 min-h-0 flex flex-col">
+        <div className="relative shrink-0 w-full max-w-xl">
           <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
           <Input 
             placeholder="Search Staff Identity..." 
             value={searchTerm} 
             onChange={(e) => setSearchTerm(e.target.value)} 
-            className="h-12 md:h-14 pl-12 pr-12 rounded-2xl md:rounded-full bg-neutral-100/50 md:bg-white border-none text-slate-900 font-bold shadow-sm" 
+            className="h-12 md:h-14 pl-12 pr-12 rounded-2xl md:rounded-full bg-white border-none text-[#2F4F4F] font-bold shadow-sm" 
           />
           {searchTerm && <button onClick={() => setSearchTerm('')} className="absolute right-5 top-1/2 -translate-y-1/2"><X className="h-4 w-4 text-slate-300" /></button>}
         </div>
 
-        <div className="flex-1 min-h-0 flex flex-col md:bg-white md:rounded-[2.5rem] md:shadow-2xl md:overflow-hidden">
-          <CardHeader className="bg-emerald-600 text-white p-10 shrink-0 hidden md:block">
+        <div className="flex-1 min-h-0 flex flex-col premium-card overflow-hidden bg-white">
+          <CardHeader className="bg-[#0FA5A0] text-white p-10 shrink-0">
             <div className="flex justify-between items-end">
               <div className="space-y-1">
-                <div className="flex items-center gap-3"><Users className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Staff Ledger</CardTitle></div>
-                <CardDescription className="text-emerald-100/60 text-[10px] font-black uppercase tracking-[0.2em]">Operational Labour Disbursement Audit</CardDescription>
+                <div className="flex items-center gap-3"><Users className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase text-white">Staff Ledger</CardTitle></div>
+                <CardDescription className="text-white/60 text-[10px] font-black uppercase tracking-[0.2em]">Operational Labour Disbursement Audit</CardDescription>
               </div>
               <p className="text-4xl font-black tracking-tighter">₹{totalLaborCost.toLocaleString()}</p>
             </div>
           </CardHeader>
 
-          {/* MOBILE VIEW */}
-          <div className="block md:hidden flex-1 overflow-hidden bg-slate-50 -mx-4">
-            <ScrollArea className="h-full px-4 pt-4">
+          <ScrollArea className="flex-1 overflow-hidden">
+            {/* MOBILE VIEW */}
+            <div className="block md:hidden p-4 space-y-8">
               {groupedLaborCosts.length > 0 ? groupedLaborCosts.map((group) => (
-                <div key={group.date} className="mb-8">
-                  <div className="px-2 py-2 mb-3 bg-[#e7eddc] rounded-lg">
-                    <p className="text-[11px] font-black uppercase tracking-widest text-slate-600">{formatGroupDate(group.date)}</p>
+                <div key={group.date} className="space-y-4">
+                  <div className="px-2 py-2 mb-3 bg-[#D7F2F1] rounded-lg">
+                    <p className="text-[11px] font-black uppercase tracking-widest text-[#176E6C]">{formatGroupDate(group.date)}</p>
                   </div>
                   <div className="space-y-4">
                     {group.items.map((cost) => (
-                      <div key={cost.id} className="bg-white rounded-[1.25rem] p-5 flex items-center justify-between shadow-sm border border-white/60 active:scale-[0.98] transition-all" onClick={() => handleEditClick(cost)}>
+                      <div key={cost.id} className="bg-white rounded-[1.25rem] p-5 flex items-center justify-between shadow-sm border border-slate-100 active:scale-[0.98] transition-all" onClick={() => handleEditClick(cost)}>
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-lg font-black text-slate-900 leading-none mb-1">{cost.employeeName}</h3>
+                          <h3 className="text-lg font-black text-[#2F4F4F] leading-none mb-1">{cost.employeeName}</h3>
                           <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
                             {cost.numberOfLaborers} Staff • ₹{cost.wages} per Head
                           </p>
                         </div>
-                        <div className="text-right shrink-0 flex flex-col items-end gap-2">
-                          <p className="text-xl font-black text-[#059669]">₹{cost.amountPaid?.toLocaleString() || '0'}</p>
-                          <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#ecfdf5] text-[#059669] border border-[#d1fae5]">
+                        <div className="text-right shrink-0">
+                          <p className="text-xl font-black text-[#0FA5A0]">₹{cost.amountPaid?.toLocaleString() || '0'}</p>
+                          <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#ecfdf5] text-[#43A047] border border-[#d1fae5] mt-1">
                             <CheckCircle2 className="h-2.5 w-2.5" />
-                            <span className="text-[9px] font-black uppercase tracking-widest">SETTLED</span>
+                            <span className="text-[9px] font-black uppercase tracking-widest">Settled</span>
                           </div>
                         </div>
                       </div>
@@ -252,20 +221,17 @@ export default function LaborPage() {
                   </div>
                 </div>
               )) : <div className="py-20 text-center opacity-20 font-black uppercase text-xs">No records discovered</div>}
-              <div className="h-32" />
-            </ScrollArea>
-          </div>
+            </div>
 
-          {/* DESKTOP VIEW */}
-          <div className="hidden md:block flex-1 overflow-hidden">
-            <ScrollArea className="h-full">
+            {/* DESKTOP VIEW */}
+            <div className="hidden md:block">
               <Table>
-                <TableHeader className="bg-slate-50/50 sticky top-0 z-10 backdrop-blur">
+                <TableHeader className="bg-[#0FA5A0] sticky top-0 z-10">
                   <TableRow className="border-none hover:bg-transparent">
-                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-slate-400">Payment Date</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-slate-400">Staff Identity</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-center text-slate-400">Status</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-slate-400">Amount Disbursed</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-white">Payment Date</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-white">Staff Identity</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-center text-white">Status</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-white">Amount Disbursed</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -273,42 +239,42 @@ export default function LaborPage() {
                     <TableRow key={cost.id} className="hover:bg-slate-50 transition-colors border-b border-slate-100 group cursor-pointer" onClick={() => handleEditClick(cost)}>
                       <TableCell className="py-6 pl-10 text-[11px] font-black text-slate-400 uppercase tracking-widest">{cost.date}</TableCell>
                       <TableCell>
-                        <div className="flex flex-col"><span className="text-[14px] font-black text-slate-900">{cost.employeeName}</span><span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{cost.numberOfLaborers} Staff • ₹{cost.wages} Head</span></div>
+                        <div className="flex flex-col"><span className="text-[14px] font-black text-[#2F4F4F]">{cost.employeeName}</span><span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{cost.numberOfLaborers} Staff • ₹{cost.wages} Head</span></div>
                       </TableCell>
                       <TableCell className="text-center">
-                        {cost.pendingAmount && cost.pendingAmount > 0 ? <Badge className="bg-rose-500/10 text-rose-600 border-none font-black text-[10px] px-3 uppercase tracking-widest">₹{cost.pendingAmount.toLocaleString()} Pending</Badge> : <Badge className="bg-emerald-500/10 text-emerald-600 border-none font-black text-[10px] px-3 uppercase tracking-widest">Settled</Badge>}
+                        {cost.pendingAmount && cost.pendingAmount > 0 ? <Badge className="bg-rose-50 text-rose-600 border-none font-black text-[10px] px-3 uppercase tracking-widest">₹{cost.pendingAmount.toLocaleString()} Pending</Badge> : <Badge className="bg-[#ecfdf5] text-[#43A047] border-none font-black text-[10px] px-3 uppercase tracking-widest">Settled</Badge>}
                       </TableCell>
                       <TableCell className="text-right pr-10">
-                        <div className="flex items-center justify-end gap-4"><div className="flex flex-col items-end"><span className="text-[16px] font-black text-slate-900">₹{cost.amountPaid?.toLocaleString() || '0'}</span><span className="text-[9px] font-black text-slate-400 uppercase">Of ₹{cost.totalLaborCosts.toLocaleString()}</span></div><div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all"><Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-rose-50 text-rose-600" onClick={(e) => { e.stopPropagation(); deleteLaborCost(cost.id, cost._path); }}><Trash2 className="h-4 w-4" /></Button></div></div>
+                        <div className="flex items-center justify-end gap-4">
+                          <div className="flex flex-col items-end">
+                            <span className="text-[16px] font-black text-[#2F4F4F]">₹{cost.amountPaid?.toLocaleString() || '0'}</span>
+                            <span className="text-[9px] font-black text-slate-400 uppercase">Of ₹{cost.totalLaborCosts.toLocaleString()}</span>
+                          </div>
+                          <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-rose-50 text-rose-600" onClick={(e) => { e.stopPropagation(); deleteLaborCost(cost.id, cost._path); }}><Trash2 className="h-4 w-4" /></Button>
+                          </div>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
-            </ScrollArea>
-          </div>
+            </div>
+          </ScrollArea>
         </div>
       </div>
 
-      {/* MOBILE FAB */}
-      <button 
-        onClick={() => { form.reset(); setIsEntryDialogOpen(true); }}
-        className="md:hidden fixed bottom-24 right-6 h-14 w-14 rounded-full bg-[#059669] text-white shadow-2xl flex items-center justify-center active:scale-90 transition-all z-[120]"
-      >
-        <Plus className="h-7 w-7" />
-      </button>
-
       <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>
-        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
-            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400"><Plus className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase">Staff Payment</DialogTitle></div>
+            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]"><Plus className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase text-white">Staff Payment</DialogTitle></div>
             <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Commit new staff expenditure to records</DialogDescription>
           </DialogHeader>
           <div className="p-8 max-h-[70vh] overflow-y-auto no-scrollbar">
             <Form {...form}><form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <div className="space-y-6">
                 <FormField control={form.control} name="date" render={({ field }) => (
-                  <FormItem className="flex flex-col"><Label className="form-label-tactical">Payment Date</Label><Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}><PopoverTrigger asChild><Button variant="outline" className="form-input-tactical w-full text-left justify-between">{field.value ? format(field.value, "MMM dd, yyyy") : "Pick date"}<CalendarIcon className="h-4 w-4 opacity-20" /></Button></PopoverTrigger><PopoverContent className="w-auto p-0 border-slate-200 bg-white shadow-2xl"><Calendar mode="single" selected={field.value} onSelect={(d) => { field.onChange(d); setIsDatePickerOpen(false); }} initialFocus /></PopoverContent></Popover></FormItem>
+                  <FormItem className="flex flex-col"><Label className="form-label-tactical">Payment Date</Label><Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}><PopoverTrigger asChild><Button variant="outline" className="form-input-tactical w-full text-left justify-between">{field.value ? format(field.value, "MMM dd, yyyy") : "Pick date"}<CalendarIcon className="h-4 w-4 opacity-20" /></Button></PopoverTrigger><PopoverContent className="w-auto p-0 border-none bg-white shadow-2xl"><Calendar mode="single" selected={field.value} onSelect={(d) => { field.onChange(d); setIsDatePickerOpen(false); }} initialFocus /></PopoverContent></Popover></FormItem>
                 )} />
                 <FormField control={form.control} name="employeeName" render={({ field }) => (
                   <FormItem><Label className="form-label-tactical">Staff Name</Label><FormControl><Input placeholder="Employee Name" className="form-input-tactical" {...field} /></FormControl></FormItem>
@@ -318,11 +284,11 @@ export default function LaborPage() {
                   <FormField control={form.control} name="wages" render={({ field }) => (<FormItem><Label className="form-label-tactical">Wage/Head (₹)</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <FormField control={form.control} name="amountPaid" render={({ field }) => (<FormItem><Label className="form-label-tactical">Amount Paid (₹)</Label><FormControl><Input type="number" className="form-input-tactical font-black text-emerald-600" {...field} /></FormControl></FormItem>)} />
-                  <FormField control={form.control} name="pendingAmount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Pending Bal (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-rose-50 border-rose-100 text-rose-600 font-black" {...field} readOnly /></FormControl></FormItem>)} />
+                  <FormField control={form.control} name="amountPaid" render={({ field }) => (<FormItem><Label className="form-label-tactical">Amount Paid (₹)</Label><FormControl><Input type="number" className="form-input-tactical font-black text-[#0FA5A0]" {...field} /></FormControl></FormItem>)} />
+                  <FormField control={form.control} name="pendingAmount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Pending Balance (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-rose-50 border-rose-100 text-rose-600 font-black" {...field} readOnly /></FormControl></FormItem>)} />
                 </div>
               </div>
-              <Button type="submit" className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm uppercase tracking-widest shadow-xl">Record Payment</Button>
+              <Button type="submit" className="w-full h-16 rounded-2xl bg-[#0FA5A0] hover:bg-[#176E6C] text-white font-black text-sm uppercase tracking-widest shadow-xl">Record Payment</Button>
             </form></Form>
           </div>
         </DialogContent>
