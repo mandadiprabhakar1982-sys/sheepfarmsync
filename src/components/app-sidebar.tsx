@@ -93,7 +93,7 @@ export function AppSidebar() {
   ], []); 
 
   return (
-    <Sidebar collapsible="icon" className="border-none shadow-2xl bg-sidebar text-white">
+    <Sidebar collapsible="icon" className="border-none shadow-2xl bg-sidebar text-white w-[240px]">
       <SidebarHeader className="h-32 flex flex-col items-center justify-center px-10 mb-4 border-b border-white/10">
         <div className="flex flex-col items-center gap-3 select-none group">
           <div className="bg-white/20 p-3 rounded-xl shadow-xl border border-white/10 group-hover:scale-110 transition-transform duration-500">
@@ -108,18 +108,18 @@ export function AppSidebar() {
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="px-6 no-scrollbar bg-transparent">
+      <SidebarContent className="px-4 no-scrollbar bg-transparent">
         {groups.map((group, gIdx) => {
           if (group.adminOnly && !isAdmin) return null;
 
           return (
-            <SidebarGroup key={gIdx} className="mb-8">
-              <SidebarGroupLabel className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40 mb-5 px-4 flex items-center gap-2 group-data-[collapsible=icon]:hidden">
+            <SidebarGroup key={gIdx} className="mb-6">
+              <SidebarGroupLabel className="text-[9px] font-black uppercase tracking-[0.3em] text-white/40 mb-4 px-4 flex items-center gap-2 group-data-[collapsible=icon]:hidden">
                 <div className="h-1.5 w-1.5 rounded-full bg-white/20" />
                 {group.label}
               </SidebarGroupLabel>
               <SidebarGroupContent>
-                <SidebarMenu className="gap-1.5">
+                <SidebarMenu className="gap-1">
                   {group.links.map((link) => {
                     const isActive = pathname === link.href;
                     return (
@@ -129,16 +129,16 @@ export function AppSidebar() {
                           isActive={isActive}
                           tooltip={link.label}
                           className={cn(
-                            "h-12 px-5 rounded-xl transition-all duration-500",
+                            "h-11 px-4 rounded-lg transition-all duration-300",
                             isActive 
-                              ? "bg-sidebar-accent text-white shadow-xl scale-[1.03] font-black" 
+                              ? "bg-sidebar-accent text-white shadow-lg font-black" 
                               : "text-white/70 hover:bg-white/10 hover:text-white"
                           )}
                         >
                           <Link href={link.href} className="flex items-center justify-between w-full">
                             <div className="flex items-center">
-                              <link.icon className={cn("h-5 w-5", isActive ? "text-white" : "opacity-40")} />
-                              <span className="ml-4 text-[13px] font-bold tracking-tight group-data-[collapsible=icon]:hidden">{link.label}</span>
+                              <link.icon className={cn("h-4.5 w-4.5", isActive ? "text-white" : "opacity-40")} />
+                              <span className="ml-3 text-[12px] font-bold tracking-tight group-data-[collapsible=icon]:hidden">{link.label}</span>
                             </div>
                             {isActive && <ChevronRight className="h-3 w-3 text-white group-data-[collapsible=icon]:hidden" />}
                           </Link>
@@ -153,10 +153,10 @@ export function AppSidebar() {
         })}
       </SidebarContent>
 
-      <SidebarFooter className="p-10 border-t border-white/10 bg-black/10 group-data-[collapsible=icon]:p-4">
+      <SidebarFooter className="p-8 border-t border-white/10 bg-black/10 group-data-[collapsible=icon]:p-4">
         <div className="flex items-center gap-3">
           <ShieldCheck className="h-4 w-4 text-white/40" />
-          <p className="text-[10px] font-black tracking-[0.4em] text-white/20 uppercase leading-none group-data-[collapsible=icon]:hidden">Mpr v5.0</p>
+          <p className="text-[9px] font-black tracking-[0.3em] text-white/20 uppercase leading-none group-data-[collapsible=icon]:hidden">Mpr v5.0</p>
         </div>
       </SidebarFooter>
     </Sidebar>
