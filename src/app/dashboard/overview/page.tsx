@@ -30,9 +30,9 @@ export default function OverviewPage() {
   }
 
   const SectionHeader = ({ title }: { title: string }) => (
-    <div className="flex items-center gap-6 mb-8">
+    <div className="flex items-center gap-4 md:gap-6 mb-6 md:mb-8">
       <div className="h-px flex-1 bg-slate-200" />
-      <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 whitespace-nowrap">{title}</h2>
+      <h2 className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.3em] md:tracking-[0.4em] text-slate-400 whitespace-nowrap">{title}</h2>
       <div className="h-px flex-1 bg-slate-200" />
     </div>
   );
@@ -53,28 +53,28 @@ export default function OverviewPage() {
     className?: string
   }) => (
     <div className={cn(
-      "rounded-[2rem] p-8 flex items-center gap-6 shadow-lg transition-all hover:scale-[1.01] border border-slate-100 bg-white group",
+      "rounded-[1.5rem] md:rounded-[2rem] p-6 md:p-8 flex items-center gap-4 md:gap-6 shadow-lg transition-all hover:scale-[1.01] border border-slate-100 bg-white group",
       className
     )}>
-      <div className={cn("h-14 w-14 shrink-0 rounded-2xl flex items-center justify-center text-white shadow-xl", color)}>
-        <Icon className="h-6 w-6" />
+      <div className={cn("h-10 w-10 md:h-14 md:w-14 shrink-0 rounded-xl md:rounded-2xl flex items-center justify-center text-white shadow-xl", color)}>
+        <Icon className="h-5 w-5 md:h-6 md:w-6" />
       </div>
       <div className="flex flex-col min-w-0">
-        <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">{title}</p>
-        <p className="text-3xl font-black tracking-tighter text-slate-900 leading-none mb-2">{value}</p>
-        <p className="text-[8px] font-bold uppercase tracking-widest text-slate-300 truncate">{subtitle}</p>
+        <p className="text-[8px] md:text-[9px] font-black uppercase tracking-[0.15em] md:tracking-[0.2em] text-slate-400 mb-0.5 md:mb-1">{title}</p>
+        <p className="text-xl md:text-3xl font-black tracking-tighter text-slate-900 leading-none mb-1 md:mb-2">{value}</p>
+        <p className="text-[7px] md:text-[8px] font-bold uppercase tracking-widest text-slate-300 truncate">{subtitle}</p>
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-full py-4 animate-in fade-in duration-1000 relative">
-      <div className="max-w-[1400px] mx-auto space-y-12 relative z-10">
+    <div className="min-h-full py-2 md:py-4 animate-in fade-in duration-1000 relative">
+      <div className="max-w-[1400px] mx-auto space-y-8 md:space-y-12 relative z-10">
         
         {/* Tier 1: Inventory & Flock Status */}
         <section>
           <SectionHeader title="INVENTORY & FLOCK STATUS" />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             <TacticalCard 
               title="LIVE SHEEP INVENTORY"
               value={totalSheep}
@@ -95,7 +95,7 @@ export default function OverviewPage() {
         {/* Tier 2: Financial Summary */}
         <section>
           <SectionHeader title="FINANCIAL SUMMARY" />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
             <TacticalCard 
               title="RECEIVABLES PENDING"
               value={`₹${totalReceivables.toLocaleString()}`}
@@ -123,7 +123,7 @@ export default function OverviewPage() {
         {/* Tier 3: Operational Breakdown */}
         <section>
           <SectionHeader title="OPERATIONAL BREAKDOWN" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
             <TacticalCard 
               title="FEED USAGE"
               value={`₹${totalFeedCost.toLocaleString()}`}

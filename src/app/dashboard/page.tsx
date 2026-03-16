@@ -111,11 +111,11 @@ export default function DashboardPage() {
   const HubCard = ({ item }: { item: any }) => {
     return (
       <Link href={item.href} className="group transition-all active:scale-95 block">
-        <div className="w-full h-[160px] sm:h-[240px] bg-white/80 backdrop-blur-xl rounded-[2rem] p-4 sm:p-8 flex flex-col items-center justify-center gap-3 sm:gap-6 shadow-xl hover:shadow-[0_20px_60px_rgba(6,78,59,0.15)] transition-all hover:-translate-y-1 border border-white relative overflow-hidden glass-sheen">
+        <div className="w-full h-[140px] sm:h-[240px] bg-white/80 backdrop-blur-xl rounded-[2rem] p-4 sm:p-8 flex flex-col items-center justify-center gap-2 sm:gap-6 shadow-xl hover:shadow-[0_20px_60px_rgba(6,78,59,0.15)] transition-all hover:-translate-y-1 border border-white relative overflow-hidden glass-sheen">
           
           <div className={cn("absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-700", item.color)} />
           
-          <div className="relative w-10 h-10 sm:w-16 sm:h-16 md:w-20 md:h-20 transition-transform group-hover:scale-110 duration-700 z-10 text-primary group-hover:text-white flex items-center justify-center">
+          <div className="relative w-8 h-8 sm:w-16 sm:h-16 md:w-20 md:h-20 transition-transform group-hover:scale-110 duration-700 z-10 text-primary group-hover:text-white flex items-center justify-center">
             <item.icon className="w-full h-full" />
           </div>
           
@@ -130,15 +130,15 @@ export default function DashboardPage() {
 
   return (
     <div className="animate-in fade-in duration-1000 max-w-7xl mx-auto">
-      <div className="flex items-center gap-4 sm:gap-10 mb-10 sm:mb-20">
-        <HubSparkle className="h-12 w-12 sm:h-24 sm:w-24 shrink-0" />
+      <div className="flex items-center gap-4 sm:gap-10 mb-8 sm:mb-20">
+        <HubSparkle className="h-10 w-10 sm:h-24 sm:w-24 shrink-0" />
         <div className="space-y-1 sm:space-y-3">
-          <h1 className="text-xl sm:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none">
+          <h1 className="text-lg sm:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none">
             MPR <span className="text-primary">SHEEP FARMS</span>
           </h1>
-          <div className="flex items-center gap-4">
-            <span className="h-px w-8 sm:w-12 bg-accent opacity-50 hidden sm:block" />
-            <p className="text-[8px] sm:text-[11px] font-black text-primary/60 uppercase tracking-[0.3em] sm:tracking-[0.5em] leading-none">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <span className="h-px w-6 sm:w-12 bg-accent opacity-50 hidden sm:block" />
+            <p className="text-[7px] sm:text-[11px] font-black text-primary/60 uppercase tracking-[0.2em] sm:tracking-[0.5em] leading-none">
               Precision Operational Environment
             </p>
           </div>
@@ -152,20 +152,20 @@ export default function DashboardPage() {
         })}
       </div>
       
-      <div className="mt-16 sm:mt-32 border-t border-slate-200 pt-10 opacity-40">
-        <div className="flex justify-between items-center">
+      <div className="mt-12 sm:mt-32 border-t border-slate-200 pt-8 sm:pt-10 opacity-40">
+        <div className="flex justify-between items-center px-2">
           <div>
-            <p className="text-[9px] sm:text-[12px] font-black uppercase tracking-[0.5em] text-slate-900">MPR ENTERPRISE SYSTEM</p>
-            <p className="text-[7px] sm:text-[9px] font-bold text-emerald-600 uppercase tracking-widest mt-2">V5.0.0 TACTICAL DEPLOYMENT</p>
+            <p className="text-[8px] sm:text-[12px] font-black uppercase tracking-[0.3em] sm:tracking-[0.5em] text-slate-900">MPR ENTERPRISE SYSTEM</p>
+            <p className="text-[6px] sm:text-[9px] font-bold text-emerald-600 uppercase tracking-widest mt-1 sm:mt-2">V5.0.0 TACTICAL DEPLOYMENT</p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <div className="text-right hidden sm:block">
               <p className="text-[10px] font-black text-slate-900 uppercase">Status: Nominal</p>
               <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Biometric Link Active</p>
             </div>
-            <div className="h-10 w-10 sm:h-12 sm:w-12 flex items-center justify-center relative bg-white rounded-2xl shadow-xl border border-slate-100">
-               <div className="absolute inset-0 bg-primary/5 rounded-2xl animate-pulse" />
-               <ShieldCheck className="h-5 w-5 sm:h-6 sm:w-6 text-primary relative z-10" />
+            <div className="h-8 w-8 sm:h-12 sm:w-12 flex items-center justify-center relative bg-white rounded-xl sm:rounded-2xl shadow-xl border border-slate-100">
+               <div className="absolute inset-0 bg-primary/5 rounded-xl sm:rounded-2xl animate-pulse" />
+               <ShieldCheck className="h-4 w-4 sm:h-6 sm:w-6 text-primary relative z-10" />
             </div>
           </div>
         </div>

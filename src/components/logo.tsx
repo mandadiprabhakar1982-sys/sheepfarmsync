@@ -7,15 +7,15 @@ import {
 } from 'lucide-react';
 
 export const Logo = ({ className }: { className?: string }) => (
-  <div className={cn('flex items-center gap-4 select-none group', className)}>
-    <div className="bg-primary p-3 rounded-2xl shadow-[0_10px_30px_rgba(6,78,59,0.2)] border border-white/20 transition-transform group-hover:scale-110">
-      <Sparkles className="h-6 w-6 text-accent" />
+  <div className={cn('flex items-center gap-2 md:gap-4 select-none group', className)}>
+    <div className="bg-primary p-2 md:p-3 rounded-xl md:rounded-2xl shadow-[0_10px_30px_rgba(6,78,59,0.2)] border border-white/20 transition-transform group-hover:scale-110">
+      <Sparkles className="h-4 w-4 md:h-6 md:w-6 text-accent" />
     </div>
     <div className="flex flex-col">
-      <h1 className="text-xl font-black leading-none uppercase tracking-tighter text-slate-900">
+      <h1 className="text-base md:text-xl font-black leading-none uppercase tracking-tighter text-slate-900">
         MPR <span className="text-primary">FARMS</span>
       </h1>
-      <p className="text-[8px] font-black tracking-[0.4em] text-accent/80 uppercase mt-1">SheepSync Pro</p>
+      <p className="text-[6px] md:text-[8px] font-black tracking-[0.3em] md:tracking-[0.4em] text-accent/80 uppercase mt-0.5 md:mt-1">SheepSync Pro</p>
     </div>
   </div>
 );
@@ -27,9 +27,9 @@ export const SyncProIcon = ({ className }: { className?: string }) => (
 );
 
 export const HubSparkle = ({ className }: { className?: string }) => (
-  <div className={cn("bg-primary p-5 rounded-[2rem] shadow-2xl border border-white/10 flex items-center justify-center relative overflow-hidden", className)}>
+  <div className={cn("bg-primary p-3 md:p-5 rounded-2xl md:rounded-[2rem] shadow-2xl border border-white/10 flex items-center justify-center relative overflow-hidden", className)}>
     <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-50" />
-    <Sparkles className="h-8 w-8 text-accent relative z-10" />
+    <Sparkles className="h-5 w-5 md:h-8 md:w-8 text-accent relative z-10" />
   </div>
 );
 
@@ -120,7 +120,7 @@ export const IconMortality = ({ className }: { className?: string }) => (
 export const IconReceivables = IconTrade;
 export const IconPayables = IconLiabilities;
 export const IconDisbursed = ({ className }: { className?: string }) => (
-  <span className={cn("text-3xl font-black text-slate-900", className)}>₹</span>
+  <span className={cn("text-xl md:text-3xl font-black text-slate-900", className)}>₹</span>
 );
 export const IconFeedSack = IconFeed;
 export const IconLaborUser = IconLabor;
