@@ -9,6 +9,7 @@ import { useWindowDimensions } from '@/hooks/use-mobile';
 import { Bell, User } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Logo } from '@/components/logo';
+import { cn } from '@/lib/utils';
 
 /**
  * @fileOverview Gatekeeper Layout.
