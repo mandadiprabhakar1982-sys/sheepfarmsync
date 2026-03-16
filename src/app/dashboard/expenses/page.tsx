@@ -10,7 +10,8 @@ import {
   Search,
   X,
   CheckCircle2,
-  Receipt
+  Receipt,
+  PlusCircle
 } from 'lucide-react';
 import { format, parseISO, isToday, isYesterday } from 'date-fns';
 import { useState, useMemo } from 'react';

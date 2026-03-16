@@ -78,6 +78,23 @@
   opacity: 0.5;
 }
 
+/* MOBILE TACTICAL CLASSES */
+.dashboard-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+.card-mobile {
+  width: 100%;
+  padding: 20px;
+  border-radius: 12px;
+  /* Simplified shadow to prevent lag on mobile */
+  border: 1px solid var(--border);
+  @apply bg-white shadow-sm;
+}
+
 /* TACTICAL FORM ELEMENTS */
 .form-input-tactical {
   @apply h-14 rounded-2xl bg-white border border-slate-200 shadow-sm font-bold text-slate-900 px-6 focus-visible:ring-primary/20 transition-all text-sm md:text-base;

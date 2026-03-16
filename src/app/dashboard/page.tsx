@@ -13,7 +13,6 @@ import {
   Wallet, 
   Plus,
   Loader2,
-  ShieldCheck,
   ChevronRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -69,12 +68,12 @@ export default function DashboardPage() {
 
   // --- MOBILE MODEL (Phone) ---
   const MobileHome = (
-    <div className="max-w-lg mx-auto space-y-10 py-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="max-w-lg mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700 dashboard-stack">
       <section>
         <h2 className="text-xl font-black uppercase tracking-tight text-slate-900 mb-6 px-2">Financial Summary</h2>
-        <div className="space-y-1">
+        <div className="space-y-4">
           <Link href="/dashboard/sales" className="block">
-            <div className="bg-white rounded-[1.5rem] p-5 flex items-center justify-between shadow-sm border border-slate-100 mb-4 active:scale-[0.98] transition-all">
+            <div className="bg-white rounded-[1.5rem] p-5 flex items-center justify-between shadow-sm border border-slate-100 active:scale-[0.98] transition-all">
               <div className="flex items-center gap-4">
                 <div className="h-12 w-12 rounded-2xl flex items-center justify-center text-white shadow-md bg-blue-500"><TrendingUp className="h-6 w-6" /></div>
                 <span className="text-[11px] font-black uppercase tracking-widest text-slate-600">Receivables</span>
@@ -86,7 +85,7 @@ export default function DashboardPage() {
             </div>
           </Link>
           <Link href="/dashboard/purchase" className="block">
-            <div className="bg-white rounded-[1.5rem] p-5 flex items-center justify-between shadow-sm border border-slate-100 mb-4 active:scale-[0.98] transition-all">
+            <div className="bg-white rounded-[1.5rem] p-5 flex items-center justify-between shadow-sm border border-slate-100 active:scale-[0.98] transition-all">
               <div className="flex items-center gap-4">
                 <div className="h-12 w-12 rounded-2xl flex items-center justify-center text-white shadow-md bg-[#f59e0b]"><TrendingDown className="h-6 w-6" /></div>
                 <span className="text-[11px] font-black uppercase tracking-widest text-slate-600">Payables</span>
@@ -98,7 +97,7 @@ export default function DashboardPage() {
             </div>
           </Link>
           <Link href="/dashboard/monthly-ledger" className="block">
-            <div className="bg-white rounded-[1.5rem] p-5 flex items-center justify-between shadow-sm border border-slate-100 mb-4 active:scale-[0.98] transition-all">
+            <div className="bg-white rounded-[1.5rem] p-5 flex items-center justify-between shadow-sm border border-slate-100 active:scale-[0.98] transition-all">
               <div className="flex items-center gap-4">
                 <div className="h-12 w-12 rounded-2xl flex items-center justify-center text-white shadow-md bg-slate-800"><ReceiptIndianRupee className="h-6 w-6" /></div>
                 <span className="text-[11px] font-black uppercase tracking-widest text-slate-600">Total Cost</span>
