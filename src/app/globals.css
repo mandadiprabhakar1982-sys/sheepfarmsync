@@ -47,7 +47,7 @@
   }
 }
 
-/* APP SHELL CONTAINMENT */
+/* NATIVE APP SHELL */
 .app-container {
   @apply flex flex-col h-screen w-full overflow-hidden relative;
 }
@@ -55,16 +55,16 @@
 .scroll-content {
   @apply flex-1 overflow-y-auto overflow-x-hidden no-scrollbar;
   -webkit-overflow-scrolling: touch;
+  padding-bottom: calc(env(safe-area-inset-bottom) + 80px);
 }
 
 .top-header {
-  min-height: 72px;
+  height: 72px;
   @apply bg-white/80 backdrop-blur-xl border-b border-sidebar-border flex items-center justify-between px-4 md:px-10 z-50 shadow-sm shrink-0;
-  padding-top: max(env(safe-area-inset-top), 12px);
-  padding-bottom: 12px;
+  padding-top: env(safe-area-inset-top);
 }
 
-/* PREMIUM AGTECH DESIGN SURFACES */
+/* PREMIUM SURFACES */
 .glass-card {
   @apply bg-white/80 backdrop-blur-2xl border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden relative transition-all duration-500;
 }
@@ -87,22 +87,13 @@
   @apply text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.25em] text-slate-400 ml-2 mb-2 block;
 }
 
+/* DYNAMIC TYPOGRAPHY */
 .page-title {
   @apply text-xl md:text-3xl font-black tracking-tighter text-slate-900 leading-tight uppercase;
 }
 
 .subtitle {
   @apply text-[8px] md:text-[10px] font-bold uppercase tracking-[0.3em] md:tracking-[0.4em] text-emerald-600/60;
-}
-
-/* DYNAMIC BACKDROP */
-.dashboard-backdrop {
-  background-color: hsl(var(--background));
-  background-image: 
-    radial-gradient(at 0% 0%, hsla(142, 76%, 15%, 0.03) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, hsla(47, 95%, 50%, 0.03) 0px, transparent 50%),
-    url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23064e3b' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4h-6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-  background-attachment: fixed;
 }
 
 @layer utilities {
@@ -118,4 +109,13 @@
   .glow-gold { border-bottom: 4px solid hsl(var(--accent)); }
   .glow-emerald { border-bottom: 4px solid #10b981; }
   .glow-forest { border-bottom: 4px solid hsl(var(--primary)); }
+}
+
+.dashboard-backdrop {
+  background-color: hsl(var(--background));
+  background-image: 
+    radial-gradient(at 0% 0%, hsla(142, 76%, 15%, 0.03) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, hsla(47, 95%, 50%, 0.03) 0px, transparent 50%),
+    url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23064e3b' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4h-6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  background-attachment: fixed;
 }

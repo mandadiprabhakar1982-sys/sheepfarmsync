@@ -6,7 +6,7 @@ import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/app-sidebar';
 import { MobileNav } from '@/components/mobile-nav';
 import { useFarm } from '@/context/FarmContext';
-import { PanelLeft, Globe, MoreVertical } from 'lucide-react';
+import { PanelLeft, MoreVertical } from 'lucide-react';
 
 export default function DashboardLayout({
   children,
@@ -14,7 +14,6 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const { isLoadingProfile } = useFarm();
-  const pathname = usePathname();
 
   if (isLoadingProfile) {
     return (
@@ -30,9 +29,11 @@ export default function DashboardLayout({
   return (
     <SidebarProvider>
       <div className="app-container dashboard-backdrop">
+        {/* DESKTOP SIDEBAR / MOBILE DRAWER */}
         <AppSidebar />
 
         <SidebarInset className="flex flex-col h-full bg-transparent overflow-hidden">
+          {/* STICKY TOP HEADER */}
           <header className="top-header">
             <div className="flex items-center gap-4 md:gap-6">
               <div className="flex items-center gap-2 text-slate-400">
@@ -45,20 +46,17 @@ export default function DashboardLayout({
             </div>
             
             <div className="flex items-center gap-2 md:gap-8">
-              <div className="hidden sm:flex items-center gap-2 text-slate-400 hover:text-primary transition-colors cursor-pointer">
-                <Globe className="h-4 w-4" />
-                <span className="text-[10px] font-black uppercase tracking-widest">EN</span>
-              </div>
               <UserNav />
             </div>
           </header>
           
-          <main className="scroll-content p-4 md:p-12 pb-24 md:pb-12">
+          {/* INDEPENDENT SCROLLABLE CONTENT */}
+          <main className="scroll-content p-4 md:p-12">
             {children}
           </main>
         </SidebarInset>
         
-        {/* NATIVE APP BOTTOM NAV */}
+        {/* STICKY MOBILE BOTTOM NAV */}
         <MobileNav />
       </div>
     </SidebarProvider>
