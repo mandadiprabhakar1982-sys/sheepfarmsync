@@ -13,7 +13,9 @@ import {
   Plus,
   Loader2,
   Skull,
-  LayoutGrid
+  LayoutGrid,
+  ArrowUpCircle,
+  ArrowDownCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -40,6 +42,7 @@ export default function OverviewPage() {
     totalLaborCost,
     totalMedicineCost,
     totalFarmExpenses,
+    totalCashInflow,
     isLoading 
   } = useFarm();
 
@@ -79,9 +82,10 @@ export default function OverviewPage() {
       <section>
         <h2 className="text-xs font-black uppercase tracking-widest text-slate-900 mb-4 px-1">Financial Summary</h2>
         <div className="space-y-1">
+          <MobileFinancialRow title="Monthly Cash Inflow" value={`₹${totalCashInflow.toLocaleString()}`} icon={ArrowUpCircle} color="bg-emerald-600" />
           <MobileFinancialRow title="Receivables Pending" value={`₹${totalReceivables.toLocaleString()}`} icon={TrendingUp} color="bg-blue-500" />
           <MobileFinancialRow title="Payables Due" value={`₹${totalPayables.toLocaleString()}`} icon={TrendingDown} color="bg-[#f59e0b]" />
-          <MobileFinancialRow title="Total Cost Summary" value={`₹${totalExpenses.toLocaleString()}`} icon={ReceiptIndianRupee} color="bg-slate-800" />
+          <MobileFinancialRow title="Operational Cost Sum" value={`₹${totalExpenses.toLocaleString()}`} icon={ReceiptIndianRupee} color="bg-slate-800" />
         </div>
       </section>
 
@@ -137,6 +141,7 @@ export default function OverviewPage() {
         <h2 className="text-xl font-black uppercase tracking-tight text-slate-900 mb-6">Financial Summary</h2>
         <div className="space-y-4">
           {[
+            { label: 'Monthly Cash Inflow', val: totalCashInflow, icon: ArrowUpCircle, color: 'bg-emerald-600' },
             { label: 'Receivables Pending', val: totalReceivables, icon: TrendingUp, color: 'bg-blue-500' },
             { label: 'Payables Due', val: totalPayables, icon: TrendingDown, color: 'bg-[#f59e0b]' },
             { label: 'Total Cost Summary', val: totalExpenses, icon: ReceiptIndianRupee, color: 'bg-slate-900' },

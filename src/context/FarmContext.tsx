@@ -113,6 +113,7 @@ interface FarmContextType {
 
   totalMonthlyIncome: number;
   totalMonthlyExpense: number;
+  totalCashInflow: number;
 }
 
 const FarmContext = createContext<FarmContextType | undefined>(undefined);
@@ -242,6 +243,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
 
     const mIncome = (qIncomes || []).reduce((s, i) => s + Number(i.amount || 0), 0);
     const mExpense = (qMExpenses || []).reduce((s, e) => s + Number(e.amount || 0), 0);
+    const totalCashReceivedFromSales = (qSales || []).reduce((s, x) => s + Number(x.amountReceived || 0), 0);
 
     const trackedCount = (qTracked || []).length;
     const totalTrackedWeight = (qTracked || []).reduce((acc, s) => acc + Number(s.currentWeight || 0), 0);
@@ -269,7 +271,8 @@ export function FarmProvider({ children }: { children: ReactNode }) {
       totalPrivateDebt: pdBal,
       totalMonthlyEmi: mEmiTotal,
       totalMonthlyIncome: mIncome,
-      totalMonthlyExpense: mExpense
+      totalMonthlyExpense: mExpense,
+      totalCashInflow: mIncome + totalCashReceivedFromSales
     };
   }, [qDead, qPurchases, qSales, qFeed, qLabor, qMedicine, qHealth, qExpenses, qTracked, qLoans, qCards, qDebts, qIncomes, qMExpenses]);
 
