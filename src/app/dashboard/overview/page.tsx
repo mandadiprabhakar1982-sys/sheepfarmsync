@@ -85,7 +85,7 @@ export default function OverviewPage() {
           <MobileFinancialRow title="Monthly Cash Inflow" value={`₹${totalCashInflow.toLocaleString()}`} icon={ArrowUpCircle} color="bg-emerald-600" />
           <MobileFinancialRow title="Receivables Pending" value={`₹${totalReceivables.toLocaleString()}`} icon={TrendingUp} color="bg-blue-500" />
           <MobileFinancialRow title="Payables Due" value={`₹${totalPayables.toLocaleString()}`} icon={TrendingDown} color="bg-[#f59e0b]" />
-          <MobileFinancialRow title="Operational Cost Sum" value={`₹${totalExpenses.toLocaleString()}`} icon={ReceiptIndianRupee} color="bg-slate-800" />
+          <MobileFinancialRow title="Total Expenditure Audit" value={`₹${totalExpenses.toLocaleString()}`} icon={ReceiptIndianRupee} color="bg-slate-800" />
         </div>
       </section>
 
@@ -144,7 +144,7 @@ export default function OverviewPage() {
             { label: 'Monthly Cash Inflow', val: totalCashInflow, icon: ArrowUpCircle, color: 'bg-emerald-600' },
             { label: 'Receivables Pending', val: totalReceivables, icon: TrendingUp, color: 'bg-blue-500' },
             { label: 'Payables Due', val: totalPayables, icon: TrendingDown, color: 'bg-[#f59e0b]' },
-            { label: 'Total Cost Summary', val: totalExpenses, icon: ReceiptIndianRupee, color: 'bg-slate-900' },
+            { label: 'Total Expenditure Audit', val: totalExpenses, icon: ReceiptIndianRupee, color: 'bg-slate-900' },
           ].map((row, i) => (
             <div key={i} className="bg-white rounded-2xl h-16 px-8 flex items-center justify-between shadow-sm border border-slate-100 transition-all hover:bg-slate-50">
               <div className="flex items-center gap-4">
