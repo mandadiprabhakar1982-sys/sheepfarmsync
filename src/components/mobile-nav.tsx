@@ -38,7 +38,7 @@ export function MobileNav() {
               href={link.href}
               className={cn(
                 "flex flex-col items-center justify-center flex-1 gap-1 transition-all active:scale-90 h-full",
-                isActive ? "text-emerald-600" : "text-slate-400"
+                isActive ? "text-[#059669]" : "text-slate-400"
               )}
             >
               <div className="p-1 rounded-xl">

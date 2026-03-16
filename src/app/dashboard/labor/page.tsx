@@ -17,7 +17,8 @@ import {
   ChevronDown,
   HandCoins,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  X
 } from 'lucide-react';
 import { format, isToday, isYesterday, parseISO } from 'date-fns';
 
@@ -113,7 +114,7 @@ export default function LaborPage() {
     return [...filtered].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [laborCosts, searchTerm]);
 
-  // Grouping for Mobile View
+  // Grouping for Mobile View (MATCHING THE IMAGE)
   const groupedLaborCosts = useMemo(() => {
     const groups: { [key: string]: LaborCost[] } = {};
     sortedLaborCosts.forEach(cost => {
@@ -169,16 +170,19 @@ export default function LaborPage() {
   }
 
   return (
-    <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col relative">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-6 md:mb-8 shrink-0">
+    <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col relative bg-white md:bg-transparent">
+      {/* MOBILE HEADER (AS PER IMAGE) */}
+      <div className="md:hidden fixed top-0 left-0 right-0 z-[110] bg-[#059669] text-white px-6 py-5 flex items-center justify-between shadow-lg">
+        <h2 className="text-xl font-black tracking-tight">Staff Ledger</h2>
+        <p className="text-xl font-black">₹{totalLaborCost.toLocaleString()}</p>
+      </div>
+
+      <div className="md:hidden h-16 shrink-0" /> {/* Spacer for fixed mobile header */}
+
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-6 md:mb-8 shrink-0 px-4 md:px-0">
         <PageHeader title="Labor Management" description="OPERATIONAL STAFF & DISBURSEMENTS" className="mb-0 hidden md:block" />
 
-        <div className="flex items-center gap-2 md:gap-4 overflow-x-auto pb-2 md:pb-0 no-scrollbar md:w-auto w-full">
-          <div className="md:hidden flex items-center justify-between w-full bg-emerald-600 p-4 rounded-2xl text-white shadow-xl mb-2">
-            <h2 className="text-lg font-black tracking-tight uppercase">Staff Ledger</h2>
-            <p className="text-xl font-black">₹{totalLaborCost.toLocaleString()}</p>
-          </div>
-
+        <div className="flex items-center gap-2 md:gap-4 overflow-x-auto pb-2 md:pb-0 no-scrollbar md:w-auto w-full mt-4 md:mt-0">
           <div className="hidden md:flex items-center gap-4">
             <DropdownMenu modal={false}>
               <DropdownMenuTrigger asChild>
@@ -217,62 +221,65 @@ export default function LaborPage() {
         </div>
       </div>
 
-      <div className="space-y-6 flex-1 min-h-0 flex flex-col">
-        <div className="relative shrink-0 md:block hidden">
-          <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
-          <Input placeholder="Filter by Employee Name..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="h-14 pl-16 rounded-full bg-white border-none text-slate-900 font-bold shadow-sm" />
+      <div className="space-y-6 flex-1 min-h-0 flex flex-col px-4 md:px-0">
+        {/* SEARCH BAR (MATCHING THE IMAGE) */}
+        <div className="relative shrink-0 w-full max-w-xl mx-auto md:mx-0">
+          <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
+          <Input 
+            placeholder="Filter by Employee Name..." 
+            value={searchTerm} 
+            onChange={(e) => setSearchTerm(e.target.value)} 
+            className="h-12 md:h-14 pl-12 pr-12 rounded-2xl md:rounded-full bg-neutral-100/50 md:bg-white border-none text-slate-900 font-bold shadow-sm" 
+          />
+          {searchTerm && (
+            <button onClick={() => setSearchTerm('')} className="absolute right-5 top-1/2 -translate-y-1/2">
+              <X className="h-4 w-4 text-slate-300 hover:text-slate-600" />
+            </button>
+          )}
         </div>
 
-        <div className="relative shrink-0 md:hidden block mb-2 px-1">
-          <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
-          <Input placeholder="Filter by Employee Name..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="h-12 pl-12 rounded-xl bg-white border-none text-slate-900 font-bold shadow-sm" />
-        </div>
-
-        <Card className="border-none shadow-2xl rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden bg-white flex-1 min-h-0 flex flex-col">
-          <CardHeader className="bg-emerald-600 text-white p-6 md:p-10 shrink-0 md:block hidden">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 md:gap-0">
+        <div className="flex-1 min-h-0 flex flex-col md:bg-white md:rounded-[2.5rem] md:shadow-2xl md:overflow-hidden">
+          {/* DESKTOP HEADER */}
+          <CardHeader className="bg-emerald-600 text-white p-10 shrink-0 hidden md:block">
+            <div className="flex justify-between items-end">
               <div className="space-y-1">
-                <div className="flex items-center gap-3"><Users className="h-6 w-6" /><CardTitle className="text-xl md:text-2xl font-black tracking-tight leading-none uppercase">Staff Ledger</CardTitle></div>
+                <div className="flex items-center gap-3"><Users className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Staff Ledger</CardTitle></div>
                 <CardDescription className="text-emerald-100/60 text-[10px] font-black uppercase tracking-[0.2em]">Operational Disbursement Audit</CardDescription>
               </div>
-              <p className="text-3xl md:text-4xl font-black tracking-tighter">₹{totalLaborCost.toLocaleString()}</p>
+              <p className="text-4xl font-black tracking-tighter">₹{totalLaborCost.toLocaleString()}</p>
             </div>
           </CardHeader>
 
-          {/* MOBILE VIEW: GROUPED LIST */}
-          <div className="block md:hidden flex-1 overflow-hidden">
-            <ScrollArea className="h-full">
+          {/* MOBILE VIEW: GROUPED LIST (EXACT IMAGE MATCH) */}
+          <div className="block md:hidden flex-1 overflow-hidden bg-slate-50 -mx-4">
+            <ScrollArea className="h-full px-4 pt-4">
               {groupedLaborCosts.length > 0 ? groupedLaborCosts.map((group) => (
-                <div key={group.date} className="mb-6">
-                  <div className="px-4 py-2 bg-neutral-50/80 border-y border-neutral-100">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{formatGroupDate(group.date)}</p>
+                <div key={group.date} className="mb-8">
+                  <div className="px-2 py-2 mb-3 bg-[#e7eddc] rounded-lg">
+                    <p className="text-[11px] font-black uppercase tracking-widest text-slate-600">{formatGroupDate(group.date)}</p>
                   </div>
-                  {group.items.map((cost) => (
-                    <div key={cost.id} className="p-5 border-b border-slate-50 flex items-center gap-4 active:bg-slate-50 transition-colors" onClick={() => handleEditClick(cost)}>
-                      <div className="flex-1 min-w-0">
-                        <span className="text-base font-black text-slate-900 truncate block mb-0.5">{cost.employeeName}</span>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                          Wages • {cost.numberOfLaborers} Staff {cost.wages > 0 && `• ₹${cost.wages}`}
-                        </p>
-                      </div>
-                      <div className="text-right shrink-0 flex flex-col items-end gap-1.5">
-                        <p className="text-lg font-black text-emerald-600">₹{cost.amountPaid?.toLocaleString() || '0'}</p>
-                        {cost.pendingAmount && cost.pendingAmount > 0 ? (
-                          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-50 text-rose-600 border border-rose-100">
-                            <AlertCircle className="h-2 w-2" />
-                            <span className="text-[8px] font-black uppercase tracking-widest">₹{cost.pendingAmount.toLocaleString()} DUE</span>
+                  <div className="space-y-4">
+                    {group.items.map((cost) => (
+                      <div key={cost.id} className="bg-white rounded-[1.25rem] p-5 flex items-center justify-between shadow-sm border border-white/60 active:scale-[0.98] transition-all" onClick={() => handleEditClick(cost)}>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-lg font-black text-slate-900 leading-none mb-1">{cost.employeeName}</h3>
+                          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                            Wages • {cost.wages > 0 && `₹${cost.wages} • `} {cost.numberOfLaborers} Staff
+                          </p>
+                        </div>
+                        <div className="text-right shrink-0 flex flex-col items-end gap-2">
+                          <p className="text-xl font-black text-[#059669]">₹{cost.amountPaid?.toLocaleString() || '0'}</p>
+                          <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#ecfdf5] text-[#059669] border border-[#d1fae5]">
+                            <CheckCircle2 className="h-2.5 w-2.5" />
+                            <span className="text-[9px] font-black uppercase tracking-widest">SETTLED</span>
                           </div>
-                        ) : (
-                          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100">
-                            <CheckCircle2 className="h-2 w-2" />
-                            <span className="text-[8px] font-black uppercase tracking-widest">SETTLED</span>
-                          </div>
-                        )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               )) : <div className="py-20 text-center opacity-20 font-black uppercase text-xs">No records discovered</div>}
+              <div className="h-32" /> {/* Bottom safe area for Nav + FAB */}
             </ScrollArea>
           </div>
 
@@ -307,13 +314,13 @@ export default function LaborPage() {
               </Table>
             </ScrollArea>
           </div>
-        </Card>
+        </div>
       </div>
 
-      {/* MOBILE FAB */}
+      {/* MOBILE FAB (MATCHING THE IMAGE) */}
       <button 
         onClick={() => { form.reset(); setIsEntryDialogOpen(true); }}
-        className="md:hidden fixed bottom-24 right-6 h-14 w-14 rounded-full bg-emerald-600 text-white shadow-2xl flex items-center justify-center active:scale-90 transition-all z-[110]"
+        className="md:hidden fixed bottom-24 right-6 h-14 w-14 rounded-full bg-[#059669] text-white shadow-2xl flex items-center justify-center active:scale-90 transition-all z-[120]"
       >
         <Plus className="h-7 w-7" />
       </button>
@@ -365,7 +372,10 @@ export default function LaborPage() {
                   <FormField control={editForm.control} name="pendingAmount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Pending (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-rose-50 text-rose-600 font-bold" {...field} readOnly /></FormControl></FormItem>)} />
                 </div>
               </div>
-              <Button type="submit" className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm uppercase tracking-widest shadow-xl">Save Adjustments</Button>
+              <div className="flex flex-col gap-3">
+                <Button type="submit" className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm uppercase tracking-widest shadow-xl">Save Adjustments</Button>
+                <Button type="button" variant="ghost" onClick={() => { deleteLaborCost(editingCost!.id, editingCost!._path); setIsEditDialogOpen(false); }} className="w-full h-12 text-rose-600 font-black uppercase text-[10px] tracking-widest">Purge Record</Button>
+              </div>
             </form></Form>
           </div>
         </DialogContent>
