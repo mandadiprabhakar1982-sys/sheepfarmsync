@@ -10,14 +10,15 @@ import {
   Trash2, 
   Users, 
   Wallet, 
-  TrendingUp,
   Search,
   Pencil,
   Save,
   ShieldCheck,
   PlusCircle,
   Banknote,
-  Receipt
+  Receipt,
+  ChevronDown,
+  HandCoins
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -32,14 +33,22 @@ import { useFarm } from '@/context/FarmContext';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import type { LaborCost } from '@/lib/types';
 
 const formSchema = z.object({
@@ -136,6 +145,10 @@ export default function LaborPage() {
     return (laborCosts || []).reduce((s, c) => s + (c.pendingAmount || 0), 0);
   }, [laborCosts]);
 
+  const totalAdvances = useMemo(() => {
+    return (laborCosts || []).reduce((s, c) => s + (c.advancePayments || 0), 0);
+  }, [laborCosts]);
+
   const onSubmit: SubmitHandler<LaborFormData> = (data) => {
     const newCost = { ...data, date: format(data.date, 'yyyy-MM-dd') };
     addLaborCost(newCost);
@@ -195,95 +208,44 @@ export default function LaborPage() {
         </div>
 
         <div className="flex items-center gap-4">
-          <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={() => { form.reset(); setIsEntryDialogOpen(true); }} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-neutral-900 hover:bg-neutral-800 text-white gap-2 shadow-xl">
-                <PlusCircle className="h-5 w-5 text-emerald-400" />
-                Disbursement Entry
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-neutral-900 hover:bg-neutral-800 text-white gap-2 shadow-xl border-none">
+                <Users className="h-5 w-5 text-emerald-400" />
+                Record Labor
+                <ChevronDown className="h-4 w-4 opacity-40 ml-1" />
               </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
-              <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400">
-                    <Plus className="h-5 w-5" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-72 rounded-2xl shadow-2xl p-2 border-none mt-2">
+              <DropdownMenuLabel className="p-4 bg-neutral-50 rounded-xl mb-2">
+                <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">Staff Audit Summary</p>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] font-bold text-slate-600">Net Staff Spend</span>
+                    <span className="text-xs font-black text-emerald-600">₹{totalLaborCost.toLocaleString()}</span>
                   </div>
-                  <DialogTitle className="text-xl font-black tracking-tight uppercase">Labor Disbursement</DialogTitle>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] font-bold text-slate-600">Pending Liability</span>
+                    <span className="text-xs font-black text-rose-600">₹{totalPendingLiability.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] font-bold text-slate-600">Advances Paid</span>
+                    <span className="text-xs font-black text-blue-600">₹{totalAdvances.toLocaleString()}</span>
+                  </div>
                 </div>
-                <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Commit new staff expenditure to ledger</DialogDescription>
-              </DialogHeader>
-              
-              <div className="p-8">
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                    <div className="space-y-6">
-                      <FormField control={form.control} name="date" render={({ field }) => (
-                        <FormItem className="flex flex-col">
-                          <Label className="form-label-tactical text-slate-400">Transaction Date</Label>
-                          <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
-                            <PopoverTrigger asChild>
-                              <Button variant="outline" className="form-input-tactical w-full text-left justify-between bg-slate-50 border-slate-200">
-                                {field.value ? format(field.value, "MMMM do, yyyy") : "Pick date"}
-                                <CalendarIcon className="h-4 w-4 opacity-20" />
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0 border-slate-200 bg-white shadow-2xl">
-                              <Calendar mode="single" selected={field.value} onSelect={(d) => { field.onChange(d); setIsDatePickerOpen(false); }} initialFocus className="text-slate-900" />
-                            </PopoverContent>
-                          </Popover>
-                        </FormItem>
-                      )} />
-
-                      <FormField control={form.control} name="employeeName" render={({ field }) => (
-                        <FormItem><Label className="form-label-tactical text-slate-400">Employee Name</Label><FormControl><Input placeholder="e.g. Ram Singh" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
-                      )} />
-
-                      <div className="grid grid-cols-2 gap-6">
-                        <FormField control={form.control} name="numberOfLaborers" render={({ field }) => (
-                          <FormItem><Label className="form-label-tactical text-slate-400">Staff Count</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
-                        )} />
-                        <FormField control={form.control} name="wages" render={({ field }) => (
-                          <FormItem><Label className="form-label-tactical text-slate-400">Wage / Head (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
-                        )} />
-                      </div>
-
-                      <div className="grid grid-cols-3 gap-4">
-                        <FormField control={form.control} name="advancePayments" render={({ field }) => (
-                          <FormItem><Label className="form-label-tactical text-slate-400">Advance</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
-                        )} />
-                        <FormField control={form.control} name="foodCosts" render={({ field }) => (
-                          <FormItem><Label className="form-label-tactical text-slate-400">Food</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
-                        )} />
-                        <FormField control={form.control} name="fuelCosts" render={({ field }) => (
-                          <FormItem><Label className="form-label-tactical text-slate-400">Fuel</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
-                        )} />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-6">
-                        <FormField control={form.control} name="amountPaid" render={({ field }) => (
-                          <FormItem><Label className="form-label-tactical text-slate-400">Amount Disbursed (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200 font-black text-emerald-600" {...field} /></FormControl></FormItem>
-                        )} />
-                        <FormField control={form.control} name="pendingAmount" render={({ field }) => (
-                          <FormItem><Label className="form-label-tactical text-slate-400">Pending Balance (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-rose-50 border-rose-100 text-rose-600 font-black" {...field} readOnly /></FormControl></FormItem>
-                        )} />
-                      </div>
-
-                      <FormField control={form.control} name="totalLaborCosts" render={({ field }) => (
-                        <FormItem>
-                          <Label className="form-label-tactical text-slate-400">Total Commitment (₹)</Label>
-                          <FormControl><Input type="number" className="h-16 rounded-2xl bg-slate-900 border-none text-white font-black text-xl px-6" {...field} readOnly /></FormControl>
-                        </FormItem>
-                      )} />
-                    </div>
-
-                    <Button type="submit" className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm uppercase tracking-[0.25em] transition-all active:scale-95 shadow-xl">
-                      Log Disbursement
-                    </Button>
-                  </form>
-                </Form>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator className="bg-neutral-100" />
+              <div className="p-1">
+                <DropdownMenuItem 
+                  onClick={() => setIsEntryDialogOpen(true)}
+                  className="rounded-lg h-12 gap-3 cursor-pointer focus:bg-emerald-50 focus:text-emerald-700"
+                >
+                  <HandCoins className="h-4 w-4" />
+                  <span className="text-[11px] font-black uppercase tracking-wider">Log Disbursement</span>
+                </DropdownMenuItem>
               </div>
-            </DialogContent>
-          </Dialog>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           <div className="px-6 py-3 bg-neutral-900 rounded-2xl text-white flex items-center gap-4 shadow-xl">
             <ShieldCheck className="h-5 w-5 text-emerald-400" />
@@ -292,47 +254,6 @@ export default function LaborPage() {
               <p className="text-xl font-black tracking-tight text-white">₹{totalLaborCost.toLocaleString()}</p>
             </div>
           </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-        <div className="glass-card glow-gold rounded-[32px] p-8 h-[180px] flex flex-col justify-between bg-white shadow-xl">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Total Labor Cost</p>
-              <p className="text-5xl font-black tracking-tighter text-slate-900">₹{totalLaborCost.toLocaleString()}</p>
-            </div>
-            <div className="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center">
-              <Wallet className="h-5 w-5 text-amber-600" />
-            </div>
-          </div>
-          <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest">NET DISBURSEMENT</p>
-        </div>
-
-        <div className="glass-card glow-coral rounded-[32px] p-8 h-[180px] flex flex-col justify-between bg-white shadow-xl">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Total Pending</p>
-              <p className="text-5xl font-black tracking-tighter text-rose-600">₹{totalPendingLiability.toLocaleString()}</p>
-            </div>
-            <div className="h-10 w-10 rounded-full bg-rose-100 flex items-center justify-center">
-              <Banknote className="h-5 w-5 text-rose-600" />
-            </div>
-          </div>
-          <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest">OUTSTANDING LIABILITIES</p>
-        </div>
-
-        <div className="glass-card glow-purple rounded-[32px] p-8 h-[180px] flex flex-col justify-between bg-white shadow-xl">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Advances Paid</p>
-              <p className="text-5xl font-black tracking-tighter text-purple-600">₹{(laborCosts || []).reduce((s, c) => s + (c.advancePayments || 0), 0).toLocaleString()}</p>
-            </div>
-            <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
-              <Receipt className="h-5 w-5 text-purple-600" />
-            </div>
-          </div>
-          <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest">STAFF ADVANCE LOG</p>
         </div>
       </div>
 
@@ -347,7 +268,7 @@ export default function LaborPage() {
           />
         </div>
 
-        <div className="glass-card rounded-[40px] overflow-hidden border-slate-100 bg-white">
+        <Card className="border-none shadow-2xl rounded-[40px] overflow-hidden bg-white">
           <ScrollArea className="h-[600px] w-full">
             <Table>
               <TableHeader className="bg-slate-50 border-none">
@@ -394,8 +315,93 @@ export default function LaborPage() {
               </TableBody>
             </Table>
           </ScrollArea>
-        </div>
+        </Card>
       </div>
+
+      {/* --- ENTRY DIALOG --- */}
+      <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>
+        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
+          <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400">
+                <Plus className="h-5 w-5" />
+              </div>
+              <DialogTitle className="text-xl font-black tracking-tight uppercase">Labor Disbursement</DialogTitle>
+            </div>
+            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Commit new staff expenditure to ledger</DialogDescription>
+          </DialogHeader>
+          
+          <div className="p-8 max-h-[70vh] overflow-y-auto no-scrollbar">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                <div className="space-y-6">
+                  <FormField control={form.control} name="date" render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <Label className="form-label-tactical text-slate-400">Transaction Date</Label>
+                      <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" className="form-input-tactical w-full text-left justify-between bg-slate-50 border-slate-200">
+                            {field.value ? format(field.value, "MMMM do, yyyy") : "Pick date"}
+                            <CalendarIcon className="h-4 w-4 opacity-20" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0 border-slate-200 bg-white shadow-2xl">
+                          <Calendar mode="single" selected={field.value} onSelect={(d) => { field.onChange(d); setIsDatePickerOpen(false); }} initialFocus className="text-slate-900" />
+                        </PopoverContent>
+                      </Popover>
+                    </FormItem>
+                  )} />
+
+                  <FormField control={form.control} name="employeeName" render={({ field }) => (
+                    <FormItem><Label className="form-label-tactical text-slate-400">Employee Name</Label><FormControl><Input placeholder="e.g. Ram Singh" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
+                  )} />
+
+                  <div className="grid grid-cols-2 gap-6">
+                    <FormField control={form.control} name="numberOfLaborers" render={({ field }) => (
+                      <FormItem><Label className="form-label-tactical text-slate-400">Staff Count</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
+                    )} />
+                    <FormField control={form.control} name="wages" render={({ field }) => (
+                      <FormItem><Label className="form-label-tactical text-slate-400">Wage / Head (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
+                    )} />
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-4">
+                    <FormField control={form.control} name="advancePayments" render={({ field }) => (
+                      <FormItem><Label className="form-label-tactical text-slate-400">Advance</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
+                    )} />
+                    <FormField control={form.control} name="foodCosts" render={({ field }) => (
+                      <FormItem><Label className="form-label-tactical text-slate-400">Food</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
+                    )} />
+                    <FormField control={form.control} name="fuelCosts" render={({ field }) => (
+                      <FormItem><Label className="form-label-tactical text-slate-400">Fuel</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl></FormItem>
+                    )} />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-6">
+                    <FormField control={form.control} name="amountPaid" render={({ field }) => (
+                      <FormItem><Label className="form-label-tactical text-slate-400">Amount Disbursed (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 border-slate-200 font-black text-emerald-600" {...field} /></FormControl></FormItem>
+                    )} />
+                    <FormField control={form.control} name="pendingAmount" render={({ field }) => (
+                      <FormItem><Label className="form-label-tactical text-slate-400">Pending Balance (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-rose-50 border-rose-100 text-rose-600 font-black" {...field} readOnly /></FormControl></FormItem>
+                    )} />
+                  </div>
+
+                  <FormField control={form.control} name="totalLaborCosts" render={({ field }) => (
+                    <FormItem>
+                      <Label className="form-label-tactical text-slate-400">Total Commitment (₹)</Label>
+                      <FormControl><Input type="number" className="h-16 rounded-2xl bg-slate-900 border-none text-white font-black text-xl px-6" {...field} readOnly /></FormControl>
+                    </FormItem>
+                  )} />
+                </div>
+
+                <Button type="submit" className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm uppercase tracking-[0.25em] transition-all active:scale-95 shadow-xl">
+                  Log Disbursement
+                </Button>
+              </form>
+            </Form>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-md rounded-[32px] p-0 overflow-hidden border-slate-200 bg-white shadow-2xl">
