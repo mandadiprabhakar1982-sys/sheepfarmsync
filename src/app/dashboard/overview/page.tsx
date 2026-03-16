@@ -11,7 +11,8 @@ import {
   Loader2,
   Activity,
   Heart,
-  Syringe
+  Syringe,
+  LayoutGrid
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -30,7 +31,7 @@ import {
 } from 'recharts';
 
 /**
- * @fileOverview High-Fidelity Dashboard inspired by FarmAudit reference.
+ * @fileOverview High-Fidelity Dashboard matching the provided reference image.
  * Optimized for 2x2 mobile grid and tactile growth insights.
  */
 export default function OverviewPage() {
@@ -64,10 +65,10 @@ export default function OverviewPage() {
     { name: 'Feb', weight: 80 },
   ];
 
-  const SummaryCard = ({ title, value, subText, icon: Icon, href, variant = 'default' }: { title: string, value: string | number, subText: string, icon: any, href: string, variant?: 'default' | 'health' }) => (
-    <Card className="premium-card flex flex-col justify-between h-full bg-white border-none shadow-depth rounded-[16px] overflow-hidden">
+  const SummaryCard = ({ title, value, subText, icon: Icon, href, variant = 'default', btnText }: { title: string, value: string | number, subText: string, icon: any, href: string, variant?: 'default' | 'health', btnText: string }) => (
+    <Card className="premium-card flex flex-col justify-between h-full bg-white border border-[#D9D9D9] shadow-sm rounded-lg overflow-hidden border-l-0">
       <CardHeader className="p-4 pb-2 space-y-0">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <div className={cn(
             "h-10 w-10 rounded-full flex items-center justify-center text-white",
             variant === 'health' ? "bg-[#43A047]" : "bg-[#0FA5A0]"
@@ -80,17 +81,26 @@ export default function OverviewPage() {
       <CardContent className="p-4 pt-0 flex flex-col flex-1 justify-between">
         <div className="mb-4">
           <p className="text-3xl font-black text-[#176E6C] tracking-tighter">{value}</p>
-          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">{subText}</p>
+          {variant === 'health' ? (
+            <div className="flex gap-0.5 mt-2 h-2 w-24 rounded-full overflow-hidden">
+              <div className="bg-[#E53935] flex-1" />
+              <div className="bg-[#FBC02D] flex-1" />
+              <div className="bg-[#43A047] flex-1" />
+              <div className="bg-[#D1E1E0] flex-1" />
+            </div>
+          ) : (
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">{subText}</p>
+          )}
         </div>
         <Button 
           variant="secondary" 
           onClick={() => router.push(href)}
           className={cn(
             "w-full h-9 rounded-md text-[9px] font-black uppercase tracking-widest border-none transition-all active:scale-95",
-            variant === 'health' ? "bg-[#176E6C] text-white hover:bg-[#0B8F8A]" : "bg-[#176E6C] text-white hover:bg-[#0B8F8A]"
+            "bg-[#176E6C] text-white hover:bg-[#0FA5A0]"
           )}
         >
-          {title.includes('Records') ? 'View Health Alerts' : `View ${title}`}
+          {btnText}
         </Button>
       </CardContent>
     </Card>
@@ -108,14 +118,16 @@ export default function OverviewPage() {
         <SummaryCard 
           title="Total Sheep" 
           value={totalSheep} 
-          subText="View Sheep Records" 
+          subText="VIEW SHEEP RECORDS" 
+          btnText="VIEW SHEEP RECORDS"
           icon={Users} 
           href="/dashboard/livestock" 
         />
         <SummaryCard 
           title="Health Records" 
           value={totalMedicineCost > 0 ? "8 Alert" : "Stable"} 
-          subText="View Health Alerts" 
+          subText="VIEW HEALTH ALERTS" 
+          btnText="VIEW HEALTH ALERTS"
           icon={Plus} 
           variant="health"
           href="/dashboard/medicine" 
@@ -123,24 +135,26 @@ export default function OverviewPage() {
         <SummaryCard 
           title="Feed Cost" 
           value={`₹${totalFeedCost.toLocaleString()}`} 
-          subText="View Summary" 
+          subText="VIEW SUMMARY" 
+          btnText="VIEW FULL REPORT"
           icon={Wheat} 
           href="/dashboard/feed" 
         />
         <SummaryCard 
           title="Labour Cost" 
           value={`₹${totalLaborCost.toLocaleString()}`} 
-          subText="View Summary" 
+          subText="VIEW SUMMARY" 
+          btnText="VIEW FULL REPORT"
           icon={Activity} 
           href="/dashboard/labor" 
         />
       </div>
 
       {/* WEIGHT GROWTH SECTION */}
-      <Card className="premium-card rounded-[16px] border-none shadow-depth bg-white overflow-hidden">
+      <Card className="premium-card rounded-lg border border-[#D9D9D9] shadow-sm bg-white overflow-hidden border-l-0">
         <CardHeader className="p-6 pb-2 flex flex-row items-center justify-between">
           <CardTitle className="text-base font-black text-[#2F4F4F]">Weight Growth</CardTitle>
-          <Button variant="link" className="text-primary font-black text-[10px] uppercase p-0 h-auto" onClick={() => router.push('/dashboard/livestock')}>
+          <Button variant="link" className="text-[#0FA5A0] font-black text-[10px] uppercase p-0 h-auto" onClick={() => router.push('/dashboard/livestock')}>
             View All <ChevronRight className="h-3 w-3 ml-1" />
           </Button>
         </CardHeader>
@@ -185,16 +199,19 @@ export default function OverviewPage() {
             {(trackedSheep || []).slice(0, 5).map((sheep) => (
               <div key={sheep.id} className="flex items-center justify-between py-2 border-b border-slate-50 last:border-none">
                 <div className="flex items-center gap-3">
-                  <span className="text-sm font-black text-primary">#{sheep.tagId}</span>
+                  <span className="text-sm font-black text-[#0FA5A0]">#{sheep.tagId}</span>
                   <span className="text-xs font-bold text-slate-600">{sheep.breed || 'Sheep'}</span>
                 </div>
                 <span className="text-[10px] font-bold text-slate-400">{sheep.registrationDate || '04/20/2024'}</span>
               </div>
             ))}
+            {!trackedSheep?.length && (
+              <div className="py-4 text-center text-slate-300 text-[10px] font-bold uppercase tracking-widest">No Recent Records</div>
+            )}
             <div className="pt-2">
               <Button 
-                variant="outline" 
-                className="w-full h-10 border-primary/20 text-primary font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-primary/5"
+                variant="secondary" 
+                className="w-full h-10 bg-[#176E6C] text-white font-black text-[10px] uppercase tracking-widest rounded-md hover:bg-[#0FA5A0]"
                 onClick={() => router.push('/dashboard/livestock')}
               >
                 View All <ChevronRight className="h-3 w-3 ml-1" />

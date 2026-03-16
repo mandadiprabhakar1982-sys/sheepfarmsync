@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -13,8 +12,7 @@ import {
 import { useSidebar } from '@/components/ui/sidebar';
 
 /**
- * @fileOverview Native-style bottom navigation matching FarmAudit reference.
- * Replaces "More" with "Menu" to trigger the main navigation drawer on mobile.
+ * @fileOverview Native-style bottom navigation matching the reference image.
  */
 export function MobileNav() {
   const pathname = usePathname();
@@ -60,7 +58,7 @@ export function MobileNav() {
             );
           }
 
-          // Render tactical button for Menu trigger
+          // Menu button
           return (
             <button 
               key={index} 
