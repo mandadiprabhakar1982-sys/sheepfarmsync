@@ -14,16 +14,11 @@ import {
   Plus,
   Loader2,
   ChevronRight,
-  Calendar as CalendarIcon,
-  ShieldCheck,
-  Save,
   Zap
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { useState } from 'react';
-import { format } from 'date-fns';
 import { 
   HubSparkle,
   IconOverview,
@@ -37,29 +32,15 @@ import {
   IconExpenses,
   IconFarmCost
 } from '@/components/logo';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
 
 /**
  * @fileOverview Command Hub Gatekeeper
- * Features a new "Farm Ledger" Quick Entry card for synchronized cost auditing.
+ * Features an action card linking to the new "Farm Ledger" for synchronized cost auditing.
  */
 export default function DashboardPage() {
   const { width } = useWindowDimensions();
   const isMobile = width < 768;
   const router = useRouter();
-  const { toast } = useToast();
   
   const { 
     userRole, 
@@ -70,21 +51,8 @@ export default function DashboardPage() {
     totalLaborCost,
     totalMedicineCost,
     totalFarmExpenses,
-    isLoading,
-    addPurchase,
-    addFeedCost,
-    addMedicineExpense,
-    addLaborCost
+    isLoading
   } = useFarm();
-
-  // Quick Entry State
-  const [isQuickEntryOpen, setIsQuickEntryOpen] = useState(false);
-  const [entryDate, setEntryDate] = useState<Date>(new Date());
-  const [pCost, setPCost] = useState('');
-  const [fCost, setFCost] = useState('');
-  const [mCost, setMCost] = useState('');
-  const [lCost, setLCost] = useState('');
-  const [isSaving, setIsSaving] = useState(false);
 
   if (isLoading || width === 0) {
     return (
@@ -96,64 +64,6 @@ export default function DashboardPage() {
       </div>
     );
   }
-
-  const handleQuickSync = async () => {
-    setIsSaving(true);
-    const dateStr = format(entryDate, 'yyyy-MM-dd');
-    
-    try {
-      if (pCost && parseFloat(pCost) > 0) {
-        addPurchase({
-          purchaseDate: dateStr,
-          villageName: 'Quick Entry',
-          farmerName: 'General Supplier',
-          animalCount: 0,
-          purchasePrice: parseFloat(pCost),
-          amountPaid: parseFloat(pCost),
-          dueAmount: 0,
-        });
-      }
-      
-      if (fCost && parseFloat(fCost) > 0) {
-        addFeedCost({
-          date: dateStr,
-          feedType: 'Other',
-          cost: parseFloat(fCost),
-          quantity: 0,
-        });
-      }
-      
-      if (mCost && parseFloat(mCost) > 0) {
-        addMedicineExpense({
-          date: dateStr,
-          shopName: 'Quick Pharma',
-          costOfMedicines: parseFloat(mCost),
-          totalAmountSpent: parseFloat(mCost),
-          outstandingDues: 0,
-        });
-      }
-      
-      if (lCost && parseFloat(lCost) > 0) {
-        addLaborCost({
-          employeeName: 'Quick Staff',
-          date: dateStr,
-          wages: parseFloat(lCost),
-          numberOfLaborers: 1,
-          totalLaborCosts: parseFloat(lCost),
-          amountPaid: parseFloat(lCost),
-          pendingAmount: 0,
-        });
-      }
-
-      toast({ title: "Ledger Synchronized", description: "All entered costs have been distributed to respective modules." });
-      setIsQuickEntryOpen(false);
-      setPCost(''); setFCost(''); setMCost(''); setLCost('');
-    } catch (e) {
-      toast({ variant: 'destructive', title: 'Sync Failed', description: 'Could not update master ledger.' });
-    } finally {
-      setIsSaving(false);
-    }
-  };
 
   const isAdmin = userRole === 'admin';
 
@@ -205,28 +115,35 @@ export default function DashboardPage() {
       <section>
         <h2 className="text-xl font-black uppercase tracking-tight text-slate-900 mb-6 px-2">Operational Breakdown</h2>
         
-        {/* QUICK LEDGER ENTRY CARD (MOBILE) */}
+        {/* FARM LEDGER ACTION CARD (MOBILE) */}
         <div className="mb-6 px-2">
-          <div className="bg-emerald-900 rounded-[2rem] p-8 text-white shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-8 opacity-10 rotate-12">
-              <IconFarmCost className="h-32 w-32" />
-            </div>
-            <div className="relative z-10">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="h-10 w-10 rounded-xl bg-white/20 flex items-center justify-center">
-                  <Zap className="h-5 w-5 text-accent" />
+          <Link href="/dashboard/farm-ledger">
+            <div className="bg-emerald-900 rounded-[2rem] p-8 text-white shadow-2xl relative overflow-hidden active:scale-[0.98] transition-all">
+              <div className="absolute top-0 right-0 p-8 opacity-10 rotate-12">
+                <IconFarmCost className="h-32 w-32" />
+              </div>
+              <div className="relative z-10">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="h-10 w-10 rounded-xl bg-white/20 flex items-center justify-center">
+                    <Zap className="h-5 w-5 text-accent" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-black tracking-tight uppercase leading-none">Farm Ledger</h3>
+                    <p className="text-[8px] font-bold uppercase tracking-widest text-white/40 mt-1">Operational Cost Center</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-lg font-black tracking-tight uppercase leading-none">Farm Ledger</h3>
-                  <p className="text-[8px] font-bold uppercase tracking-widest text-white/40 mt-1">Daily Cost Synchronization</p>
+                <div className="flex justify-between items-end">
+                  <div>
+                    <p className="text-[10px] font-black text-accent uppercase tracking-widest">Total Spend</p>
+                    <p className="text-3xl font-black tracking-tighter">₹{totalExpenses.toLocaleString()}</p>
+                  </div>
+                  <div className="bg-accent rounded-full p-2 text-black shadow-lg">
+                    <ChevronRight className="h-5 w-5" />
+                  </div>
                 </div>
               </div>
-              <Button onClick={() => setIsQuickEntryOpen(true)} className="w-full h-14 rounded-xl bg-accent hover:bg-yellow-500 text-black font-black uppercase tracking-widest shadow-xl border-none gap-2">
-                <Plus className="h-5 w-5" />
-                ENTER DATA
-              </Button>
             </div>
-          </div>
+          </Link>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -257,31 +174,26 @@ export default function DashboardPage() {
 
   // --- WEB MODEL (Laptop) ---
   const HubCard = ({ item }: { item: any }) => {
-    const isActionCard = item.onClick;
-    const content = (
-      <div className="w-full h-[240px] bg-white/80 backdrop-blur-xl rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-6 shadow-xl hover:shadow-[0_20px_60px_rgba(6,78,59,0.15)] transition-all hover:-translate-y-1 border border-white relative overflow-hidden glass-sheen">
-        <div className={cn("absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-700", item.color)} />
-        <div className="relative w-20 h-20 transition-transform group-hover:scale-110 duration-700 z-10 text-primary group-hover:text-white flex items-center justify-center">
-          <item.icon className="w-full h-full" />
+    return (
+      <Link href={item.href} className="group transition-all active:scale-95 block">
+        <div className="w-full h-[240px] bg-white/80 backdrop-blur-xl rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-6 shadow-xl hover:shadow-[0_20px_60px_rgba(6,78,59,0.15)] transition-all hover:-translate-y-1 border border-white relative overflow-hidden glass-sheen">
+          <div className={cn("absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-700", item.color)} />
+          <div className="relative w-20 h-20 transition-transform group-hover:scale-110 duration-700 z-10 text-primary group-hover:text-white flex items-center justify-center">
+            <item.icon className="w-full h-full" />
+          </div>
+          <div className="text-center relative z-10">
+            <h3 className="text-[15px] font-black text-slate-900 tracking-widest leading-none mb-1 uppercase group-hover:text-white transition-colors">{item.title}</h3>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em] group-hover:text-accent transition-colors">{item.subtitle}</p>
+          </div>
         </div>
-        <div className="text-center relative z-10">
-          <h3 className="text-[15px] font-black text-slate-900 tracking-widest leading-none mb-1 uppercase group-hover:text-white transition-colors">{item.title}</h3>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em] group-hover:text-accent transition-colors">{item.subtitle}</p>
-        </div>
-      </div>
+      </Link>
     );
-
-    if (isActionCard) {
-      return <button onClick={item.onClick} className="group transition-all active:scale-95 block text-left">{content}</button>;
-    }
-
-    return <Link href={item.href} className="group transition-all active:scale-95 block">{content}</Link>;
   };
 
   const hubItems = [
     { title: "OVERVIEW", subtitle: "ANALYTICS", icon: IconOverview, href: '/dashboard/overview', color: "from-emerald-950/40 to-emerald-900/40" },
-    { title: "FARM LEDGER", subtitle: "QUICK SYNC", icon: IconFarmCost, onClick: () => setIsQuickEntryOpen(true), color: "from-amber-950/40 to-amber-900/40" },
-    { title: "LEDGER", subtitle: "BALANCE SHEET", icon: IconLedger, href: '/dashboard/monthly-ledger', adminOnly: true, color: "from-emerald-900/40 to-emerald-800/40" },
+    { title: "FARM LEDGER", subtitle: "COST CENTER", icon: IconFarmCost, href: '/dashboard/farm-ledger', color: "from-amber-950/40 to-amber-900/40" },
+    { title: "FINANCE", subtitle: "BALANCE SHEET", icon: IconLedger, href: '/dashboard/monthly-ledger', adminOnly: true, color: "from-emerald-900/40 to-emerald-800/40" },
     { title: "DEBT", subtitle: "PORTFOLIO", icon: IconLiabilities, href: '/dashboard/balance-sheet', adminOnly: true, color: "from-amber-900/40 to-amber-800/40" },
     { title: "FLOCK", subtitle: "LIVESTOCK", icon: IconFlock, href: '/dashboard/livestock', color: "from-emerald-800/40 to-emerald-700/40" },
     { title: "TRADE", subtitle: "BUY & SELL", icon: IconTrade, href: '/dashboard/sales', color: "from-emerald-700/40 to-emerald-600/40" },
@@ -306,83 +218,5 @@ export default function DashboardPage() {
     </div>
   );
 
-  return (
-    <>
-      {isMobile ? MobileHome : WebDashboard}
-
-      {/* QUICK COST ENTRY DIALOG */}
-      <Dialog open={isQuickEntryOpen} onOpenChange={setIsQuickEntryOpen}>
-        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
-          <DialogHeader className="bg-neutral-900 p-8 text-left text-white relative">
-            <div className="absolute top-0 right-0 p-6 opacity-10 rotate-12">
-              <IconFarmCost className="h-24 w-24" />
-            </div>
-            <div className="flex items-center gap-3 mb-2 relative z-10">
-              <div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400">
-                <Zap className="h-5 w-5" />
-              </div>
-              <DialogTitle className="text-xl font-black tracking-tight uppercase">Quick Cost Sync</DialogTitle>
-            </div>
-            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest relative z-10">
-              Synchronize daily operational disbursements
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="p-8 space-y-8">
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <Label className="form-label-tactical ml-2">Transaction Date</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" className="form-input-tactical w-full text-left justify-between bg-neutral-50 border-none font-bold">
-                      {format(entryDate, "MMMM do, yyyy")}
-                      <CalendarIcon className="h-4 w-4 opacity-20" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 border-none bg-white shadow-2xl">
-                    <Calendar mode="single" selected={entryDate} onSelect={(d) => d && setEntryDate(d)} initialFocus />
-                  </PopoverContent>
-                </Popover>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="form-label-tactical ml-2">Purchase Cost (₹)</Label>
-                  <Input type="number" value={pCost} onChange={(e) => setPCost(e.target.value)} placeholder="0" className="form-input-tactical bg-neutral-50 border-none font-black text-lg" />
-                </div>
-                <div className="space-y-2">
-                  <Label className="form-label-tactical ml-2">Feed Cost (₹)</Label>
-                  <Input type="number" value={fCost} onChange={(e) => setFCost(e.target.value)} placeholder="0" className="form-input-tactical bg-neutral-50 border-none font-black text-lg" />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="form-label-tactical ml-2">Medicine Cost (₹)</Label>
-                  <Input type="number" value={mCost} onChange={(e) => setMCost(e.target.value)} placeholder="0" className="form-input-tactical bg-neutral-50 border-none font-black text-lg text-rose-600" />
-                </div>
-                <div className="space-y-2">
-                  <Label className="form-label-tactical ml-2">Labor Cost (₹)</Label>
-                  <Input type="number" value={lCost} onChange={(e) => setLCost(e.target.value)} placeholder="0" className="form-input-tactical bg-neutral-50 border-none font-black text-lg text-emerald-600" />
-                </div>
-              </div>
-            </div>
-
-            <Button 
-              onClick={handleQuickSync} 
-              disabled={isSaving || (!pCost && !fCost && !mCost && !lCost)}
-              className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm uppercase tracking-[0.2em] shadow-xl transition-all active:scale-95"
-            >
-              {isSaving ? <Loader2 className="animate-spin h-5 w-5" /> : (
-                <>
-                  <ShieldCheck className="mr-2 h-5 w-5 text-accent" />
-                  Commit Sync
-                </>
-              )}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </>
-  );
+  return isMobile ? MobileHome : WebDashboard;
 }

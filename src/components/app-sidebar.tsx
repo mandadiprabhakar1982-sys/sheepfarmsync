@@ -22,7 +22,8 @@ import {
   Globe,
   Smartphone,
   ShieldCheck,
-  Package
+  Package,
+  ClipboardList
 } from 'lucide-react';
 
 import {
@@ -66,6 +67,7 @@ export function AppSidebar() {
     {
       label: "FARM COST AUDIT",
       links: [
+        { href: '/dashboard/farm-ledger', label: "Farm Ledger", icon: IconFarmCost },
         { href: '/dashboard/purchase', label: "Acquisitions", icon: Package },
         { href: '/dashboard/feed', label: "Feed Inventory", icon: Wheat },
         { href: '/dashboard/medicine', label: "Health & Pharma", icon: Syringe },
