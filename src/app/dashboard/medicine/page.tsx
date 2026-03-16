@@ -247,7 +247,7 @@ export default function MedicinePage() {
         />
         
         <div className="flex items-center gap-4">
-          <DropdownMenu>
+          <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
               <Button className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-neutral-900 hover:bg-neutral-800 text-white gap-2 shadow-xl border-none">
                 <PlusCircle className="h-5 w-5 text-emerald-400" />
@@ -276,14 +276,20 @@ export default function MedicinePage() {
               <DropdownMenuSeparator className="bg-neutral-100" />
               <div className="p-1 space-y-1">
                 <DropdownMenuItem 
-                  onClick={() => setIsClinicalDialogOpen(true)}
+                  onSelect={(e) => {
+                    e.preventDefault();
+                    setTimeout(() => setIsClinicalDialogOpen(true), 100);
+                  }}
                   className="rounded-lg h-12 gap-3 cursor-pointer focus:bg-emerald-50 focus:text-emerald-700"
                 >
                   <Syringe className="h-4 w-4" />
                   <span className="text-[11px] font-black uppercase tracking-wider">Clinical Event</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  onClick={() => setIsProcurementDialogOpen(true)}
+                  onSelect={(e) => {
+                    e.preventDefault();
+                    setTimeout(() => setIsProcurementDialogOpen(true), 100);
+                  }}
                   className="rounded-lg h-12 gap-3 cursor-pointer focus:bg-blue-50 focus:text-blue-700"
                 >
                   <Pill className="h-4 w-4" />
@@ -550,7 +556,7 @@ export default function MedicinePage() {
                 <FormField control={editTaskForm.control} name="medicineName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Medicine</Label><FormControl><Input className="form-input-tactical bg-slate-50" {...field} /></FormControl><FormMessage /></FormItem>)} />
                 <FormField control={editTaskForm.control} name="cost" render={({ field }) => (<FormItem><Label className="form-label-tactical">Impact (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50 font-black text-emerald-600" {...field} /></FormControl><FormMessage /></FormItem>)} />
               </div>
-              <Button type="submit" className="w-full h-16 rounded-2xl bg-emerald-600 text-white font-black text-sm uppercase tracking-widest shadow-xl"><Save className="mr-2 h-5 w-5" /> Save Adjustments</Button>
+              <Button type="submit" className="w-full h-16 rounded-2xl bg-emerald-600 text-white font-black text-sm uppercase tracking-widest shadow-xl"><Save className="mr-2 h-4 w-4" /> Save Adjustments</Button>
             </form></Form>
           </div>
         </DialogContent>

@@ -238,7 +238,7 @@ export default function LivestockPage() {
         <PageHeader title="Livestock Hub" description="PRECISION ASSET REGISTRY" className="mb-0" />
         
         <div className="flex items-center gap-4">
-          <DropdownMenu>
+          <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
               <Button className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-neutral-900 hover:bg-neutral-800 text-white gap-2 shadow-xl border-none">
                 <LayoutGrid className="h-5 w-5 text-emerald-400" />
@@ -259,7 +259,7 @@ export default function LivestockPage() {
                 <DropdownMenuItem 
                   onSelect={(e) => {
                     e.preventDefault();
-                    // Small delay to ensure dropdown closes before dialog opens to avoid focus conflicts
+                    // Clean delay to ensure dropdown closes before dialog opens to avoid focus conflicts
                     setTimeout(() => setIsEntryDialogOpen(true), 100);
                   }} 
                   className="rounded-lg h-12 gap-3 cursor-pointer focus:bg-emerald-50 focus:text-emerald-700"

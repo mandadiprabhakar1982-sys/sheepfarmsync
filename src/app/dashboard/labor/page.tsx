@@ -208,7 +208,7 @@ export default function LaborPage() {
         </div>
 
         <div className="flex items-center gap-4">
-          <DropdownMenu>
+          <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
               <Button className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-neutral-900 hover:bg-neutral-800 text-white gap-2 shadow-xl border-none">
                 <Users className="h-5 w-5 text-emerald-400" />
@@ -237,7 +237,10 @@ export default function LaborPage() {
               <DropdownMenuSeparator className="bg-neutral-100" />
               <div className="p-1">
                 <DropdownMenuItem 
-                  onClick={() => setIsEntryDialogOpen(true)}
+                  onSelect={(e) => {
+                    e.preventDefault();
+                    setTimeout(() => setIsEntryDialogOpen(true), 100);
+                  }}
                   className="rounded-lg h-12 gap-3 cursor-pointer focus:bg-emerald-50 focus:text-emerald-700"
                 >
                   <HandCoins className="h-4 w-4" />
