@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -124,7 +124,8 @@ export default function LivestockPage() {
 
   const stopCamera = () => {
     if (videoRef.current && videoRef.current.srcObject) {
-      (videoRef.current.srcObject as MediaStream).getTracks().forEach(t => t.stop());
+      const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
+      tracks.forEach(t => t.stop());
       videoRef.current.srcObject = null;
     }
     setIsCameraActive(false);
@@ -165,7 +166,18 @@ export default function LivestockPage() {
         imageUrl: finalUrl || '',
         registrationDate: format(data.registrationDate, 'yyyy-MM-dd') 
       });
-      assetForm.reset();
+      
+      // RESET FORM THOROUGHLY
+      assetForm.reset({
+        tagId: '',
+        registrationDate: new Date(),
+        gender: 'female',
+        age: 6,
+        currentWeight: 25,
+        breed: 'Standard',
+        imageUrl: ''
+      });
+      
       setIsEntryDialogOpen(false);
       toast({ title: 'Record Saved', description: `Asset ${data.tagId} synchronized.` });
     } catch (e) {
@@ -188,6 +200,7 @@ export default function LivestockPage() {
         imageUrl: finalUrl || editingAsset.imageUrl, 
         registrationDate: format(data.registrationDate, 'yyyy-MM-dd') 
       }, editingAsset._path);
+      
       setIsEditAssetOpen(false);
       setEditingAsset(null);
       toast({ title: 'Updated', description: `Asset ${data.tagId} synced.` });
@@ -242,7 +255,19 @@ export default function LivestockPage() {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-neutral-100" />
-              <div className="p-1"><DropdownMenuItem onClick={() => setIsEntryDialogOpen(true)} className="rounded-lg h-12 gap-3 cursor-pointer focus:bg-emerald-50 focus:text-emerald-700"><PlusCircle className="h-4 w-4" /><span className="text-[11px] font-black uppercase tracking-wider">Add New Animal</span></DropdownMenuItem></div>
+              <div className="p-1">
+                <DropdownMenuItem 
+                  onSelect={(e) => {
+                    e.preventDefault();
+                    // Small delay to ensure dropdown closes before dialog opens to avoid focus conflicts
+                    setTimeout(() => setIsEntryDialogOpen(true), 100);
+                  }} 
+                  className="rounded-lg h-12 gap-3 cursor-pointer focus:bg-emerald-50 focus:text-emerald-700"
+                >
+                  <PlusCircle className="h-4 w-4" />
+                  <span className="text-[11px] font-black uppercase tracking-wider">Add New Animal</span>
+                </DropdownMenuItem>
+              </div>
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -411,7 +436,7 @@ export default function LivestockPage() {
         </DialogContent>
       </Dialog>
 
-      {/* --- ENTRY DIALOG --- */}
+      {/* --- ENROLL ASSET DIALOG --- */}
       <Dialog open={isEntryDialogOpen} onOpenChange={(o) => { if (!o) stopCamera(); setIsEntryDialogOpen(o); }}>
         <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
@@ -425,7 +450,10 @@ export default function LivestockPage() {
                 {isCameraActive ? (
                   <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
                 ) : assetForm.watch('imageUrl') ? (
-                  <img src={assetForm.watch('imageUrl')} className="w-full h-full object-cover" alt="Preview" />
+                  <div className="relative w-full h-full">
+                    <img src={assetForm.watch('imageUrl')} className="w-full h-full object-cover" alt="Preview" />
+                    <Button size="icon" variant="destructive" className="absolute top-4 right-4 h-10 w-10 rounded-full" onClick={() => assetForm.setValue('imageUrl', '')}><X className="h-4 w-4" /></Button>
+                  </div>
                 ) : (
                   <div className="flex flex-col items-center gap-4">
                     <div className="p-6 rounded-full bg-white shadow-sm border border-slate-100 text-slate-300"><ImageIcon className="h-8 w-8" /></div>
@@ -454,44 +482,82 @@ export default function LivestockPage() {
                 )}
               </div>
             </div>
-            <Form {...assetForm}><form onSubmit={assetForm.handleSubmit(onAssetSubmit)} className="space-y-6">
-              <div className="grid grid-cols-2 gap-4">
-                <FormField control={assetForm.control} name="tagId" render={({ field }) => (<FormItem><Label className="form-label-tactical">Tag ID</Label><FormControl><Input placeholder="e.g. 31-1" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                <FormField control={assetForm.control} name="registrationDate" render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <Label className="form-label-tactical">Registration Date</Label>
-                    <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
-                      <PopoverTrigger asChild>
-                        <Button variant="outline" className="form-input-tactical w-full text-left justify-between bg-slate-50 border-slate-200">
-                          {field.value ? format(field.value, "MMM dd, yyyy") : "Select date"}
-                          <CalendarDays className="h-4 w-4 opacity-20" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0 border-none shadow-2xl">
-                        <Calendar mode="single" selected={field.value} onSelect={(d) => { field.onChange(d); setIsDatePickerOpen(false); }} initialFocus />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <FormField control={assetForm.control} name="breed" render={({ field }) => (<FormItem><Label className="form-label-tactical">Breed</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="form-input-tactical bg-slate-50"><SelectValue /></SelectTrigger></FormControl><SelectContent>{['Standard', 'Nellore', 'Deccani'].map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)} />
-                <FormField control={assetForm.control} name="currentWeight" render={({ field }) => (<FormItem><Label className="form-label-tactical">Weight (KG)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50" {...field} /></FormControl><FormMessage /></FormItem>)} />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <FormField control={assetForm.control} name="gender" render={({ field }) => (<FormItem><Label className="form-label-tactical">Gender</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="form-input-tactical bg-slate-50"><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="male">MALE</SelectItem><SelectItem value="female">FEMALE</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
-                <FormField control={assetForm.control} name="age" render={({ field }) => (<FormItem><Label className="form-label-tactical">Age (Months)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50" {...field} /></FormControl><FormMessage /></FormItem>)} />
-              </div>
-              <Button type="submit" disabled={isUploading} className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm uppercase tracking-widest shadow-xl">
-                {isUploading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Synchronize Record'}
-              </Button>
-            </form></Form>
+            <Form {...assetForm}>
+              <form onSubmit={assetForm.handleSubmit(onAssetSubmit)} className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={assetForm.control} name="tagId" render={({ field }) => (
+                    <FormItem>
+                      <Label className="form-label-tactical">Tag ID</Label>
+                      <FormControl><Input placeholder="e.g. 31-1" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={assetForm.control} name="registrationDate" render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <Label className="form-label-tactical">Registration Date</Label>
+                      <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" className="form-input-tactical w-full text-left justify-between bg-slate-50 border-slate-200">
+                            {field.value ? format(field.value, "MMM dd, yyyy") : "Select date"}
+                            <CalendarDays className="h-4 w-4 opacity-20" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0 border-none shadow-2xl">
+                          <Calendar mode="single" selected={field.value} onSelect={(d) => { field.onChange(d); setIsDatePickerOpen(false); }} initialFocus />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={assetForm.control} name="breed" render={({ field }) => (
+                    <FormItem>
+                      <Label className="form-label-tactical">Breed</Label>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl><SelectTrigger className="form-input-tactical bg-slate-50"><SelectValue /></SelectTrigger></FormControl>
+                        <SelectContent>{['Standard', 'Nellore', 'Deccani'].map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}</SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={assetForm.control} name="currentWeight" render={({ field }) => (
+                    <FormItem>
+                      <Label className="form-label-tactical">Weight (KG)</Label>
+                      <FormControl><Input type="number" className="form-input-tactical bg-slate-50" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={assetForm.control} name="gender" render={({ field }) => (
+                    <FormItem>
+                      <Label className="form-label-tactical">Gender</Label>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl><SelectTrigger className="form-input-tactical bg-slate-50"><SelectValue /></SelectTrigger></FormControl>
+                        <SelectContent><SelectItem value="male">MALE</SelectItem><SelectItem value="female">FEMALE</SelectItem></SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={assetForm.control} name="age" render={({ field }) => (
+                    <FormItem>
+                      <Label className="form-label-tactical">Age (Months)</Label>
+                      <FormControl><Input type="number" className="form-input-tactical bg-slate-50" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                </div>
+                <Button type="submit" disabled={isUploading} className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm uppercase tracking-widest shadow-xl">
+                  {isUploading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Synchronize Record'}
+                </Button>
+              </form>
+            </Form>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* --- EDIT DIALOG --- */}
+      {/* --- UPDATE AUDIT RECORD DIALOG --- */}
       <Dialog open={isEditAssetOpen} onOpenChange={(o) => { if (!o) stopCamera(); setIsEditAssetOpen(o); }}>
         <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
@@ -504,7 +570,6 @@ export default function LivestockPage() {
             <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Adjust asset biological parameters</DialogDescription>
           </DialogHeader>
           <div className="p-8 max-h-[70vh] overflow-y-auto no-scrollbar">
-            {/* --- Image Section for Edit --- */}
             <div className="mb-8 space-y-4">
               <Label className="form-label-tactical">Update Asset Visual</Label>
               <div className="w-full aspect-video rounded-3xl bg-slate-50 border-2 border-dashed border-slate-200 overflow-hidden flex items-center justify-center relative">
@@ -544,44 +609,82 @@ export default function LivestockPage() {
               </div>
             </div>
 
-            <Form {...editAssetForm}><form onSubmit={editAssetForm.handleSubmit(onEditAssetSubmit)} className="space-y-6">
-              <div className="grid grid-cols-2 gap-4">
-                <FormField control={editAssetForm.control} name="tagId" render={({ field }) => (<FormItem><Label className="form-label-tactical">Tag ID</Label><FormControl><Input className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                <FormField control={editAssetForm.control} name="registrationDate" render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <Label className="form-label-tactical">Registration Date</Label>
-                    <Popover open={isEditDatePickerOpen} onOpenChange={setIsEditDatePickerOpen}>
-                      <PopoverTrigger asChild>
-                        <Button variant="outline" className="form-input-tactical w-full text-left justify-between bg-slate-50 border-slate-200">
-                          {field.value ? format(field.value, "MMM dd, yyyy") : "Select date"}
-                          <CalendarDays className="h-4 w-4 opacity-20" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0 border-none shadow-2xl">
-                        <Calendar mode="single" selected={field.value} onSelect={(d) => { field.onChange(d); setIsEditDatePickerOpen(false); }} initialFocus />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <FormField control={editAssetForm.control} name="breed" render={({ field }) => (<FormItem><Label className="form-label-tactical">Breed</Label><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger className="form-input-tactical bg-slate-50"><SelectValue /></SelectTrigger></FormControl><SelectContent>{['Standard', 'Nellore', 'Deccani'].map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)} />
-                <FormField control={editAssetForm.control} name="currentWeight" render={({ field }) => (<FormItem><Label className="form-label-tactical">Weight (KG)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50" {...field} /></FormControl><FormMessage /></FormItem>)} />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <FormField control={editAssetForm.control} name="gender" render={({ field }) => (<FormItem><Label className="form-label-tactical">Gender</Label><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger className="form-input-tactical bg-slate-50"><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="male">MALE</SelectItem><SelectItem value="female">FEMALE</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
-                <FormField control={editAssetForm.control} name="age" render={({ field }) => (<FormItem><Label className="form-label-tactical">Age (Months)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50" {...field} /></FormControl><FormMessage /></FormItem>)} />
-              </div>
-              <Button type="submit" disabled={isUploading} className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm uppercase tracking-widest shadow-xl">
-                {isUploading ? <Loader2 className="animate-spin h-5 w-5" /> : (
-                  <div className="flex items-center gap-2">
-                    <Save className="h-5 w-5" />
-                    Save Adjustments
-                  </div>
-                )}
-              </Button>
-            </form></Form>
+            <Form {...editAssetForm}>
+              <form onSubmit={editAssetForm.handleSubmit(onEditAssetSubmit)} className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={editAssetForm.control} name="tagId" render={({ field }) => (
+                    <FormItem>
+                      <Label className="form-label-tactical">Tag ID</Label>
+                      <FormControl><Input className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={editAssetForm.control} name="registrationDate" render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <Label className="form-label-tactical">Registration Date</Label>
+                      <Popover open={isEditDatePickerOpen} onOpenChange={setIsEditDatePickerOpen}>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" className="form-input-tactical w-full text-left justify-between bg-slate-50 border-slate-200">
+                            {field.value ? format(field.value, "MMM dd, yyyy") : "Select date"}
+                            <CalendarDays className="h-4 w-4 opacity-20" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0 border-none shadow-2xl">
+                          <Calendar mode="single" selected={field.value} onSelect={(d) => { field.onChange(d); setIsEditDatePickerOpen(false); }} initialFocus />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={editAssetForm.control} name="breed" render={({ field }) => (
+                    <FormItem>
+                      <Label className="form-label-tactical">Breed</Label>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl><SelectTrigger className="form-input-tactical bg-slate-50"><SelectValue /></SelectTrigger></FormControl>
+                        <SelectContent>{['Standard', 'Nellore', 'Deccani'].map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}</SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={editAssetForm.control} name="currentWeight" render={({ field }) => (
+                    <FormItem>
+                      <Label className="form-label-tactical">Weight (KG)</Label>
+                      <FormControl><Input type="number" className="form-input-tactical bg-slate-50" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={editAssetForm.control} name="gender" render={({ field }) => (
+                    <FormItem>
+                      <Label className="form-label-tactical">Gender</Label>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl><SelectTrigger className="form-input-tactical bg-slate-50"><SelectValue /></SelectTrigger></FormControl>
+                        <SelectContent><SelectItem value="male">MALE</SelectItem><SelectItem value="female">FEMALE</SelectItem></SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={editAssetForm.control} name="age" render={({ field }) => (
+                    <FormItem>
+                      <Label className="form-label-tactical">Age (Months)</Label>
+                      <FormControl><Input type="number" className="form-input-tactical bg-slate-50" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                </div>
+                <Button type="submit" disabled={isUploading} className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm uppercase tracking-widest shadow-xl">
+                  {isUploading ? <Loader2 className="animate-spin h-5 w-5" /> : (
+                    <div className="flex items-center gap-2">
+                      <Save className="h-5 w-5" />
+                      Save Adjustments
+                    </div>
+                  )}
+                </Button>
+              </form>
+            </Form>
           </div>
         </DialogContent>
       </Dialog>
