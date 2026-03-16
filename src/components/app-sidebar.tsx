@@ -53,14 +53,14 @@ export function AppSidebar() {
       links: [
         { href: '/dashboard', label: "Home Hub", icon: Home },
         { href: '/dashboard/overview', label: "Farm Summary", icon: LayoutDashboard },
-        { href: '/dashboard/analysis', label: "AI Pashu Report", icon: BarChart },
+        { href: '/dashboard/analysis', label: "AI Farm Report", icon: BarChart },
       ]
     },
     {
       label: "PRIVATE ACCOUNTS",
       adminOnly: true,
       links: [
-        { href: '/dashboard/monthly-ledger', label: "Paisa Ledger", icon: Wallet },
+        { href: '/dashboard/monthly-ledger', label: "Finance Ledger", icon: Wallet },
         { href: '/dashboard/balance-sheet', label: "Debt & Loans", icon: BookOpen },
       ]
     },
@@ -68,25 +68,25 @@ export function AppSidebar() {
       label: "FARM EXPENSES",
       links: [
         { href: '/dashboard/farm-ledger', label: "Daily Ledger", icon: IconFarmCost },
-        { href: '/dashboard/purchase', label: "Pashu Buying", icon: Package },
+        { href: '/dashboard/purchase', label: "Sheep Buying", icon: Package },
         { href: '/dashboard/feed', label: "Fodder & Feed", icon: Wheat },
         { href: '/dashboard/medicine', label: "Medical & Health", icon: Syringe },
         { href: '/dashboard/labor', label: "Labour & Staff", icon: Users },
-        { href: '/dashboard/expenses', label: "Other Kharchulu", icon: Receipt },
+        { href: '/dashboard/expenses', label: "Other Expenses", icon: Receipt },
       ]
     },
     {
       label: "VILLAGE ECOSYSTEM",
       links: [
         { href: '/dashboard/feed-calculator', label: "Calculator", icon: Calculator },
-        { href: '/dashboard/marketplace', label: "Village Mandi", icon: Globe },
+        { href: '/dashboard/marketplace', label: "Community Market", icon: Globe },
         { href: '/dashboard/help', label: "Install App", icon: Smartphone },
       ]
     },
     {
       label: "RECORDS",
       links: [
-        { href: '/dashboard/livestock', label: "Pashu List", icon: LayoutGrid },
+        { href: '/dashboard/livestock', label: "Sheep List", icon: LayoutGrid },
         { href: '/dashboard/sales', label: "Selling Ledger", icon: ArrowRightLeft },
         { href: '/dashboard/mortality', label: "Death Log", icon: Skull },
       ]

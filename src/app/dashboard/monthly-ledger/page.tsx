@@ -42,7 +42,7 @@ import {
 import { Label } from '@/components/ui/label';
 
 /**
- * @fileOverview Paisa Ledger
+ * @fileOverview Finance Ledger
  * Tactical tabs for Income, Bank EMI, Credit Card, Personal, and Household.
  */
 export default function FinancialLedgerPage() {
@@ -76,22 +76,21 @@ export default function FinancialLedgerPage() {
 
     // 2. Trade Inflows (Sales)
     const saleInflows = (sales || []).map(s => ({ 
-      id: s.id, date: s.saleDate, source: `Pashu Sale: ${s.buyerName}`, amount: s.amountReceived, type: 'income' as const, cat: 'Selling' 
+      id: s.id, date: s.saleDate, source: `Sheep Sale: ${s.buyerName}`, amount: s.amountReceived, type: 'income' as const, cat: 'Selling' 
     }));
     
     // 3. Trade Outflows (Purchases)
     const purchaseOutflows = (purchases || []).map(p => ({ 
-      id: p.id, date: p.purchaseDate, source: `Pashu Buy: ${p.farmerName}`, amount: p.amountPaid, type: 'expense' as const, cat: 'Buying' 
+      id: p.id, date: p.purchaseDate, source: `Sheep Buy: ${p.farmerName}`, amount: p.amountPaid, type: 'expense' as const, cat: 'Buying' 
     }));
 
-    // Operational costs are listed here for unified audit in MASTER (though user removed master, we keep mapping for tabs)
     const fodderOutflows = (feedCosts || []).map(f => ({ id: f.id, date: f.date, source: `Fodder: ${f.feedType}`, amount: f.cost, type: 'expense' as const, cat: 'Fodder' }));
     const laborOutflows = (laborCosts || []).map(l => ({ id: l.id, date: l.date, source: `Staff: ${l.employeeName}`, amount: l.amountPaid || 0, type: 'expense' as const, cat: 'Labour' }));
     const medicineOutflows = (medicineExpenses || []).map(m => ({ id: m.id, date: m.date, source: `Medical: ${m.shopName}`, amount: m.totalAmountSpent, type: 'expense' as const, cat: 'Medical' }));
     const clinicalOutflows = (healthTasks || []).map(h => ({ id: h.id, date: h.date, source: `Treatment: ${h.medicineName}`, amount: h.cost, type: 'expense' as const, cat: 'Clinical' }));
-    const miscOutflows = (farmExpenses || []).map(e => ({ id: e.id, date: e.expenseDate, source: `Kharchu: ${e.description}`, amount: e.amount, type: 'expense' as const, cat: 'Kharchu' }));
+    const miscOutflows = (farmExpenses || []).map(e => ({ id: e.id, date: e.expenseDate, source: `Expense: ${e.description}`, amount: e.amount, type: 'expense' as const, cat: 'Misc' }));
 
-    // 9. Categorized Private Expenses
+    // Private Expenses
     const privateOutflows = (monthlyExpenses || []).map(e => ({
       id: e.id,
       date: e.date,
@@ -138,14 +137,14 @@ export default function FinancialLedgerPage() {
   const handleAddIncome = () => {
     if (!source || !amount) return;
     addMonthlyIncome({ date: entryDate, source, amount: parseFloat(amount) });
-    toast({ title: 'Income Recorded', description: 'Added to Paisa Ledger.' });
+    toast({ title: 'Income Recorded', description: 'Added to Finance Ledger.' });
     setIsIncomeDialogOpen(false); setSource(''); setAmount('');
   };
 
   const handleAddExpense = () => {
     if (!source || !amount) return;
     addMonthlyExpense({ date: entryDate, source, amount: parseFloat(amount), category });
-    toast({ title: 'Kharchu Recorded', description: 'Disbursement logged.' });
+    toast({ title: 'Expense Recorded', description: 'Disbursement logged.' });
     setIsExpenseDialogOpen(false); setSource(''); setAmount('');
   };
 
@@ -177,7 +176,7 @@ export default function FinancialLedgerPage() {
     <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col relative bg-white md:bg-transparent">
       {/* MOBILE HEADER */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-[110] bg-[#059669] text-white px-6 py-5 flex items-center justify-between shadow-lg">
-        <h2 className="text-xl font-black tracking-tight uppercase">Paisa Ledger</h2>
+        <h2 className="text-xl font-black tracking-tight uppercase">Finance Ledger</h2>
         <div className="text-right">
           <p className="text-[8px] font-black uppercase opacity-60 leading-none mb-1">Balance</p>
           <p className="text-xl font-black">₹{netCashFlow.toLocaleString()}</p>
@@ -187,7 +186,7 @@ export default function FinancialLedgerPage() {
       <div className="md:hidden h-16 shrink-0" />
 
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-6 md:mb-8 shrink-0 px-4 md:px-0 mt-4 md:mt-0">
-        <PageHeader title="Paisa Ledger" description="UNIFIED PRIVATE & BUSINESS AUDIT" className="mb-0 hidden md:block" />
+        <PageHeader title="Finance Ledger" description="UNIFIED PRIVATE & BUSINESS AUDIT" className="mb-0 hidden md:block" />
 
         <div className="flex items-center gap-2 md:gap-4 overflow-x-auto pb-2 md:pb-0 no-scrollbar md:w-auto w-full">
           <Button onClick={() => setIsIncomeDialogOpen(true)} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-xl border-none shrink-0">
@@ -196,7 +195,7 @@ export default function FinancialLedgerPage() {
           </Button>
           <Button onClick={() => setIsExpenseDialogOpen(true)} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-rose-600 hover:bg-rose-700 text-white gap-2 shadow-xl border-none shrink-0">
             <ArrowDownCircle className="h-5 w-5 text-white" />
-            Add Kharchu
+            Add Expense
           </Button>
           <div className="hidden md:flex px-6 py-3 bg-neutral-900 rounded-2xl text-white items-center gap-4 shadow-xl shrink-0">
             <ShieldCheck className="h-5 w-5 text-emerald-400" />
@@ -236,7 +235,7 @@ export default function FinancialLedgerPage() {
                 <div className="flex justify-between items-end">
                   <div className="space-y-1">
                     <div className="flex items-center gap-3"><ArrowRightLeft className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">{activeTab.replace('_', ' ')} Audit</CardTitle></div>
-                    <CardDescription className="text-emerald-100/60 text-[10px] font-black uppercase tracking-[0.2em]">Verified Paisa Movement Audit</CardDescription>
+                    <CardDescription className="text-emerald-100/60 text-[10px] font-black uppercase tracking-[0.2em]">Verified Cash Movement Audit</CardDescription>
                   </div>
                   <p className="text-4xl font-black tracking-tighter">₹{netCashFlow.toLocaleString()}</p>
                 </div>
@@ -332,17 +331,17 @@ export default function FinancialLedgerPage() {
       <Dialog open={isExpenseDialogOpen} onOpenChange={setIsExpenseDialogOpen}>
         <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
-            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-rose-500/20 text-rose-400"><ArrowDownCircle className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase">Kharchu Entry</DialogTitle></div>
+            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-rose-500/20 text-rose-400"><ArrowDownCircle className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase">Expense Entry</DialogTitle></div>
             <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Document new private disbursement</DialogDescription>
           </DialogHeader>
           <div className="p-8 space-y-6">
             <div className="space-y-2"><Label className="form-label-tactical">Date</Label><Input type="date" value={entryDate} onChange={(e) => setEntryDate(e.target.value)} className="form-input-tactical" /></div>
-            <div className="space-y-2"><Label className="form-label-tactical">Kharchu Source</Label><Input placeholder="e.g. EB Bill, Grocery" value={source} onChange={(e) => setSource(e.target.value)} className="form-input-tactical" /></div>
+            <div className="space-y-2"><Label className="form-label-tactical">Expense Source</Label><Input placeholder="e.g. EB Bill, Grocery" value={source} onChange={(e) => setSource(e.target.value)} className="form-input-tactical" /></div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2"><Label className="form-label-tactical">Amount (₹)</Label><Input type="number" placeholder="0" value={amount} onChange={(e) => setAmount(e.target.value)} className="form-input-tactical font-black" /></div>
               <div className="space-y-2"><Label className="form-label-tactical">Category</Label><Select value={category} onValueChange={(v: any) => setCategory(v)}><SelectTrigger className="form-input-tactical"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="loan">Bank EMI</SelectItem><SelectItem value="card">Credit Card</SelectItem><SelectItem value="private">Personal</SelectItem><SelectItem value="household">Household</SelectItem></SelectContent></Select></div>
             </div>
-            <Button onClick={handleAddExpense} className="w-full h-16 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black uppercase shadow-xl">Commit Kharchu</Button>
+            <Button onClick={handleAddExpense} className="w-full h-16 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black uppercase shadow-xl">Commit Expense</Button>
           </div>
         </DialogContent>
       </Dialog>

@@ -35,7 +35,7 @@ import {
 } from '@/components/logo';
 
 /**
- * @fileOverview Pashu Control Hub
+ * @fileOverview Farm Control Hub
  */
 export default function DashboardPage() {
   const [mounted, setMounted] = useState(false);
@@ -78,13 +78,13 @@ export default function DashboardPage() {
   const MobileHome = (
     <div className="max-w-lg mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500 dashboard-stack">
       <section>
-        <h2 className="text-xl font-black uppercase tracking-tight text-slate-900 mb-6 px-2">Paisa Summary</h2>
+        <h2 className="text-xl font-black uppercase tracking-tight text-slate-900 mb-6 px-2">Financial Summary</h2>
         <div className="space-y-4">
           <Link href="/dashboard/sales" className="block">
             <div className="bg-white rounded-[1.5rem] p-5 flex items-center justify-between shadow-sm border border-slate-100 active:scale-[0.98] transition-all">
               <div className="flex items-center gap-4">
                 <div className="h-12 w-12 rounded-2xl flex items-center justify-center text-white shadow-md bg-blue-500"><TrendingUp className="h-6 w-6" /></div>
-                <span className="text-[11px] font-black uppercase tracking-widest text-slate-600">Raavalasina</span>
+                <span className="text-[11px] font-black uppercase tracking-widest text-slate-600">Receivables</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-2xl font-black tracking-tighter text-slate-900">₹{totalReceivables.toLocaleString()}</span>
@@ -96,7 +96,7 @@ export default function DashboardPage() {
             <div className="bg-white rounded-[1.5rem] p-5 flex items-center justify-between shadow-sm border border-slate-100 active:scale-[0.98] transition-all">
               <div className="flex items-center gap-4">
                 <div className="h-12 w-12 rounded-2xl flex items-center justify-center text-white shadow-md bg-[#f59e0b]"><TrendingDown className="h-6 w-6" /></div>
-                <span className="text-[11px] font-black uppercase tracking-widest text-slate-600">Ivvalasina</span>
+                <span className="text-[11px] font-black uppercase tracking-widest text-slate-600">Payables</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-2xl font-black tracking-tighter text-slate-900">₹{totalPayables.toLocaleString()}</span>
@@ -108,7 +108,7 @@ export default function DashboardPage() {
             <div className="bg-white rounded-[1.5rem] p-5 flex items-center justify-between shadow-sm border border-slate-100 active:scale-[0.98] transition-all">
               <div className="flex items-center gap-4">
                 <div className="h-12 w-12 rounded-2xl flex items-center justify-center text-white shadow-md bg-slate-800"><ReceiptIndianRupee className="h-6 w-6" /></div>
-                <span className="text-[11px] font-black uppercase tracking-widest text-slate-600">Total Kharchu</span>
+                <span className="text-[11px] font-black uppercase tracking-widest text-slate-600">Total Spend</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-2xl font-black tracking-tighter text-slate-900">₹{totalExpenses.toLocaleString()}</span>
@@ -158,7 +158,7 @@ export default function DashboardPage() {
             { label: 'Fodder', val: totalFeedCost, icon: Wheat, href: '/dashboard/feed' },
             { label: 'Labour', val: totalLaborCost, icon: Users, href: '/dashboard/labor' },
             { label: 'Medical', val: totalMedicineCost, icon: Heart, href: '/dashboard/medicine' },
-            { label: 'Itara', val: totalFarmExpenses, icon: Wallet, href: '/dashboard/expenses' },
+            { label: 'Expenses', val: totalFarmExpenses, icon: Wallet, href: '/dashboard/expenses' },
           ].map((item, i) => (
             <Link key={i} href={item.href} className="bg-white rounded-[2rem] p-6 flex flex-col items-center text-center shadow-sm border border-slate-100 aspect-square justify-center active:scale-[0.98] transition-all">
               <div className="h-16 w-16 rounded-[1.5rem] bg-[#f59e0b] flex items-center justify-center text-white mb-4 shadow-lg shadow-amber-500/20">
@@ -173,7 +173,7 @@ export default function DashboardPage() {
 
       <div className="pt-4 pb-10">
         <Button onClick={() => router.push('/dashboard/expenses')} className="w-full h-16 rounded-2xl bg-[#f59e0b] hover:bg-amber-600 text-white font-black uppercase tracking-[0.2em] shadow-xl shadow-amber-500/20 text-sm gap-3 border-none">
-          <Plus className="h-6 w-6" /> LOG KHARCHU
+          <Plus className="h-6 w-6" /> LOG EXPENSE
         </Button>
       </div>
     </div>
@@ -200,14 +200,14 @@ export default function DashboardPage() {
   const hubItems = [
     { title: "SUMMARY", subtitle: "FARM REPORT", icon: IconOverview, href: '/dashboard/overview', color: "from-emerald-950/40 to-emerald-900/40" },
     { title: "DAILY LEDGER", subtitle: "COST CENTER", icon: IconFarmCost, href: '/dashboard/farm-ledger', color: "from-amber-950/40 to-amber-900/40" },
-    { title: "PAISA", subtitle: "FINANCE LEDGER", icon: IconLedger, href: '/dashboard/monthly-ledger', adminOnly: true, color: "from-emerald-900/40 to-emerald-800/40" },
-    { title: "APPULU", subtitle: "DEBT PORTFOLIO", icon: IconLiabilities, href: '/dashboard/balance-sheet', adminOnly: true, color: "from-amber-900/40 to-amber-800/40" },
-    { title: "PASHU LIST", subtitle: "FLOCK RECORDS", icon: IconFlock, href: '/dashboard/livestock', color: "from-emerald-800/40 to-emerald-700/40" },
+    { title: "FINANCE", subtitle: "PRIVATE LEDGER", icon: IconLedger, href: '/dashboard/monthly-ledger', adminOnly: true, color: "from-emerald-900/40 to-emerald-800/40" },
+    { title: "DEBT", subtitle: "LOAN PORTFOLIO", icon: IconLiabilities, href: '/dashboard/balance-sheet', adminOnly: true, color: "from-amber-900/40 to-amber-800/40" },
+    { title: "SHEEP LIST", subtitle: "FLOCK RECORDS", icon: IconFlock, href: '/dashboard/livestock', color: "from-emerald-800/40 to-emerald-700/40" },
     { title: "SELLING", subtitle: "REVENUE LEDGER", icon: IconTrade, href: '/dashboard/sales', color: "from-emerald-700/40 to-emerald-600/40" },
-    { title: "MEDICAL", subtitle: "PASHU HEALTH", icon: IconHealth, href: '/dashboard/medicine', color: "from-red-900/40 to-red-800/40" },
+    { title: "MEDICAL", subtitle: "ANIMAL HEALTH", icon: IconHealth, href: '/dashboard/medicine', color: "from-red-900/40 to-red-800/40" },
     { title: "FODDER", subtitle: "FEED INVENTORY", icon: IconFeed, href: '/dashboard/feed', color: "from-emerald-600/40 to-emerald-500/40" },
     { title: "LABOUR", subtitle: "STAFF & COOLIE", icon: IconLabor, href: '/dashboard/labor', color: "from-slate-900/40 to-slate-800/40" },
-    { title: "KHARCHULU", subtitle: "OVERHEADS", icon: IconExpenses, href: '/dashboard/expenses', color: "from-slate-800/40 to-slate-700/40" },
+    { title: "EXPENSES", subtitle: "OVERHEADS", icon: IconExpenses, href: '/dashboard/expenses', color: "from-slate-800/40 to-slate-700/40" },
   ];
 
   const WebDashboard = (
@@ -216,7 +216,7 @@ export default function DashboardPage() {
         <HubSparkle className="h-24 w-24 shrink-0" />
         <div className="space-y-3">
           <h1 className="text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none">MPR <span className="text-primary">SHEEP FARMS</span></h1>
-          <p className="text-[11px] font-black text-primary/60 uppercase tracking-[0.5em]">High-Density Executive Pashu Hub</p>
+          <p className="text-[11px] font-black text-primary/60 uppercase tracking-[0.5em]">High-Density Executive Control Hub</p>
         </div>
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
