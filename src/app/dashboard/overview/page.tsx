@@ -1,16 +1,27 @@
 'use client';
 
 import { useFarm } from '@/context/FarmContext';
-import { Sparkles, TrendingUp, TrendingDown, Skull, Wheat, Users, Heart, Wallet, ReceiptIndianRupee } from 'lucide-react';
+import { 
+  TrendingUp, 
+  TrendingDown, 
+  ReceiptIndianRupee, 
+  Wheat, 
+  Users, 
+  Heart, 
+  Wallet, 
+  Plus,
+  Loader2
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
 
 export default function OverviewPage() {
+  const router = useRouter();
   const { 
-    totalSheep, 
     totalExpenses, 
     totalReceivables, 
     totalPayables, 
-    totalDead,
     totalFeedCost,
     totalLaborCost,
     totalMedicineCost,
@@ -20,140 +31,87 @@ export default function OverviewPage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-slate-50">
+      <div className="flex h-[calc(100vh-180px)] w-full items-center justify-center">
         <div className="flex flex-col items-center gap-6">
-          <div className="w-12 h-12 border-4 border-slate-200 rounded-full border-t-emerald-500 animate-spin" />
+          <Loader2 className="h-10 w-10 animate-spin text-primary opacity-20" />
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">Linking Command Hub</p>
         </div>
       </div>
     );
   }
 
-  const SectionHeader = ({ title }: { title: string }) => (
-    <div className="flex items-center gap-4 md:gap-6 mb-6 md:mb-8">
-      <div className="h-px flex-1 bg-slate-200" />
-      <h2 className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.3em] md:tracking-[0.4em] text-slate-400 whitespace-nowrap">{title}</h2>
-      <div className="h-px flex-1 bg-slate-200" />
+  const FinancialRow = ({ title, value, icon: Icon, color }: { title: string, value: string, icon: any, color: string }) => (
+    <div className="bg-white rounded-[1.5rem] p-5 flex items-center justify-between shadow-sm border border-slate-100 mb-4 group active:scale-[0.98] transition-all">
+      <div className="flex items-center gap-4">
+        <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center text-white shadow-md", color)}>
+          <Icon className="h-6 w-6" />
+        </div>
+        <span className="text-[11px] font-black uppercase tracking-widest text-slate-600">{title}</span>
+      </div>
+      <span className="text-2xl font-black tracking-tighter text-slate-900">{value}</span>
     </div>
   );
 
-  const TacticalCard = ({ 
-    title, 
-    value, 
-    subtitle, 
-    icon: Icon, 
-    color, 
-    className 
-  }: { 
-    title: string, 
-    value: string | number, 
-    subtitle: string, 
-    icon: any, 
-    color: string,
-    className?: string
-  }) => (
-    <div className={cn(
-      "rounded-[1.5rem] md:rounded-[2rem] p-6 md:p-8 flex items-center gap-4 md:gap-6 shadow-lg transition-all hover:scale-[1.01] border border-slate-100 bg-white group",
-      className
-    )}>
-      <div className={cn("h-10 w-10 md:h-14 md:w-14 shrink-0 rounded-xl md:rounded-2xl flex items-center justify-center text-white shadow-xl", color)}>
-        <Icon className="h-5 w-5 md:h-6 md:w-6" />
+  const BreakdownCard = ({ title, value, icon: Icon }: { title: string, value: string, icon: any }) => (
+    <div className="bg-white rounded-[2rem] p-6 flex flex-col items-center text-center shadow-sm border border-slate-100 aspect-square justify-center group active:scale-[0.98] transition-all">
+      <div className="h-16 w-16 rounded-[1.5rem] bg-[#f59e0b] flex items-center justify-center text-white mb-4 shadow-lg shadow-amber-500/20">
+        <Icon className="h-8 w-8" />
       </div>
-      <div className="flex flex-col min-w-0">
-        <p className="text-[8px] md:text-[9px] font-black uppercase tracking-[0.15em] md:tracking-[0.2em] text-slate-400 mb-0.5 md:mb-1">{title}</p>
-        <p className="text-xl md:text-3xl font-black tracking-tighter text-slate-900 leading-none mb-1 md:mb-2">{value}</p>
-        <p className="text-[7px] md:text-[8px] font-bold uppercase tracking-widest text-slate-300 truncate">{subtitle}</p>
-      </div>
+      <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">{title}:</p>
+      <p className="text-xl font-black tracking-tighter text-slate-900">{value}</p>
     </div>
   );
 
   return (
-    <div className="min-h-full py-2 md:py-4 animate-in fade-in duration-1000 relative">
-      <div className="max-w-[1400px] mx-auto space-y-8 md:space-y-12 relative z-10">
+    <div className="min-h-full py-4 animate-in fade-in duration-700">
+      <div className="max-w-lg mx-auto space-y-10">
         
-        {/* Tier 1: Inventory & Flock Status */}
+        {/* FINANCIAL SUMMARY */}
         <section>
-          <SectionHeader title="INVENTORY & FLOCK STATUS" />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-            <TacticalCard 
-              title="LIVE SHEEP INVENTORY"
-              value={totalSheep}
-              subtitle="ACTIVE FLOCK : AS OF TODAY"
-              icon={Sparkles}
-              color="bg-emerald-600"
+          <h2 className="text-xl font-black uppercase tracking-tight text-slate-900 mb-6 px-2">Financial Summary</h2>
+          <div className="space-y-1">
+            <FinancialRow 
+              title="Receivables Pending" 
+              value={`₹${totalReceivables.toLocaleString()}`} 
+              icon={TrendingUp} 
+              color="bg-blue-500" 
             />
-            <TacticalCard 
-              title="TOTAL MORTALITIES"
-              value={totalDead}
-              subtitle="LOSS RECORD : CURRENT CYCLE"
-              icon={Skull}
-              color="bg-rose-600"
+            <FinancialRow 
+              title="Payables Due" 
+              value={`₹${totalPayables.toLocaleString()}`} 
+              icon={TrendingDown} 
+              color="bg-[#f59e0b]" 
+            />
+            <FinancialRow 
+              title="Total Cost Summary" 
+              value={`₹${totalExpenses.toLocaleString()}`} 
+              icon={ReceiptIndianRupee} 
+              color="bg-slate-800" 
             />
           </div>
         </section>
 
-        {/* Tier 2: Financial Summary */}
+        {/* OPERATIONAL BREAKDOWN */}
         <section>
-          <SectionHeader title="FINANCIAL SUMMARY" />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-            <TacticalCard 
-              title="RECEIVABLES PENDING"
-              value={`₹${totalReceivables.toLocaleString()}`}
-              subtitle={totalReceivables > 0 ? "OUTSTANDING INVOICES" : "NO PENDING COLLECTIONS"}
-              icon={TrendingUp}
-              color="bg-sky-600"
-            />
-            <TacticalCard 
-              title="PAYABLES DUE"
-              value={`₹${totalPayables.toLocaleString()}`}
-              subtitle={totalPayables > 0 ? "ACTIVE DEBT COMMITMENTS" : "ACTIVE COMMITMENTS"}
-              icon={TrendingDown}
-              color="bg-orange-600"
-            />
-            <TacticalCard 
-              title="TOTAL COST SUMMARY"
-              value={`₹${totalExpenses.toLocaleString()}`}
-              subtitle="TOTAL OPERATIONAL SPEND: YTD"
-              icon={ReceiptIndianRupee}
-              color="bg-slate-900"
-            />
+          <h2 className="text-xl font-black uppercase tracking-tight text-slate-900 mb-6 px-2">Operational Breakdown</h2>
+          <div className="grid grid-cols-2 gap-4">
+            <BreakdownCard title="Feed Usage" value={`₹${totalFeedCost.toLocaleString()}`} icon={Wheat} />
+            <BreakdownCard title="Labor Cost" value={`₹${totalLaborCost.toLocaleString()}`} icon={Users} />
+            <BreakdownCard title="Medical" value={`₹${totalMedicineCost.toLocaleString()}`} icon={Heart} />
+            <BreakdownCard title="Misc. Expenses" value={`₹${totalFarmExpenses.toLocaleString()}`} icon={Wallet} />
           </div>
         </section>
 
-        {/* Tier 3: Operational Breakdown */}
-        <section>
-          <SectionHeader title="OPERATIONAL BREAKDOWN" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-            <TacticalCard 
-              title="FEED USAGE"
-              value={`₹${totalFeedCost.toLocaleString()}`}
-              subtitle="GRAIN & INVENTORY"
-              icon={Wheat}
-              color="bg-amber-500"
-            />
-            <TacticalCard 
-              title="LABOR COST"
-              value={`₹${totalLaborCost.toLocaleString()}`}
-              subtitle="TOTAL STAFF HOURS"
-              icon={Users}
-              color="bg-amber-500"
-            />
-            <TacticalCard 
-              title="MEDICAL"
-              value={`₹${totalMedicineCost.toLocaleString()}`}
-              subtitle="CLINICAL CHECKUPS"
-              icon={Heart}
-              color="bg-amber-500"
-            />
-            <TacticalCard 
-              title="MISC. EXPENSES"
-              value={`₹${totalFarmExpenses.toLocaleString()}`}
-              subtitle="GENERAL OVERHEADS"
-              icon={Wallet}
-              color="bg-amber-500"
-            />
-          </div>
-        </section>
+        {/* QUICK ACTION BUTTON */}
+        <div className="pt-4 pb-10">
+          <Button 
+            onClick={() => router.push('/dashboard/expenses')}
+            className="w-full h-16 rounded-2xl bg-[#f59e0b] hover:bg-amber-600 text-white font-black uppercase tracking-[0.2em] shadow-xl shadow-amber-500/20 text-sm gap-3 border-none"
+          >
+            <Plus className="h-6 w-6" />
+            Record Expense
+          </Button>
+        </div>
 
       </div>
     </div>

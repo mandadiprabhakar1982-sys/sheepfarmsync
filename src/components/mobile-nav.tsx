@@ -4,32 +4,29 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { 
-  Home, 
   LayoutGrid, 
-  ArrowRightLeft, 
-  Receipt, 
+  Users, 
+  IndianRupee, 
   Menu 
 } from 'lucide-react';
 import { useSidebar } from '@/components/ui/sidebar';
 
 /**
  * @fileOverview Native-style bottom navigation for mobile devices.
- * Designed to provide an "App Store" feel on iOS and Android.
+ * Matches the design from the requested screenshot.
  */
 export function MobileNav() {
   const pathname = usePathname();
   const { toggleSidebar } = useSidebar();
 
   const links = [
-    { href: '/dashboard', label: 'Home', icon: Home },
-    { href: '/dashboard/livestock', label: 'Flock', icon: LayoutGrid },
-    { href: '/dashboard/sales', label: 'Trade', icon: ArrowRightLeft },
-    { href: '/dashboard/expenses', label: 'Costs', icon: Receipt },
+    { href: '/dashboard/overview', label: 'Dashboard', icon: LayoutGrid },
+    { href: '/dashboard/livestock', label: 'Flock', icon: Users },
+    { href: '/dashboard/monthly-ledger', label: 'Finance', icon: IndianRupee },
   ];
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white/90 backdrop-blur-2xl border-t border-slate-200 shadow-[0_-4px_24px_rgba(0,0,0,0.06)] px-2">
-      {/* Container for links with safe area handling */}
+    <div className="md:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white/95 backdrop-blur-3xl border-t border-slate-100 shadow-[0_-8px_30px_rgba(0,0,0,0.04)] px-2">
       <div className="flex items-center justify-between h-16 max-w-lg mx-auto">
         {links.map((link) => {
           const isActive = pathname === link.href;
@@ -39,14 +36,11 @@ export function MobileNav() {
               href={link.href}
               className={cn(
                 "flex flex-col items-center justify-center flex-1 gap-1 transition-all active:scale-90 h-full",
-                isActive ? "text-primary" : "text-slate-400"
+                isActive ? "text-[#f59e0b]" : "text-slate-400"
               )}
             >
-              <div className={cn(
-                "p-1 rounded-xl transition-colors",
-                isActive ? "bg-primary/5" : "bg-transparent"
-              )}>
-                <link.icon className={cn("h-5 w-5", isActive ? "stroke-[2.5px]" : "stroke-2")} />
+              <div className="p-1 rounded-xl">
+                <link.icon className={cn("h-5 w-5", isActive ? "stroke-[2.5px]" : "stroke-[2px]")} />
               </div>
               <span className={cn(
                 "text-[9px] font-black uppercase tracking-tight leading-none",
@@ -58,7 +52,7 @@ export function MobileNav() {
           );
         })}
         
-        {/* Toggle full sidebar menu */}
+        {/* Menu Toggle */}
         <button 
           onClick={(e) => {
             e.preventDefault();
@@ -66,10 +60,10 @@ export function MobileNav() {
           }}
           className="flex flex-col items-center justify-center flex-1 gap-1 text-slate-400 active:scale-90 h-full"
         >
-          <div className="p-1 rounded-xl bg-transparent">
-            <Menu className="h-5 w-5" />
+          <div className="p-1 rounded-xl">
+            <Menu className="h-5 w-5 stroke-[2px]" />
           </div>
-          <span className="text-[9px] font-black uppercase tracking-tight leading-none opacity-60">More</span>
+          <span className="text-[9px] font-black uppercase tracking-tight leading-none opacity-60">Menu</span>
         </button>
       </div>
       
