@@ -15,13 +15,15 @@ import {
   Skull,
   LayoutGrid,
   ArrowUpCircle,
-  ArrowDownCircle
+  ArrowDownCircle,
+  ChevronRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { SheepIcon } from '@/components/logo';
+import Link from 'next/link';
 
 /**
  * @fileOverview Precision Overview Page
@@ -55,17 +57,27 @@ export default function OverviewPage() {
   }
 
   // --- MOBILE COMPONENTS ---
-  const MobileFinancialRow = ({ title, value, icon: Icon, color }: { title: string, value: string, icon: any, color: string }) => (
-    <div className="bg-white rounded-xl p-4 flex items-center justify-between shadow-sm border border-slate-100 mb-2">
-      <div className="flex items-center gap-3">
-        <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center text-white shadow-sm", color)}>
-          <Icon className="h-4 w-4" />
+  const MobileFinancialRow = ({ title, value, icon: Icon, color, href }: { title: string, value: string, icon: any, color: string, href?: string }) => {
+    const content = (
+      <div className="bg-white rounded-xl p-4 flex items-center justify-between shadow-sm border border-slate-100 mb-2 active:scale-[0.98] transition-all">
+        <div className="flex items-center gap-3">
+          <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center text-white shadow-sm", color)}>
+            <Icon className="h-4 w-4" />
+          </div>
+          <span className="text-[10px] font-black uppercase tracking-tight text-slate-600">{title}</span>
         </div>
-        <span className="text-[10px] font-black uppercase tracking-tight text-slate-600">{title}</span>
+        <div className="flex items-center gap-2">
+          <span className="text-base font-black tracking-tight text-slate-900">{value}</span>
+          {href && <ChevronRight className="h-3.5 w-3.5 text-slate-300" />}
+        </div>
       </div>
-      <span className="text-base font-black tracking-tight text-slate-900">{value}</span>
-    </div>
-  );
+    );
+
+    if (href) {
+      return <Link href={href} className="block">{content}</Link>;
+    }
+    return content;
+  };
 
   const MobileBreakdownCard = ({ title, value, icon: Icon, color }: { title: string, value: string, icon: any, color: string }) => (
     <div className="bg-white rounded-2xl p-5 flex flex-col items-center text-center shadow-sm border border-slate-100 aspect-square justify-center">
@@ -85,7 +97,7 @@ export default function OverviewPage() {
           <MobileFinancialRow title="Monthly Cash Inflow" value={`₹${totalCashInflow.toLocaleString()}`} icon={ArrowUpCircle} color="bg-emerald-600" />
           <MobileFinancialRow title="Receivables Pending" value={`₹${totalReceivables.toLocaleString()}`} icon={TrendingUp} color="bg-blue-500" />
           <MobileFinancialRow title="Payables Due" value={`₹${totalPayables.toLocaleString()}`} icon={TrendingDown} color="bg-[#f59e0b]" />
-          <MobileFinancialRow title="Total Expenditure Audit" value={`₹${totalExpenses.toLocaleString()}`} icon={ReceiptIndianRupee} color="bg-slate-800" />
+          <MobileFinancialRow title="Total Expenditure Audit" value={`₹${totalExpenses.toLocaleString()}`} icon={ReceiptIndianRupee} color="bg-slate-800" href="/dashboard/farm-ledger" />
         </div>
       </section>
 
@@ -144,17 +156,23 @@ export default function OverviewPage() {
             { label: 'Monthly Cash Inflow', val: totalCashInflow, icon: ArrowUpCircle, color: 'bg-emerald-600' },
             { label: 'Receivables Pending', val: totalReceivables, icon: TrendingUp, color: 'bg-blue-500' },
             { label: 'Payables Due', val: totalPayables, icon: TrendingDown, color: 'bg-[#f59e0b]' },
-            { label: 'Total Expenditure Audit', val: totalExpenses, icon: ReceiptIndianRupee, color: 'bg-slate-900' },
+            { label: 'Total Expenditure Audit', val: totalExpenses, icon: ReceiptIndianRupee, color: 'bg-slate-900', href: '/dashboard/farm-ledger' },
           ].map((row, i) => (
-            <div key={i} className="bg-white rounded-2xl h-16 px-8 flex items-center justify-between shadow-sm border border-slate-100 transition-all hover:bg-slate-50">
+            <Link key={i} href={row.href || '#'} className={cn(
+              "bg-white rounded-2xl h-16 px-8 flex items-center justify-between shadow-sm border border-slate-100 transition-all hover:bg-slate-50",
+              !row.href && "pointer-events-none"
+            )}>
               <div className="flex items-center gap-4">
                 <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center text-white shadow-sm", row.color)}>
                   <row.icon className="h-4 w-4" />
                 </div>
                 <span className="text-[11px] font-black uppercase tracking-[0.1em] text-slate-600">{row.label}</span>
               </div>
-              <span className="text-2xl font-black tracking-tighter text-slate-900">₹{row.val.toLocaleString()}</span>
-            </div>
+              <div className="flex items-center gap-4">
+                <span className="text-2xl font-black tracking-tighter text-slate-900">₹{row.val.toLocaleString()}</span>
+                {row.href && <ChevronRight className="h-4 w-4 text-slate-300" />}
+              </div>
+            </Link>
           ))}
         </div>
       </section>

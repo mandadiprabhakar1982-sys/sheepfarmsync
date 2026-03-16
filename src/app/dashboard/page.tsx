@@ -97,7 +97,7 @@ export default function DashboardPage() {
               </div>
             </div>
           </Link>
-          <Link href="/dashboard/monthly-ledger" className="block">
+          <Link href="/dashboard/farm-ledger" className="block">
             <div className="bg-white rounded-[1.5rem] p-5 flex items-center justify-between shadow-sm border border-slate-100 active:scale-[0.98] transition-all">
               <div className="flex items-center gap-4">
                 <div className="h-12 w-12 rounded-2xl flex items-center justify-center text-white shadow-md bg-slate-800"><ReceiptIndianRupee className="h-6 w-6" /></div>
