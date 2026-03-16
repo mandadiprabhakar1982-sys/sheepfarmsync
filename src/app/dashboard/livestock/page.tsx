@@ -11,6 +11,7 @@ import {
   Camera,
   Upload,
   X,
+  Plus,
   PlusCircle,
   ShieldCheck,
   Image as ImageIcon,
@@ -19,8 +20,9 @@ import {
   LayoutGrid,
   CalendarDays,
   Save,
+  CheckCircle2
 } from 'lucide-react';
-import { format, parseISO, isValid } from 'date-fns';
+import { format, parseISO, isValid, isToday, isYesterday } from 'date-fns';
 import Image from 'next/image';
 
 import { Button } from '@/components/ui/button';
@@ -92,8 +94,6 @@ export default function LivestockPage() {
   const [isUploading, setIsUploading] = useState(false);
   
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
-  const [isEditDatePickerOpen, setIsEditDatePickerOpen] = useState(false);
-  
   const [zoomedAsset, setZoomedAsset] = useState<any>(null);
 
   // Camera & Photo State
@@ -108,38 +108,6 @@ export default function LivestockPage() {
     },
   });
 
-  const editAssetForm = useForm<AssetFormData>({ resolver: zodResolver(assetSchema) });
-
-  const startCamera = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-      setIsCameraActive(true);
-      setTimeout(() => { if (videoRef.current) videoRef.current.srcObject = stream; }, 100);
-    } catch (error) {
-      toast({ variant: 'destructive', title: 'Camera Error', description: 'Please enable camera permissions.' });
-    }
-  };
-
-  const stopCamera = () => {
-    if (videoRef.current && videoRef.current.srcObject) {
-      (videoRef.current.srcObject as MediaStream).getTracks().forEach(t => t.stop());
-      videoRef.current.srcObject = null;
-    }
-    setIsCameraActive(false);
-  };
-
-  const capturePhoto = (formToSet: any) => {
-    if (videoRef.current && canvasRef.current) {
-      const canvas = canvasRef.current;
-      canvas.width = videoRef.current.videoWidth;
-      canvas.height = videoRef.current.videoHeight;
-      canvas.getContext('2d')?.drawImage(videoRef.current, 0, 0);
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-      formToSet.setValue('imageUrl', dataUrl);
-      stopCamera();
-    }
-  };
-
   const filteredAssets = useMemo(() => {
     if (!trackedSheep) return [];
     let list = trackedSheep;
@@ -150,6 +118,17 @@ export default function LivestockPage() {
     if (genderFilter !== 'all') list = list.filter(s => s.gender === genderFilter);
     return list;
   }, [trackedSheep, searchTerm, genderFilter]);
+
+  // Grouping for Mobile View
+  const groupedAssets = useMemo(() => {
+    const groups: { [key: string]: any[] } = {};
+    filteredAssets.forEach(asset => {
+      const date = asset.registrationDate || 'Legacy Records';
+      if (!groups[date]) groups[date] = [];
+      groups[date].push(asset);
+    });
+    return Object.entries(groups).map(([date, items]) => ({ date, items }));
+  }, [filteredAssets]);
 
   const onAssetSubmit: SubmitHandler<AssetFormData> = async (data) => {
     setIsUploading(true);
@@ -169,30 +148,17 @@ export default function LivestockPage() {
     }
   };
 
-  const onEditAssetSubmit: SubmitHandler<AssetFormData> = async (data) => {
-    if (!editingAsset) return;
-    setIsUploading(true);
-    try {
-      let finalUrl = data.imageUrl;
-      if (storage && data.imageUrl?.startsWith('data:')) {
-        finalUrl = await uploadToStorage(storage, data.imageUrl, 'sheep_profiles');
-      }
-      updateTrackedSheep(editingAsset.id, { ...data, imageUrl: finalUrl || editingAsset.imageUrl, registrationDate: format(data.registrationDate, 'yyyy-MM-dd') }, editingAsset._path);
-      setIsEditAssetOpen(false);
-      setEditingAsset(null);
-      toast({ title: 'Updated', description: `Asset ${data.tagId} synced.` });
-    } catch (e) {
-      toast({ variant: 'destructive', title: 'Error', description: 'Update failed.' });
-    } finally {
-      setIsUploading(false);
-    }
+  const handleEditClick = (sheep: any) => {
+    setEditingAsset(sheep);
+    setIsEditAssetOpen(true);
   };
 
-  const handleEditClick = (sheep: any) => {
-    setEditingAsset(sheep); 
-    const regDate = sheep.registrationDate ? parseISO(sheep.registrationDate) : new Date();
-    editAssetForm.reset({ ...sheep, registrationDate: isValid(regDate) ? regDate : new Date() }); 
-    setIsEditAssetOpen(true); 
+  const formatGroupDate = (dateStr: string) => {
+    if (dateStr === 'Legacy Records') return dateStr;
+    const d = parseISO(dateStr);
+    if (isToday(d)) return `TODAY - ${dateStr}`;
+    if (isYesterday(d)) return `YESTERDAY - ${dateStr}`;
+    return dateStr;
   };
 
   if (isLoading) {
@@ -207,193 +173,164 @@ export default function LivestockPage() {
   }
 
   return (
-    <div className="animate-in fade-in duration-700 max-w-7xl mx-auto flex flex-col h-full">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-6 md:mb-8">
-        <PageHeader title="Livestock Hub" description="PRECISION ASSET REGISTRY" className="mb-0" />
-        
-        <div className="flex items-center gap-3 overflow-x-auto pb-2 no-scrollbar">
-          <DropdownMenu modal={false}>
-            <DropdownMenuTrigger asChild>
-              <Button className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-xl border-none">
-                <LayoutGrid className="h-5 w-5 text-accent" />
-                Record Asset
-                <ChevronDown className="h-4 w-4 opacity-40 ml-1" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-72 rounded-2xl shadow-2xl p-2 border-none">
-              <DropdownMenuLabel className="p-4 bg-neutral-50 rounded-xl mb-2">
-                <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">Registry Summary</p>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center"><span className="text-[10px] font-bold text-slate-600">Tracked Assets</span><span className="text-xs font-black text-emerald-600">{totalTracked} Head</span></div>
-                  <div className="flex justify-between items-center"><span className="text-[10px] font-bold text-slate-600">Daily Feed</span><span className="text-xs font-black text-amber-600">{totalDailyFeed.toFixed(0)}kg</span></div>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator className="bg-neutral-100" />
-              <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setTimeout(() => setIsEntryDialogOpen(true), 100); }} className="rounded-lg h-12 gap-3 cursor-pointer focus:bg-emerald-50 focus:text-emerald-700">
-                <PlusCircle className="h-4 w-4" /><span className="text-[11px] font-black uppercase tracking-wider">Add New Animal</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <div className="px-6 py-3 bg-neutral-900 rounded-2xl text-white flex items-center gap-4 shadow-xl shrink-0">
-            <ShieldCheck className="h-5 w-5 text-emerald-400" />
-            <div><p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Net Flock</p><p className="text-xl font-black tracking-tight">{totalSheep}</p></div>
-          </div>
-        </div>
+    <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col relative bg-white md:bg-transparent">
+      {/* MOBILE HEADER (HIGH PROFILE) */}
+      <div className="md:hidden fixed top-0 left-0 right-0 z-[110] bg-[#059669] text-white px-6 py-5 flex items-center justify-between shadow-lg">
+        <h2 className="text-xl font-black tracking-tight">Livestock Hub</h2>
+        <p className="text-xl font-black">{totalSheep} Head</p>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <div className="relative flex-1">
-          <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
-          <Input placeholder="Search Tag ID..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="h-14 pl-16 rounded-full bg-white border-none shadow-sm font-bold" />
-        </div>
-        <div className="flex gap-1 bg-white/50 backdrop-blur-sm p-1.5 rounded-2xl border border-white/60 shadow-sm w-fit self-center md:self-auto">
-          {['all', 'male', 'female'].map((g) => (
-            <Button key={g} variant="ghost" size="sm" onClick={() => setGenderFilter(g as any)} className={cn("h-10 px-4 rounded-xl font-black text-[9px] uppercase tracking-widest transition-all", genderFilter === g ? "bg-white shadow-md text-emerald-600" : "text-slate-400")}>{g}</Button>
-          ))}
-        </div>
-      </div>
+      <div className="md:hidden h-16 shrink-0" />
 
-      <Card className="border-none shadow-2xl rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden bg-white flex-1 min-h-0 flex flex-col">
-        <CardHeader className="bg-emerald-600 text-white p-6 md:p-10 shrink-0">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 md:gap-0">
-            <div className="space-y-1">
-              <div className="flex items-center gap-3"><LayoutGrid className="h-6 w-6" /><CardTitle className="text-xl md:text-2xl font-black tracking-tight leading-none uppercase">Livestock Registry</CardTitle></div>
-              <CardDescription className="text-emerald-100/60 text-[10px] font-black uppercase tracking-[0.2em]">Verified Individual Records</CardDescription>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-6 md:mb-8 shrink-0 px-4 md:px-0 mt-4 md:mt-0">
+        <PageHeader title="Livestock Hub" description="PRECISION ASSET REGISTRY" className="mb-0 hidden md:block" />
+
+        <div className="flex items-center gap-2 md:gap-4 overflow-x-auto pb-2 md:pb-0 no-scrollbar md:w-auto w-full">
+          <div className="hidden md:flex items-center gap-4">
+            <Button onClick={() => setIsEntryDialogOpen(true)} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-xl border-none">
+              <PlusCircle className="h-5 w-5 text-accent" />
+              Add Asset
+            </Button>
+            <div className="px-6 py-3 bg-neutral-900 rounded-2xl text-white flex items-center gap-4 shadow-xl shrink-0">
+              <ShieldCheck className="h-5 w-5 text-emerald-400" />
+              <div><p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Net Flock</p><p className="text-xl font-black tracking-tight">{totalSheep}</p></div>
             </div>
-            <p className="text-3xl md:text-4xl font-black tracking-tighter">{filteredAssets.length} ASSETS</p>
           </div>
-        </CardHeader>
+        </div>
+      </div>
 
-        {/* MOBILE VIEW: LIST */}
-        <div className="md:hidden flex-1 overflow-hidden">
-          <ScrollArea className="h-full">
-            {filteredAssets.length > 0 ? filteredAssets.map((sheep) => (
-              <div key={sheep.id} className="p-4 border-b border-slate-100 flex items-center gap-4 active:bg-slate-50 transition-colors" onClick={() => handleEditClick(sheep)}>
-                <div className="h-16 w-16 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 relative shrink-0" onClick={(e) => { e.stopPropagation(); setZoomedAsset(sheep); }}>
-                  {sheep.imageUrl ? <Image src={sheep.imageUrl} alt="Sheep" fill className="object-cover" sizes="64px" /> : <div className="h-full w-full flex items-center justify-center text-slate-300"><ImageIcon className="h-6 w-6" /></div>}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-lg font-black text-slate-900 leading-none truncate">{sheep.tagId}</span>
-                    <Badge className="bg-emerald-50 text-emerald-600 border-none font-black text-[7px] uppercase px-1.5 py-0.5">{sheep.breed || 'STANDARD'}</Badge>
-                  </div>
-                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{sheep.gender || 'FEMALE'} • {sheep.age} MOS • {sheep.currentWeight} KG</p>
-                </div>
-                <ChevronDown className="h-4 w-4 text-slate-300 -rotate-90" />
-              </div>
-            )) : <div className="py-20 text-center opacity-20 font-black uppercase text-xs">No assets discovered</div>}
-          </ScrollArea>
+      <div className="space-y-6 flex-1 min-h-0 flex flex-col px-4 md:px-0">
+        <div className="relative shrink-0 w-full max-w-xl mx-auto md:mx-0">
+          <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
+          <Input 
+            placeholder="Search Tag ID or Breed..." 
+            value={searchTerm} 
+            onChange={(e) => setSearchTerm(e.target.value)} 
+            className="h-12 md:h-14 pl-12 pr-12 rounded-2xl md:rounded-full bg-neutral-100/50 md:bg-white border-none text-slate-900 font-bold shadow-sm" 
+          />
+          {searchTerm && <button onClick={() => setSearchTerm('')} className="absolute right-5 top-1/2 -translate-y-1/2"><X className="h-4 w-4 text-slate-300" /></button>}
         </div>
 
-        {/* DESKTOP VIEW: TABLE */}
-        <div className="hidden md:block flex-1 overflow-hidden">
-          <ScrollArea className="h-full">
-            <Table>
-              <TableHeader className="bg-slate-50/50 sticky top-0 z-10 backdrop-blur">
-                <TableRow className="hover:bg-transparent border-none">
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-slate-400">Asset ID</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-slate-400">Attributes</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-slate-400">Weight</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-slate-400">Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredAssets.map((sheep) => (
-                  <TableRow key={sheep.id} className="hover:bg-slate-50/50 border-b border-slate-100 transition-colors group cursor-pointer" onClick={() => handleEditClick(sheep)}>
-                    <TableCell className="pl-10 py-10">
-                      <div className="flex items-center gap-6">
-                        <div className="h-20 w-20 rounded-2xl overflow-hidden bg-slate-100 border border-slate-100 cursor-zoom-in active:scale-95 transition-transform shrink-0 relative" onClick={(e) => { e.stopPropagation(); setZoomedAsset(sheep); }}>
-                          {sheep.imageUrl ? <Image src={sheep.imageUrl} alt={`Sheep ${sheep.tagId}`} fill className="object-cover" sizes="80px" /> : <div className="h-full w-full flex items-center justify-center text-slate-300"><ImageIcon className="h-8 w-8" /></div>}
+        <div className="flex-1 min-h-0 flex flex-col md:bg-white md:rounded-[2.5rem] md:shadow-2xl md:overflow-hidden">
+          <CardHeader className="bg-emerald-600 text-white p-10 shrink-0 hidden md:block">
+            <div className="flex justify-between items-end">
+              <div className="space-y-1">
+                <div className="flex items-center gap-3"><LayoutGrid className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Asset Registry</CardTitle></div>
+                <CardDescription className="text-emerald-100/60 text-[10px] font-black uppercase tracking-[0.2em]">High-Fidelity Individual Records</CardDescription>
+              </div>
+              <p className="text-4xl font-black tracking-tighter">{totalSheep} Head</p>
+            </div>
+          </CardHeader>
+
+          {/* MOBILE VIEW: GROUPED LIST */}
+          <div className="block md:hidden flex-1 overflow-hidden bg-slate-50 -mx-4">
+            <ScrollArea className="h-full px-4 pt-4">
+              {groupedAssets.length > 0 ? groupedAssets.map((group) => (
+                <div key={group.date} className="mb-8">
+                  <div className="px-2 py-2 mb-3 bg-[#e7eddc] rounded-lg">
+                    <p className="text-[11px] font-black uppercase tracking-widest text-slate-600">{formatGroupDate(group.date)}</p>
+                  </div>
+                  <div className="space-y-4">
+                    {group.items.map((sheep) => (
+                      <div key={sheep.id} className="bg-white rounded-[1.25rem] p-5 flex items-center justify-between shadow-sm border border-white/60 active:scale-[0.98] transition-all" onClick={() => handleEditClick(sheep)}>
+                        <div className="flex items-center gap-4 flex-1 min-w-0">
+                          <div className="h-14 w-14 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 relative shrink-0" onClick={(e) => { e.stopPropagation(); setZoomedAsset(sheep); }}>
+                            {sheep.imageUrl ? <Image src={sheep.imageUrl} alt="Sheep" fill className="object-cover" sizes="56px" /> : <ImageIcon className="h-full w-full p-4 text-slate-300" />}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-lg font-black text-slate-900 leading-none mb-1">{sheep.tagId}</h3>
+                            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                              {sheep.breed || 'Standard'} • {sheep.age} Mos • {sheep.gender}
+                            </p>
+                          </div>
                         </div>
-                        <div className="flex flex-col gap-1">
-                          <span className="text-2xl font-black text-slate-900 leading-none">{sheep.tagId}</span>
-                          <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">{sheep.breed || 'STANDARD'}</span>
+                        <div className="text-right shrink-0">
+                          <p className="text-xl font-black text-[#059669]">{sheep.currentWeight}kg</p>
+                          <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#ecfdf5] text-[#059669] border border-[#d1fae5] mt-1">
+                            <CheckCircle2 className="h-2.5 w-2.5" />
+                            <span className="text-[9px] font-black uppercase tracking-widest">VERIFIED</span>
+                          </div>
                         </div>
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-col gap-1">
-                        <span className="text-sm font-black text-slate-900 uppercase">{sheep.gender || 'FEMALE'}</span>
-                        <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">{sheep.age} MOS</span>
-                        <div className="flex items-center gap-1.5 mt-1 text-[9px] font-bold text-emerald-600 uppercase"><CalendarDays className="h-2.5 w-2.5" /> Reg: {sheep.registrationDate || 'N/A'}</div>
-                      </div>
-                    </TableCell>
-                    <TableCell><span className="text-xl font-black text-slate-900 tracking-tight">{sheep.currentWeight} kg</span></TableCell>
-                    <TableCell className="text-right pr-10">
-                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button variant="ghost" size="icon" className="h-12 w-12 rounded-full bg-slate-50 text-slate-400 hover:bg-emerald-50 hover:text-emerald-600 transition-all shadow-sm" onClick={(e) => { e.stopPropagation(); handleEditClick(sheep); }}><Pencil className="h-5 w-5" /></Button>
-                        <Button variant="ghost" size="icon" className="h-12 w-12 rounded-full bg-slate-50 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-all" onClick={(e) => { e.stopPropagation(); deleteTrackedSheep(sheep.id, sheep._path); }}><Trash2 className="h-5 w-5" /></Button>
-                      </div>
-                    </TableCell>
+                    ))}
+                  </div>
+                </div>
+              )) : <div className="py-20 text-center opacity-20 font-black uppercase text-xs">No assets discovered</div>}
+              <div className="h-32" />
+            </ScrollArea>
+          </div>
+
+          {/* DESKTOP VIEW: TABLE */}
+          <div className="hidden md:block flex-1 overflow-hidden">
+            <ScrollArea className="h-full">
+              <Table>
+                <TableHeader className="bg-slate-50/50 sticky top-0 z-10 backdrop-blur">
+                  <TableRow className="border-none hover:bg-transparent">
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-slate-400">Identity</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-slate-400">Attributes</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-center text-slate-400">Status</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-slate-400">Live Weight</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </ScrollArea>
-        </div>
-      </Card>
-
-      {/* --- DIALOGS (SAME LOGIC, STYLED FOR MOBILE APP FEEL) --- */}
-      <Dialog open={!!zoomedAsset} onOpenChange={(o) => !o && setZoomedAsset(null)}>
-        <DialogContent className="sm:max-w-3xl rounded-[3rem] p-0 overflow-hidden border-none shadow-2xl bg-neutral-50">
-          <div className="flex flex-col h-full relative">
-            <div className="absolute top-6 left-8 z-20"><Badge className="bg-emerald-500 text-neutral-900 border-none px-4 py-1.5 font-black text-[10px] uppercase tracking-[0.2em] shadow-lg">ID: {zoomedAsset?.tagId}</Badge></div>
-            <div className="w-full aspect-video relative overflow-hidden bg-black flex items-center justify-center">
-              {zoomedAsset?.imageUrl ? <Image src={zoomedAsset.imageUrl} alt="Sheep" fill className="object-contain" sizes="100vw" /> : <div className="flex flex-col items-center gap-4 text-white/20"><ImageIcon className="h-20 w-20" /><p className="text-xs font-black uppercase tracking-widest">No Visual Evidence</p></div>}
-            </div>
-            <div className="p-6 md:p-10 bg-neutral-900 text-white border-t border-white/5">
-              <div className="flex justify-between items-start">
-                <div className="space-y-4">
-                  <div><h3 className="text-3xl md:text-4xl font-black tracking-tighter uppercase leading-none">{zoomedAsset?.tagId}</h3><p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mt-2">Verified Biological Record</p></div>
-                  <div className="grid grid-cols-2 gap-4 md:flex md:gap-8">
-                    <div><p className="text-[8px] font-black uppercase text-white/30 mb-1">Breed</p><p className="text-xs font-black text-emerald-400 uppercase">{zoomedAsset?.breed || 'Standard'}</p></div>
-                    <div><p className="text-[8px] font-black uppercase text-white/30 mb-1">Weight</p><p className="text-xs font-black">{zoomedAsset?.currentWeight} KG</p></div>
-                    <div><p className="text-[8px] font-black uppercase text-white/30 mb-1">Age</p><p className="text-xs font-black">{zoomedAsset?.age} MOS</p></div>
-                    <div><p className="text-[8px] font-black uppercase text-white/30 mb-1">Registered</p><p className="text-xs font-black">{zoomedAsset?.registrationDate || 'N/A'}</p></div>
-                  </div>
-                </div>
-                <div className="h-12 w-12 rounded-2xl bg-emerald-500/10 hidden md:flex items-center justify-center text-emerald-400"><ShieldCheck className="h-6 w-6" /></div>
-              </div>
-              <div className="mt-8 flex justify-end gap-4"><Button variant="outline" className="text-white border-white/20 h-12 rounded-xl" onClick={() => setZoomedAsset(null)}>Close</Button><Button onClick={() => { const target = zoomedAsset; setZoomedAsset(null); handleEditClick(target); }} className="bg-white text-neutral-900 font-bold h-12 rounded-xl">Adjust Parameters</Button></div>
-            </div>
+                </TableHeader>
+                <TableBody>
+                  {filteredAssets.map((sheep) => (
+                    <TableRow key={sheep.id} className="hover:bg-slate-50 transition-colors border-b border-slate-100 group cursor-pointer" onClick={() => handleEditClick(sheep)}>
+                      <TableCell className="pl-10 py-8">
+                        <div className="flex items-center gap-4">
+                          <div className="h-12 w-12 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden relative shrink-0">
+                            {sheep.imageUrl ? <Image src={sheep.imageUrl} alt="Sheep" fill className="object-cover" sizes="48px" /> : <ImageIcon className="h-full w-full p-3 text-slate-300" />}
+                          </div>
+                          <span className="text-[16px] font-black text-slate-900">{sheep.tagId}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-col"><span className="text-[14px] font-bold text-slate-600">{sheep.breed || 'Standard'}</span><span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{sheep.age} Mos • {sheep.gender}</span></div>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Badge className="bg-emerald-500/10 text-emerald-600 border-none font-black text-[10px] px-3 uppercase tracking-widest">VERIFIED</Badge>
+                      </TableCell>
+                      <TableCell className="text-right pr-10">
+                        <span className="text-xl font-black text-slate-900">{sheep.currentWeight} kg</span>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </ScrollArea>
           </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      </div>
 
-      <Dialog open={isEntryDialogOpen} onOpenChange={(o) => { if (!o) stopCamera(); setIsEntryDialogOpen(o); }}>
+      {/* MOBILE FAB */}
+      <button 
+        onClick={() => { assetForm.reset(); setIsEntryDialogOpen(true); }}
+        className="md:hidden fixed bottom-24 right-6 h-14 w-14 rounded-full bg-[#059669] text-white shadow-2xl flex items-center justify-center active:scale-90 transition-all z-[120]"
+      >
+        <Plus className="h-7 w-7" />
+      </button>
+
+      {/* DIALOGS */}
+      <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>
         <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
-            <DialogTitle className="text-xl font-black tracking-tight uppercase">Enroll Asset</DialogTitle>
-            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Register new biological asset</DialogDescription>
+            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400"><Plus className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase">Register Asset</DialogTitle></div>
+            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Enroll new biological record into registry</DialogDescription>
           </DialogHeader>
           <div className="p-8 max-h-[70vh] overflow-y-auto no-scrollbar">
-            <div className="mb-8 space-y-4">
-              <Label className="form-label-tactical">Asset Proof</Label>
-              <div className="w-full aspect-video rounded-3xl bg-slate-50 border-2 border-dashed border-slate-200 overflow-hidden flex items-center justify-center relative">
-                {isCameraActive ? <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline /> : assetForm.watch('imageUrl') ? <div className="relative w-full h-full"><img src={assetForm.watch('imageUrl')} className="w-full h-full object-cover" alt="Preview" /><Button size="icon" variant="destructive" className="absolute top-4 right-4 h-10 w-10 rounded-full" onClick={() => assetForm.setValue('imageUrl', '')}><X className="h-4 w-4" /></Button></div> : <div className="flex flex-col items-center gap-4"><div className="p-6 rounded-full bg-white shadow-sm border border-slate-100 text-slate-300"><ImageIcon className="h-8 w-8" /></div><p className="text-[10px] font-black text-slate-400 uppercase">Awaiting Media</p></div>}
+            <Form {...assetForm}><form onSubmit={assetForm.handleSubmit(onAssetSubmit)} className="space-y-8">
+              <div className="space-y-6">
+                <FormField control={assetForm.control} name="tagId" render={({ field }) => (
+                  <FormItem><Label className="form-label-tactical">Asset Tag ID</Label><FormControl><Input placeholder="e.g. 101-A" className="form-input-tactical" {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={assetForm.control} name="breed" render={({ field }) => (
+                    <FormItem><Label className="form-label-tactical">Breed</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="form-input-tactical"><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="Standard">Standard</SelectItem><SelectItem value="Nellore">Nellore</SelectItem><SelectItem value="Deccani">Deccani</SelectItem></SelectContent></Select></FormItem>
+                  )} />
+                  <FormField control={assetForm.control} name="currentWeight" render={({ field }) => (<FormItem><Label className="form-label-tactical">Weight (KG)</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+                </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                {isCameraActive ? <Button type="button" onClick={() => capturePhoto(assetForm)} className="col-span-2 h-14 rounded-xl bg-emerald-600 text-white font-black uppercase text-xs">Capture Photo</Button> : <><Button type="button" onClick={startCamera} className="h-12 rounded-xl bg-neutral-900 text-white font-black text-[10px] uppercase gap-2"><Camera className="h-4 w-4 text-emerald-400" /> Open Camera</Button><div className="relative"><input type="file" accept="image/*" onChange={(e) => { const file = e.target.files?.[0]; if (file) { const reader = new FileReader(); reader.onloadend = () => { assetForm.setValue('imageUrl', reader.result as string); }; reader.readAsDataURL(file); } }} className="absolute inset-0 opacity-0 cursor-pointer z-10" /><Button type="button" variant="outline" className="w-full h-12 rounded-xl border-slate-200 font-black text-[10px] uppercase gap-2"><Upload className="h-4 w-4 text-blue-500" /> Gallery</Button></div></>}
-              </div>
-            </div>
-            <Form {...assetForm}>
-              <form onSubmit={assetForm.handleSubmit(onAssetSubmit)} className="space-y-6">
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField control={assetForm.control} name="tagId" render={({ field }) => (<FormItem><Label className="form-label-tactical">Tag ID</Label><FormControl><Input placeholder="e.g. 31-1" className="form-input-tactical bg-slate-50 border-slate-200" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                  <FormField control={assetForm.control} name="registrationDate" render={({ field }) => (<FormItem className="flex flex-col"><Label className="form-label-tactical">Registration Date</Label><Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}><PopoverTrigger asChild><Button variant="outline" className="form-input-tactical w-full text-left justify-between bg-slate-50 border-slate-200">{field.value ? format(field.value, "MMM dd, yyyy") : "Select date"}<CalendarDays className="h-4 w-4 opacity-20" /></Button></PopoverTrigger><PopoverContent className="w-auto p-0 border-none shadow-2xl"><Calendar mode="single" selected={field.value} onSelect={(d) => { field.onChange(d); setIsDatePickerOpen(false); }} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>)} />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField control={assetForm.control} name="breed" render={({ field }) => (<FormItem><Label className="form-label-tactical">Breed</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="form-input-tactical bg-slate-50"><SelectValue /></SelectTrigger></FormControl><SelectContent>{['Standard', 'Nellore', 'Deccani'].map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)} />
-                  <FormField control={assetForm.control} name="currentWeight" render={({ field }) => (<FormItem><Label className="form-label-tactical">Weight (KG)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField control={assetForm.control} name="gender" render={({ field }) => (<FormItem><Label className="form-label-tactical">Gender</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="form-input-tactical bg-slate-50"><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="male">MALE</SelectItem><SelectItem value="female">FEMALE</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
-                  <FormField control={assetForm.control} name="age" render={({ field }) => (<FormItem><Label className="form-label-tactical">Age (Months)</Label><FormControl><Input type="number" className="form-input-tactical bg-slate-50" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                </div>
-                <Button type="submit" disabled={isUploading} className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm uppercase tracking-widest shadow-xl">{isUploading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Synchronize Record'}</Button>
-              </form>
-            </Form>
+              <Button type="submit" disabled={isUploading} className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase tracking-widest shadow-xl">{isUploading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Synchronize Asset'}</Button>
+            </form></Form>
           </div>
         </DialogContent>
       </Dialog>
