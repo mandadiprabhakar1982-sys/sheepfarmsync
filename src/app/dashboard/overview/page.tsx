@@ -114,10 +114,6 @@ export default function OverviewPage() {
       <div className="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none">
         <div className="absolute top-[10%] right-[10%] w-[150px] h-[150px] bg-cyan-500/20 blur-[80px] rounded-full" />
         <div className="absolute bottom-[20%] left-[5%] w-[200px] h-[200px] bg-purple-500/20 blur-[100px] rounded-full" />
-        <svg className="absolute inset-0 w-full h-full opacity-10" viewBox="0 0 100 100" preserveAspectRatio="none">
-          <path d="M0 20 L30 40 L60 20 L100 50" stroke="cyan" strokeWidth="0.2" fill="none" />
-          <path d="M0 80 L40 60 L70 90 L100 70" stroke="purple" strokeWidth="0.2" fill="none" />
-        </svg>
       </div>
 
       <header className="mb-10 relative z-10">
@@ -125,7 +121,7 @@ export default function OverviewPage() {
         <p className="text-sm font-medium text-white/40">Here is an overview of your sheep farm.</p>
       </header>
 
-      {/* STAT GRID 2X2 */}
+      {/* STAT GRID 2X2 (16px gap) */}
       <div className="grid grid-cols-2 gap-4 mb-10 relative z-10">
         <StatCard 
           title="Total Sheep" 

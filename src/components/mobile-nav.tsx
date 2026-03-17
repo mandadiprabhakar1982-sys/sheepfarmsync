@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -23,7 +22,7 @@ export function MobileNav() {
 
   return (
     <div 
-      className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#020617]/95 backdrop-blur-2xl border-t border-white/5 flex flex-col items-center justify-center w-full"
+      className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#020617]/95 backdrop-blur-2xl border-t border-white/5 flex flex-col items-center justify-center w-full shrink-0"
       style={{ 
         height: '84px',
         paddingBottom: 'env(safe-area-inset-bottom)'

@@ -76,7 +76,7 @@ export default function DashboardPage() {
 
   const MobileHome = (
     <div 
-      className="min-h-full -mx-4 bg-gradient-to-b from-[#0B2424] via-[#0F172A] to-[#020617] animate-in fade-in duration-1000 relative overflow-hidden"
+      className="min-h-full -mx-4 bg-[#020617] animate-in fade-in duration-1000 relative overflow-hidden"
       style={{ paddingLeft: '20px', paddingRight: '20px', paddingBottom: '110px' }}
     >
       {/* BACKGROUND ACCENTS */}
@@ -96,7 +96,7 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      {/* PRIMARY NODE: FARM LEDGER (Center Anchor) */}
+      {/* PRIMARY NODE: FARM LEDGER (Fixed 220px) */}
       <section className="mb-8 relative z-10">
         <Link href="/dashboard/farm-ledger">
           <div className="hub-node hub-glow-teal p-5 h-[220px] rounded-[28px] border-primary/20 group flex flex-col justify-between">
@@ -119,7 +119,7 @@ export default function DashboardPage() {
         </Link>
       </section>
 
-      {/* FINANCIAL GRID (Floating Elements) */}
+      {/* FINANCIAL GRID (2-Column, 16px gap) */}
       <section className="mb-10 relative z-10">
         <div className="grid grid-cols-2 gap-4">
           <Link href="/dashboard/monthly-ledger" className="hub-node hub-glow-teal p-5 h-[220px] rounded-[28px] flex flex-col justify-between">
@@ -164,7 +164,7 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      {/* CORE NODES (Interlocking) */}
+      {/* CORE NODES */}
       <section className="relative z-10">
         <h3 className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] mb-6 px-2">Sub-Process Systems</h3>
         <div className="grid grid-cols-2 gap-4">
@@ -174,7 +174,7 @@ export default function DashboardPage() {
             { icon: Heart, href: '/dashboard/medicine', glow: 'hub-glow-teal', label: 'Medical' },
             { icon: Wallet, href: '/dashboard/expenses', glow: 'hub-glow-teal', label: 'Expenses' },
           ].map((item, i) => (
-            <Link key={i} href={item.href} className={cn("hub-node h-[120px] p-5 flex flex-col justify-between", item.glow)}>
+            <Link key={i} href={item.href} className={cn("hub-node h-[120px] p-5 flex flex-col justify-between rounded-[20px]", item.glow)}>
               <div className="h-8 w-8 rounded-lg bg-white/10 flex items-center justify-center">
                 <item.icon className="h-5 w-5 text-white/60 group-hover:text-primary transition-colors" />
               </div>
