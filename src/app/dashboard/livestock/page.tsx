@@ -14,8 +14,7 @@ import {
   PlusCircle,
   ShieldCheck,
   CheckCircle2,
-  X,
-  ChevronRight
+  X
 } from 'lucide-react';
 import { format, parseISO, isToday, isYesterday } from 'date-fns';
 import Image from 'next/image';
@@ -28,10 +27,9 @@ import { useToast } from '@/hooks/use-toast';
 import { useFarm } from '@/context/FarmContext';
 import { useStorage } from '@/firebase';
 import { uploadToStorage } from '@/lib/upload';
-import { cn } from '@/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -48,8 +46,6 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { PageHeader } from '@/components/page-header';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 const assetSchema = z.object({
@@ -73,11 +69,8 @@ export default function LivestockPage() {
   } = useFarm();
   
   const [searchTerm, setSearchTerm] = useState('');
-  const [genderFilter, setGenderFilter] = useState<'all' | 'male' | 'female'>('all');
-  
   const [isEntryDialogOpen, setIsEntryDialogOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
   const assetForm = useForm<AssetFormData>({
     resolver: zodResolver(assetSchema),
@@ -93,9 +86,8 @@ export default function LivestockPage() {
       const term = searchTerm.toLowerCase();
       list = list.filter(s => s.tagId.toLowerCase().includes(term) || (s.breed || '').toLowerCase().includes(term));
     }
-    if (genderFilter !== 'all') list = list.filter(s => s.gender === genderFilter);
     return list;
-  }, [trackedSheep, searchTerm, genderFilter]);
+  }, [trackedSheep, searchTerm]);
 
   const groupedAssets = useMemo(() => {
     const groups: { [key: string]: any[] } = {};
@@ -143,7 +135,7 @@ export default function LivestockPage() {
 
   return (
     <div className="md:animate-in md:fade-in md:duration-700 max-w-7xl mx-auto h-full flex flex-col relative">
-      {/* MOBILE NEURAL VIEW */}
+      {/* MOBILE VIEW */}
       <div className="block md:hidden mobile-neural-screen">
         <header className="mb-8">
           <h1 className="text-3xl font-black text-white tracking-tight leading-none mb-2">Sheep Registry</h1>
@@ -174,15 +166,13 @@ export default function LivestockPage() {
         <div className="space-y-8 pb-32">
           {groupedAssets.length > 0 ? groupedAssets.map((group) => (
             <div key={group.date} className="space-y-4">
-              <div className="px-2">
-                <p className="text-[11px] font-black uppercase tracking-widest text-white/30">{formatGroupDate(group.date)}</p>
-              </div>
+              <p className="text-[11px] font-black uppercase tracking-widest text-white/30 px-2">{formatGroupDate(group.date)}</p>
               <div className="space-y-4">
                 {group.items.map((sheep) => (
                   <div key={sheep.id} className="mobile-glass-card p-5 flex items-center justify-between group active:scale-[0.98] transition-all">
                     <div className="flex items-center gap-4 flex-1 min-w-0">
                       <div className="h-12 w-12 rounded-2xl overflow-hidden bg-white/5 border border-white/10 relative shrink-0">
-                        {sheep.imageUrl ? <Image src={sheep.imageUrl} alt="Sheep" fill className="object-cover" sizes="48px" /> : <ImageIcon className="h-full w-full p-3 text-white/10" />}
+                        {sheep.imageUrl ? <Image src={sheep.imageUrl} alt="Sheep" fill className="object-cover" sizes="48px" /> : <LayoutGrid className="h-full w-full p-3 text-white/10" />}
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="text-lg font-black text-white leading-none mb-1">#{sheep.tagId}</h3>
@@ -244,13 +234,13 @@ export default function LivestockPage() {
           </div>
 
           <div className="flex-1 min-h-0 flex flex-col premium-card overflow-hidden bg-white">
-            <CardHeader className="bg-[#0FA5A0] text-white p-10 shrink-0">
+            <CardHeader className="bg-[#0FA5A0] text-white p-8 shrink-0">
               <div className="flex justify-between items-end">
                 <div className="space-y-1">
                   <div className="flex items-center gap-3"><LayoutGrid className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase text-white">Sheep Registry</CardTitle></div>
                   <CardDescription className="text-white/60 text-[10px] font-black uppercase tracking-[0.2em]">Verified Individual Flock Records</CardDescription>
                 </div>
-                <p className="text-4xl font-black tracking-tighter">{totalSheep} Head</p>
+                <p className="text-3xl font-black tracking-tighter">{totalSheep} Head</p>
               </div>
             </CardHeader>
 
@@ -270,7 +260,7 @@ export default function LivestockPage() {
                       <TableCell className="pl-10 py-8">
                         <div className="flex items-center gap-4">
                           <div className="h-12 w-12 rounded-xl bg-slate-50 border border-slate-100 overflow-hidden relative shrink-0">
-                            {sheep.imageUrl ? <Image src={sheep.imageUrl} alt="Sheep" fill className="object-cover" sizes="48px" /> : <ImageIcon className="h-full w-full p-3 text-slate-200" />}
+                            {sheep.imageUrl ? <Image src={sheep.imageUrl} alt="Sheep" fill className="object-cover" sizes="48px" /> : <LayoutGrid className="h-full w-full p-3 text-slate-200" />}
                           </div>
                           <span className="text-[16px] font-black text-[#2F4F4F]">Tag: {sheep.tagId}</span>
                         </div>

@@ -64,7 +64,7 @@
 }
 
 .app-container {
-  @apply flex flex-col h-screen w-full overflow-hidden relative;
+  @apply flex h-screen w-full overflow-hidden relative;
 }
 
 .scroll-content {
@@ -79,7 +79,7 @@
 }
 
 .premium-card {
-  @apply bg-white rounded-[8px] border border-[#D9D9D9] shadow-[0_4px_12px_rgba(0,0,0,0.08)] transition-all duration-300;
+  @apply bg-white rounded-[12px] border border-[#D9D9D9] shadow-[0_4px_12px_rgba(0,0,0,0.08)] transition-all duration-300;
 }
 
 .premium-card:hover {
