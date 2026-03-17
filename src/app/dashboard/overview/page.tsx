@@ -3,13 +3,18 @@
 import { useFarm } from '@/context/FarmContext';
 import { useWindowDimensions } from '@/hooks/use-mobile';
 import { 
-  Plus,
   Activity,
   BarChart3,
   HeartPulse,
   IndianRupee,
   ChevronRight,
-  Loader2
+  Loader2,
+  TrendingUp,
+  ArrowUpRight,
+  Heart,
+  Syringe,
+  Baby,
+  ShoppingBag
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -34,16 +39,20 @@ export default function OverviewPage() {
     totalSheep,
     totalFeedCost,
     totalMedicineCost,
-    totalLaborCost,
     trackedSheep,
     avgWeight,
-    isLoading 
+    isLoading,
+    totalSales
   } = useFarm();
+
+  const healthyCount = (trackedSheep || []).filter(s => s.healthStatus === 'Healthy').length;
+  const careCount = (trackedSheep || []).filter(s => s.healthStatus === 'Ill' || s.healthStatus === 'Recovering').length;
+  const pregnantCount = (trackedSheep || []).filter(s => s.notes?.toLowerCase().includes('pregnant')).length;
 
   if (isLoading || !isHydrated) {
     return (
       <div className="flex h-full w-full items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-10 w-10 animate-spin text-primary opacity-20" />
+        <Loader2 className="h-10 w-10 animate-spin text-[#14d5c7] opacity-20" />
       </div>
     );
   }
@@ -57,122 +66,155 @@ export default function OverviewPage() {
   ];
 
   const MobileView = (
-    <div className="min-h-full bg-[#020617] text-white px-4 pt-6 pb-[110px] animate-in fade-in duration-700">
+    <div className="min-h-full bg-[#020617] text-white px-5 pt-8 pb-[110px] animate-in fade-in duration-700">
       {/* Title */}
-      <div className="mb-8">
-        <h2 className="text-[34px] font-[800] tracking-tight leading-[1.1]">Dashboard</h2>
-        <p className="text-white/50 text-sm mt-1 font-medium">Overview of your sheep farm</p>
+      <div className="mb-10">
+        <div className="flex items-center justify-between mb-1">
+          <h2 className="text-[34px] font-[800] tracking-tight leading-none">Dashboard</h2>
+          <div className="px-3 py-1.5 rounded-full bg-[#14d5c7]/10 border border-[#14d5c7]/20 flex items-center gap-2">
+            <div className="h-1.5 w-1.5 rounded-full bg-[#14d5c7] animate-pulse shadow-[0_0_8px_#14d5c7]" />
+            <span className="text-[9px] font-black text-[#14d5c7] uppercase tracking-widest">Live Sync</span>
+          </div>
+        </div>
+        <p className="text-white/40 text-sm font-medium">Overview of Your Sheep Farm</p>
       </div>
 
-      {/* Cards Grid */}
-      <div className="grid grid-cols-2 gap-4 mb-8">
+      {/* Glossy Cards Grid */}
+      <div className="grid grid-cols-2 gap-4 mb-10">
         {/* Total Sheep */}
         <div 
-          className="rounded-[28px] p-5 bg-gradient-to-br from-[#11c5be] to-[#0d8f89] h-[220px] flex flex-col justify-between shadow-2xl transition-all active:scale-95" 
+          className="glossy-card bg-gradient-to-br from-[#11c5be] to-[#0d8f89] h-[220px] flex flex-col justify-between p-5 card-inner-shadow"
           onClick={() => router.push('/dashboard/livestock')}
         >
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <Activity className="h-5 w-5" />
-              <span className="font-bold text-[10px] uppercase tracking-widest opacity-80 leading-none">Total Sheep</span>
+          <div className="glossy-overlay" />
+          <div className="flex justify-between items-start">
+            <div className="h-10 w-10 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center">
+              <Activity className="h-5 w-5 text-white" />
             </div>
-            <div className="text-5xl font-black tracking-tighter leading-none">{totalSheep}</div>
           </div>
-          <button className="w-full rounded-2xl bg-black/20 py-3 font-black text-[10px] uppercase tracking-widest border border-white/5">
-            View Records
+          <div>
+            <p className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-1">Total Sheep</p>
+            <div className="flex items-end gap-2">
+              <span className="text-5xl font-black tracking-tighter leading-none">{totalSheep}</span>
+              <div className="mb-1 flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/20 text-[10px] font-black">
+                +12 <TrendingUp className="h-2.5 w-2.5" />
+              </div>
+            </div>
+          </div>
+          <button className="w-full rounded-2xl bg-white/10 py-3 font-black text-[9px] uppercase tracking-[0.2em] border border-white/10 flex items-center justify-center gap-2">
+            View Records <ChevronRight className="h-3 w-3" />
           </button>
         </div>
 
         {/* Health Alerts */}
         <div 
-          className="rounded-[28px] p-5 bg-gradient-to-br from-pink-500 to-pink-700 h-[220px] flex flex-col justify-between shadow-2xl transition-all active:scale-95" 
+          className="glossy-card bg-gradient-to-br from-[#db2777] to-[#9d174d] h-[220px] flex flex-col justify-between p-5 card-inner-shadow"
           onClick={() => router.push('/dashboard/medicine')}
         >
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <HeartPulse className="h-5 w-5" />
-              <span className="font-bold text-[10px] uppercase tracking-widest opacity-80 leading-none">Health Alerts</span>
+          <div className="glossy-overlay" />
+          <div className="flex justify-between items-start">
+            <div className="h-10 w-10 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center">
+              <HeartPulse className="h-5 w-5 text-white" />
             </div>
-            <div className="text-5xl font-black tracking-tighter leading-none">{totalMedicineCost > 0 ? "8" : "Stable"}</div>
           </div>
-          <button className="w-full rounded-2xl bg-black/20 py-3 font-black text-[10px] uppercase tracking-widest border border-white/5">
-            View Alerts
+          <div>
+            <p className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-1">Health Alerts</p>
+            <div className="flex items-center gap-3">
+              <span className="text-5xl font-black tracking-tighter leading-none">8</span>
+              <span className="px-2.5 py-1 rounded-full bg-white text-[#db2777] text-[10px] font-black uppercase tracking-widest">Alert</span>
+            </div>
+            {/* Multi-segment status bar */}
+            <div className="flex gap-1 mt-3">
+              <div className="h-1 flex-1 bg-yellow-400 rounded-full" />
+              <div className="h-1 flex-1 bg-yellow-400 rounded-full" />
+              <div className="h-1 flex-1 bg-yellow-400 rounded-full" />
+              <div className="h-1 flex-1 bg-[#14d5c7] rounded-full" />
+              <div className="h-1 flex-1 bg-white/20 rounded-full" />
+            </div>
+          </div>
+          <button className="w-full rounded-2xl bg-white/10 py-3 font-black text-[9px] uppercase tracking-[0.2em] border border-white/10 flex items-center justify-center gap-2">
+            View Alerts <ChevronRight className="h-3 w-3" />
           </button>
         </div>
 
         {/* Feed Cost */}
         <div 
-          className="rounded-[28px] p-5 bg-gradient-to-br from-orange-500 to-yellow-500 h-[220px] flex flex-col justify-between shadow-2xl transition-all active:scale-95" 
+          className="glossy-card bg-gradient-to-br from-[#f59e0b] to-[#d97706] h-[220px] flex flex-col justify-between p-5 card-inner-shadow"
           onClick={() => router.push('/dashboard/feed')}
         >
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <IndianRupee className="h-5 w-5" />
-              <span className="font-bold text-[10px] uppercase tracking-widest opacity-80 leading-none">Feed Cost</span>
+          <div className="glossy-overlay" />
+          <div className="flex justify-between items-start">
+            <div className="h-10 w-10 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center">
+              <IndianRupee className="h-5 w-5 text-white" />
             </div>
-            <div className="text-3xl font-black tracking-tighter leading-none mb-1">₹{totalFeedCost.toLocaleString()}</div>
           </div>
-          <button className="w-full rounded-2xl bg-black/20 py-3 font-black text-[10px] uppercase tracking-widest border border-white/5">
-            Reports
+          <div className="relative">
+            {/* Coins Illustration Placeholder */}
+            <div className="absolute -top-10 right-0 flex flex-col items-center">
+              <div className="h-4 w-10 bg-yellow-300/40 rounded-full blur-[2px]" />
+              <div className="h-4 w-10 bg-yellow-400/60 rounded-full -mt-2 blur-[1px]" />
+              <div className="h-4 w-10 bg-yellow-500 rounded-full -mt-2" />
+            </div>
+            <p className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-1">Feed Cost</p>
+            <div className="text-3xl font-black tracking-tight leading-none">₹{totalFeedCost.toLocaleString()}</div>
+            <div className="mt-2 inline-flex items-center px-2.5 py-1 rounded-full bg-[#115e59] text-[9px] font-black text-[#5eead4] uppercase tracking-widest">This Month</div>
+          </div>
+          <button className="w-full rounded-2xl bg-white/10 py-3 font-black text-[9px] uppercase tracking-[0.2em] border border-white/10 flex items-center justify-center gap-2">
+            View Reports <ChevronRight className="h-3 w-3" />
           </button>
         </div>
 
         {/* Avg Weight */}
         <div 
-          className="rounded-[28px] p-5 bg-gradient-to-br from-blue-500 to-blue-700 h-[220px] flex flex-col justify-between shadow-2xl transition-all active:scale-95" 
+          className="glossy-card bg-gradient-to-br from-[#3b82f6] to-[#1d4ed8] h-[220px] flex flex-col justify-between p-5 card-inner-shadow overflow-hidden"
           onClick={() => router.push('/dashboard/livestock')}
         >
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <BarChart3 className="h-5 w-5" />
-              <span className="font-bold text-[10px] uppercase tracking-widest opacity-80 leading-none">Avg Weight</span>
-            </div>
-            <div className="text-3xl font-black tracking-tighter leading-none mb-1">{avgWeight.toFixed(1)} kg</div>
+          <div className="glossy-overlay" />
+          {/* Mini Chart Background */}
+          <div className="absolute top-1/2 left-0 right-0 h-[60px] opacity-30 pointer-events-none">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={growthData}>
+                <Line type="monotone" dataKey="weight" stroke="#fff" strokeWidth={3} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
-          <button className="w-full rounded-2xl bg-black/20 py-3 font-black text-[10px] uppercase tracking-widest border border-white/5">
-            Weight Chart
+          
+          <div className="flex justify-between items-start">
+            <div className="h-10 w-10 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center">
+              <BarChart3 className="h-5 w-5 text-white" />
+            </div>
+          </div>
+          <div>
+            <p className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-1">Avg. Weight</p>
+            <div className="text-4xl font-black tracking-tight leading-none mb-2">{avgWeight.toFixed(1)} <span className="text-xl">kg</span></div>
+            <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#5eead4]/20 text-[10px] font-black text-[#5eead4]">
+              +5.2% <TrendingUp className="h-2.5 w-2.5" />
+            </div>
+          </div>
+          <button className="w-full rounded-2xl bg-white/10 py-3 font-black text-[9px] uppercase tracking-[0.2em] border border-white/10 flex items-center justify-center gap-2">
+            Weight Chart <ChevronRight className="h-3 w-3" />
           </button>
         </div>
       </div>
 
-      {/* RECENT RECORDS OR CHART */}
-      <div className="relative z-10">
-        <Card className="border-none bg-white/5 backdrop-blur-xl rounded-[32px] overflow-hidden shadow-2xl ring-1 ring-white/10">
-          <CardHeader className="px-8 pt-8 pb-4 flex flex-row items-center justify-between border-none">
-            <CardTitle className="text-lg font-black text-white tracking-tight">Growth Trends</CardTitle>
-            <Button variant="link" className="text-white/40 font-black text-[10px] uppercase tracking-widest p-0 h-auto" onClick={() => router.push('/dashboard/livestock')}>
-              View All <ChevronRight className="h-3 w-3 ml-1" />
-            </Button>
-          </CardHeader>
-          <CardContent className="px-8 pb-8 space-y-8">
-            <div className="h-[180px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={growthData}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
-                  <XAxis 
-                    dataKey="name" 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tick={{ fontSize: 10, fontWeight: 'bold', fill: 'rgba(255,255,255,0.3)' }} 
-                  />
-                  <YAxis hide />
-                  <Tooltip 
-                    contentStyle={{ borderRadius: '16px', backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)' }}
-                    itemStyle={{ color: '#14d5c7', fontWeight: 'bold' }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="weight" 
-                    stroke="#14d5c7" 
-                    strokeWidth={4} 
-                    dot={{ r: 5, fill: '#14d5c7', strokeWidth: 3, stroke: '#020617' }}
-                    activeDot={{ r: 8, stroke: '#fff', strokeWidth: 2 }} 
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+      {/* Sub-Stats Row */}
+      <div className="p-1 rounded-[2.5rem] bg-white/5 border border-white/10 shadow-2xl flex items-center h-[90px] mb-10 overflow-hidden">
+        {[
+          { icon: Heart, label: 'Healthy', val: healthyCount, color: '#14d5c7' },
+          { icon: Syringe, label: 'Under Care', val: careCount, color: '#f59e0b' },
+          { icon: Baby, label: 'Pregnant', val: pregnantCount, color: '#db2777' },
+          { icon: ShoppingBag, label: 'Sold', val: totalSales ? 4 : 0, color: '#3b82f6' }
+        ].map((stat, i) => (
+          <div key={i} className="flex-1 flex flex-col items-center justify-center relative h-full">
+            <div className="flex items-center gap-1.5 mb-1.5">
+              <stat.icon className="h-3.5 w-3.5" style={{ color: stat.color }} />
+              <span className="text-[9px] font-black text-white/40 uppercase tracking-tight">{stat.label}</span>
             </div>
-          </CardContent>
-        </Card>
+            <span className="text-2xl font-black tracking-tighter leading-none">{stat.val}</span>
+            <div className="absolute bottom-0 w-10 h-0.5 rounded-full opacity-60" style={{ backgroundColor: stat.color }} />
+            {i < 3 && <div className="absolute right-0 top-1/4 bottom-1/4 w-px bg-white/5" />}
+          </div>
+        ))}
       </div>
     </div>
   );

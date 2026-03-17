@@ -51,7 +51,7 @@
 @layer base {
   body {
     font-family: 'Segoe UI', 'Inter', sans-serif;
-    @apply bg-[#F5F7F8] text-[#2F4F4F] overflow-hidden;
+    @apply bg-[#020617] text-[#2F4F4F] overflow-hidden;
     margin: 0;
     -webkit-tap-highlight-color: transparent;
     height: 100dvh;
@@ -87,11 +87,6 @@
   border-color: rgba(15, 165, 160, 0.3);
 }
 
-/* Tactical Left Border Card */
-.tactical-card {
-  @apply bg-white rounded-[12px] border-l-[5px] border-l-[#0FA5A0] shadow-[0_4px_12px_rgba(0,0,0,0.08)] transition-all;
-}
-
 .form-input-tactical {
   @apply h-12 rounded-lg bg-white border border-[#D9D9D9] shadow-sm font-bold text-[#2F4F4F] px-4 focus-visible:ring-[#0FA5A0]/20 transition-all;
 }
@@ -116,7 +111,24 @@
   @apply text-[10px] font-bold uppercase tracking-[0.3em] text-[#0FA5A0]/60;
 }
 
-/* HIGH FIDELITY HUB STYLES */
+/* HIGH FIDELITY GLOSSY STYLES */
+.glossy-card {
+  @apply relative overflow-hidden bg-white/5 border border-white/10 rounded-[2.5rem] transition-all active:scale-[0.98] shadow-[0_20px_50px_rgba(0,0,0,0.3)];
+}
+
+.glossy-card::before {
+  content: '';
+  @apply absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-40 pointer-events-none;
+}
+
+.glossy-overlay {
+  @apply absolute inset-0 bg-gradient-to-b from-white/10 to-transparent pointer-events-none;
+}
+
+.card-inner-shadow {
+  @apply shadow-[inset_0_2px_15px_rgba(255,255,255,0.1)];
+}
+
 .hub-node {
   @apply relative overflow-hidden backdrop-blur-md bg-white/10 border border-white/20 rounded-[20px] shadow-[0_8px_32px_rgba(0,0,0,0.12)] transition-all active:scale-95;
 }
@@ -126,27 +138,11 @@
   @apply absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-50;
 }
 
-.hub-glow-teal {
-  @apply shadow-[0_0_20px_rgba(15,165,160,0.25)];
-}
-
-.hub-glow-blue {
-  @apply shadow-[0_0_20px_rgba(59,130,246,0.25)];
-}
-
-.hub-glow-orange {
-  @apply shadow-[0_0_20px_rgba(245,158,11,0.25)];
-}
-
 /* MOBILE NEURAL THEME */
 .mobile-neural-screen {
   @apply bg-[#020617] min-h-full pb-32 relative overflow-hidden animate-in fade-in duration-700;
   padding-left: 20px;
   padding-right: 20px;
-}
-
-.mobile-neon-text {
-  @apply text-white shadow-[0_0_10px_rgba(34,211,238,0.3)];
 }
 
 @layer utilities {

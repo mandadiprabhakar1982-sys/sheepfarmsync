@@ -6,8 +6,9 @@ import { AppSidebar } from '@/components/app-sidebar';
 import { MobileNav } from '@/components/mobile-nav';
 import { useFarm } from '@/context/FarmContext';
 import { useWindowDimensions } from '@/hooks/use-mobile';
-import { Bell, User } from 'lucide-react';
+import { Bell, User, Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Logo } from '@/components/logo';
 
 export default function DashboardLayout({
   children,
@@ -20,10 +21,10 @@ export default function DashboardLayout({
 
   if (isLoadingProfile || !isHydrated) {
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-white fixed inset-0 z-[9999]">
+      <div className="flex h-screen w-full items-center justify-center bg-[#020617] fixed inset-0 z-[9999]">
         <div className="flex flex-col items-center gap-6">
-          <div className="w-12 h-12 border-4 border-slate-100 rounded-full border-t-primary animate-spin" />
-          <p className="text-[12px] font-black text-slate-400 uppercase tracking-[0.4em]">Establishing Secure Link</p>
+          <div className="w-12 h-12 border-4 border-white/5 rounded-full border-t-[#14d5c7] animate-spin" />
+          <p className="text-[12px] font-black text-white/40 uppercase tracking-[0.4em]">Establishing Secure Link</p>
         </div>
       </div>
     );
@@ -46,19 +47,17 @@ export default function DashboardLayout({
             }}
           >
             <div className="flex items-center gap-3">
-              <SidebarTrigger className="h-10 w-10 text-white/60 hover:text-white bg-white/5 rounded-xl border border-white/10" />
-              <div className="ml-1">
-                <h1 className="text-2xl font-black text-white tracking-tight leading-none">
-                  Farm<span className="text-[#14d5c7]">Audit</span>
-                </h1>
-              </div>
+              <button className="h-10 w-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/60">
+                <Menu className="h-5 w-5" />
+              </button>
+              <Logo />
             </div>
             <div className="flex items-center gap-4 text-white">
-              <div className="relative">
+              <div className="relative h-10 w-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
                 <Bell className="h-5 w-5 text-white/60" />
                 <span className="absolute -top-1 -right-1 h-4 w-4 bg-[#E53935] rounded-full text-[8px] font-black flex items-center justify-center border-2 border-[#020617]">8</span>
               </div>
-              <div className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center ring-1 ring-white/20">
+              <div className="h-10 w-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
                 <User className="h-5 w-5 text-white/60" />
               </div>
             </div>
@@ -76,7 +75,7 @@ export default function DashboardLayout({
           </header>
         )}
         
-        {/* CONTENT (Equivalent to Expanded + SingleChildScrollView) */}
+        {/* CONTENT */}
         <main className={cn(
           "flex-1 overflow-y-auto no-scrollbar",
           isMobile ? "p-0" : "p-8 md:p-12"
