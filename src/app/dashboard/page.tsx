@@ -75,7 +75,7 @@ export default function DashboardPage() {
   const isAdmin = userRole === 'admin';
 
   const MobileHome = (
-    <div className="min-h-full bg-[#020617] text-white px-4 pt-6 pb-[110px] animate-in fade-in duration-700">
+    <div className="min-h-full bg-[#020617] text-white px-4 pt-6 animate-in fade-in duration-700">
       {/* HEADER SECTION */}
       <header className="mb-10">
         <h1 className="text-[34px] font-[800] tracking-tight leading-[1.1]">Mpr Hub</h1>
@@ -151,7 +151,7 @@ export default function DashboardPage() {
       </section>
 
       {/* CORE NODES */}
-      <section>
+      <section className="mb-12">
         <h3 className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] mb-6 px-2">Sub-Process Systems</h3>
         <div className="grid grid-cols-2 gap-4">
           {[
@@ -171,7 +171,7 @@ export default function DashboardPage() {
       </section>
 
       {/* ACTION TRIGGER */}
-      <div className="mt-12">
+      <div className="mb-12">
         <Button onClick={() => router.push('/dashboard/expenses')} className="w-full h-16 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-black uppercase tracking-[0.2em] shadow-2xl text-xs gap-3">
           <Plus className="h-5 w-5 text-[#14d5c7]" /> Log Entry
         </Button>

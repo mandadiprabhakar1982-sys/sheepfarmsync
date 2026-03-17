@@ -320,9 +320,9 @@ export default function LivestockPage() {
       </div>
 
       {/* SCROLLABLE DATA CONTAINER */}
-      <div className="flex-1 overflow-y-auto no-scrollbar md:bg-white">
+      <div className="flex-1 overflow-y-auto no-scrollbar md:bg-white relative">
         {/* MOBILE VIEW */}
-        <div className="md:hidden px-5 space-y-4 pb-[120px]">
+        <div className="md:hidden px-5 space-y-4">
           {filteredAssets.length > 0 ? filteredAssets.map((sheep) => (
             <div 
               key={sheep.id} 
@@ -423,15 +423,29 @@ export default function LivestockPage() {
             </TableBody>
           </Table>
         </div>
+
+        {/* MOBILE ADD BUTTON (Floating but within scroll context or pinned via absolute) */}
+        <button 
+          onClick={() => { assetForm.reset({ registrationDate: new Date() }); setIsEntryDialogOpen(true); }}
+          className="md:hidden fixed bottom-24 right-6 h-16 w-16 rounded-full bg-[#14d5c7] text-white shadow-[0_15px_40px_rgba(20,213,199,0.4)] flex items-center justify-center active:scale-90 transition-all z-20"
+        >
+          <Plus className="h-8 w-8 stroke-[3px]" />
+        </button>
       </div>
 
-      {/* MOBILE ADD BUTTON */}
-      <button 
-        onClick={() => { assetForm.reset({ registrationDate: new Date() }); setIsEntryDialogOpen(true); }}
-        className="md:hidden fixed bottom-24 right-6 h-16 w-16 rounded-full bg-[#14d5c7] text-white shadow-[0_15px_40px_rgba(20,213,199,0.4)] flex items-center justify-center active:scale-90 transition-all z-20"
-      >
-        <Plus className="h-8 w-8 stroke-[3px]" />
-      </button>
+      {/* DIALOGS REMAIN SAME AS THEY ARE MODAL AND OVERLAY EVERYTHING */}
+      {/* IMAGE ZOOM DIALOG */}
+      <Dialog open={!!zoomImage} onOpenChange={() => setZoomImage(null)}>
+        <DialogContent className="max-w-3xl p-0 overflow-hidden bg-transparent border-none shadow-none z-[200]">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Asset Inspection</DialogTitle>
+          </DialogHeader>
+          <div className="relative aspect-square w-full">
+            {zoomImage && <Image src={zoomImage} alt="Zoomed view" fill className="object-contain" />}
+            <Button variant="ghost" size="icon" className="absolute top-4 right-4 bg-black/50 text-white hover:bg-black/70 rounded-full" onClick={() => setZoomImage(null)}><X className="h-6 w-6" /></Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* ENROLLMENT DIALOG (Flutter Style) */}
       <Dialog open={isEntryDialogOpen} onOpenChange={(open) => { setIsEntryDialogOpen(open); if (!open) stopCamera(); }}>
@@ -455,7 +469,6 @@ export default function LivestockPage() {
             <form onSubmit={assetForm.handleSubmit(onAssetSubmit)} className="flex flex-col flex-1 min-h-0">
               <ScrollArea className="flex-1">
                 <div className="p-6 space-y-8 no-scrollbar">
-                  {/* WORKSTATION: Visual Asset */}
                   <div className="flex flex-col items-center gap-4">
                     <div className="h-[140px] w-full max-w-[300px] rounded-[1.5rem] bg-neutral-50 border-2 border-dashed border-neutral-200 flex flex-col items-center justify-center overflow-hidden relative group shadow-inner">
                       <video ref={videoRef} className={cn("w-full h-full object-cover", !isCameraActive && "hidden")} autoPlay muted playsInline />
@@ -507,7 +520,6 @@ export default function LivestockPage() {
                     )}
                   </div>
                   
-                  {/* IDENTITY MATRIX */}
                   <div className="grid grid-cols-2 gap-4">
                     <FormField control={assetForm.control} name="tagId" render={({ field }) => (
                       <FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1 tracking-widest">Sheep Tag ID</Label><FormControl><Input placeholder="e.g. 101-A" className="h-12 rounded-xl bg-neutral-50 border-none font-bold text-sm px-4 focus-visible:ring-[#14d5c7]/20" {...field} /></FormControl></FormItem>
@@ -581,7 +593,6 @@ export default function LivestockPage() {
                 </div>
               </ScrollArea>
 
-              {/* ACTION FOOTER */}
               <div className="p-6 shrink-0 bg-white border-t">
                 <Button type="submit" disabled={isUploading || isCameraActive} className="w-full h-14 rounded-full bg-gradient-to-r from-[#14d5c7] to-[#0FA5A0] text-white font-black uppercase tracking-[0.2em] shadow-2xl transition-all active:scale-95 border-none text-[11px]">
                   {isUploading ? <Loader2 className="animate-spin h-5 w-5" /> : (
@@ -724,19 +735,6 @@ export default function LivestockPage() {
               </div>
             </form>
           </Form>
-        </DialogContent>
-      </Dialog>
-
-      {/* IMAGE ZOOM DIALOG */}
-      <Dialog open={!!zoomImage} onOpenChange={() => setZoomImage(null)}>
-        <DialogContent className="max-w-3xl p-0 overflow-hidden bg-transparent border-none shadow-none z-[200]">
-          <DialogHeader className="sr-only">
-            <DialogTitle>Asset Inspection</DialogTitle>
-          </DialogHeader>
-          <div className="relative aspect-square w-full">
-            {zoomImage && <Image src={zoomImage} alt="Zoomed view" fill className="object-contain" />}
-            <Button variant="ghost" size="icon" className="absolute top-4 right-4 bg-black/50 text-white hover:bg-black/70 rounded-full" onClick={() => setZoomImage(null)}><X className="h-6 w-6" /></Button>
-          </div>
         </DialogContent>
       </Dialog>
     </div>

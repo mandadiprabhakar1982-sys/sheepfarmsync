@@ -37,7 +37,7 @@ export default function DashboardLayout({
       {!isMobile && <AppSidebar />}
 
       <SidebarInset className="flex flex-col h-full bg-transparent overflow-hidden">
-        {/* MOBILE HEADER (Fixed) */}
+        {/* FIXED HEADER (SafeArea equivalent) */}
         {isMobile ? (
           <header 
             className="bg-[#020617] px-[20px] flex items-center justify-between shrink-0 z-30 border-b border-white/5"
@@ -75,7 +75,7 @@ export default function DashboardLayout({
           </header>
         )}
         
-        {/* CONTENT */}
+        {/* EXPANDED CONTENT (Expanded/SingleChildScrollView equivalent) */}
         <main className={cn(
           "flex-1 overflow-y-auto no-scrollbar",
           isMobile ? "p-0" : "p-8 md:p-12"
@@ -84,14 +84,12 @@ export default function DashboardLayout({
             {children}
           </div>
         </main>
+
+        {/* PINNED BOTTOM NAV (Footer equivalent) */}
+        {isMobile && <MobileNav />}
       </SidebarInset>
       
-      {isMobile && (
-        <>
-          <AppSidebar /> 
-          <MobileNav />
-        </>
-      )}
+      {isMobile && <AppSidebar />}
     </SidebarProvider>
   );
 }

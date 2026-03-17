@@ -73,7 +73,7 @@ export default function FarmLedgerPage() {
       id: m.id, date: m.date, source: `Pharma: ${m.shopName}`, amount: m.totalAmountSpent, cat: 'Pharma', color: 'bg-rose-50 text-rose-600', mColor: 'bg-orange-500/10 text-rose-400 border-rose-500/20' 
     }));
     const clinicalOutflows = (healthTasks || []).map(h => ({ 
-      id: h.id, date: h.date, source: `Clinical: ${h.medicineName}`, amount: h.cost, cat: 'Health', color: 'bg-rose-50 text-rose-600', mColor: 'bg-rose-500/10 text-rose-400 border-rose-500/20' 
+      id: h.id, date: h.date, source: `Clinical: ${h.medicineName}`, amount: h.cost, cat: 'Health', color: 'bg-rose-50 text-rose-600', mColor: 'bg-orange-500/10 text-rose-400 border-rose-500/20' 
     }));
     const miscOutflows = (farmExpenses || []).map(e => ({ 
       id: e.id, date: e.expenseDate, source: `Overhead: ${e.description}`, amount: e.amount, cat: 'Expense', color: 'bg-slate-100 text-slate-600', mColor: 'bg-slate-500/10 text-slate-400 border-slate-500/20' 
@@ -161,7 +161,7 @@ export default function FarmLedgerPage() {
           />
         </div>
 
-        <div className="space-y-10 pb-32">
+        <div className="space-y-10">
           {groupedData.length > 0 ? groupedData.map((group) => (
             <div key={group.date} className="space-y-4">
               <p className="text-[11px] font-black uppercase tracking-widest text-white/30 px-2">{formatGroupDate(group.date)}</p>

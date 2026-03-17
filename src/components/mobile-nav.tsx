@@ -24,13 +24,13 @@ export function MobileNav() {
 
   return (
     <div 
-      className="md:hidden fixed bottom-0 left-0 right-0 z-50 flex flex-col items-center justify-center w-full px-4"
+      className="md:hidden shrink-0 w-full px-4 flex flex-col items-center justify-center bg-[#020617] border-t border-white/5"
       style={{ 
-        height: 'calc(84px + env(safe-area-inset-bottom))',
+        height: 'calc(64px + env(safe-area-inset-bottom))',
         paddingBottom: 'env(safe-area-inset-bottom)'
       }}
     >
-      <div className="flex items-center justify-between w-full max-w-lg px-4 h-[72px] bg-[#0f172a]/95 backdrop-blur-2xl rounded-[2.5rem] border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+      <div className="flex items-center justify-between w-full max-w-lg px-4 h-[60px] bg-[#0f172a]/95 backdrop-blur-2xl rounded-[2.5rem] border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
         {navItems.map((item, index) => {
           const Icon = item.icon;
           const isActive = item.href === '/dashboard' 
@@ -47,14 +47,14 @@ export function MobileNav() {
               )}
             >
               <div className={cn(
-                "relative p-2 rounded-xl transition-all",
+                "relative p-1.5 rounded-xl transition-all",
                 isActive ? "bg-[#14d5c7]/10" : ""
               )}>
                 <Icon className={cn("h-5 w-5", isActive ? "stroke-[2.5px]" : "stroke-[2px]")} />
-                {isActive && <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-[#14d5c7] rounded-full shadow-[0_0_10px_#14d5c7]" />}
+                {isActive && <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-0.5 bg-[#14d5c7] rounded-full shadow-[0_0_10px_#14d5c7]" />}
               </div>
               <span className={cn(
-                "text-[8px] font-black tracking-widest uppercase leading-none",
+                "text-[7px] font-black tracking-widest uppercase leading-none",
                 isActive ? "opacity-100" : "opacity-40"
               )}>
                 {item.label}

@@ -1,4 +1,3 @@
-
 'use client';
 
 import dynamic from 'next/dynamic';
@@ -70,11 +69,11 @@ export default function OverviewPage() {
   ];
 
   const MobileView = (
-    <div className="min-h-full bg-[#020617] text-white px-5 pt-8 pb-[110px] animate-in fade-in duration-700">
+    <div className="min-h-full bg-[#020617] text-white px-5 pt-8 animate-in fade-in duration-700">
       {/* HEADER SECTION */}
       <div className="mb-10">
         <div className="flex items-center justify-between mb-1">
-          <h2 className="text-[34px] font-[800] tracking-tight leading-none">Dashboard</h2>
+          <h2 className="text-[34px] font-[800] tracking-tight leading-[1.1]">Dashboard</h2>
           <div className="px-3 py-1.5 rounded-full bg-[#14d5c7]/10 border border-[#14d5c7]/20 flex items-center gap-2">
             <div className="h-1.5 w-1.5 rounded-full bg-[#14d5c7] animate-pulse shadow-[0_0_8px_#14d5c7]" />
             <span className="text-[9px] font-black text-[#14d5c7] uppercase tracking-widest">Live Sync</span>
