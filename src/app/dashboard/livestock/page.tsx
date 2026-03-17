@@ -20,7 +20,9 @@ import {
   Calendar as CalendarIcon,
   CheckCircle2,
   ChevronRight,
-  AlertTriangle
+  AlertTriangle,
+  Zap,
+  Activity
 } from 'lucide-react';
 import { format, parseISO, isValid } from 'date-fns';
 import Image from 'next/image';
@@ -86,7 +88,6 @@ export default function LivestockPage() {
   } = useFarm();
   
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeMobileTab, setActiveMobileTab] = useState<'identity' | 'attributes'>('identity');
   const [isEntryDialogOpen, setIsEntryDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingSheep, setEditingSheep] = useState<TrackedSheep | null>(null);
@@ -251,222 +252,197 @@ export default function LivestockPage() {
   if (isLoading) {
     return (
       <div className="flex h-full w-full items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-10 w-10 animate-spin text-primary opacity-20" />
+        <Loader2 className="h-10 w-10 animate-spin text-[#14d5c7] opacity-20" />
       </div>
     );
   }
 
   return (
-    <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col relative bg-[#020617] md:bg-transparent">
-      {/* MOBILE PREMIUM HEADER */}
-      <div className="md:hidden flex flex-col bg-gradient-to-br from-[#0FA5A0] to-[#176E6C] rounded-b-[2rem] overflow-hidden shadow-2xl shrink-0">
-        <div className="p-6 pt-8 pb-4 relative z-10">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="h-10 w-10 rounded-xl bg-white/20 backdrop-blur-xl border border-white/30 flex items-center justify-center text-white">
-              <LayoutGrid className="h-5 w-5" />
-            </div>
-            <div>
-              <h1 className="text-lg font-black text-white tracking-tight uppercase leading-none">Sheep Registry</h1>
-              <p className="text-[7px] font-black text-white/60 uppercase tracking-[0.2em] mt-1">Verified Flock Matrix</p>
-            </div>
+    <div className="app-container flex flex-col h-full bg-[#020617] text-white overflow-hidden">
+      {/* MOBILE NEURAL HEADER (Pinned) */}
+      <div className="md:hidden shrink-0 px-5 pt-8 pb-6 animate-in fade-in duration-700">
+        <div className="flex items-center justify-between mb-1">
+          <h2 className="text-[34px] font-[800] tracking-tight leading-[1.1]">Sheep List</h2>
+          <div className="px-3 py-1.5 rounded-full bg-[#14d5c7]/10 border border-[#14d5c7]/20 flex items-center gap-2">
+            <ShieldCheck className="h-3 w-3 text-[#14d5c7]" />
+            <span className="text-[9px] font-black text-[#14d5c7] uppercase tracking-widest">{totalSheep} Head</span>
           </div>
+        </div>
+        <p className="text-white/40 text-sm font-medium mb-6">Verified Individual Flock Registry</p>
 
-          <div className="relative mb-4">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/40" />
+        <div className="relative">
+          <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/20" />
+          <Input 
+            placeholder="Search Tag ID or Breed..." 
+            value={searchTerm} 
+            onChange={(e) => setSearchTerm(e.target.value)} 
+            className="h-14 pl-12 rounded-2xl bg-white/5 border-white/10 text-white font-bold placeholder:text-white/20 shadow-xl focus-visible:ring-[#14d5c7]/20" 
+          />
+        </div>
+      </div>
+
+      {/* DESKTOP HEADER */}
+      <div className="hidden md:flex bg-[#0FA5A0] text-white p-2 px-5 items-center justify-between shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="p-1 bg-white/20 rounded-lg">
+            <LayoutGrid className="h-4 w-4" />
+          </div>
+          <div>
+            <CardTitle className="text-base font-black tracking-tighter leading-none uppercase">Sheep Registry</CardTitle>
+            <CardDescription className="text-white/60 text-[7px] font-bold uppercase tracking-[0.2em]">Verified Individual Flock Records</CardDescription>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="relative max-w-[200px]">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3 w-3 text-white/40" />
             <Input 
-              placeholder="Search Tag or Breed..." 
+              placeholder="Search Tag..." 
               value={searchTerm} 
               onChange={(e) => setSearchTerm(e.target.value)} 
-              className="h-10 pl-10 rounded-xl bg-white/10 border-white/20 text-white placeholder:text-white/40 text-xs font-bold border-none shadow-inner" 
+              className="h-7 pl-8 pr-3 rounded-lg bg-white/10 border-white/20 text-white placeholder:text-white/40 text-[10px] font-bold" 
             />
           </div>
 
-          <div className="flex items-center justify-between">
-            <div className="px-3 py-1.5 bg-black/20 backdrop-blur-xl rounded-xl flex items-center gap-2 border border-white/10 shadow-inner">
-              <CheckCircle2 className="h-3 w-3 text-emerald-400" />
-              <div className="flex items-baseline gap-1">
-                <p className="text-[7px] font-black text-white/40 uppercase tracking-widest leading-none">Total</p>
-                <p className="text-lg font-black text-white tracking-tighter leading-none">{totalSheep}</p>
-              </div>
-            </div>
+          <div className="px-2 py-0.5 bg-black/20 rounded-lg flex items-center gap-2 border border-white/10">
+            <ShieldCheck className="h-3 w-3 text-emerald-400" />
+            <p className="text-sm font-black tracking-tighter leading-none">{totalSheep}</p>
           </div>
-        </div>
 
-        <div className="flex border-t border-white/10">
-          <button 
-            onClick={() => setActiveMobileTab('identity')}
-            className={cn(
-              "flex-1 py-3 text-[9px] font-black uppercase tracking-[0.2em] transition-all relative",
-              activeMobileTab === 'identity' ? "text-white" : "text-white/40"
-            )}
+          <Button 
+            onClick={() => { assetForm.reset({ registrationDate: new Date() }); setIsEntryDialogOpen(true); }} 
+            className="h-7 px-3 rounded-lg bg-white text-[#0FA5A0] hover:bg-white/90 text-[9px]"
           >
-            Sheep Identity
-            {activeMobileTab === 'identity' && <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-0.5 bg-white rounded-full" />}
-          </button>
-          <button 
-            onClick={() => setActiveMobileTab('attributes')}
-            className={cn(
-              "flex-1 py-3 text-[9px] font-black uppercase tracking-[0.2em] transition-all relative",
-              activeMobileTab === 'attributes' ? "text-white" : "text-white/40"
-            )}
-          >
-            Attributes
-            {activeMobileTab === 'attributes' && <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-0.5 bg-white rounded-full" />}
-          </button>
+            <PlusCircle className="h-3.5 w-3.5 mr-1" />
+            Add Sheep
+          </Button>
         </div>
       </div>
 
-      <div className="flex-1 min-h-0 flex flex-col md:bg-white md:rounded-xl md:shadow-sm md:overflow-hidden md:m-4">
-        {/* DESKTOP HEADER */}
-        <div className="hidden md:flex bg-[#0FA5A0] text-white p-2 px-5 items-center justify-between shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="p-1 bg-white/20 rounded-lg">
-              <LayoutGrid className="h-4 w-4" />
-            </div>
-            <div>
-              <CardTitle className="text-base font-black tracking-tighter leading-none uppercase">Sheep Registry</CardTitle>
-              <CardDescription className="text-white/60 text-[7px] font-bold uppercase tracking-[0.2em]">Verified Individual Flock Records</CardDescription>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <div className="relative max-w-[200px]">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3 w-3 text-white/40" />
-              <Input 
-                placeholder="Search Tag..." 
-                value={searchTerm} 
-                onChange={(e) => setSearchTerm(e.target.value)} 
-                className="h-7 pl-8 pr-3 rounded-lg bg-white/10 border-white/20 text-white placeholder:text-white/40 text-[10px] font-bold" 
-              />
-            </div>
-
-            <div className="px-2 py-0.5 bg-black/20 rounded-lg flex items-center gap-2 border border-white/10">
-              <ShieldCheck className="h-3 w-3 text-emerald-400" />
-              <p className="text-sm font-black tracking-tighter leading-none">{totalSheep}</p>
-            </div>
-
-            <Button 
-              onClick={() => { assetForm.reset({ registrationDate: new Date() }); setIsEntryDialogOpen(true); }} 
-              className="h-7 px-3 rounded-lg bg-white text-[#0FA5A0] hover:bg-white/90 text-[9px]"
+      {/* SCROLLABLE DATA CONTAINER */}
+      <div className="flex-1 overflow-y-auto no-scrollbar md:bg-white">
+        {/* MOBILE VIEW */}
+        <div className="md:hidden px-5 space-y-4 pb-[120px]">
+          {filteredAssets.length > 0 ? filteredAssets.map((sheep) => (
+            <div 
+              key={sheep.id} 
+              className="glossy-card p-4 flex items-center gap-4 card-inner-shadow"
+              onClick={() => handleEditClick(sheep)}
             >
-              <PlusCircle className="h-3 w-3 mr-1" />
-              Add Sheep
-            </Button>
-          </div>
-        </div>
-
-        {/* DATA CONTAINER */}
-        <div className="flex-1 overflow-y-auto no-scrollbar md:bg-white">
-          <div className="md:hidden p-4 space-y-3 pb-32">
-            {filteredAssets.length > 0 ? filteredAssets.map((sheep) => (
+              <div className="glossy-overlay" />
               <div 
-                key={sheep.id} 
-                className="bg-white rounded-2xl p-3 flex items-center gap-3 shadow-xl active:scale-[0.98] transition-all relative overflow-hidden"
-                onClick={() => handleEditClick(sheep)}
+                className="h-16 w-16 rounded-2xl bg-white/5 border border-white/10 overflow-hidden relative shrink-0 shadow-2xl cursor-zoom-in group/img"
+                onClick={(e) => { e.stopPropagation(); if (sheep.imageUrl) setZoomImage(sheep.imageUrl); }}
               >
-                <div 
-                  className="h-12 w-12 rounded-xl bg-slate-50 border border-slate-100 overflow-hidden relative shrink-0 shadow-sm cursor-zoom-in group/img"
-                  onClick={(e) => { e.stopPropagation(); if (sheep.imageUrl) setZoomImage(sheep.imageUrl); }}
-                >
-                  {sheep.imageUrl ? (
-                    <Image src={sheep.imageUrl} alt="Sheep" fill className="object-cover" sizes="48px" />
-                  ) : <ImageIcon className="h-full w-full p-3 text-slate-200" />}
-                </div>
-                
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-black text-slate-900 leading-none">Tag: {sheep.tagId}</h3>
-                    <Badge className="bg-[#ecfdf5] text-[#059669] border-none font-black text-[7px] px-1.5 py-0 uppercase tracking-widest leading-none">Verified</Badge>
+                {sheep.imageUrl ? (
+                  <Image src={sheep.imageUrl} alt="Sheep" fill className="object-cover" sizes="64px" />
+                ) : <ImageIcon className="h-full w-full p-4 text-white/10" />}
+              </div>
+              
+              <div className="flex-1 min-w-0 relative z-10">
+                <div className="flex items-center justify-between mb-1">
+                  <h3 className="text-lg font-black text-white tracking-tight leading-none">Tag: {sheep.tagId}</h3>
+                  <div className="px-2 py-0.5 rounded-full bg-[#14d5c7]/20 border border-[#14d5c7]/30">
+                    <span className="text-[8px] font-black text-[#14d5c7] uppercase tracking-widest">Verified</span>
                   </div>
-                  <p className="text-xs font-black text-[#0FA5A0] leading-none mt-1 mb-1.5">{sheep.breed || 'Standard'}</p>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">
-                    {sheep.age} Mos • {sheep.gender} • {sheep.registrationDate || 'N/A'}
-                  </p>
                 </div>
-
-                <div className="shrink-0">
-                  <ChevronRight className="h-4 w-4 text-slate-300" />
+                <p className="text-xs font-black text-[#14d5c7] leading-none mb-2">{sheep.breed || 'Standard'}</p>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1.5">
+                    <Activity className="h-2.5 w-2.5 text-white/40" />
+                    <span className="text-[10px] font-bold text-white/40 uppercase tracking-tight">{sheep.age} Mos</span>
+                  </div>
+                  <div className="h-1 w-1 rounded-full bg-white/10" />
+                  <span className="text-[10px] font-bold text-white/40 uppercase tracking-tight">{sheep.gender}</span>
+                  <div className="h-1 w-1 rounded-full bg-white/10" />
+                  <span className="text-[10px] font-bold text-white/40 uppercase tracking-tight">{sheep.currentWeight} KG</span>
                 </div>
               </div>
-            )) : (
-              <div className="py-24 text-center opacity-20 font-black uppercase text-[10px] tracking-widest text-white">No assets discovered</div>
-            )}
-          </div>
 
-          <div className="hidden md:block">
-            <Table>
-              <TableHeader className="bg-[#0FA5A0] sticky top-0 z-10">
-                <TableRow className="border-none hover:bg-transparent h-10">
-                  <TableHead className="text-[9px] font-black uppercase py-2 pl-10 text-white">Sheep Identity</TableHead>
-                  <TableHead className="text-[9px] font-black uppercase py-2 text-white">Attributes</TableHead>
-                  <TableHead className="text-[9px] font-black uppercase py-2 text-center text-white">Status</TableHead>
-                  <TableHead className="text-[9px] font-black uppercase py-2 text-right text-white">Weight</TableHead>
-                  <TableHead className="text-[9px] font-black uppercase py-2 pr-10 text-right text-white">Actions</TableHead>
+              <div className="shrink-0 relative z-10">
+                <ChevronRight className="h-5 w-5 text-white/20" />
+              </div>
+            </div>
+          )) : (
+            <div className="py-24 text-center opacity-20 font-black uppercase text-[10px] tracking-widest text-white">No assets discovered in registry</div>
+          )}
+        </div>
+
+        {/* DESKTOP VIEW */}
+        <div className="hidden md:block">
+          <Table>
+            <TableHeader className="bg-[#0FA5A0] sticky top-0 z-10">
+              <TableRow className="border-none hover:bg-transparent h-10">
+                <TableHead className="text-[9px] font-black uppercase py-2 pl-10 text-white">Sheep Identity</TableHead>
+                <TableHead className="text-[9px] font-black uppercase py-2 text-white">Attributes</TableHead>
+                <TableHead className="text-[9px] font-black uppercase py-2 text-center text-white">Status</TableHead>
+                <TableHead className="text-[9px] font-black uppercase py-2 text-right text-white">Weight</TableHead>
+                <TableHead className="text-[9px] font-black uppercase py-2 pr-10 text-right text-white">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredAssets.map((sheep) => (
+                <TableRow key={sheep.id} className="hover:bg-slate-50 border-b border-slate-100 group transition-colors h-12">
+                  <TableCell className="pl-10 py-2">
+                    <div className="flex items-center gap-3">
+                      <div 
+                        className="h-8 w-8 rounded-lg bg-slate-50 border border-slate-100 overflow-hidden relative shrink-0 cursor-zoom-in"
+                        onClick={() => sheep.imageUrl && setZoomImage(sheep.imageUrl)}
+                      >
+                        {sheep.imageUrl ? (
+                          <Image src={sheep.imageUrl} alt="Sheep" fill className="object-cover" sizes="32px" />
+                        ) : <ImageIcon className="h-full w-full p-2 text-slate-200" />}
+                      </div>
+                      <span className="text-[13px] font-black text-[#2F4F4F]">Tag: {sheep.tagId}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="py-2">
+                    <div className="flex flex-col">
+                      <span className="text-[11px] font-bold text-slate-600">{sheep.breed || 'Standard'}</span>
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{sheep.age}M • {sheep.gender} • {sheep.registrationDate}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-center py-2">
+                    <Badge className="bg-[#ecfdf5] text-[#059669] border-none font-black text-[8px] px-2 py-0 uppercase tracking-widest">Verified</Badge>
+                  </TableCell>
+                  <TableCell className="text-right py-2">
+                    <span className="text-[14px] font-black text-[#2F4F4F]">{sheep.currentWeight} kg</span>
+                  </TableCell>
+                  <TableCell className="text-right pr-10 py-2">
+                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                      <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg bg-emerald-50 text-emerald-600" onClick={() => handleEditClick(sheep)}>
+                        <Pencil className="h-3 w-3" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg bg-rose-50 text-rose-600" onClick={() => deleteTrackedSheep(sheep.id, sheep._path)}>
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredAssets.map((sheep) => (
-                  <TableRow key={sheep.id} className="hover:bg-slate-50 border-b border-slate-100 group transition-colors h-12">
-                    <TableCell className="pl-10 py-2">
-                      <div className="flex items-center gap-3">
-                        <div 
-                          className="h-8 w-8 rounded-lg bg-slate-50 border border-slate-100 overflow-hidden relative shrink-0 cursor-zoom-in"
-                          onClick={() => sheep.imageUrl && setZoomImage(sheep.imageUrl)}
-                        >
-                          {sheep.imageUrl ? (
-                            <Image src={sheep.imageUrl} alt="Sheep" fill className="object-cover" sizes="32px" />
-                          ) : <ImageIcon className="h-full w-full p-2 text-slate-200" />}
-                        </div>
-                        <span className="text-[13px] font-black text-[#2F4F4F]">Tag: {sheep.tagId}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="py-2">
-                      <div className="flex flex-col">
-                        <span className="text-[11px] font-bold text-slate-600">{sheep.breed || 'Standard'}</span>
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{sheep.age}M • {sheep.gender} • {sheep.registrationDate}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-center py-2">
-                      <Badge className="bg-[#ecfdf5] text-[#059669] border-none font-black text-[8px] px-2 py-0 uppercase tracking-widest">Verified</Badge>
-                    </TableCell>
-                    <TableCell className="text-right py-2">
-                      <span className="text-[14px] font-black text-[#2F4F4F]">{sheep.currentWeight} kg</span>
-                    </TableCell>
-                    <TableCell className="text-right pr-10 py-2">
-                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all">
-                        <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg bg-emerald-50 text-emerald-600" onClick={() => handleEditClick(sheep)}>
-                          <Pencil className="h-3 w-3" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg bg-rose-50 text-rose-600" onClick={() => deleteTrackedSheep(sheep.id, sheep._path)}>
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       </div>
 
+      {/* MOBILE ADD BUTTON */}
       <button 
         onClick={() => { assetForm.reset({ registrationDate: new Date() }); setIsEntryDialogOpen(true); }}
-        className="md:hidden fixed bottom-24 right-6 h-14 w-14 rounded-full bg-[#0FA5A0] text-white shadow-[0_10px_30px_rgba(15,165,160,0.4)] flex items-center justify-center active:scale-90 transition-all z-20 border-4 border-white/10"
+        className="md:hidden fixed bottom-24 right-6 h-16 w-16 rounded-full bg-[#14d5c7] text-white shadow-[0_15px_40px_rgba(20,213,199,0.4)] flex items-center justify-center active:scale-90 transition-all z-20"
       >
-        <Plus className="h-7 w-7 stroke-[3px]" />
+        <Plus className="h-8 w-8 stroke-[3px]" />
       </button>
 
-      {/* ENROLLMENT DIALOG */}
+      {/* ENROLLMENT DIALOG (Flutter Style) */}
       <Dialog open={isEntryDialogOpen} onOpenChange={(open) => { setIsEntryDialogOpen(open); if (!open) stopCamera(); }}>
         <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[88dvh] flex flex-col z-[100]">
           <DialogHeader className="bg-[#111111] p-6 text-left text-white shrink-0 relative">
             <div className="flex items-center gap-4">
-              <div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]">
+              <div className="p-2.5 rounded-xl bg-[#14d5c7]/20 text-[#14d5c7]">
                 <Plus className="h-5 w-5 stroke-[3px]" />
               </div>
               <div>
-                <DialogTitle className="text-xl font-black tracking-tight uppercase text-white leading-none">Sheep Enrollment</DialogTitle>
+                <DialogTitle className="text-xl font-black tracking-tight uppercase text-white leading-none">Enrollment</DialogTitle>
                 <DialogDescription className="text-white/40 text-[9px] font-bold uppercase tracking-widest mt-1">Enroll new animal into registry</DialogDescription>
               </div>
             </div>
@@ -479,6 +455,7 @@ export default function LivestockPage() {
             <form onSubmit={assetForm.handleSubmit(onAssetSubmit)} className="flex flex-col flex-1 min-h-0">
               <ScrollArea className="flex-1">
                 <div className="p-6 space-y-8 no-scrollbar">
+                  {/* WORKSTATION: Visual Asset */}
                   <div className="flex flex-col items-center gap-4">
                     <div className="h-[140px] w-full max-w-[300px] rounded-[1.5rem] bg-neutral-50 border-2 border-dashed border-neutral-200 flex flex-col items-center justify-center overflow-hidden relative group shadow-inner">
                       <video ref={videoRef} className={cn("w-full h-full object-cover", !isCameraActive && "hidden")} autoPlay muted playsInline />
@@ -501,7 +478,7 @@ export default function LivestockPage() {
 
                       {isCameraActive && (
                         <div className="absolute bottom-2 left-0 right-0 flex justify-center">
-                          <Button type="button" onClick={capturePhoto} className="rounded-full h-10 w-10 p-0 bg-[#0FA5A0] border-4 border-white shadow-2xl">
+                          <Button type="button" onClick={capturePhoto} className="rounded-full h-10 w-10 p-0 bg-[#14d5c7] border-4 border-white shadow-2xl">
                             <div className="h-5 w-5 rounded-full border-2 border-white" />
                           </Button>
                         </div>
@@ -530,16 +507,17 @@ export default function LivestockPage() {
                     )}
                   </div>
                   
+                  {/* IDENTITY MATRIX */}
                   <div className="grid grid-cols-2 gap-4">
                     <FormField control={assetForm.control} name="tagId" render={({ field }) => (
-                      <FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Sheep Tag ID</Label><FormControl><Input placeholder="e.g. 101-A" className="h-10 rounded-xl bg-white border-slate-200 font-bold text-sm px-4" {...field} /></FormControl></FormItem>
+                      <FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1 tracking-widest">Sheep Tag ID</Label><FormControl><Input placeholder="e.g. 101-A" className="h-12 rounded-xl bg-neutral-50 border-none font-bold text-sm px-4 focus-visible:ring-[#14d5c7]/20" {...field} /></FormControl></FormItem>
                     )} />
                     <FormField control={assetForm.control} name="registrationDate" render={({ field }) => (
                       <FormItem className="flex flex-col">
-                        <Label className="text-[9px] font-black uppercase opacity-40 mb-1">Reg. Date</Label>
+                        <Label className="text-[9px] font-black uppercase opacity-40 mb-1 tracking-widest">Reg. Date</Label>
                         <Popover open={isRegDatePickerOpen} onOpenChange={setIsRegDatePickerOpen} modal={true}>
                           <PopoverTrigger asChild>
-                            <Button variant="outline" className="h-10 rounded-xl bg-white border-slate-200 w-full text-left justify-between font-black uppercase text-[11px]">
+                            <Button variant="outline" className="h-12 rounded-xl bg-neutral-50 border-none w-full text-left justify-between font-black uppercase text-[11px] px-4">
                               {field.value instanceof Date
                                 ? format(field.value, "MMM dd, yyyy")
                                 : "Pick date"}
@@ -570,42 +548,48 @@ export default function LivestockPage() {
 
                   <div className="grid grid-cols-2 gap-4">
                     <FormField control={assetForm.control} name="breed" render={({ field }) => (
-                      <FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Breed</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="h-10 rounded-xl bg-white border-slate-200 font-bold text-xs"><SelectValue placeholder="Select" /></SelectTrigger></FormControl><SelectContent className="z-[160]"><SelectItem value="Standard">Standard</SelectItem><SelectItem value="Nellore">Nellore</SelectItem><SelectItem value="Deccani">Deccani</SelectItem></SelectContent></Select></FormItem>
+                      <FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1 tracking-widest">Breed</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="h-12 rounded-xl bg-neutral-50 border-none font-bold text-xs"><SelectValue placeholder="Select" /></SelectTrigger></FormControl><SelectContent className="z-[160]"><SelectItem value="Standard">Standard</SelectItem><SelectItem value="Nellore">Nellore</SelectItem><SelectItem value="Deccani">Deccani</SelectItem></SelectContent></Select></FormItem>
                     )} />
                     <FormField control={assetForm.control} name="gender" render={({ field }) => (
-                      <FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Gender</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="h-10 rounded-xl bg-white border-slate-200 font-bold text-xs"><SelectValue placeholder="Select" /></SelectTrigger></FormControl><SelectContent className="z-[160]"><SelectItem value="female">Female</SelectItem><SelectItem value="male">Male</SelectItem></SelectContent></Select></FormItem>
+                      <FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1 tracking-widest">Gender</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="h-12 rounded-xl bg-neutral-50 border-none font-bold text-xs"><SelectValue placeholder="Select" /></SelectTrigger></FormControl><SelectContent className="z-[160]"><SelectItem value="female">Female</SelectItem><SelectItem value="male">Male</SelectItem></SelectContent></Select></FormItem>
                     )} />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
-                    <FormField control={assetForm.control} name="age" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Age (Months)</Label><FormControl><Input type="number" placeholder="4" className="h-10 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>)} />
-                    <FormField control={assetForm.control} name="currentWeight" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Weight (KG)</Label><FormControl><Input type="number" step="0.1" placeholder="20" className="h-10 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>)} />
+                    <FormField control={assetForm.control} name="age" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1 tracking-widest">Age (Months)</Label><FormControl><Input type="number" placeholder="4" className="h-12 rounded-xl bg-neutral-50 border-none font-bold" {...field} /></FormControl></FormItem>)} />
+                    <FormField control={assetForm.control} name="currentWeight" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1 tracking-widest">Weight (KG)</Label><FormControl><Input type="number" step="0.1" placeholder="20" className="h-12 rounded-xl bg-neutral-50 border-none font-bold" {...field} /></FormControl></FormItem>)} />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
-                    <FormField control={assetForm.control} name="color" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Color</Label><FormControl><Input placeholder="White/Brown" className="h-10 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>)} />
-                    <FormField control={assetForm.control} name="source" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Source</Label><FormControl><Input placeholder="Internal/Purchase" className="h-10 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>)} />
+                    <FormField control={assetForm.control} name="color" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1 tracking-widest">Color</Label><FormControl><Input placeholder="White/Brown" className="h-12 rounded-xl bg-neutral-50 border-none font-bold" {...field} /></FormControl></FormItem>)} />
+                    <FormField control={assetForm.control} name="source" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1 tracking-widest">Source</Label><FormControl><Input placeholder="Internal/Purchase" className="h-12 rounded-xl bg-neutral-50 border-none font-bold" {...field} /></FormControl></FormItem>)} />
                   </div>
 
-                  <div className="space-y-6">
+                  <div className="space-y-6 pb-8">
                     <FormField control={assetForm.control} name="healthStatus" render={({ field }) => (
-                      <FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Health Status</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="h-10 rounded-xl bg-white border-slate-200 font-bold text-xs"><SelectValue /></SelectTrigger></FormControl><SelectContent className="z-[160]"><SelectItem value="Healthy">Healthy</SelectItem><SelectItem value="Ill">Under Treatment</SelectItem><SelectItem value="Recovering">Recovering</SelectItem><SelectItem value="Alert">Critical Alert</SelectItem></SelectContent></Select></FormItem>
+                      <FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1 tracking-widest">Health Status</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="h-12 rounded-xl bg-neutral-50 border-none font-bold text-xs"><SelectValue /></SelectTrigger></FormControl><SelectContent className="z-[160]"><SelectItem value="Healthy">Healthy</SelectItem><SelectItem value="Ill">Under Treatment</SelectItem><SelectItem value="Recovering">Recovering</SelectItem><SelectItem value="Alert">Critical Alert</SelectItem></SelectContent></Select></FormItem>
                     )} />
                     
                     <FormField control={assetForm.control} name="vaccination" render={({ field }) => (
-                      <FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Recent Vaccination</Label><FormControl><Input placeholder="e.g. FMD, PPR" className="h-10 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>
+                      <FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1 tracking-widest">Recent Vaccination</Label><FormControl><Input placeholder="e.g. FMD, PPR" className="h-12 rounded-xl bg-neutral-50 border-none font-bold" {...field} /></FormControl></FormItem>
                     )} />
 
                     <FormField control={assetForm.control} name="notes" render={({ field }) => (
-                      <FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Operational Notes</Label><FormControl><Textarea placeholder="Additional biological or clinical context..." className="rounded-xl border-slate-200 min-h-[100px] font-medium text-xs p-4" {...field} /></FormControl></FormItem>
+                      <FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1 tracking-widest">Operational Notes</Label><FormControl><Textarea placeholder="Additional biological or clinical context..." className="rounded-xl border-none bg-neutral-50 min-h-[100px] font-medium text-xs p-4" {...field} /></FormControl></FormItem>
                     )} />
                   </div>
                 </div>
               </ScrollArea>
 
+              {/* ACTION FOOTER */}
               <div className="p-6 shrink-0 bg-white border-t">
-                <Button type="submit" disabled={isUploading || isCameraActive} className="w-full h-14 rounded-full bg-gradient-to-r from-[#0FA5A0] to-[#176E6C] text-white font-black uppercase tracking-[0.2em] shadow-2xl transition-all active:scale-95 border-none text-[11px]">
-                  {isUploading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Save Enrollment'}
+                <Button type="submit" disabled={isUploading || isCameraActive} className="w-full h-14 rounded-full bg-gradient-to-r from-[#14d5c7] to-[#0FA5A0] text-white font-black uppercase tracking-[0.2em] shadow-2xl transition-all active:scale-95 border-none text-[11px]">
+                  {isUploading ? <Loader2 className="animate-spin h-5 w-5" /> : (
+                    <>
+                      <CheckCircle2 className="mr-2 h-4 w-4" />
+                      Save Enrollment
+                    </>
+                  )}
                 </Button>
               </div>
             </form>
@@ -613,12 +597,12 @@ export default function LivestockPage() {
         </DialogContent>
       </Dialog>
 
-      {/* EDIT DIALOG */}
+      {/* EDIT DIALOG (Flutter Style) */}
       <Dialog open={isEditDialogOpen} onOpenChange={(open) => { setIsEditDialogOpen(open); if (!open) stopCamera(); }}>
         <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[88dvh] flex flex-col z-[100]">
           <DialogHeader className="bg-[#111111] p-6 text-left text-white shrink-0 relative">
             <div className="flex items-center gap-4">
-              <div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]">
+              <div className="p-2.5 rounded-xl bg-[#14d5c7]/20 text-[#14d5c7]">
                 <Pencil className="h-5 w-5" />
               </div>
               <div>
@@ -655,7 +639,7 @@ export default function LivestockPage() {
                       )}
                       {isCameraActive && (
                         <div className="absolute bottom-2 left-0 right-0 flex justify-center">
-                          <Button type="button" onClick={capturePhoto} className="rounded-full h-10 w-10 p-0 bg-[#0FA5A0] border-4 border-white shadow-2xl"><div className="h-5 w-5 rounded-full border-2 border-white" /></Button>
+                          <Button type="button" onClick={capturePhoto} className="rounded-full h-10 w-10 p-0 bg-[#14d5c7] border-4 border-white shadow-2xl"><div className="h-5 w-5 rounded-full border-2 border-white" /></Button>
                         </div>
                       )}
                     </div>
@@ -668,13 +652,13 @@ export default function LivestockPage() {
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4">
-                    <FormField control={editForm.control} name="tagId" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Tag ID</Label><FormControl><Input className="h-10 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>)} />
+                    <FormField control={editForm.control} name="tagId" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1 tracking-widest">Tag ID</Label><FormControl><Input className="h-12 rounded-xl bg-neutral-50 border-none font-bold" {...field} /></FormControl></FormItem>)} />
                     <FormField control={editForm.control} name="registrationDate" render={({ field }) => (
                       <FormItem className="flex flex-col">
-                        <Label className="text-[9px] font-black uppercase opacity-40 mb-1">Reg. Date</Label>
+                        <Label className="text-[9px] font-black uppercase opacity-40 mb-1 tracking-widest">Reg. Date</Label>
                         <Popover open={isEditRegDatePickerOpen} onOpenChange={setIsEditRegDatePickerOpen} modal={true}>
                           <PopoverTrigger asChild>
-                            <Button variant="outline" className="h-10 rounded-xl bg-white border-slate-200 w-full text-left justify-between font-black uppercase text-[11px]">
+                            <Button variant="outline" className="h-12 rounded-xl bg-neutral-50 border-none w-full text-left justify-between font-black uppercase text-[11px] px-4">
                               {field.value instanceof Date
                                 ? format(field.value, "MMM dd, yyyy")
                                 : "Pick date"}
@@ -704,31 +688,31 @@ export default function LivestockPage() {
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
-                    <FormField control={editForm.control} name="breed" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Breed</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="h-10 rounded-xl bg-white border-slate-200 font-bold text-xs"><SelectValue /></SelectTrigger></FormControl><SelectContent className="z-[160]"><SelectItem value="Standard">Standard</SelectItem><SelectItem value="Nellore">Nellore</SelectItem><SelectItem value="Deccani">Deccani</SelectItem></SelectContent></Select></FormItem>)} />
-                    <FormField control={editForm.control} name="gender" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Gender</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="h-10 rounded-xl bg-white border-slate-200 font-bold text-xs"><SelectValue /></SelectTrigger></FormControl><SelectContent className="z-[160]"><SelectItem value="female">Female</SelectItem><SelectItem value="male">Male</SelectItem></SelectContent></Select></FormItem>)} />
+                    <FormField control={editForm.control} name="breed" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1 tracking-widest">Breed</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="h-12 rounded-xl bg-neutral-50 border-none font-bold text-xs"><SelectValue placeholder="Select" /></SelectTrigger></FormControl><SelectContent className="z-[160]"><SelectItem value="Standard">Standard</SelectItem><SelectItem value="Nellore">Nellore</SelectItem><SelectItem value="Deccani">Deccani</SelectItem></SelectContent></Select></FormItem>)} />
+                    <FormField control={editForm.control} name="gender" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1 tracking-widest">Gender</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="h-12 rounded-xl bg-neutral-50 border-none font-bold text-xs"><SelectValue placeholder="Select" /></SelectTrigger></FormControl><SelectContent className="z-[160]"><SelectItem value="female">Female</SelectItem><SelectItem value="male">Male</SelectItem></SelectContent></Select></FormItem>)} />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
-                    <FormField control={editForm.control} name="age" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Age</Label><FormControl><Input type="number" className="h-10 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>)} />
-                    <FormField control={editForm.control} name="currentWeight" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Weight</Label><FormControl><Input type="number" step="0.1" className="h-10 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>)} />
+                    <FormField control={editForm.control} name="age" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1 tracking-widest">Age</Label><FormControl><Input type="number" className="h-12 rounded-xl bg-neutral-50 border-none font-bold" {...field} /></FormControl></FormItem>)} />
+                    <FormField control={editForm.control} name="currentWeight" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1 tracking-widest">Weight</Label><FormControl><Input type="number" step="0.1" className="h-12 rounded-xl bg-neutral-50 border-none font-bold" {...field} /></FormControl></FormItem>)} />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
-                    <FormField control={editForm.control} name="color" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Color</Label><FormControl><Input className="h-10 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>)} />
-                    <FormField control={editForm.control} name="source" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Source</Label><FormControl><Input className="h-10 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>)} />
+                    <FormField control={editForm.control} name="color" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1 tracking-widest">Color</Label><FormControl><Input className="h-12 rounded-xl bg-neutral-50 border-none font-bold" {...field} /></FormControl></FormItem>)} />
+                    <FormField control={editForm.control} name="source" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1 tracking-widest">Source</Label><FormControl><Input className="h-12 rounded-xl bg-neutral-50 border-none font-bold" {...field} /></FormControl></FormItem>)} />
                   </div>
 
-                  <div className="space-y-6">
+                  <div className="space-y-6 pb-8">
                     <FormField control={editForm.control} name="healthStatus" render={({ field }) => (
-                      <FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Health Status</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="h-10 rounded-xl bg-white border-slate-200 font-bold text-xs"><SelectValue /></SelectTrigger></FormControl><SelectContent className="z-[160]"><SelectItem value="Healthy">Healthy</SelectItem><SelectItem value="Ill">Under Treatment</SelectItem><SelectItem value="Recovering">Recovering</SelectItem><SelectItem value="Alert">Critical Alert</SelectItem></SelectContent></Select></FormItem>
+                      <FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1 tracking-widest">Health Status</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="h-12 rounded-xl bg-neutral-50 border-none font-bold text-xs"><SelectValue /></SelectTrigger></FormControl><SelectContent className="z-[160]"><SelectItem value="Healthy">Healthy</SelectItem><SelectItem value="Ill">Under Treatment</SelectItem><SelectItem value="Recovering">Recovering</SelectItem><SelectItem value="Alert">Critical Alert</SelectItem></SelectContent></Select></FormItem>
                     )} />
                     
                     <FormField control={editForm.control} name="vaccination" render={({ field }) => (
-                      <FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Recent Vaccination</Label><FormControl><Input placeholder="e.g. FMD, PPR" className="h-10 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>
+                      <FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1 tracking-widest">Recent Vaccination</Label><FormControl><Input placeholder="e.g. FMD, PPR" className="h-12 rounded-xl bg-neutral-50 border-none font-bold" {...field} /></FormControl></FormItem>
                     )} />
 
                     <FormField control={editForm.control} name="notes" render={({ field }) => (
-                      <FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Operational Notes</Label><FormControl><Textarea placeholder="Additional biological or clinical context..." className="rounded-xl border-slate-200 min-h-[100px] font-medium text-xs p-4" {...field} /></FormControl></FormItem>
+                      <FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1 tracking-widest">Operational Notes</Label><FormControl><Textarea placeholder="Additional biological or clinical context..." className="rounded-xl border-none bg-neutral-50 min-h-[100px] font-medium text-xs p-4" {...field} /></FormControl></FormItem>
                     )} />
                   </div>
                 </div>
@@ -736,7 +720,7 @@ export default function LivestockPage() {
 
               <div className="p-6 shrink-0 bg-white border-t flex gap-3">
                 <Button type="button" variant="outline" onClick={() => deleteTrackedSheep(editingSheep!.id, editingSheep!._path)} className="h-14 rounded-full border-rose-100 text-rose-600 font-black uppercase tracking-widest px-6 transition-all active:scale-95"><Trash2 className="h-5 w-5" /></Button>
-                <Button type="submit" disabled={isUploading || isCameraActive} className="flex-1 h-14 rounded-full bg-gradient-to-r from-[#0FA5A0] to-[#176E6C] text-white font-black uppercase tracking-[0.2em] shadow-2xl transition-all active:scale-95 border-none text-[11px]">{isUploading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Save Changes'}</Button>
+                <Button type="submit" disabled={isUploading || isCameraActive} className="flex-1 h-14 rounded-full bg-gradient-to-r from-[#14d5c7] to-[#0FA5A0] text-white font-black uppercase tracking-[0.2em] shadow-2xl transition-all active:scale-95 border-none text-[11px]">{isUploading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Save Changes'}</Button>
               </div>
             </form>
           </Form>
