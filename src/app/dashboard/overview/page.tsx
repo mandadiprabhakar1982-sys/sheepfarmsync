@@ -65,121 +65,124 @@ export default function OverviewPage() {
   ];
 
   const MobileView = (
-    <div className="mobile-neural-screen pb-[110px]">
-      <header className="mb-8 pt-4">
+    <div className="mobile-neural-screen flex flex-col h-full overflow-hidden p-0">
+      <header className="shrink-0 px-5 pt-4 pb-6">
         <h1 className="text-[34px] font-[800] text-white tracking-tight leading-[1.1]">Dashboard</h1>
         <p className="text-sm font-medium text-white/40">Overview of Your Sheep Farm</p>
       </header>
 
-      <div className="grid grid-cols-2 gap-4 mb-8">
-        {/* TOTAL SHEEP */}
-        <div 
-          className="glossy-card bg-gradient-to-br from-[#11c5be] to-[#0d8f89] h-[220px] flex flex-col justify-between p-5 card-inner-shadow cursor-pointer" 
-          onClick={() => router.push('/dashboard/livestock')}
-        >
-          <div className="glossy-overlay" />
-          <div className="h-10 w-10 rounded-full bg-white/20 border border-white/30 flex items-center justify-center">
-            <Activity className="h-5 w-5 text-white" />
-          </div>
-          <div>
-            <p className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-1">Total Sheep</p>
-            <div className="flex items-end gap-2">
-              <span className="text-5xl font-black tracking-tighter leading-none">{totalSheep}</span>
-              <div className="mb-1 flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/20 text-[10px] font-black">
-                +12 <TrendingUp className="h-2.5 w-2.5" />
+      {/* CORRECT SOLUTION: FLEX-1 INTERNAL SCROLL AREA WITH BOTTOM CLEARANCE */}
+      <div className="flex-1 overflow-y-auto px-5 pb-32 no-scrollbar">
+        <div className="grid grid-cols-2 gap-4 mb-8">
+          {/* TOTAL SHEEP */}
+          <div 
+            className="glossy-card bg-gradient-to-br from-[#11c5be] to-[#0d8f89] h-[220px] flex flex-col justify-between p-5 card-inner-shadow cursor-pointer" 
+            onClick={() => router.push('/dashboard/livestock')}
+          >
+            <div className="glossy-overlay" />
+            <div className="h-10 w-10 rounded-full bg-white/20 border border-white/30 flex items-center justify-center">
+              <Activity className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <p className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-1">Total Sheep</p>
+              <div className="flex items-end gap-2">
+                <span className="text-5xl font-black tracking-tighter leading-none">{totalSheep}</span>
+                <div className="mb-1 flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/20 text-[10px] font-black">
+                  +12 <TrendingUp className="h-2.5 w-2.5" />
+                </div>
               </div>
             </div>
+            <button className="w-full rounded-2xl bg-white/10 py-3 font-black text-[9px] uppercase tracking-[0.2em] border border-white/10 flex items-center justify-center gap-2">
+              View Records <ChevronRight className="h-3 w-3" />
+            </button>
           </div>
-          <button className="w-full rounded-2xl bg-white/10 py-3 font-black text-[9px] uppercase tracking-[0.2em] border border-white/10 flex items-center justify-center gap-2">
-            View Records <ChevronRight className="h-3 w-3" />
-          </button>
-        </div>
 
-        {/* HEALTH ALERTS */}
-        <div 
-          className="glossy-card bg-gradient-to-br from-[#db2777] to-[#9d174d] h-[220px] flex flex-col justify-between p-5 card-inner-shadow cursor-pointer" 
-          onClick={() => router.push('/dashboard/medicine')}
-        >
-          <div className="glossy-overlay" />
-          <div className="h-10 w-10 rounded-full bg-white/20 border border-white/30 flex items-center justify-center">
-            <HeartPulse className="h-5 w-5 text-white" />
-          </div>
-          <div>
-            <p className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-1">Health Alerts</p>
-            <div className="flex items-center gap-3">
-              <span className="text-5xl font-black tracking-tighter leading-none">{alertCount}</span>
-              <span className="px-2.5 py-1 rounded-full bg-white text-[#db2777] text-[10px] font-black uppercase tracking-widest">Alert</span>
+          {/* HEALTH ALERTS */}
+          <div 
+            className="glossy-card bg-gradient-to-br from-[#db2777] to-[#9d174d] h-[220px] flex flex-col justify-between p-5 card-inner-shadow cursor-pointer" 
+            onClick={() => router.push('/dashboard/medicine')}
+          >
+            <div className="glossy-overlay" />
+            <div className="h-10 w-10 rounded-full bg-white/20 border border-white/30 flex items-center justify-center">
+              <HeartPulse className="h-5 w-5 text-white" />
             </div>
-            <div className="flex gap-1 mt-3">
-              <div className="h-1 flex-1 bg-yellow-400 rounded-full" />
-              <div className="h-1 flex-1 bg-yellow-400 rounded-full" />
-              <div className="h-1 flex-1 bg-yellow-400 rounded-full" />
-              <div className="h-1 flex-1 bg-[#14d5c7] rounded-full" />
-              <div className="h-1 flex-1 bg-white/20 rounded-full" />
+            <div>
+              <p className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-1">Health Alerts</p>
+              <div className="flex items-center gap-3">
+                <span className="text-5xl font-black tracking-tighter leading-none">{alertCount}</span>
+                <span className="px-2.5 py-1 rounded-full bg-white text-[#db2777] text-[10px] font-black uppercase tracking-widest">Alert</span>
+              </div>
+              <div className="flex gap-1 mt-3">
+                <div className="h-1 flex-1 bg-yellow-400 rounded-full" />
+                <div className="h-1 flex-1 bg-yellow-400 rounded-full" />
+                <div className="h-1 flex-1 bg-yellow-400 rounded-full" />
+                <div className="h-1 flex-1 bg-[#14d5c7] rounded-full" />
+                <div className="h-1 flex-1 bg-white/20 rounded-full" />
+              </div>
             </div>
+            <button className="w-full rounded-2xl bg-white/10 py-3 font-black text-[9px] uppercase tracking-[0.2em] border border-white/10 flex items-center justify-center gap-2">
+              View Alerts <ChevronRight className="h-3 w-3" />
+            </button>
           </div>
-          <button className="w-full rounded-2xl bg-white/10 py-3 font-black text-[9px] uppercase tracking-[0.2em] border border-white/10 flex items-center justify-center gap-2">
-            View Alerts <ChevronRight className="h-3 w-3" />
-          </button>
-        </div>
 
-        {/* FEED COST */}
-        <div 
-          className="glossy-card bg-gradient-to-br from-[#f59e0b] to-[#d97706] h-[220px] flex flex-col justify-between p-5 card-inner-shadow cursor-pointer" 
-          onClick={() => router.push('/dashboard/feed')}
-        >
-          <div className="glossy-overlay" />
-          <div className="h-10 w-10 rounded-full bg-white/20 border border-white/30 flex items-center justify-center">
-            <IndianRupee className="h-5 w-5 text-white" />
-          </div>
-          <div className="relative">
-            <p className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-1">Feed Cost</p>
-            <div className="text-3xl font-black tracking-tight leading-none">₹{totalFeedCost.toLocaleString()}</div>
-            <div className="mt-2 inline-flex items-center px-2.5 py-1 rounded-full bg-[#115e59] text-[9px] font-black text-[#5eead4] uppercase tracking-widest">This Month</div>
-          </div>
-          <button className="w-full rounded-2xl bg-white/10 py-3 font-black text-[9px] uppercase tracking-[0.2em] border border-white/10 flex items-center justify-center gap-2">
-            Reports <ChevronRight className="h-3 w-3" />
-          </button>
-        </div>
-
-        {/* AVG WEIGHT */}
-        <div 
-          className="glossy-card bg-gradient-to-br from-[#3b82f6] to-[#1d4ed8] h-[220px] flex flex-col justify-between p-5 card-inner-shadow overflow-hidden cursor-pointer" 
-          onClick={() => router.push('/dashboard/livestock')}
-        >
-          <div className="glossy-overlay" />
-          <div className="h-10 w-10 rounded-full bg-white/20 border border-white/30 flex items-center justify-center">
-            <BarChart3 className="h-5 w-5 text-white" />
-          </div>
-          <div>
-            <p className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-1">Avg. Weight</p>
-            <div className="text-4xl font-black tracking-tight leading-none mb-2">{avgWeight.toFixed(1)} <span className="text-xl">kg</span></div>
-            <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#5eead4]/20 text-[10px] font-black text-[#5eead4]">+5.2% <TrendingUp className="h-2.5 w-2.5" /></div>
-          </div>
-          <button className="w-full rounded-2xl bg-white/10 py-3 font-black text-[9px] uppercase tracking-[0.2em] border border-white/10 flex items-center justify-center gap-2">
-            Weight Chart <ChevronRight className="h-3 w-3" />
-          </button>
-        </div>
-      </div>
-
-      {/* STATUS MATRIX ROW */}
-      <div className="p-1 rounded-[2.5rem] bg-white/5 border border-white/10 shadow-2xl flex items-center h-[90px] mb-8 overflow-hidden">
-        {[
-          { icon: Heart, label: 'Healthy', val: healthyCount, color: '#14d5c7' },
-          { icon: Syringe, label: 'Care', val: careCount, color: '#f59e0b' },
-          { icon: Baby, label: 'Pregnant', val: pregnantCount, color: '#db2777' },
-          { icon: ShoppingBag, label: 'Sold', val: totalSales ? 4 : 0, color: '#3b82f6' }
-        ].map((stat, i) => (
-          <div key={i} className="flex-1 flex flex-col items-center justify-center relative h-full">
-            <div className="flex items-center gap-1.5 mb-1.5">
-              <stat.icon className="h-3.5 w-3.5" style={{ color: stat.color }} />
-              <span className="text-[9px] font-black text-white/40 uppercase tracking-tight">{stat.label}</span>
+          {/* FEED COST */}
+          <div 
+            className="glossy-card bg-gradient-to-br from-[#f59e0b] to-[#d97706] h-[220px] flex flex-col justify-between p-5 card-inner-shadow cursor-pointer" 
+            onClick={() => router.push('/dashboard/feed')}
+          >
+            <div className="glossy-overlay" />
+            <div className="h-10 w-10 rounded-full bg-white/20 border border-white/30 flex items-center justify-center">
+              <IndianRupee className="h-5 w-5 text-white" />
             </div>
-            <span className="text-2xl font-black tracking-tighter leading-none text-white">{stat.val}</span>
-            <div className="absolute bottom-0 w-10 h-0.5 rounded-full opacity-60" style={{ backgroundColor: stat.color }} />
-            {i < 3 && <div className="absolute right-0 top-1/4 bottom-1/4 w-px bg-white/5" />}
+            <div className="relative">
+              <p className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-1">Feed Cost</p>
+              <div className="text-3xl font-black tracking-tight leading-none">₹{totalFeedCost.toLocaleString()}</div>
+              <div className="mt-2 inline-flex items-center px-2.5 py-1 rounded-full bg-[#115e59] text-[9px] font-black text-[#5eead4] uppercase tracking-widest">This Month</div>
+            </div>
+            <button className="w-full rounded-2xl bg-white/10 py-3 font-black text-[9px] uppercase tracking-[0.2em] border border-white/10 flex items-center justify-center gap-2">
+              Reports <ChevronRight className="h-3 w-3" />
+            </button>
           </div>
-        ))}
+
+          {/* AVG WEIGHT */}
+          <div 
+            className="glossy-card bg-gradient-to-br from-[#3b82f6] to-[#1d4ed8] h-[220px] flex flex-col justify-between p-5 card-inner-shadow overflow-hidden cursor-pointer" 
+            onClick={() => router.push('/dashboard/livestock')}
+          >
+            <div className="glossy-overlay" />
+            <div className="h-10 w-10 rounded-full bg-white/20 border border-white/30 flex items-center justify-center">
+              <BarChart3 className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <p className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-1">Avg. Weight</p>
+              <div className="text-4xl font-black tracking-tight leading-none mb-2">{avgWeight.toFixed(1)} <span className="text-xl">kg</span></div>
+              <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#5eead4]/20 text-[10px] font-black text-[#5eead4]">+5.2% <TrendingUp className="h-2.5 w-2.5" /></div>
+            </div>
+            <button className="w-full rounded-2xl bg-white/10 py-3 font-black text-[9px] uppercase tracking-[0.2em] border border-white/10 flex items-center justify-center gap-2">
+              Weight Chart <ChevronRight className="h-3 w-3" />
+            </button>
+          </div>
+        </div>
+
+        {/* STATUS MATRIX ROW */}
+        <div className="p-1 rounded-[2.5rem] bg-white/5 border border-white/10 shadow-2xl flex items-center h-[90px] mb-8 overflow-hidden">
+          {[
+            { icon: Heart, label: 'Healthy', val: healthyCount, color: '#14d5c7' },
+            { icon: Syringe, label: 'Care', val: careCount, color: '#f59e0b' },
+            { icon: Baby, label: 'Pregnant', val: pregnantCount, color: '#db2777' },
+            { icon: ShoppingBag, label: 'Sold', val: totalSales ? 4 : 0, color: '#3b82f6' }
+          ].map((stat, i) => (
+            <div key={i} className="flex-1 flex flex-col items-center justify-center relative h-full">
+              <div className="flex items-center gap-1.5 mb-1.5">
+                <stat.icon className="h-3.5 w-3.5" style={{ color: stat.color }} />
+                <span className="text-[9px] font-black text-white/40 uppercase tracking-tight">{stat.label}</span>
+              </div>
+              <span className="text-2xl font-black tracking-tighter leading-none text-white">{stat.val}</span>
+              <div className="absolute bottom-0 w-10 h-0.5 rounded-full opacity-60" style={{ backgroundColor: stat.color }} />
+              {i < 3 && <div className="absolute right-0 top-1/4 bottom-1/4 w-px bg-white/5" />}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

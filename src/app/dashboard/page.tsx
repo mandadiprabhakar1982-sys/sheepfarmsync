@@ -69,105 +69,108 @@ export default function DashboardPage() {
   const isAdmin = userRole === 'admin';
 
   const MobileHome = (
-    <div className="mobile-neural-screen pb-[110px]">
-      <header className="mb-10 pt-4">
+    <div className="mobile-neural-screen flex flex-col h-full overflow-hidden p-0">
+      <header className="shrink-0 px-5 pt-4 pb-10">
         <h1 className="text-[34px] font-[800] text-white tracking-tight leading-[1.1]">Mpr Hub</h1>
         <p className="text-[9px] font-black text-[#14d5c7] uppercase tracking-[0.3em] mt-1">Tactical Enterprise Node</p>
       </header>
 
-      {/* PRIMARY NODE: FARM LEDGER */}
-      <section className="mb-8">
-        <Link href="/dashboard/farm-ledger">
-          <div className="hub-node hub-glow-teal p-5 h-[220px] rounded-[28px] border-white/5 bg-white/5 group flex flex-col justify-between">
-            <div className="flex justify-between items-start">
-              <div className="p-3 rounded-2xl bg-[#14d5c7]/20 border border-[#14d5c7]/30 text-[#14d5c7]">
-                <IconFarmCost className="h-8 w-8" />
+      {/* CORRECT SOLUTION: FLEX-1 INTERNAL SCROLL AREA WITH BOTTOM CLEARANCE */}
+      <div className="flex-1 overflow-y-auto px-5 pb-32 no-scrollbar">
+        {/* PRIMARY NODE: FARM LEDGER */}
+        <section className="mb-8">
+          <Link href="/dashboard/farm-ledger">
+            <div className="hub-node hub-glow-teal p-5 h-[220px] rounded-[28px] border-white/5 bg-white/5 group flex flex-col justify-between">
+              <div className="flex justify-between items-start">
+                <div className="p-3 rounded-2xl bg-[#14d5c7]/20 border border-[#14d5c7]/30 text-[#14d5c7]">
+                  <IconFarmCost className="h-8 w-8" />
+                </div>
+                <div className="bg-white/5 backdrop-blur-md rounded-full p-2 text-white/40 group-hover:text-[#14d5c7] transition-colors">
+                  <ChevronRight className="h-5 w-5" />
+                </div>
               </div>
-              <div className="bg-white/5 backdrop-blur-md rounded-full p-2 text-white/40 group-hover:text-[#14d5c7] transition-colors">
-                <ChevronRight className="h-5 w-5" />
+              <div>
+                <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-1">Operational Audit</p>
+                <h2 className="text-3xl font-black text-white tracking-tighter mb-1">₹{totalExpenses.toLocaleString()}</h2>
+                <div className="flex items-center gap-2 text-[9px] font-bold text-[#14d5c7] uppercase tracking-widest">
+                  <ShieldCheck className="h-3 w-3" /> System Audit Clear
+                </div>
               </div>
-            </div>
-            <div>
-              <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-1">Operational Audit</p>
-              <h2 className="text-3xl font-black text-white tracking-tighter mb-1">₹{totalExpenses.toLocaleString()}</h2>
-              <div className="flex items-center gap-2 text-[9px] font-bold text-[#14d5c7] uppercase tracking-widest">
-                <ShieldCheck className="h-3 w-3" /> System Audit Clear
-              </div>
-            </div>
-          </div>
-        </Link>
-      </section>
-
-      {/* FINANCIAL GRID */}
-      <section className="mb-10">
-        <div className="grid grid-cols-2 gap-4">
-          <Link href="/dashboard/monthly-ledger" className="hub-node hub-glow-teal p-5 h-[220px] rounded-[28px] flex flex-col justify-between bg-white/5">
-            <div className="h-10 w-10 rounded-xl bg-[#14d5c7]/20 border border-[#14d5c7]/30 flex items-center justify-center text-[#14d5c7]">
-              <ArrowUpCircle className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Inflow</p>
-              <p className="text-lg font-black text-white tracking-tight">₹{totalCashInflow.toLocaleString()}</p>
             </div>
           </Link>
-          
-          <Link href="/dashboard/sales" className="hub-node hub-glow-blue p-5 h-[220px] rounded-[28px] flex flex-col justify-between bg-white/5">
-            <div className="h-10 w-10 rounded-xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
-              <TrendingUp className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Receivables</p>
-              <p className="text-lg font-black text-white tracking-tight">₹{totalReceivables.toLocaleString()}</p>
-            </div>
-          </Link>
+        </section>
 
-          <Link href="/dashboard/purchase" className="hub-node hub-glow-orange p-5 h-[220px] rounded-[28px] flex flex-col justify-between bg-white/5">
-            <div className="h-10 w-10 rounded-xl bg-orange-500/20 border border-orange-500/30 flex items-center justify-center text-orange-400">
-              <TrendingDown className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Payables</p>
-              <p className="text-lg font-black text-white tracking-tight">₹{totalPayables.toLocaleString()}</p>
-            </div>
-          </Link>
-
-          <Link href="/dashboard/overview" className="hub-node p-5 h-[220px] rounded-[28px] flex flex-col justify-between bg-white/5">
-            <div className="h-10 w-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/60">
-              <LayoutGrid className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Matrix</p>
-              <p className="text-lg font-black text-white tracking-tight">Overview</p>
-            </div>
-          </Link>
-        </div>
-      </section>
-
-      {/* CORE NODES */}
-      <section className="mb-12">
-        <h3 className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] mb-6 px-2">Sub-Process Systems</h3>
-        <div className="grid grid-cols-2 gap-4">
-          {[
-            { icon: Wheat, href: '/dashboard/feed', label: 'Fodder' },
-            { icon: Users, href: '/dashboard/labor', label: 'Labour' },
-            { icon: Heart, href: '/dashboard/medicine', label: 'Medical' },
-            { icon: Wallet, href: '/dashboard/expenses', label: 'Expenses' },
-          ].map((item, i) => (
-            <Link key={i} href={item.href} className="hub-node h-[120px] p-5 flex flex-col justify-between rounded-[20px] bg-white/5">
-              <div className="h-8 w-8 rounded-lg bg-white/10 flex items-center justify-center">
-                <item.icon className="h-5 w-5 text-white/60 group-hover:text-[#14d5c7] transition-colors" />
+        {/* FINANCIAL GRID */}
+        <section className="mb-10">
+          <div className="grid grid-cols-2 gap-4">
+            <Link href="/dashboard/monthly-ledger" className="hub-node hub-glow-teal p-5 h-[220px] rounded-[28px] flex flex-col justify-between bg-white/5">
+              <div className="h-10 w-10 rounded-xl bg-[#14d5c7]/20 border border-[#14d5c7]/30 flex items-center justify-center text-[#14d5c7]">
+                <ArrowUpCircle className="h-5 w-5" />
               </div>
-              <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">{item.label}</span>
+              <div>
+                <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Inflow</p>
+                <p className="text-lg font-black text-white tracking-tight">₹{totalCashInflow.toLocaleString()}</p>
+              </div>
             </Link>
-          ))}
-        </div>
-      </section>
+            
+            <Link href="/dashboard/sales" className="hub-node hub-glow-blue p-5 h-[220px] rounded-[28px] flex flex-col justify-between bg-white/5">
+              <div className="h-10 w-10 rounded-xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
+                <TrendingUp className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Receivables</p>
+                <p className="text-lg font-black text-white tracking-tight">₹{totalReceivables.toLocaleString()}</p>
+              </div>
+            </Link>
 
-      {/* ACTION TRIGGER */}
-      <div className="mb-12">
-        <Button onClick={() => router.push('/dashboard/expenses')} className="w-full h-16 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-black uppercase tracking-[0.2em] shadow-2xl text-xs gap-3">
-          <Plus className="h-5 w-5 text-[#14d5c7]" /> Log Entry
-        </Button>
+            <Link href="/dashboard/purchase" className="hub-node hub-glow-orange p-5 h-[220px] rounded-[28px] flex flex-col justify-between bg-white/5">
+              <div className="h-10 w-10 rounded-xl bg-orange-500/20 border border-orange-500/30 flex items-center justify-center text-orange-400">
+                <TrendingDown className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Payables</p>
+                <p className="text-lg font-black text-white tracking-tight">₹{totalPayables.toLocaleString()}</p>
+              </div>
+            </Link>
+
+            <Link href="/dashboard/overview" className="hub-node p-5 h-[220px] rounded-[28px] flex flex-col justify-between bg-white/5">
+              <div className="h-10 w-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/60">
+                <LayoutGrid className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Matrix</p>
+                <p className="text-lg font-black text-white tracking-tight">Overview</p>
+              </div>
+            </Link>
+          </div>
+        </section>
+
+        {/* CORE NODES */}
+        <section className="mb-12">
+          <h3 className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] mb-6 px-2">Sub-Process Systems</h3>
+          <div className="grid grid-cols-2 gap-4">
+            {[
+              { icon: Wheat, href: '/dashboard/feed', label: 'Fodder' },
+              { icon: Users, href: '/dashboard/labor', label: 'Labour' },
+              { icon: Heart, href: '/dashboard/medicine', label: 'Medical' },
+              { icon: Wallet, href: '/dashboard/expenses', label: 'Expenses' },
+            ].map((item, i) => (
+              <Link key={i} href={item.href} className="hub-node h-[120px] p-5 flex flex-col justify-between rounded-[20px] bg-white/5">
+                <div className="h-8 w-8 rounded-lg bg-white/10 flex items-center justify-center">
+                  <item.icon className="h-5 w-5 text-white/60 group-hover:text-[#14d5c7] transition-colors" />
+                </div>
+                <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">{item.label}</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* ACTION TRIGGER */}
+        <div className="mb-12">
+          <Button onClick={() => router.push('/dashboard/expenses')} className="w-full h-16 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-black uppercase tracking-[0.2em] shadow-2xl text-xs gap-3">
+            <Plus className="h-5 w-5 text-[#14d5c7]" /> Log Entry
+          </Button>
+        </div>
       </div>
     </div>
   );
@@ -197,7 +200,7 @@ export default function DashboardPage() {
     { title: "Sheep List", subtitle: "Flock Registry", icon: IconFlock, href: '/dashboard/livestock', color: "from-primary/20 to-primary/40" },
     { title: "Selling", subtitle: "Revenue Stream", icon: IconTrade, href: '/dashboard/sales', color: "from-primary/20 to-primary/40" },
     { title: "Medical", subtitle: "Clinical History", icon: IconHealth, href: '/dashboard/medicine', color: "from-primary/20 to-primary/40" },
-    { title: "Fodder", subtitle: "Feed Inventory", icon: IconFeed, href: '/dashboard/feed', color: "from-primary/20 to-primary/40" },
+    { title: "Fodder", subtitle: "Feed Inventory", icon: IconFeed, color: "from-primary/20 to-primary/40" },
     { title: "Labour", subtitle: "Staff & Coolie", icon: IconLabor, href: '/dashboard/labor', color: "from-primary/20 to-primary/40" },
     { title: "Expenses", subtitle: "Misc Overheads", icon: IconExpenses, href: '/dashboard/expenses', color: "from-primary/20 to-primary/40" },
   ];

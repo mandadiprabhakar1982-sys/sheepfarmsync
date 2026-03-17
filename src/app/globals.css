@@ -149,9 +149,9 @@
   @apply absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-50;
 }
 
-/* MOBILE NEURAL THEME */
+/* MOBILE NEURAL THEME - UPDATED: Removed overflow-hidden to support scrolling */
 .mobile-neural-screen {
-  @apply bg-[#020617] min-h-full pb-32 relative overflow-hidden animate-in fade-in duration-700;
+  @apply bg-[#020617] min-h-full relative animate-in fade-in duration-700;
   padding-left: 20px;
   padding-right: 20px;
 }

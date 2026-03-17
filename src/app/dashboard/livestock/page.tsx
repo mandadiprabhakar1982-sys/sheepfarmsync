@@ -257,9 +257,9 @@ export default function LivestockPage() {
   }
 
   return (
-    <div className="mobile-neural-screen pb-[120px]">
-      {/* MOBILE NEURAL HEADER */}
-      <header className="mb-8 pt-4">
+    <div className="mobile-neural-screen flex flex-col h-full overflow-hidden p-0">
+      {/* MOBILE NEURAL HEADER - STICKY TOP */}
+      <header className="shrink-0 px-5 pt-4 pb-6">
         <div className="flex items-center justify-between mb-1">
           <h2 className="text-[34px] font-[800] text-white tracking-tight leading-[1.1]">Sheep List</h2>
           <div className="px-3 py-1.5 rounded-full bg-[#14d5c7]/10 border border-[#14d5c7]/20 flex items-center gap-2">
@@ -280,59 +280,62 @@ export default function LivestockPage() {
         </div>
       </header>
 
-      {/* DESKTOP HEADER (Hidden on mobile) */}
-      <div className="hidden md:flex bg-[#0FA5A0] text-white p-2 px-5 items-center justify-between shrink-0 mb-6 rounded-xl">
-        <div className="flex items-center gap-3">
-          <LayoutGrid className="h-4 w-4" />
-          <CardTitle className="text-base font-black uppercase">Sheep Registry</CardTitle>
-        </div>
-        <Button onClick={() => setIsEntryDialogOpen(true)} className="h-7 px-3 rounded-lg bg-white text-[#0FA5A0] hover:bg-white/90 text-[9px]">Add Sheep</Button>
-      </div>
-
-      {/* DATA GRID */}
-      <div className="space-y-4">
-        {filteredAssets.length > 0 ? filteredAssets.map((sheep) => (
-          <div 
-            key={sheep.id} 
-            className="glossy-card p-4 flex items-center gap-4 card-inner-shadow"
-            onClick={() => handleEditClick(sheep)}
-          >
-            <div className="glossy-overlay" />
-            <div 
-              className="h-16 w-16 rounded-2xl bg-white/5 border border-white/10 overflow-hidden relative shrink-0 shadow-2xl"
-              onClick={(e) => { e.stopPropagation(); if (sheep.imageUrl) setZoomImage(sheep.imageUrl); }}
-            >
-              {sheep.imageUrl ? (
-                <Image src={sheep.imageUrl} alt="Sheep" fill className="object-cover" sizes="64px" />
-              ) : <ImageIcon className="h-full w-full p-4 text-white/10" />}
-            </div>
-            
-            <div className="flex-1 min-w-0 relative z-10">
-              <div className="flex items-center justify-between mb-1">
-                <h3 className="text-lg font-black text-white tracking-tight leading-none">Tag: {sheep.tagId}</h3>
-                <Badge className="bg-[#14d5c7]/20 text-[#14d5c7] border-none font-black text-[7px] uppercase px-1.5 py-0.5">Verified</Badge>
-              </div>
-              <p className="text-xs font-black text-[#14d5c7] leading-none mb-2">{sheep.breed || 'Standard'}</p>
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1.5">
-                  <Activity className="h-2.5 w-2.5 text-white/40" />
-                  <span className="text-[10px] font-bold text-white/40 uppercase">{sheep.age} Mos</span>
-                </div>
-                <div className="h-1 w-1 rounded-full bg-white/10" />
-                <span className="text-[10px] font-bold text-white/40 uppercase">{sheep.gender}</span>
-                <div className="h-1 w-1 rounded-full bg-white/10" />
-                <span className="text-[10px] font-bold text-white/40 uppercase">{sheep.currentWeight} KG</span>
-              </div>
-            </div>
-
-            <ChevronRight className="h-5 w-5 text-white/20 shrink-0 relative z-10" />
+      {/* CORRECT SOLUTION: FLEX-1 INTERNAL SCROLL AREA WITH BOTTOM CLEARANCE */}
+      <div className="flex-1 overflow-y-auto px-5 pb-32 no-scrollbar">
+        {/* DESKTOP HEADER (Hidden on mobile) */}
+        <div className="hidden md:flex bg-[#0FA5A0] text-white p-2 px-5 items-center justify-between shrink-0 mb-6 rounded-xl">
+          <div className="flex items-center gap-3">
+            <LayoutGrid className="h-4 w-4" />
+            <CardTitle className="text-base font-black uppercase">Sheep Registry</CardTitle>
           </div>
-        )) : (
-          <div className="py-24 text-center opacity-20 font-black uppercase text-[10px] tracking-widest text-white">No assets discovered</div>
-        )}
+          <Button onClick={() => setIsEntryDialogOpen(true)} className="h-7 px-3 rounded-lg bg-white text-[#0FA5A0] hover:bg-white/90 text-[9px]">Add Sheep</Button>
+        </div>
+
+        {/* DATA GRID */}
+        <div className="space-y-4">
+          {filteredAssets.length > 0 ? filteredAssets.map((sheep) => (
+            <div 
+              key={sheep.id} 
+              className="glossy-card p-4 flex items-center gap-4 card-inner-shadow"
+              onClick={() => handleEditClick(sheep)}
+            >
+              <div className="glossy-overlay" />
+              <div 
+                className="h-16 w-16 rounded-2xl bg-white/5 border border-white/10 overflow-hidden relative shrink-0 shadow-2xl"
+                onClick={(e) => { e.stopPropagation(); if (sheep.imageUrl) setZoomImage(sheep.imageUrl); }}
+              >
+                {sheep.imageUrl ? (
+                  <Image src={sheep.imageUrl} alt="Sheep" fill className="object-cover" sizes="64px" />
+                ) : <ImageIcon className="h-full w-full p-4 text-white/10" />}
+              </div>
+              
+              <div className="flex-1 min-w-0 relative z-10">
+                <div className="flex items-center justify-between mb-1">
+                  <h3 className="text-lg font-black text-white tracking-tight leading-none">Tag: {sheep.tagId}</h3>
+                  <Badge className="bg-[#14d5c7]/20 text-[#14d5c7] border-none font-black text-[7px] uppercase px-1.5 py-0.5">Verified</Badge>
+                </div>
+                <p className="text-xs font-black text-[#14d5c7] leading-none mb-2">{sheep.breed || 'Standard'}</p>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1.5">
+                    <Activity className="h-2.5 w-2.5 text-white/40" />
+                    <span className="text-[10px] font-bold text-white/40 uppercase">{sheep.age} Mos</span>
+                  </div>
+                  <div className="h-1 w-1 rounded-full bg-white/10" />
+                  <span className="text-[10px] font-bold text-white/40 uppercase">{sheep.gender}</span>
+                  <div className="h-1 w-1 rounded-full bg-white/10" />
+                  <span className="text-[10px] font-bold text-white/40 uppercase">{sheep.currentWeight} KG</span>
+                </div>
+              </div>
+
+              <ChevronRight className="h-5 w-5 text-white/20 shrink-0 relative z-10" />
+            </div>
+          )) : (
+            <div className="py-24 text-center opacity-20 font-black uppercase text-[10px] tracking-widest text-white">No assets discovered</div>
+          )}
+        </div>
       </div>
 
-      {/* MOBILE FAB */}
+      {/* MOBILE FAB - FIXED POSITION */}
       <button 
         onClick={() => { assetForm.reset({ registrationDate: new Date() }); setIsEntryDialogOpen(true); }}
         className="md:hidden fixed bottom-24 right-6 h-16 w-16 rounded-full bg-[#14d5c7] text-white shadow-2xl flex items-center justify-center active:scale-90 transition-all z-20"
@@ -373,7 +376,7 @@ export default function LivestockPage() {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <FormField control={assetForm.control} name="tagId" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 tracking-widest">Tag ID</Label><FormControl><Input className="h-12 rounded-xl bg-neutral-50 border-none font-bold" {...field} /></FormControl></FormItem>)} />
-                    <FormField control={assetForm.control} name="registrationDate" render={({ field }) => (<FormItem className="flex flex-col"><Label className="text-[9px] font-black uppercase opacity-40 tracking-widest">Reg. Date</Label><Popover open={isRegDatePickerOpen} onOpenChange={setIsRegDatePickerOpen} modal={true}><PopoverTrigger asChild><Button variant="outline" className="h-12 rounded-xl bg-neutral-50 border-none w-full text-left justify-between font-black uppercase text-[11px]">{field.value instanceof Date ? format(field.value, "MMM dd, yyyy") : "Pick date"}<CalendarIcon className="h-3.5 w-3.5 opacity-20" /></Button></PopoverTrigger><PopoverContent className="w-auto p-0 border-none bg-white shadow-2xl z-[150]" align="start"><Calendar mode="single" selected={field.value} onSelect={(d) => { if (date) { field.onChange(new Date(d!)); setTimeout(() => setIsRegDatePickerOpen(false), 50); } }} initialFocus /></PopoverContent></Popover></FormItem>)} />
+                    <FormField control={assetForm.control} name="registrationDate" render={({ field }) => (<FormItem className="flex flex-col"><Label className="text-[9px] font-black uppercase opacity-40 tracking-widest">Reg. Date</Label><Popover open={isRegDatePickerOpen} onOpenChange={setIsRegDatePickerOpen} modal={true}><PopoverTrigger asChild><Button variant="outline" className="h-12 rounded-xl bg-neutral-50 border-none w-full text-left justify-between font-black uppercase text-[11px]">{field.value instanceof Date ? format(field.value, "MMM dd, yyyy") : "Pick date"}<CalendarIcon className="h-3.5 w-3.5 opacity-20" /></Button></PopoverTrigger><PopoverContent className="w-auto p-0 border-none bg-white shadow-2xl z-[150]" align="start"><Calendar mode="single" selected={field.value} onSelect={(d) => { if (d) { field.onChange(new Date(d!)); setTimeout(() => setIsRegDatePickerOpen(false), 50); } }} initialFocus /></PopoverContent></Popover></FormItem>)} />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <FormField control={assetForm.control} name="breed" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 tracking-widest">Breed</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="h-12 rounded-xl bg-neutral-50 border-none font-bold text-xs"><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="Standard">Standard</SelectItem><SelectItem value="Nellore">Nellore</SelectItem><SelectItem value="Deccani">Deccani</SelectItem></SelectContent></Select></FormItem>)} />
