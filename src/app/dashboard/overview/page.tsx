@@ -71,7 +71,7 @@ export default function OverviewPage() {
         <p className="text-sm font-medium text-white/40">Overview of Your Sheep Farm</p>
       </header>
 
-      {/* CORRECT SOLUTION: FLEX-1 INTERNAL SCROLL AREA WITH BOTTOM CLEARANCE */}
+      {/* INTERNAL SCROLL AREA WITH BOTTOM CLEARANCE */}
       <div className="flex-1 overflow-y-auto px-5 pb-32 no-scrollbar">
         <div className="grid grid-cols-2 gap-4 mb-8">
           {/* TOTAL SHEEP */}

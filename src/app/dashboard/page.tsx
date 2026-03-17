@@ -75,7 +75,7 @@ export default function DashboardPage() {
         <p className="text-[9px] font-black text-[#14d5c7] uppercase tracking-[0.3em] mt-1">Tactical Enterprise Node</p>
       </header>
 
-      {/* CORRECT SOLUTION: FLEX-1 INTERNAL SCROLL AREA WITH BOTTOM CLEARANCE */}
+      {/* INTERNAL SCROLL AREA WITH BOTTOM CLEARANCE */}
       <div className="flex-1 overflow-y-auto px-5 pb-32 no-scrollbar">
         {/* PRIMARY NODE: FARM LEDGER */}
         <section className="mb-8">

@@ -94,7 +94,6 @@ export default function LivestockPage() {
   const [zoomImage, setZoomImage] = useState<string | null>(null);
 
   const [isRegDatePickerOpen, setIsRegDatePickerOpen] = useState(false);
-  const [isEditRegDatePickerOpen, setIsEditRegDatePickerOpen] = useState(false);
 
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
@@ -280,17 +279,8 @@ export default function LivestockPage() {
         </div>
       </header>
 
-      {/* CORRECT SOLUTION: FLEX-1 INTERNAL SCROLL AREA WITH BOTTOM CLEARANCE */}
+      {/* INTERNAL SCROLL AREA WITH BOTTOM CLEARANCE */}
       <div className="flex-1 overflow-y-auto px-5 pb-32 no-scrollbar">
-        {/* DESKTOP HEADER (Hidden on mobile) */}
-        <div className="hidden md:flex bg-[#0FA5A0] text-white p-2 px-5 items-center justify-between shrink-0 mb-6 rounded-xl">
-          <div className="flex items-center gap-3">
-            <LayoutGrid className="h-4 w-4" />
-            <CardTitle className="text-base font-black uppercase">Sheep Registry</CardTitle>
-          </div>
-          <Button onClick={() => setIsEntryDialogOpen(true)} className="h-7 px-3 rounded-lg bg-white text-[#0FA5A0] hover:bg-white/90 text-[9px]">Add Sheep</Button>
-        </div>
-
         {/* DATA GRID */}
         <div className="space-y-4">
           {filteredAssets.length > 0 ? filteredAssets.map((sheep) => (
