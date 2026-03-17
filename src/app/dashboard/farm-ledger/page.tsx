@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -71,7 +70,7 @@ export default function FarmLedgerPage() {
       id: l.id, date: l.date, source: `Staff: ${l.employeeName}`, amount: l.amountPaid || 0, cat: 'Labour', color: 'bg-emerald-50 text-[#43A047]', mColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
     }));
     const medicineOutflows = (medicineExpenses || []).map(m => ({ 
-      id: m.id, date: m.date, source: `Pharma: ${m.shopName}`, amount: m.totalAmountSpent, cat: 'Pharma', color: 'bg-rose-50 text-rose-600', mColor: 'bg-rose-500/10 text-rose-400 border-rose-500/20' 
+      id: m.id, date: m.date, source: `Pharma: ${m.shopName}`, amount: m.totalAmountSpent, cat: 'Pharma', color: 'bg-rose-50 text-rose-600', mColor: 'bg-orange-500/10 text-rose-400 border-rose-500/20' 
     }));
     const clinicalOutflows = (healthTasks || []).map(h => ({ 
       id: h.id, date: h.date, source: `Clinical: ${h.medicineName}`, amount: h.cost, cat: 'Health', color: 'bg-rose-50 text-rose-600', mColor: 'bg-rose-500/10 text-rose-400 border-rose-500/20' 
@@ -140,7 +139,7 @@ export default function FarmLedgerPage() {
       {/* MOBILE NEURAL VIEW */}
       <div className="block md:hidden mobile-neural-screen">
         <header className="mb-8">
-          <h1 className="text-3xl font-black text-white tracking-tight leading-none mb-2">Farm Ledger</h1>
+          <h1 className="text-[34px] font-[800] text-white tracking-tight leading-[1.1] mt-[16px] mb-2">Farm Ledger</h1>
           <p className="text-sm font-medium text-white/40">Verified operational outflow stream.</p>
         </header>
 

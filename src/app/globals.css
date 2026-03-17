@@ -140,11 +140,9 @@
 
 /* MOBILE NEURAL THEME */
 .mobile-neural-screen {
-  @apply bg-[#020617] min-h-full px-4 pt-6 pb-32 relative overflow-hidden animate-in fade-in duration-700;
-}
-
-.mobile-glass-card {
-  @apply bg-white/5 backdrop-blur-2xl border border-white/10 rounded-[24px] shadow-2xl overflow-hidden;
+  @apply bg-[#020617] min-h-full pb-32 relative overflow-hidden animate-in fade-in duration-700;
+  padding-left: 20px;
+  padding-right: 20px;
 }
 
 .mobile-neon-text {

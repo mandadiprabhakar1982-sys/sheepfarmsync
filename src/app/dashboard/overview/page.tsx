@@ -106,7 +106,10 @@ export default function OverviewPage() {
   );
 
   const MobileView = (
-    <div className="min-h-full -mx-4 -mt-4 px-4 pt-6 pb-32 bg-[#020617] relative overflow-hidden animate-in fade-in duration-1000">
+    <div 
+      className="min-h-full -mx-4 bg-[#020617] relative overflow-hidden animate-in fade-in duration-1000"
+      style={{ paddingLeft: '20px', paddingRight: '20px' }}
+    >
       {/* NEURAL BACKGROUND DECORATIONS */}
       <div className="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none">
         <div className="absolute top-[10%] right-[10%] w-[150px] h-[150px] bg-cyan-500/20 blur-[80px] rounded-full" />
@@ -118,7 +121,7 @@ export default function OverviewPage() {
       </div>
 
       <header className="mb-10 relative z-10">
-        <h1 className="text-3xl font-black text-white tracking-tight leading-none mb-2">Dashboard</h1>
+        <h1 className="text-[34px] font-[800] text-white tracking-tight leading-[1.1] mt-[16px] mb-2">Dashboard</h1>
         <p className="text-sm font-medium text-white/40">Here is an overview of your sheep farm.</p>
       </header>
 

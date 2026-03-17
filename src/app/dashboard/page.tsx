@@ -75,26 +75,29 @@ export default function DashboardPage() {
   const isAdmin = userRole === 'admin';
 
   const MobileHome = (
-    <div className="min-h-full -mx-4 -mt-4 px-4 pt-6 pb-32 bg-gradient-to-b from-[#0B2424] via-[#0F172A] to-[#020617] animate-in fade-in duration-1000 relative overflow-hidden">
+    <div 
+      className="min-h-full -mx-4 bg-gradient-to-b from-[#0B2424] via-[#0F172A] to-[#020617] animate-in fade-in duration-1000 relative overflow-hidden"
+      style={{ paddingLeft: '20px', paddingRight: '20px' }}
+    >
       {/* BACKGROUND ACCENTS */}
       <div className="absolute top-[-10%] -right-[20%] w-[80%] h-[40%] bg-primary/10 blur-[120px] rounded-full" />
       <div className="absolute bottom-0 -left-[20%] w-[80%] h-[40%] bg-blue-500/5 blur-[120px] rounded-full" />
 
       {/* HEADER SECTION */}
-      <header className="mb-10 px-2 relative z-10">
+      <header className="mb-10 relative z-10">
         <div className="flex items-center gap-4 mb-2">
-          <div className="h-10 w-10 rounded-xl bg-primary/20 backdrop-blur-xl border border-primary/30 flex items-center justify-center">
+          <div className="h-10 w-10 rounded-xl bg-primary/20 backdrop-blur-xl border border-primary/30 flex items-center justify-center mt-[16px]">
             <Zap className="h-5 w-5 text-primary shadow-[0_0_15px_rgba(15,165,160,0.5)]" />
           </div>
           <div>
-            <h1 className="text-2xl font-black text-white tracking-tight leading-none">Mpr Hub</h1>
+            <h1 className="text-[34px] font-[800] text-white tracking-tight leading-[1.1] mt-[16px]">Mpr Hub</h1>
             <p className="text-[9px] font-black text-primary uppercase tracking-[0.3em] mt-1">Tactical Enterprise Node</p>
           </div>
         </div>
       </header>
 
       {/* PRIMARY NODE: FARM LEDGER (Center Anchor) */}
-      <section className="mb-8 px-2 relative z-10">
+      <section className="mb-8 relative z-10">
         <Link href="/dashboard/farm-ledger">
           <div className="hub-node hub-glow-teal p-8 border-primary/20 group">
             <div className="flex justify-between items-start mb-6">
@@ -117,7 +120,7 @@ export default function DashboardPage() {
       </section>
 
       {/* FINANCIAL GRID (Floating Elements) */}
-      <section className="mb-10 px-2 relative z-10">
+      <section className="mb-10 relative z-10">
         <div className="grid grid-cols-2 gap-4">
           <Link href="/dashboard/monthly-ledger" className="hub-node hub-glow-teal p-5">
             <div className="h-10 w-10 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center text-primary mb-4">
@@ -154,7 +157,7 @@ export default function DashboardPage() {
       </section>
 
       {/* CORE NODES (Interlocking) */}
-      <section className="px-2 relative z-10">
+      <section className="relative z-10">
         <h3 className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] mb-6 px-2">Sub-Process Systems</h3>
         <div className="grid grid-cols-4 gap-4">
           {[
@@ -171,7 +174,7 @@ export default function DashboardPage() {
       </section>
 
       {/* ACTION TRIGGER */}
-      <div className="mt-12 px-2 relative z-10">
+      <div className="mt-12 relative z-10">
         <Button onClick={() => router.push('/dashboard/expenses')} className="w-full h-16 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-black uppercase tracking-[0.2em] shadow-2xl text-xs gap-3">
           <Plus className="h-5 w-5 text-primary" /> Log Entry
         </Button>
