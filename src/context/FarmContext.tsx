@@ -223,58 +223,33 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     updateDocumentNonBlocking(docRef, { ...data, updatedAt: serverTimestamp() });
   }, [user, firestore]);
 
-  const stats = useMemo(() => {
-    const deadCount = (qDead || []).reduce((s, a) => s + Number(a.sheepCount || 0), 0);
-    const pCount = (qPurchases || []).reduce((s, p) => s + Number(p.animalCount || 0), 0);
-    const sCount = (qSales || []).reduce((s, x) => s + Number(x.animalCount || 0), 0);
-    const fCost = (qFeed || []).reduce((s, f) => s + Number(f.cost || 0), 0);
-    const lCost = (qLabor || []).reduce((s, l) => s + Number(l.totalLaborCosts || 0), 0);
-    const mCost = (qMedicine || []).reduce((s, m) => s + Number(m.totalAmountSpent || 0), 0) + (qHealth || []).reduce((s, h) => s + Number(h.cost || 0), 0);
-    const eCost = (qExpenses || []).reduce((s, e) => s + Number(e.amount || 0), 0);
-    const pTotal = (qPurchases || []).reduce((s, p) => s + Number(p.purchasePrice || 0) + Number(p.transportCost || 0), 0);
-    const rev = (qSales || []).reduce((s, x) => s + Number(x.salePrice || 0), 0);
-    const rec = (qSales || []).reduce((s, x) => s + Number(x.outstandingDuesFromBuyer || 0), 0);
-    const pay = (qPurchases || []).reduce((s, p) => s + Number(p.dueAmount || 0), 0);
-    
-    const blBal = (qLoans || []).reduce((s, l) => s + Number(l.balanceLoan || 0), 0);
-    const ccBal = (qCards || []).reduce((s, c) => s + Number(c.outstandingAmount || 0), 0);
-    const pdBal = (qDebts || []).reduce((s, d) => s + Number(d.amount || 0), 0);
-    const mEmiTotal = (qLoans || []).reduce((s, l) => s + Number(l.monthlyEmi || 0), 0);
+  // GRANULAR STATS COMPUTATION FOR PERFORMANCE
+  const deadCount = useMemo(() => (qDead || []).reduce((s, a) => s + Number(a.sheepCount || 0), 0), [qDead]);
+  const pCount = useMemo(() => (qPurchases || []).reduce((s, p) => s + Number(p.animalCount || 0), 0), [qPurchases]);
+  const sCount = useMemo(() => (qSales || []).reduce((s, x) => s + Number(x.animalCount || 0), 0), [qSales]);
+  const fCost = useMemo(() => (qFeed || []).reduce((s, f) => s + Number(f.cost || 0), 0), [qFeed]);
+  const lCost = useMemo(() => (qLabor || []).reduce((s, l) => s + Number(l.totalLaborCosts || 0), 0), [qLabor]);
+  const mCost = useMemo(() => (qMedicine || []).reduce((s, m) => s + Number(m.totalAmountSpent || 0), 0) + (qHealth || []).reduce((s, h) => s + Number(h.cost || 0), 0), [qMedicine, qHealth]);
+  const eCost = useMemo(() => (qExpenses || []).reduce((s, e) => s + Number(e.amount || 0), 0), [qExpenses]);
+  const pTotal = useMemo(() => (qPurchases || []).reduce((s, p) => s + Number(p.purchasePrice || 0) + Number(p.transportCost || 0), 0), [qPurchases]);
+  const rev = useMemo(() => (qSales || []).reduce((s, x) => s + Number(x.salePrice || 0), 0), [qSales]);
+  const rec = useMemo(() => (qSales || []).reduce((s, x) => s + Number(x.outstandingDuesFromBuyer || 0), 0), [qSales]);
+  const pay = useMemo(() => (qPurchases || []).reduce((s, p) => s + Number(p.dueAmount || 0), 0), [qPurchases]);
+  
+  const blBal = useMemo(() => (qLoans || []).reduce((s, l) => s + Number(l.balanceLoan || 0), 0), [qLoans]);
+  const ccBal = useMemo(() => (qCards || []).reduce((s, c) => s + Number(c.outstandingAmount || 0), 0), [qCards]);
+  const pdBal = useMemo(() => (qDebts || []).reduce((s, d) => s + Number(d.amount || 0), 0), [qDebts]);
+  const mEmiTotal = useMemo(() => (qLoans || []).reduce((s, l) => s + Number(l.monthlyEmi || 0), 0), [qLoans]);
 
-    const mIncome = (qIncomes || []).reduce((s, i) => s + Number(i.amount || 0), 0);
-    const mExpense = (qMExpenses || []).reduce((s, e) => s + Number(e.amount || 0), 0);
-    const totalCashReceivedFromSales = (qSales || []).reduce((s, x) => s + Number(x.amountReceived || 0), 0);
+  const mIncome = useMemo(() => (qIncomes || []).reduce((s, i) => s + Number(i.amount || 0), 0), [qIncomes]);
+  const mExpense = useMemo(() => (qMExpenses || []).reduce((s, e) => s + Number(e.amount || 0), 0), [qMExpenses]);
+  const totalCashReceivedFromSales = useMemo(() => (qSales || []).reduce((s, x) => s + Number(x.amountReceived || 0), 0), [qSales]);
 
-    const trackedCount = (qTracked || []).length;
-    const totalTrackedWeight = (qTracked || []).reduce((acc, s) => acc + Number(s.currentWeight || 0), 0);
-    const avgWt = trackedCount > 0 ? totalTrackedWeight / trackedCount : 0;
-    const liveSheepCount = Math.max(0, pCount - sCount - deadCount);
-    const dailyFeedTotal = avgWt * 0.04 * liveSheepCount;
-
-    return { 
-      totalSheep: liveSheepCount,
-      totalTracked: trackedCount,
-      totalExpenses: pTotal + fCost + mCost + lCost + eCost, 
-      totalSales: rev,
-      totalDead: deadCount,
-      totalFeedCost: fCost,
-      totalLaborCost: lCost,
-      totalMedicineCost: mCost,
-      totalFarmExpenses: eCost,
-      totalReceivables: rev > 0 ? rec : 0, 
-      totalPayables: pay,
-      totalPurchaseCost: pTotal,
-      avgWeight: avgWt,
-      totalDailyFeed: dailyFeedTotal,
-      totalLoanBalance: blBal,
-      totalCreditCardDebt: ccBal,
-      totalPrivateDebt: pdBal,
-      totalMonthlyEmi: mEmiTotal,
-      totalMonthlyIncome: mIncome,
-      totalMonthlyExpense: mExpense,
-      totalCashInflow: mIncome + totalCashReceivedFromSales
-    };
-  }, [qDead, qPurchases, qSales, qFeed, qLabor, qMedicine, qHealth, qExpenses, qTracked, qLoans, qCards, qDebts, qIncomes, qMExpenses]);
+  const trackedCount = useMemo(() => (qTracked || []).length, [qTracked]);
+  const totalTrackedWeight = useMemo(() => (qTracked || []).reduce((acc, s) => acc + Number(s.currentWeight || 0), 0), [qTracked]);
+  const avgWt = useMemo(() => trackedCount > 0 ? totalTrackedWeight / trackedCount : 0, [trackedCount, totalTrackedWeight]);
+  const liveSheepCount = useMemo(() => Math.max(0, pCount - sCount - deadCount), [pCount, sCount, deadCount]);
+  const dailyFeedTotal = useMemo(() => avgWt * 0.04 * liveSheepCount, [avgWt, liveSheepCount]);
 
   const value = useMemo(() => ({
     purchases, addPurchase: (p: any) => upsert('livestockPurchases', undefined, p), updatePurchase: (id: string, p: any, path?: string) => upsert('livestockPurchases', id, p, path), deletePurchase: (id: string, path?: string) => remove('livestockPurchases', id, path),
@@ -295,9 +270,30 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     isLoading: isLoadingProfile || (user && !isVerified) || lPurchases || lSales || lFeed || lMedicine || lLabor || lDead || lTracked || lExpenses || lHealth || lLoans || lCards || lDebts || lIncomes || lMExpenses || lMarket,
     isLoadingProfile,
     userRole: userProfile?.role || null,
-    ...stats
+    totalSheep: liveSheepCount,
+    totalTracked: trackedCount,
+    totalExpenses: pTotal + fCost + mCost + lCost + eCost, 
+    totalSales: rev,
+    totalDead: deadCount,
+    totalFeedCost: fCost,
+    totalLaborCost: lCost,
+    totalMedicineCost: mCost,
+    totalFarmExpenses: eCost,
+    totalReceivables: rev > 0 ? rec : 0, 
+    totalPayables: pay,
+    totalPurchaseCost: pTotal,
+    avgWeight: avgWt,
+    totalDailyFeed: dailyFeedTotal,
+    totalLoanBalance: blBal,
+    totalCreditCardDebt: ccBal,
+    totalPrivateDebt: pdBal,
+    totalMonthlyEmi: mEmiTotal,
+    totalMonthlyIncome: mIncome,
+    totalMonthlyExpense: mExpense,
+    totalCashInflow: mIncome + totalCashReceivedFromSales
   }), [
-    purchases, sales, feedCosts, medicineExpenses, laborCosts, trackedSheep, deadAnimals, farmExpenses, healthTasks, bankLoans, creditCards, privateDebts, monthlyIncomes, monthlyExpenses, qMarket, stats,
+    purchases, sales, feedCosts, medicineExpenses, laborCosts, trackedSheep, deadAnimals, farmExpenses, healthTasks, bankLoans, creditCards, privateDebts, monthlyIncomes, monthlyExpenses, qMarket,
+    liveSheepCount, trackedCount, pTotal, fCost, mCost, lCost, eCost, rev, rec, pay, avgWt, dailyFeedTotal, blBal, ccBal, pdBal, mEmiTotal, mIncome, mExpense, totalCashReceivedFromSales, deadCount,
     isLoadingProfile, user, isVerified, lPurchases, lSales, lFeed, lMedicine, lLabor, lDead, lTracked, lExpenses, lHealth, lLoans, lCards, lDebts, lIncomes, lMExpenses, lMarket,
     userProfile, upsert, remove, postToMarketplace, updateMarketplaceSale, firestore, isAdmin
   ]);

@@ -1,5 +1,6 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { useFarm } from '@/context/FarmContext';
 import { useWindowDimensions } from '@/hooks/use-mobile';
 import { 
@@ -10,7 +11,6 @@ import {
   ChevronRight,
   Loader2,
   TrendingUp,
-  ArrowUpRight,
   Heart,
   Syringe,
   Baby,
@@ -20,15 +20,15 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { 
-  LineChart, 
-  Line, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer 
-} from 'recharts';
+
+// DYNAMIC IMPORTS FOR PERFORMANCE
+const ResponsiveContainer = dynamic(() => import('recharts').then(mod => mod.ResponsiveContainer), { ssr: false });
+const LineChart = dynamic(() => import('recharts').then(mod => mod.LineChart), { ssr: false });
+const Line = dynamic(() => import('recharts').then(mod => mod.Line), { ssr: false });
+const XAxis = dynamic(() => import('recharts').then(mod => mod.XAxis), { ssr: false });
+const YAxis = dynamic(() => import('recharts').then(mod => mod.YAxis), { ssr: false });
+const CartesianGrid = dynamic(() => import('recharts').then(mod => mod.CartesianGrid), { ssr: false });
+const Tooltip = dynamic(() => import('recharts').then(mod => mod.Tooltip), { ssr: false });
 
 export default function OverviewPage() {
   const { width, isHydrated } = useWindowDimensions();
@@ -38,16 +38,11 @@ export default function OverviewPage() {
   const { 
     totalSheep,
     totalFeedCost,
-    totalMedicineCost,
     trackedSheep,
     avgWeight,
     isLoading,
     totalSales
   } = useFarm();
-
-  const healthyCount = (trackedSheep || []).filter(s => s.healthStatus === 'Healthy').length;
-  const careCount = (trackedSheep || []).filter(s => s.healthStatus === 'Ill' || s.healthStatus === 'Recovering').length;
-  const pregnantCount = (trackedSheep || []).filter(s => s.notes?.toLowerCase().includes('pregnant')).length;
 
   if (isLoading || !isHydrated) {
     return (
@@ -56,6 +51,10 @@ export default function OverviewPage() {
       </div>
     );
   }
+
+  const healthyCount = (trackedSheep || []).filter(s => s.healthStatus === 'Healthy').length;
+  const careCount = (trackedSheep || []).filter(s => s.healthStatus === 'Ill' || s.healthStatus === 'Recovering').length;
+  const pregnantCount = (trackedSheep || []).filter(s => s.notes?.toLowerCase().includes('pregnant')).length;
 
   const growthData = [
     { name: 'Oct', weight: 55 },
@@ -67,7 +66,6 @@ export default function OverviewPage() {
 
   const MobileView = (
     <div className="min-h-full bg-[#020617] text-white px-5 pt-8 pb-[110px] animate-in fade-in duration-700">
-      {/* Title */}
       <div className="mb-10">
         <div className="flex items-center justify-between mb-1">
           <h2 className="text-[34px] font-[800] tracking-tight leading-none">Dashboard</h2>
@@ -79,43 +77,26 @@ export default function OverviewPage() {
         <p className="text-white/40 text-sm font-medium">Overview of Your Sheep Farm</p>
       </div>
 
-      {/* Glossy Cards Grid */}
       <div className="grid grid-cols-2 gap-4 mb-10">
-        {/* Total Sheep */}
-        <div 
-          className="glossy-card bg-gradient-to-br from-[#11c5be] to-[#0d8f89] h-[220px] flex flex-col justify-between p-5 card-inner-shadow"
-          onClick={() => router.push('/dashboard/livestock')}
-        >
+        <div className="glossy-card bg-gradient-to-br from-[#11c5be] to-[#0d8f89] h-[220px] flex flex-col justify-between p-5 card-inner-shadow" onClick={() => router.push('/dashboard/livestock')}>
           <div className="glossy-overlay" />
-          <div className="flex justify-between items-start">
-            <div className="h-10 w-10 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center">
-              <Activity className="h-5 w-5 text-white" />
-            </div>
+          <div className="h-10 w-10 rounded-full bg-white/20 border border-white/30 flex items-center justify-center">
+            <Activity className="h-5 w-5 text-white" />
           </div>
           <div>
             <p className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-1">Total Sheep</p>
             <div className="flex items-end gap-2">
               <span className="text-5xl font-black tracking-tighter leading-none">{totalSheep}</span>
-              <div className="mb-1 flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/20 text-[10px] font-black">
-                +12 <TrendingUp className="h-2.5 w-2.5" />
-              </div>
+              <div className="mb-1 flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/20 text-[10px] font-black">+12 <TrendingUp className="h-2.5 w-2.5" /></div>
             </div>
           </div>
-          <button className="w-full rounded-2xl bg-white/10 py-3 font-black text-[9px] uppercase tracking-[0.2em] border border-white/10 flex items-center justify-center gap-2">
-            View Records <ChevronRight className="h-3 w-3" />
-          </button>
+          <button className="w-full rounded-2xl bg-white/10 py-3 font-black text-[9px] uppercase tracking-[0.2em] border border-white/10 flex items-center justify-center gap-2">View Records <ChevronRight className="h-3 w-3" /></button>
         </div>
 
-        {/* Health Alerts */}
-        <div 
-          className="glossy-card bg-gradient-to-br from-[#db2777] to-[#9d174d] h-[220px] flex flex-col justify-between p-5 card-inner-shadow"
-          onClick={() => router.push('/dashboard/medicine')}
-        >
+        <div className="glossy-card bg-gradient-to-br from-[#db2777] to-[#9d174d] h-[220px] flex flex-col justify-between p-5 card-inner-shadow" onClick={() => router.push('/dashboard/medicine')}>
           <div className="glossy-overlay" />
-          <div className="flex justify-between items-start">
-            <div className="h-10 w-10 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center">
-              <HeartPulse className="h-5 w-5 text-white" />
-            </div>
+          <div className="h-10 w-10 rounded-full bg-white/20 border border-white/30 flex items-center justify-center">
+            <HeartPulse className="h-5 w-5 text-white" />
           </div>
           <div>
             <p className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-1">Health Alerts</p>
@@ -123,7 +104,6 @@ export default function OverviewPage() {
               <span className="text-5xl font-black tracking-tighter leading-none">8</span>
               <span className="px-2.5 py-1 rounded-full bg-white text-[#db2777] text-[10px] font-black uppercase tracking-widest">Alert</span>
             </div>
-            {/* Multi-segment status bar */}
             <div className="flex gap-1 mt-3">
               <div className="h-1 flex-1 bg-yellow-400 rounded-full" />
               <div className="h-1 flex-1 bg-yellow-400 rounded-full" />
@@ -132,72 +112,36 @@ export default function OverviewPage() {
               <div className="h-1 flex-1 bg-white/20 rounded-full" />
             </div>
           </div>
-          <button className="w-full rounded-2xl bg-white/10 py-3 font-black text-[9px] uppercase tracking-[0.2em] border border-white/10 flex items-center justify-center gap-2">
-            View Alerts <ChevronRight className="h-3 w-3" />
-          </button>
+          <button className="w-full rounded-2xl bg-white/10 py-3 font-black text-[9px] uppercase tracking-[0.2em] border border-white/10 flex items-center justify-center gap-2">View Alerts <ChevronRight className="h-3 w-3" /></button>
         </div>
 
-        {/* Feed Cost */}
-        <div 
-          className="glossy-card bg-gradient-to-br from-[#f59e0b] to-[#d97706] h-[220px] flex flex-col justify-between p-5 card-inner-shadow"
-          onClick={() => router.push('/dashboard/feed')}
-        >
+        <div className="glossy-card bg-gradient-to-br from-[#f59e0b] to-[#d97706] h-[220px] flex flex-col justify-between p-5 card-inner-shadow" onClick={() => router.push('/dashboard/feed')}>
           <div className="glossy-overlay" />
-          <div className="flex justify-between items-start">
-            <div className="h-10 w-10 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center">
-              <IndianRupee className="h-5 w-5 text-white" />
-            </div>
+          <div className="h-10 w-10 rounded-full bg-white/20 border border-white/30 flex items-center justify-center">
+            <IndianRupee className="h-5 w-5 text-white" />
           </div>
           <div className="relative">
-            {/* Coins Illustration Placeholder */}
-            <div className="absolute -top-10 right-0 flex flex-col items-center">
-              <div className="h-4 w-10 bg-yellow-300/40 rounded-full blur-[2px]" />
-              <div className="h-4 w-10 bg-yellow-400/60 rounded-full -mt-2 blur-[1px]" />
-              <div className="h-4 w-10 bg-yellow-500 rounded-full -mt-2" />
-            </div>
             <p className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-1">Feed Cost</p>
             <div className="text-3xl font-black tracking-tight leading-none">₹{totalFeedCost.toLocaleString()}</div>
             <div className="mt-2 inline-flex items-center px-2.5 py-1 rounded-full bg-[#115e59] text-[9px] font-black text-[#5eead4] uppercase tracking-widest">This Month</div>
           </div>
-          <button className="w-full rounded-2xl bg-white/10 py-3 font-black text-[9px] uppercase tracking-[0.2em] border border-white/10 flex items-center justify-center gap-2">
-            View Reports <ChevronRight className="h-3 w-3" />
-          </button>
+          <button className="w-full rounded-2xl bg-white/10 py-3 font-black text-[9px] uppercase tracking-[0.2em] border border-white/10 flex items-center justify-center gap-2">View Reports <ChevronRight className="h-3 w-3" /></button>
         </div>
 
-        {/* Avg Weight */}
-        <div 
-          className="glossy-card bg-gradient-to-br from-[#3b82f6] to-[#1d4ed8] h-[220px] flex flex-col justify-between p-5 card-inner-shadow overflow-hidden"
-          onClick={() => router.push('/dashboard/livestock')}
-        >
+        <div className="glossy-card bg-gradient-to-br from-[#3b82f6] to-[#1d4ed8] h-[220px] flex flex-col justify-between p-5 card-inner-shadow overflow-hidden" onClick={() => router.push('/dashboard/livestock')}>
           <div className="glossy-overlay" />
-          {/* Mini Chart Background */}
-          <div className="absolute top-1/2 left-0 right-0 h-[60px] opacity-30 pointer-events-none">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={growthData}>
-                <Line type="monotone" dataKey="weight" stroke="#fff" strokeWidth={3} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-          
-          <div className="flex justify-between items-start">
-            <div className="h-10 w-10 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center">
-              <BarChart3 className="h-5 w-5 text-white" />
-            </div>
+          <div className="h-10 w-10 rounded-full bg-white/20 border border-white/30 flex items-center justify-center">
+            <BarChart3 className="h-5 w-5 text-white" />
           </div>
           <div>
             <p className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-1">Avg. Weight</p>
             <div className="text-4xl font-black tracking-tight leading-none mb-2">{avgWeight.toFixed(1)} <span className="text-xl">kg</span></div>
-            <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#5eead4]/20 text-[10px] font-black text-[#5eead4]">
-              +5.2% <TrendingUp className="h-2.5 w-2.5" />
-            </div>
+            <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#5eead4]/20 text-[10px] font-black text-[#5eead4]">+5.2% <TrendingUp className="h-2.5 w-2.5" /></div>
           </div>
-          <button className="w-full rounded-2xl bg-white/10 py-3 font-black text-[9px] uppercase tracking-[0.2em] border border-white/10 flex items-center justify-center gap-2">
-            Weight Chart <ChevronRight className="h-3 w-3" />
-          </button>
+          <button className="w-full rounded-2xl bg-white/10 py-3 font-black text-[9px] uppercase tracking-[0.2em] border border-white/10 flex items-center justify-center gap-2">Weight Chart <ChevronRight className="h-3 w-3" /></button>
         </div>
       </div>
 
-      {/* Sub-Stats Row */}
       <div className="p-1 rounded-[2.5rem] bg-white/5 border border-white/10 shadow-2xl flex items-center h-[90px] mb-10 overflow-hidden">
         {[
           { icon: Heart, label: 'Healthy', val: healthyCount, color: '#14d5c7' },
@@ -221,62 +165,30 @@ export default function OverviewPage() {
 
   const DesktopView = (
     <div className="space-y-6 animate-in fade-in duration-700 pb-12 max-w-5xl mx-auto">
-      <div className="px-2 pt-2">
-        <p className="text-[#2F4F4F] text-sm font-medium">Here is an overview of your sheep farm.</p>
-      </div>
-
+      <div className="px-2 pt-2"><p className="text-[#2F4F4F] text-sm font-medium">Here is an overview of your sheep farm.</p></div>
       <div className="grid grid-cols-4 gap-6">
         <div className="bg-white rounded-[28px] border border-[#D9D9D9] p-5 h-[220px] shadow-sm border-l-[5px] border-l-[#0FA5A0] flex flex-col justify-between overflow-hidden">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-[#0FA5A0] flex items-center justify-center text-white"><Activity className="h-5 w-5" /></div>
-            <h3 className="text-sm font-bold text-[#2F4F4F]">Total Sheep</h3>
-          </div>
-          <div className="space-y-4">
-            <p className="text-3xl font-black text-[#176E6C]">{totalSheep}</p>
-            <Button onClick={() => router.push('/dashboard/livestock')} className="w-full bg-[#176E6C] text-white text-[9px] font-black uppercase tracking-widest rounded-xl">View Sheep Records</Button>
-          </div>
+          <div className="flex items-center gap-3"><div className="h-10 w-10 rounded-full bg-[#0FA5A0] flex items-center justify-center text-white"><Activity className="h-5 w-5" /></div><h3 className="text-sm font-bold text-[#2F4F4F]">Total Sheep</h3></div>
+          <div className="space-y-4"><p className="text-3xl font-black text-[#176E6C]">{totalSheep}</p><Button onClick={() => router.push('/dashboard/livestock')} className="w-full bg-[#176E6C] text-white text-[9px] font-black uppercase tracking-widest rounded-xl">View Sheep Records</Button></div>
         </div>
-
         <div className="bg-white rounded-[28px] border border-[#D9D9D9] p-5 h-[220px] shadow-sm border-l-[5px] border-l-[#43A047] flex flex-col justify-between overflow-hidden">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-[#43A047] flex items-center justify-center text-white"><HeartPulse className="h-5 w-5" /></div>
-            <h3 className="text-sm font-bold text-[#2F4F4F]">Health Records</h3>
-          </div>
-          <div className="space-y-4">
-            <p className="text-3xl font-black text-[#176E6C]">Stable</p>
-            <Button onClick={() => router.push('/dashboard/medicine')} className="w-full bg-[#176E6C] text-white text-[9px] font-black uppercase tracking-widest rounded-xl">View Health Alerts</Button>
-          </div>
+          <div className="flex items-center gap-3"><div className="h-10 w-10 rounded-full bg-[#43A047] flex items-center justify-center text-white"><HeartPulse className="h-5 w-5" /></div><h3 className="text-sm font-bold text-[#2F4F4F]">Health Records</h3></div>
+          <div className="space-y-4"><p className="text-3xl font-black text-[#176E6C]">Stable</p><Button onClick={() => router.push('/dashboard/medicine')} className="w-full bg-[#176E6C] text-white text-[9px] font-black uppercase tracking-widest rounded-xl">View Health Alerts</Button></div>
         </div>
-
         <div className="bg-white rounded-[28px] border border-[#D9D9D9] p-5 h-[220px] shadow-sm border-l-[5px] border-l-[#0FA5A0] flex flex-col justify-between overflow-hidden">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-[#0FA5A0] flex items-center justify-center text-white"><IndianRupee className="h-5 w-5" /></div>
-            <h3 className="text-sm font-bold text-[#2F4F4F]">Feed Cost</h3>
-          </div>
-          <div className="space-y-4">
-            <p className="text-3xl font-black text-[#176E6C]">₹{totalFeedCost.toLocaleString()}</p>
-            <Button onClick={() => router.push('/dashboard/feed')} className="w-full bg-[#176E6C] text-white text-[9px] font-black uppercase tracking-widest rounded-xl">View Full Report</Button>
-          </div>
+          <div className="flex items-center gap-3"><div className="h-10 w-10 rounded-full bg-[#0FA5A0] flex items-center justify-center text-white"><IndianRupee className="h-5 w-5" /></div><h3 className="text-sm font-bold text-[#2F4F4F]">Feed Cost</h3></div>
+          <div className="space-y-4"><p className="text-3xl font-black text-[#176E6C]">₹{totalFeedCost.toLocaleString()}</p><Button onClick={() => router.push('/dashboard/feed')} className="w-full bg-[#176E6C] text-white text-[9px] font-black uppercase tracking-widest rounded-xl">View Full Report</Button></div>
         </div>
-
         <div className="bg-white rounded-[28px] border border-[#D9D9D9] p-5 h-[220px] shadow-sm border-l-[5px] border-l-[#0FA5A0] flex flex-col justify-between overflow-hidden">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-[#0FA5A0] flex items-center justify-center text-white"><BarChart3 className="h-5 w-5" /></div>
-            <h3 className="text-sm font-bold text-[#2F4F4F]">Avg Weight</h3>
-          </div>
-          <div className="space-y-4">
-            <p className="text-3xl font-black text-[#176E6C]">{avgWeight.toFixed(1)} kg</p>
-            <Button onClick={() => router.push('/dashboard/livestock')} className="w-full bg-[#176E6C] text-white text-[9px] font-black uppercase tracking-widest rounded-xl">Growth Trends</Button>
-          </div>
+          <div className="flex items-center gap-3"><div className="h-10 w-10 rounded-full bg-[#0FA5A0] flex items-center justify-center text-white"><BarChart3 className="h-5 w-5" /></div><h3 className="text-sm font-bold text-[#2F4F4F]">Avg Weight</h3></div>
+          <div className="space-y-4"><p className="text-3xl font-black text-[#176E6C]">{avgWeight.toFixed(1)} kg</p><Button onClick={() => router.push('/dashboard/livestock')} className="w-full bg-[#176E6C] text-white text-[9px] font-black uppercase tracking-widest rounded-xl">Growth Trends</Button></div>
         </div>
       </div>
 
       <Card className="rounded-xl border border-[#D9D9D9] shadow-sm bg-white overflow-hidden border-l-0">
         <CardHeader className="p-6 pb-2 flex flex-row items-center justify-between">
           <CardTitle className="text-base font-black text-[#2F4F4F]">Weight Growth</CardTitle>
-          <Button variant="link" className="text-[#0FA5A0] font-black text-[10px] uppercase p-0 h-auto" onClick={() => router.push('/dashboard/livestock')}>
-            View All <ChevronRight className="h-3 w-3 ml-1" />
-          </Button>
+          <Button variant="link" className="text-[#0FA5A0] font-black text-[10px] uppercase p-0 h-auto" onClick={() => router.push('/dashboard/livestock')}>View All <ChevronRight className="h-3 w-3 ml-1" /></Button>
         </CardHeader>
         <CardContent className="p-6 pt-4 grid grid-cols-2 gap-8">
           <div className="h-[200px] w-full">
@@ -293,10 +205,7 @@ export default function OverviewPage() {
           <div className="space-y-3">
             {(trackedSheep || []).slice(0, 5).map((sheep) => (
               <div key={sheep.id} className="flex items-center justify-between py-2 border-b border-slate-50 last:border-none">
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-black text-[#0FA5A0]">#{sheep.tagId}</span>
-                  <span className="text-xs font-bold text-slate-600">{sheep.breed || 'Sheep'}</span>
-                </div>
+                <div className="flex items-center gap-3"><span className="text-sm font-black text-[#0FA5A0]">#{sheep.tagId}</span><span className="text-xs font-bold text-slate-600">{sheep.breed || 'Sheep'}</span></div>
                 <span className="text-[10px] font-bold text-slate-400">{sheep.registrationDate || '04/20/2024'}</span>
               </div>
             ))}

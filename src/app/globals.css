@@ -80,6 +80,7 @@
 
 .premium-card {
   @apply bg-white rounded-[12px] border border-[#D9D9D9] shadow-[0_4px_12px_rgba(0,0,0,0.08)] transition-all duration-300;
+  will-change: transform, box-shadow;
 }
 
 .premium-card:hover {
@@ -111,9 +112,10 @@
   @apply text-[10px] font-bold uppercase tracking-[0.3em] text-[#0FA5A0]/60;
 }
 
-/* HIGH FIDELITY GLOSSY STYLES */
+/* HIGH FIDELITY GLOSSY STYLES - GPU OPTIMIZED */
 .glossy-card {
-  @apply relative overflow-hidden bg-white/5 border border-white/10 rounded-[2.5rem] transition-all active:scale-[0.98] shadow-[0_20px_50px_rgba(0,0,0,0.3)];
+  @apply relative overflow-hidden bg-white/5 border border-white/10 rounded-[28px] transition-all active:scale-[0.98] shadow-[0_20px_50px_rgba(0,0,0,0.3)];
+  will-change: transform;
 }
 
 .glossy-card::before {
@@ -130,7 +132,16 @@
 }
 
 .hub-node {
-  @apply relative overflow-hidden backdrop-blur-md bg-white/10 border border-white/20 rounded-[20px] shadow-[0_8px_32px_rgba(0,0,0,0.12)] transition-all active:scale-95;
+  @apply relative overflow-hidden bg-white/10 border border-white/20 rounded-[20px] shadow-[0_8px_32px_rgba(0,0,0,0.12)] transition-all active:scale-95;
+  will-change: transform;
+}
+
+/* Reduced blur complexity for mobile performance */
+@media (max-width: 768px) {
+  .hub-node {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
 }
 
 .hub-node::before {
