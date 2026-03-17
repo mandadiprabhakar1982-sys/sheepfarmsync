@@ -22,7 +22,7 @@ import {
   CheckCircle2,
   AlertCircle
 } from 'lucide-react';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, isValid } from 'date-fns';
 import Image from 'next/image';
 
 import { Button } from '@/components/ui/button';
@@ -54,7 +54,6 @@ import {
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import type { TrackedSheep } from '@/lib/types';
 
 const assetSchema = z.object({
@@ -84,13 +83,12 @@ export default function LivestockPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [zoomImage, setZoomImage] = useState<string | null>(null);
 
-  // Controlled Popover States for Date Pickers
+  // Controlled Popover States for Date Pickers to fix the "not changing" issue
   const [isRegDatePickerOpen, setIsRegDatePickerOpen] = useState(false);
   const [isEditRegDatePickerOpen, setIsEditRegDatePickerOpen] = useState(false);
 
   // Live Camera State
   const [isCameraActive, setIsCameraActive] = useState(false);
-  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const assetForm = useForm<AssetFormData>({
@@ -120,14 +118,12 @@ export default function LivestockPage() {
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: { facingMode: 'environment' } 
       });
-      setHasCameraPermission(true);
       setIsCameraActive(true);
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
     } catch (error) {
       console.error('Error accessing camera:', error);
-      setHasCameraPermission(false);
       toast({
         variant: 'destructive',
         title: 'Camera Access Denied',
@@ -168,7 +164,11 @@ export default function LivestockPage() {
       if (storage && data.imageUrl?.startsWith('data:')) {
         finalUrl = await uploadToStorage(storage, data.imageUrl, 'sheep_profiles');
       }
-      addTrackedSheep({ ...data, imageUrl: finalUrl || '', registrationDate: format(data.registrationDate, 'yyyy-MM-dd') });
+      addTrackedSheep({ 
+        ...data, 
+        imageUrl: finalUrl || '', 
+        registrationDate: format(data.registrationDate, 'yyyy-MM-dd') 
+      });
       assetForm.reset();
       setIsEntryDialogOpen(false);
       toast({ title: 'Record Saved', description: `Sheep ${data.tagId} synchronized.` });
@@ -187,7 +187,11 @@ export default function LivestockPage() {
       if (storage && data.imageUrl?.startsWith('data:')) {
         finalUrl = await uploadToStorage(storage, data.imageUrl, 'sheep_profiles');
       }
-      updateTrackedSheep(editingSheep.id, { ...data, imageUrl: finalUrl || '', registrationDate: format(data.registrationDate, 'yyyy-MM-dd') }, editingSheep._path);
+      updateTrackedSheep(editingSheep.id, { 
+        ...data, 
+        imageUrl: finalUrl || '', 
+        registrationDate: format(data.registrationDate, 'yyyy-MM-dd') 
+      }, editingSheep._path);
       setIsEditDialogOpen(false);
       setEditingSheep(null);
       toast({ title: 'Synchronized', description: 'Sheep records updated.' });
@@ -200,9 +204,10 @@ export default function LivestockPage() {
 
   const handleEditClick = (sheep: TrackedSheep) => {
     setEditingSheep(sheep);
+    const regDate = sheep.registrationDate ? parseISO(sheep.registrationDate) : new Date();
     editForm.reset({
       tagId: sheep.tagId,
-      registrationDate: sheep.registrationDate ? parseISO(sheep.registrationDate) : new Date(),
+      registrationDate: isValid(regDate) ? regDate : new Date(),
       gender: (sheep.gender as 'male' | 'female') || 'female',
       age: sheep.age,
       currentWeight: sheep.currentWeight,
@@ -223,7 +228,6 @@ export default function LivestockPage() {
     }
   };
 
-  // Clean up camera on unmount
   useEffect(() => {
     return () => {
       stopCamera();
@@ -266,7 +270,7 @@ export default function LivestockPage() {
             <div className="flex items-center gap-2">
               <Button 
                 onClick={() => {
-                  assetForm.reset();
+                  assetForm.reset({ registrationDate: new Date() });
                   setIsEntryDialogOpen(true);
                 }} 
                 className="hidden md:flex h-8 px-3 rounded-lg font-black uppercase tracking-widest bg-white text-[#0FA5A0] hover:bg-white/90 gap-1.5 shadow-xl border-none text-[10px]"
@@ -322,7 +326,7 @@ export default function LivestockPage() {
                     <TableCell>
                       <div className="flex flex-col">
                         <span className="text-[12px] font-bold text-slate-600">{sheep.breed || 'Standard'}</span>
-                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{sheep.age} Months • {sheep.gender}</span>
+                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{sheep.age} Months • {sheep.gender} • {sheep.registrationDate || 'N/A'}</span>
                       </div>
                     </TableCell>
                     <TableCell className="text-center">
@@ -357,7 +361,7 @@ export default function LivestockPage() {
       {/* MOBILE FAB */}
       <button 
         onClick={() => {
-          assetForm.reset();
+          assetForm.reset({ registrationDate: new Date() });
           setIsEntryDialogOpen(true);
         }}
         className="md:hidden fixed bottom-24 right-6 h-16 w-16 rounded-full bg-[#0FA5A0] text-white shadow-2xl flex items-center justify-center active:scale-90 transition-all z-[120]"
@@ -382,7 +386,7 @@ export default function LivestockPage() {
               <Form {...assetForm}>
                 <form onSubmit={assetForm.handleSubmit(onAssetSubmit)} className="space-y-8">
                   <div className="space-y-6">
-                    {/* ENHANCED CAMERA UI */}
+                    {/* CAMERA UI */}
                     <div className="flex flex-col items-center gap-4">
                       <div className="h-48 w-full max-w-[300px] rounded-[2rem] bg-neutral-100 border-2 border-dashed border-neutral-300 flex flex-col items-center justify-center overflow-hidden relative group shadow-inner">
                         {isCameraActive ? (
@@ -501,7 +505,7 @@ export default function LivestockPage() {
               <Form {...editForm}>
                 <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-8">
                   <div className="space-y-6">
-                    {/* IMAGE UPLOAD UI */}
+                    {/* IMAGE PREVIEW */}
                     <div className="flex flex-col items-center gap-4">
                       <div className="h-48 w-full max-w-[300px] rounded-[2rem] bg-neutral-100 border-2 border-dashed border-neutral-300 flex flex-col items-center justify-center overflow-hidden relative group shadow-inner">
                         {isCameraActive ? (
