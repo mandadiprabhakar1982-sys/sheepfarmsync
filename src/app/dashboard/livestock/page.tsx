@@ -555,9 +555,10 @@ export default function LivestockPage() {
                               selected={field.value} 
                               onSelect={(date) => { 
                                 if (date) { 
-                                  field.onChange(date); 
-                                  // Snappy selection: close immediately
-                                  setIsRegDatePickerOpen(false); 
+                                  field.onChange(new Date(date));
+                                  setTimeout(() => {
+                                    setIsRegDatePickerOpen(false); 
+                                  }, 50);
                                 } 
                               }} 
                               fromDate={new Date(2024, 0, 1)}
@@ -693,8 +694,10 @@ export default function LivestockPage() {
                               selected={field.value} 
                               onSelect={(date) => { 
                                 if (date) { 
-                                  field.onChange(date); 
-                                  setIsEditRegDatePickerOpen(false); 
+                                  field.onChange(new Date(date));
+                                  setTimeout(() => {
+                                    setIsEditRegDatePickerOpen(false); 
+                                  }, 50);
                                 } 
                               }} 
                               fromDate={new Date(2024, 0, 1)}
