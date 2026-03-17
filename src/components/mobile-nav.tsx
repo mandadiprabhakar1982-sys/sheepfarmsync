@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -6,14 +7,11 @@ import { cn } from '@/lib/utils';
 import { 
   Home as HomeIcon,
   Users, 
-  LayoutPanelLeft,
-  Menu
+  BarChart3,
+  LayoutGrid
 } from 'lucide-react';
 import { useSidebar } from '@/components/ui/sidebar';
 
-/**
- * @fileOverview Native-style bottom navigation matching the reference image.
- */
 export function MobileNav() {
   const pathname = usePathname();
   const { setOpenMobile } = useSidebar();
@@ -21,13 +19,13 @@ export function MobileNav() {
   const navItems = [
     { href: '/dashboard', label: 'Dashboard', icon: HomeIcon, type: 'link' as const },
     { href: '/dashboard/livestock', label: 'Sheep Records', icon: Users, type: 'link' as const },
-    { href: '/dashboard/farm-ledger', label: 'Reports', icon: LayoutPanelLeft, type: 'link' as const },
-    { label: 'Menu', icon: Menu, type: 'button' as const, onClick: () => setOpenMobile(true) },
+    { href: '/dashboard/farm-ledger', label: 'Reports', icon: BarChart3, type: 'link' as const },
+    { label: 'Menu', icon: LayoutGrid, type: 'button' as const, onClick: () => setOpenMobile(true) },
   ];
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white border-t border-[#D9D9D9] shadow-[0_-4px_12px_rgba(0,0,0,0.04)] px-2">
-      <div className="flex items-center justify-between h-16 max-w-lg mx-auto">
+    <div className="md:hidden fixed bottom-0 left-0 right-0 z-[100] bg-[#020617]/80 backdrop-blur-2xl border-t border-white/5 px-2">
+      <div className="flex items-center justify-between h-20 max-w-lg mx-auto">
         {navItems.map((item, index) => {
           const Icon = item.icon;
           
@@ -41,16 +39,19 @@ export function MobileNav() {
                 key={index} 
                 href={item.href!}
                 className={cn(
-                  "flex flex-col items-center justify-center flex-1 gap-1 transition-all active:scale-90 h-full",
-                  isActive ? "text-[#0FA5A0]" : "text-slate-400"
+                  "flex flex-col items-center justify-center flex-1 gap-1.5 transition-all active:scale-90 h-full",
+                  isActive ? "text-cyan-400" : "text-white/30"
                 )}
               >
-                <div className="p-1">
+                <div className={cn(
+                  "p-2 rounded-xl transition-all",
+                  isActive ? "bg-cyan-400/10 shadow-[0_0_15px_rgba(34,211,238,0.2)]" : ""
+                )}>
                   <Icon className={cn("h-5 w-5", isActive ? "stroke-[2.5px]" : "stroke-[2px]")} />
                 </div>
                 <span className={cn(
-                  "text-[9px] font-bold tracking-tight leading-none",
-                  isActive ? "text-[#0FA5A0]" : "text-slate-400"
+                  "text-[9px] font-black tracking-widest uppercase leading-none",
+                  isActive ? "text-cyan-400 opacity-100" : "text-white/30 opacity-60"
                 )}>
                   {item.label}
                 </span>
@@ -58,25 +59,22 @@ export function MobileNav() {
             );
           }
 
-          // Menu button
           return (
             <button 
               key={index} 
               onClick={item.onClick}
-              className="flex flex-col items-center justify-center flex-1 gap-1 transition-all active:scale-90 h-full text-slate-400"
+              className="flex flex-col items-center justify-center flex-1 gap-1.5 transition-all active:scale-90 h-full text-white/30"
             >
-              <div className="p-1">
+              <div className="p-2 rounded-xl">
                 <Icon className="h-5 w-5 stroke-[2px]" />
               </div>
-              <span className="text-[9px] font-bold tracking-tight leading-none">
+              <span className="text-[9px] font-black tracking-widest uppercase leading-none opacity-60">
                 {item.label}
               </span>
             </button>
           );
         })}
       </div>
-      
-      {/* Bottom spacer for iOS Home Indicator */}
       <div className="h-[env(safe-area-inset-bottom)]" />
     </div>
   );

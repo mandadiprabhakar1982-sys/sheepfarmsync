@@ -1,3 +1,4 @@
+
 'use client';
 
 import { UserNav } from '@/components/user-nav';
@@ -11,10 +12,6 @@ import { useState, useEffect } from 'react';
 import { Logo } from '@/components/logo';
 import { cn } from '@/lib/utils';
 
-/**
- * @fileOverview Gatekeeper Layout.
- * Refined for high-fidelity FarmAudit mobile header and bottom navigation.
- */
 export default function DashboardLayout({
   children,
 }: {
@@ -24,7 +21,6 @@ export default function DashboardLayout({
   const { width, isHydrated } = useWindowDimensions();
   const isMobile = isHydrated ? width < 768 : false;
 
-  // AUTHENTICATION & HYDRATION GATE
   if (isLoadingProfile || !isHydrated) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-white fixed inset-0 z-[9999]">
@@ -39,24 +35,27 @@ export default function DashboardLayout({
   return (
     <SidebarProvider>
       <div className="app-container dashboard-backdrop bg-[#F5F7F8]">
-        
-        {/* DESKTOP VIEW: Sidebar is visible if width > 768 */}
         {!isMobile && <AppSidebar />}
 
         <SidebarInset className="flex flex-col h-full bg-transparent overflow-hidden">
-          {/* MOBILE HEADER - Matching Reference Image */}
+          {/* MOBILE HEADER - HIGH FIDELITY SYNC */}
           {isMobile ? (
-            <header className="h-16 bg-[#0B8F8A] px-6 flex items-center justify-between shrink-0 z-50">
+            <header className="h-16 bg-[#020617] px-6 flex items-center justify-between shrink-0 z-50 border-b border-white/5">
               <div className="flex items-center gap-3">
-                <Logo className="text-white scale-90 origin-left" />
+                <div className="h-8 w-8 bg-white/10 rounded-lg flex items-center justify-center">
+                  <div className="h-4 w-4 rounded-full border-2 border-white/40 flex items-center justify-center">
+                    <div className="h-1.5 w-1.5 bg-white rounded-full" />
+                  </div>
+                </div>
+                <h1 className="text-lg font-black text-white tracking-tight">FarmAudit</h1>
               </div>
               <div className="flex items-center gap-4 text-white">
                 <div className="relative">
-                  <Bell className="h-5 w-5" />
-                  <span className="absolute -top-1 -right-1 h-4 w-4 bg-[#E53935] rounded-full text-[8px] font-black flex items-center justify-center border-2 border-[#0B8F8A]">8</span>
+                  <Bell className="h-5 w-5 text-white/60" />
+                  <span className="absolute -top-1 -right-1 h-4 w-4 bg-[#E53935] rounded-full text-[8px] font-black flex items-center justify-center border-2 border-[#020617]">8</span>
                 </div>
-                <div className="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center">
-                  <User className="h-5 w-5" />
+                <div className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center ring-1 ring-white/20">
+                  <User className="h-5 w-5 text-white/60" />
                 </div>
               </div>
             </header>
@@ -73,18 +72,16 @@ export default function DashboardLayout({
             </header>
           )}
           
-          {/* INDEPENDENT SCROLL AREA */}
           <main className={cn(
             "scroll-content",
-            isMobile ? "p-4 pb-24" : "p-12"
+            isMobile ? "p-0" : "p-12"
           )}>
-            <div className="max-w-7xl mx-auto h-full">
+            <div className={cn("max-w-7xl mx-auto h-full", isMobile ? "px-4" : "")}>
               {children}
             </div>
           </main>
         </SidebarInset>
         
-        {/* MOBILE VIEW: Tab bar and Menu trigger */}
         {isMobile && (
           <>
             <AppSidebar /> 
