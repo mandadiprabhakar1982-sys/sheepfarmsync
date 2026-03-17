@@ -491,7 +491,7 @@ export default function LivestockPage() {
             </DialogClose>
           </DialogHeader>
           <ScrollArea className="flex-1">
-            <div className="p-8 pt-10 pb-12">
+            <div className="p-8 pt-10 pb-24">
               <Form {...assetForm}>
                 <form onSubmit={assetForm.handleSubmit(onAssetSubmit)} className="space-y-10">
                   <div className="space-y-8">
@@ -633,7 +633,7 @@ export default function LivestockPage() {
             </DialogClose>
           </DialogHeader>
           <ScrollArea className="flex-1">
-            <div className="p-8 pt-10 pb-12">
+            <div className="p-8 pt-10 pb-24">
               <Form {...editForm}>
                 <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-10">
                   <div className="space-y-8">
