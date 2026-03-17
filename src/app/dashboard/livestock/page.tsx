@@ -15,16 +15,12 @@ import {
   Loader2,
   Pencil,
   Camera,
-  Maximize2,
-  Image as ImageIcon,
+  ImageIcon,
   Upload,
   Calendar as CalendarIcon,
   CheckCircle2,
   ChevronRight,
-  AlertTriangle,
-  Stethoscope,
-  Syringe,
-  ClipboardList
+  AlertTriangle
 } from 'lucide-react';
 import { format, parseISO, isValid } from 'date-fns';
 import Image from 'next/image';
@@ -39,8 +35,8 @@ import { useStorage } from '@/firebase';
 import { uploadToStorage } from '@/lib/upload';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { CardTitle, CardDescription } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Dialog,
@@ -58,7 +54,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import type { TrackedSheep } from '@/lib/types';
@@ -551,7 +547,19 @@ export default function LivestockPage() {
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-auto p-0 border-none bg-white shadow-2xl z-[150]" align="start">
-                            <Calendar mode="single" selected={field.value} onSelect={(date) => { if (date) { field.onChange(date); setIsRegDatePickerOpen(false); } }} initialFocus />
+                            <Calendar 
+                              mode="single" 
+                              selected={field.value} 
+                              onSelect={(date) => { 
+                                if (date) { 
+                                  field.onChange(date); 
+                                  setIsRegDatePickerOpen(false); 
+                                } 
+                              }} 
+                              fromDate={new Date(2024, 0, 1)}
+                              toDate={new Date(2030, 11, 31)}
+                              initialFocus 
+                            />
                           </PopoverContent>
                         </Popover>
                       </FormItem>
@@ -663,7 +671,32 @@ export default function LivestockPage() {
                   <div className="grid grid-cols-2 gap-4">
                     <FormField control={editForm.control} name="tagId" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Tag ID</Label><FormControl><Input className="h-10 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>)} />
                     <FormField control={editForm.control} name="registrationDate" render={({ field }) => (
-                      <FormItem className="flex flex-col"><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Reg. Date</Label><Popover open={isEditRegDatePickerOpen} onOpenChange={setIsEditRegDatePickerOpen}><PopoverTrigger asChild><Button variant="outline" className="h-10 rounded-xl bg-white border-slate-200 w-full text-left justify-between font-black uppercase text-[11px]">{field.value ? format(field.value, "MMM dd, yyyy") : "Pick date"}<CalendarIcon className="h-3.5 w-3.5 opacity-20" /></Button></PopoverTrigger><PopoverContent className="w-auto p-0 border-none bg-white shadow-2xl z-[150]" align="start"><Calendar mode="single" selected={field.value} onSelect={(date) => { if (date) { field.onChange(date); setIsEditRegDatePickerOpen(false); } }} initialFocus /></PopoverContent></Popover></FormItem>
+                      <FormItem className="flex flex-col">
+                        <Label className="text-[9px] font-black uppercase opacity-40 mb-1">Reg. Date</Label>
+                        <Popover open={isEditRegDatePickerOpen} onOpenChange={setIsEditRegDatePickerOpen}>
+                          <PopoverTrigger asChild>
+                            <Button variant="outline" className="h-10 rounded-xl bg-white border-slate-200 w-full text-left justify-between font-black uppercase text-[11px]">
+                              {field.value ? format(field.value, "MMM dd, yyyy") : "Pick date"}
+                              <CalendarIcon className="h-3.5 w-3.5 opacity-20" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0 border-none bg-white shadow-2xl z-[150]" align="start">
+                            <Calendar 
+                              mode="single" 
+                              selected={field.value} 
+                              onSelect={(date) => { 
+                                if (date) { 
+                                  field.onChange(date); 
+                                  setIsEditRegDatePickerOpen(false); 
+                                } 
+                              }} 
+                              fromDate={new Date(2024, 0, 1)}
+                              toDate={new Date(2030, 11, 31)}
+                              initialFocus 
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      </FormItem>
                     )} />
                   </div>
 
