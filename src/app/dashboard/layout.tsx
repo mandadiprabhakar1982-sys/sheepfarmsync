@@ -7,7 +7,6 @@ import { MobileNav } from '@/components/mobile-nav';
 import { useFarm } from '@/context/FarmContext';
 import { useWindowDimensions } from '@/hooks/use-mobile';
 import { Bell, User, Menu } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { Logo } from '@/components/logo';
 
 export default function DashboardLayout({
@@ -30,16 +29,15 @@ export default function DashboardLayout({
     );
   }
 
-  // MOBILE NEURAL ARCHITECTURE: [HEADER] -> [EXPANDED CONTENT] -> [NAV]
   if (isMobile) {
     return (
-      <div className="flex flex-col h-screen w-full bg-[#020617] overflow-hidden">
-        {/* FIXED HEADER (SafeArea equivalent) */}
+      <div className="min-h-screen w-full bg-[#020617]">
+        {/* FIXED HEADER */}
         <header 
-          className="shrink-0 bg-[#020617] px-5 flex items-center justify-between z-30 border-b border-white/5"
+          className="sticky top-0 left-0 right-0 z-30 bg-[#020617]/80 backdrop-blur-md px-5 flex items-center justify-between border-b border-white/5"
           style={{ 
             paddingTop: 'env(safe-area-inset-top)', 
-            minHeight: 'calc(64px + env(safe-area-inset-top))' 
+            height: 'calc(64px + env(safe-area-inset-top))' 
           }}
         >
           <div className="flex items-center gap-3">
@@ -59,17 +57,14 @@ export default function DashboardLayout({
           </div>
         </header>
 
-        {/* EXPANDED CONTENT (SingleChildScrollView equivalent) */}
-        <main className="flex-1 overflow-y-auto no-scrollbar px-4 pt-6 pb-10">
-          <div className="max-w-7xl mx-auto h-full">
-            {children}
-          </div>
+        {/* MAIN CONTENT AREA */}
+        <main className="px-0">
+          {children}
         </main>
 
-        {/* PINNED BOTTOM NAV (Footer equivalent) */}
+        {/* FIXED BOTTOM NAV */}
         <MobileNav />
         
-        {/* SIDEBAR FOR MOBILE (Triggered via Menu) */}
         <SidebarProvider open={false}>
           <AppSidebar />
         </SidebarProvider>
@@ -77,7 +72,6 @@ export default function DashboardLayout({
     );
   }
 
-  // DESKTOP LAYOUT
   return (
     <SidebarProvider className="bg-[#F5F7F8]">
       <AppSidebar />

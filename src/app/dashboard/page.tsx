@@ -7,7 +7,6 @@ import { useRouter } from 'next/navigation';
 import { 
   TrendingUp, 
   TrendingDown, 
-  IndianRupee, 
   Wheat, 
   Users, 
   Heart, 
@@ -15,7 +14,6 @@ import {
   Plus,
   Loader2,
   ChevronRight,
-  Zap,
   ArrowUpCircle,
   LayoutGrid,
   ShieldCheck
@@ -46,10 +44,6 @@ export default function DashboardPage() {
     totalExpenses, 
     totalReceivables, 
     totalPayables, 
-    totalFeedCost,
-    totalLaborCost,
-    totalMedicineCost,
-    totalFarmExpenses,
     totalCashInflow,
     isLoading
   } = useFarm();
@@ -75,10 +69,9 @@ export default function DashboardPage() {
   const isAdmin = userRole === 'admin';
 
   const MobileHome = (
-    <div className="min-h-full bg-[#020617] text-white px-4 pt-6 animate-in fade-in duration-700">
-      {/* HEADER SECTION */}
-      <header className="mb-10">
-        <h1 className="text-[34px] font-[800] tracking-tight leading-[1.1]">Mpr Hub</h1>
+    <div className="mobile-neural-screen pb-[110px]">
+      <header className="mb-10 pt-4">
+        <h1 className="text-[34px] font-[800] text-white tracking-tight leading-[1.1]">Mpr Hub</h1>
         <p className="text-[9px] font-black text-[#14d5c7] uppercase tracking-[0.3em] mt-1">Tactical Enterprise Node</p>
       </header>
 
