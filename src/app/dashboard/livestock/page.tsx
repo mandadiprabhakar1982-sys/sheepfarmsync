@@ -497,7 +497,7 @@ export default function LivestockPage() {
                         ) : (
                           <div className="flex flex-col items-center gap-2">
                             <ImageIcon className="h-8 w-8 text-neutral-300" />
-                            <span className="text-[8px] font-black uppercase tracking-widest text-neutral-400">Profile Image Required</span>
+                            <span className="text-[8px] font-black uppercase tracking-widest text-neutral-400">PROFILE IMAGE REQUIRED</span>
                           </div>
                         )
                       )}
@@ -525,7 +525,7 @@ export default function LivestockPage() {
                         </Button>
                         <div className="relative flex-1">
                           <Button type="button" variant="outline" className="w-full h-9 text-[8px] font-black uppercase rounded-xl gap-2 border-slate-200">
-                            <Upload className="h-3 w-3" /> Library
+                            <Upload className="h-3 w-3" /> Select File
                           </Button>
                           <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer z-10" onChange={(e) => handleImageChange(e, assetForm)} />
                         </div>
@@ -544,7 +544,9 @@ export default function LivestockPage() {
                         <Popover open={isRegDatePickerOpen} onOpenChange={setIsRegDatePickerOpen}>
                           <PopoverTrigger asChild>
                             <Button variant="outline" className="h-10 rounded-xl bg-white border-slate-200 w-full text-left justify-between font-black uppercase text-[11px]">
-                              {field.value ? format(field.value, "MMM dd, yyyy") : "Pick date"}
+                              {field.value instanceof Date
+                                ? format(field.value, "MMM dd, yyyy")
+                                : "Pick date"}
                               <CalendarIcon className="h-3.5 w-3.5 opacity-20" />
                             </Button>
                           </PopoverTrigger>
@@ -579,7 +581,6 @@ export default function LivestockPage() {
                     )} />
                   </div>
 
-                  {/* SCROLL BELOW FIELDS */}
                   <div className="grid grid-cols-2 gap-4">
                     <FormField control={assetForm.control} name="age" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Age (Months)</Label><FormControl><Input type="number" placeholder="4" className="h-10 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>)} />
                     <FormField control={assetForm.control} name="currentWeight" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Weight (KG)</Label><FormControl><Input type="number" step="0.1" placeholder="20" className="h-10 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>)} />
@@ -656,7 +657,7 @@ export default function LivestockPage() {
                         ) : (
                           <div className="flex flex-col items-center gap-2">
                             <ImageIcon className="h-8 w-8 text-neutral-300" />
-                            <span className="text-[8px] font-black uppercase tracking-widest text-neutral-400">Profile Image Required</span>
+                            <span className="text-[8px] font-black uppercase tracking-widest text-neutral-400">PROFILE IMAGE REQUIRED</span>
                           </div>
                         )
                       )}
@@ -668,8 +669,8 @@ export default function LivestockPage() {
                     </div>
                     {!(isCameraActive) && (
                       <div className="flex gap-3 w-full max-w-[300px]">
-                        <Button type="button" variant="outline" onClick={startCamera} className="flex-1 h-9 text-[8px] font-black uppercase rounded-xl gap-2 border-slate-200"><Camera className="h-3 w-3" /> Camera</Button>
-                        <div className="relative flex-1"><Button type="button" variant="outline" className="w-full h-9 text-[8px] font-black uppercase rounded-xl gap-2 border-slate-200"><Upload className="h-3 w-3" /> Library</Button><input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer z-10" onChange={(e) => handleImageChange(e, editForm)} /></div>
+                        <Button type="button" variant="outline" onClick={startCamera} className="flex-1 h-9 text-[8px] font-black uppercase rounded-xl gap-2 border-slate-200"><Camera className="h-3 w-3" /> Use Camera</Button>
+                        <div className="relative flex-1"><Button type="button" variant="outline" className="w-full h-9 text-[8px] font-black uppercase rounded-xl gap-2 border-slate-200"><Upload className="h-3 w-3" /> Select File</Button><input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer z-10" onChange={(e) => handleImageChange(e, editForm)} /></div>
                       </div>
                     )}
                   </div>
@@ -683,7 +684,9 @@ export default function LivestockPage() {
                         <Popover open={isEditRegDatePickerOpen} onOpenChange={setIsEditRegDatePickerOpen}>
                           <PopoverTrigger asChild>
                             <Button variant="outline" className="h-10 rounded-xl bg-white border-slate-200 w-full text-left justify-between font-black uppercase text-[11px]">
-                              {field.value ? format(field.value, "MMM dd, yyyy") : "Pick date"}
+                              {field.value instanceof Date
+                                ? format(field.value, "MMM dd, yyyy")
+                                : "Pick date"}
                               <CalendarIcon className="h-3.5 w-3.5 opacity-20" />
                             </Button>
                           </PopoverTrigger>
