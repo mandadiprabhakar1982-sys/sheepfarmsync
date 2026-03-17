@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
@@ -155,43 +156,43 @@ export default function PurchasePage() {
   return (
     <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col relative px-4 md:px-0">
       <div className="flex-1 min-h-0 flex flex-col premium-card overflow-hidden bg-white">
-        <CardHeader className="bg-[#0FA5A0] text-white p-4 px-6 shrink-0">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-            <div className="space-y-0.5">
-              <div className="flex items-center gap-2.5">
-                <div className="p-1.5 bg-white/20 rounded-lg">
-                  <ShoppingBag className="h-5 w-5 text-white" />
+        <CardHeader className="bg-[#0FA5A0] text-white p-2.5 px-5 shrink-0">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2">
+            <div className="space-y-0">
+              <div className="flex items-center gap-2">
+                <div className="p-1 bg-white/20 rounded-lg">
+                  <ShoppingBag className="h-4 w-4 text-white" />
                 </div>
-                <CardTitle className="text-xl font-black tracking-tight leading-none uppercase text-white">Sheep Buying</CardTitle>
+                <CardTitle className="text-lg font-black tracking-tight leading-none uppercase text-white">Sheep Buying</CardTitle>
               </div>
-              <CardDescription className="text-white/60 text-[9px] font-black uppercase tracking-[0.2em] ml-9">Verified Sheep Procurement Audit</CardDescription>
+              <CardDescription className="text-white/60 text-[8px] font-black uppercase tracking-[0.2em] ml-7">Verified Sheep Procurement Audit</CardDescription>
             </div>
 
-            {/* MERGED SEARCH MATRIX */}
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/40" />
+            {/* COMPRESSED SEARCH MATRIX */}
+            <div className="relative flex-1 max-w-xs">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3 w-3 text-white/40" />
               <Input 
                 placeholder="Search Farmer or Village..." 
                 value={searchTerm} 
                 onChange={(e) => setSearchTerm(e.target.value)} 
-                className="h-9 pl-10 pr-4 rounded-xl bg-white/10 border-white/20 text-white placeholder:text-white/40 font-bold focus-visible:ring-white/20" 
+                className="h-8 pl-9 pr-3 rounded-lg bg-white/10 border-white/20 text-white placeholder:text-white/40 text-xs font-bold focus-visible:ring-white/20" 
               />
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <Button 
                 onClick={() => setIsEntryDialogOpen(true)} 
-                className="h-9 px-4 rounded-xl font-black uppercase tracking-widest bg-white text-[#0FA5A0] hover:bg-white/90 gap-2 shadow-xl border-none"
+                className="h-8 px-3 rounded-lg font-black uppercase tracking-widest bg-white text-[#0FA5A0] hover:bg-white/90 gap-1.5 shadow-xl border-none text-[10px]"
               >
-                <PlusCircle className="h-4 w-4" />
+                <PlusCircle className="h-3.5 w-3.5" />
                 Record Buy
               </Button>
               
-              <div className="px-4 py-1 bg-black/20 rounded-xl text-white flex items-center gap-3 border border-white/10">
-                <ShieldCheck className="h-4 w-4 text-emerald-400" />
+              <div className="px-3 py-0.5 bg-black/20 rounded-lg text-white flex items-center gap-2 border border-white/10">
+                <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
                 <div>
-                  <p className="text-[7px] font-black uppercase tracking-widest opacity-40 leading-none">Net Buy Spend</p>
-                  <p className="text-lg font-black tracking-tighter leading-none mt-0.5">₹{totalPurchaseCost.toLocaleString()}</p>
+                  <p className="text-[6px] font-black uppercase tracking-widest opacity-40 leading-none">Net Buy Spend</p>
+                  <p className="text-base font-black tracking-tighter leading-none mt-0.5">₹{totalPurchaseCost.toLocaleString()}</p>
                 </div>
               </div>
             </div>
