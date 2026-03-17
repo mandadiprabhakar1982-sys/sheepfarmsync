@@ -108,7 +108,7 @@ export default function OverviewPage() {
   const MobileView = (
     <div 
       className="min-h-full -mx-4 bg-[#020617] relative overflow-hidden animate-in fade-in duration-1000"
-      style={{ paddingLeft: '20px', paddingRight: '20px' }}
+      style={{ paddingLeft: '20px', paddingRight: '20px', paddingBottom: '110px' }}
     >
       {/* NEURAL BACKGROUND DECORATIONS */}
       <div className="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none">

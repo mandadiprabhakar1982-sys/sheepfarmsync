@@ -77,7 +77,7 @@ export default function DashboardPage() {
   const MobileHome = (
     <div 
       className="min-h-full -mx-4 bg-gradient-to-b from-[#0B2424] via-[#0F172A] to-[#020617] animate-in fade-in duration-1000 relative overflow-hidden"
-      style={{ paddingLeft: '20px', paddingRight: '20px' }}
+      style={{ paddingLeft: '20px', paddingRight: '20px', paddingBottom: '110px' }}
     >
       {/* BACKGROUND ACCENTS */}
       <div className="absolute top-[-10%] -right-[20%] w-[80%] h-[40%] bg-primary/10 blur-[120px] rounded-full" />
@@ -167,15 +167,18 @@ export default function DashboardPage() {
       {/* CORE NODES (Interlocking) */}
       <section className="relative z-10">
         <h3 className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] mb-6 px-2">Sub-Process Systems</h3>
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           {[
-            { icon: Wheat, href: '/dashboard/feed', glow: 'hub-glow-teal' },
-            { icon: Users, href: '/dashboard/labor', glow: 'hub-glow-teal' },
-            { icon: Heart, href: '/dashboard/medicine', glow: 'hub-glow-teal' },
-            { icon: Wallet, href: '/dashboard/expenses', glow: 'hub-glow-teal' },
+            { icon: Wheat, href: '/dashboard/feed', glow: 'hub-glow-teal', label: 'Fodder' },
+            { icon: Users, href: '/dashboard/labor', glow: 'hub-glow-teal', label: 'Labour' },
+            { icon: Heart, href: '/dashboard/medicine', glow: 'hub-glow-teal', label: 'Medical' },
+            { icon: Wallet, href: '/dashboard/expenses', glow: 'hub-glow-teal', label: 'Expenses' },
           ].map((item, i) => (
-            <Link key={i} href={item.href} className={cn("hub-node aspect-square flex items-center justify-center", item.glow)}>
-              <item.icon className="h-6 w-6 text-white/60 group-hover:text-primary transition-colors" />
+            <Link key={i} href={item.href} className={cn("hub-node h-[120px] p-5 flex flex-col justify-between", item.glow)}>
+              <div className="h-8 w-8 rounded-lg bg-white/10 flex items-center justify-center">
+                <item.icon className="h-5 w-5 text-white/60 group-hover:text-primary transition-colors" />
+              </div>
+              <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">{item.label}</span>
             </Link>
           ))}
         </div>
