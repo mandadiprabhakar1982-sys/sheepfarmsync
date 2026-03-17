@@ -5,22 +5,20 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { 
-  Home as HomeIcon,
+  LayoutDashboard,
   Users, 
   BarChart3,
   LayoutGrid
 } from 'lucide-react';
-import { useSidebar } from '@/components/ui/sidebar';
 
 export function MobileNav() {
   const pathname = usePathname();
-  const { setOpenMobile } = useSidebar();
 
   const navItems = [
-    { href: '/dashboard', label: 'Dashboard', icon: HomeIcon, type: 'link' as const },
-    { href: '/dashboard/livestock', label: 'Sheep Records', icon: Users, type: 'link' as const },
-    { href: '/dashboard/farm-ledger', label: 'Reports', icon: BarChart3, type: 'link' as const },
-    { label: 'Menu', icon: LayoutGrid, type: 'button' as const, onClick: () => setOpenMobile(true) },
+    { href: '/dashboard/overview', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/dashboard/livestock', label: 'Sheep', icon: Users },
+    { href: '/dashboard/farm-ledger', label: 'Reports', icon: BarChart3 },
+    { href: '/dashboard', label: 'Menu', icon: LayoutGrid },
   ];
 
   return (
@@ -28,50 +26,33 @@ export function MobileNav() {
       <div className="flex items-center justify-between h-20 max-w-lg mx-auto">
         {navItems.map((item, index) => {
           const Icon = item.icon;
-          
-          if (item.type === 'link') {
-            const isActive = item.href === '/dashboard' 
-              ? pathname === '/dashboard' 
-              : pathname.startsWith(item.href!);
-              
-            return (
-              <Link 
-                key={index} 
-                href={item.href!}
-                className={cn(
-                  "flex flex-col items-center justify-center flex-1 gap-1.5 transition-all active:scale-90 h-full",
-                  isActive ? "text-cyan-400" : "text-white/30"
-                )}
-              >
-                <div className={cn(
-                  "p-2 rounded-xl transition-all",
-                  isActive ? "bg-cyan-400/10 shadow-[0_0_15px_rgba(34,211,238,0.2)]" : ""
-                )}>
-                  <Icon className={cn("h-5 w-5", isActive ? "stroke-[2.5px]" : "stroke-[2px]")} />
-                </div>
-                <span className={cn(
-                  "text-[9px] font-black tracking-widest uppercase leading-none",
-                  isActive ? "text-cyan-400 opacity-100" : "text-white/30 opacity-60"
-                )}>
-                  {item.label}
-                </span>
-              </Link>
-            );
-          }
-
+          // Exact match for the Hub, prefix match for sub-pages
+          const isActive = item.href === '/dashboard' 
+            ? pathname === '/dashboard' 
+            : pathname.startsWith(item.href);
+            
           return (
-            <button 
+            <Link 
               key={index} 
-              onClick={item.onClick}
-              className="flex flex-col items-center justify-center flex-1 gap-1.5 transition-all active:scale-90 h-full text-white/30"
+              href={item.href}
+              className={cn(
+                "flex flex-col items-center justify-center flex-1 gap-1.5 transition-all active:scale-90 h-full",
+                isActive ? "text-cyan-400" : "text-white/30"
+              )}
             >
-              <div className="p-2 rounded-xl">
-                <Icon className="h-5 w-5 stroke-[2px]" />
+              <div className={cn(
+                "p-2 rounded-xl transition-all",
+                isActive ? "bg-cyan-400/10 shadow-[0_0_15px_rgba(34,211,238,0.2)]" : ""
+              )}>
+                <Icon className={cn("h-5 w-5", isActive ? "stroke-[2.5px]" : "stroke-[2px]")} />
               </div>
-              <span className="text-[9px] font-black tracking-widest uppercase leading-none opacity-60">
+              <span className={cn(
+                "text-[9px] font-black tracking-widest uppercase leading-none",
+                isActive ? "text-cyan-400 opacity-100" : "text-white/30 opacity-60"
+              )}>
                 {item.label}
               </span>
-            </button>
+            </Link>
           );
         })}
       </div>
