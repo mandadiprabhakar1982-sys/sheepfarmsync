@@ -62,7 +62,9 @@
         "breed": { "type": "string" },
         "gender": { "type": "string", "enum": ["male", "female"] },
         "imageUrl": { "type": "string" },
-        "registrationDate": { "type": "string", "format": "date" }
+        "registrationDate": { "type": "string", "format": "date" },
+        "color": { "type": "string" },
+        "source": { "type": "string" }
       },
       "required": ["id", "tagId"]
     },

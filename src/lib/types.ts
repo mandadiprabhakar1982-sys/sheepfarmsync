@@ -89,6 +89,8 @@ export type TrackedSheep = {
   breed?: string;
   imageUrl?: string;
   registrationDate?: string;
+  color?: string;
+  source?: string;
   createdBy?: string;
   creatorEmail?: string;
   creatorName?: string;
