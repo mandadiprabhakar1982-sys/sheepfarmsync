@@ -21,7 +21,10 @@ import {
   Calendar as CalendarIcon,
   CheckCircle2,
   ChevronRight,
-  AlertTriangle
+  AlertTriangle,
+  Stethoscope,
+  Syringe,
+  ClipboardList
 } from 'lucide-react';
 import { format, parseISO, isValid } from 'date-fns';
 import Image from 'next/image';
@@ -38,6 +41,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Dialog,
   DialogContent,
@@ -70,6 +74,9 @@ const assetSchema = z.object({
   imageUrl: z.string().optional(),
   color: z.string().optional(),
   source: z.string().optional(),
+  healthStatus: z.string().optional(),
+  vaccination: z.string().optional(),
+  notes: z.string().optional(),
 });
 
 type AssetFormData = z.infer<typeof assetSchema>;
@@ -100,7 +107,7 @@ export default function LivestockPage() {
   const assetForm = useForm<AssetFormData>({
     resolver: zodResolver(assetSchema),
     defaultValues: { 
-      tagId: '', registrationDate: new Date(), gender: 'female', age: 6, currentWeight: 25, breed: 'Standard', imageUrl: '', color: '', source: '' 
+      tagId: '', registrationDate: new Date(), gender: 'female', age: 6, currentWeight: 25, breed: 'Standard', imageUrl: '', color: '', source: '', healthStatus: 'Healthy', vaccination: 'None', notes: '' 
     },
   });
 
@@ -223,6 +230,9 @@ export default function LivestockPage() {
       imageUrl: sheep.imageUrl || '',
       color: sheep.color || '',
       source: sheep.source || '',
+      healthStatus: sheep.healthStatus || 'Healthy',
+      vaccination: sheep.vaccination || 'None',
+      notes: sheep.notes || '',
     });
     setIsEditDialogOpen(true);
   };
@@ -453,7 +463,7 @@ export default function LivestockPage() {
 
       {/* ENROLLMENT DIALOG */}
       <Dialog open={isEntryDialogOpen} onOpenChange={(open) => { setIsEntryDialogOpen(open); if (!open) stopCamera(); }}>
-        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[90dvh] flex flex-col z-[100]">
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[88dvh] flex flex-col z-[100]">
           <DialogHeader className="bg-[#111111] p-6 text-left text-white shrink-0 relative">
             <div className="flex items-center gap-4">
               <div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]">
@@ -471,99 +481,118 @@ export default function LivestockPage() {
 
           <Form {...assetForm}>
             <form onSubmit={assetForm.handleSubmit(onAssetSubmit)} className="flex flex-col flex-1 min-h-0">
-              <div className="flex-1 overflow-y-auto p-6 space-y-8 no-scrollbar">
-                <div className="flex flex-col items-center gap-4">
-                  <div className="h-48 w-full max-w-[300px] rounded-[1.5rem] bg-neutral-50 border-2 border-dashed border-neutral-200 flex flex-col items-center justify-center overflow-hidden relative group shadow-inner">
-                    <video ref={videoRef} className={cn("w-full h-full object-cover", !isCameraActive && "hidden")} autoPlay muted playsInline />
-                    
-                    {!isCameraActive && (
-                      assetForm.watch('imageUrl') ? (
-                        <div className="relative w-full h-full">
-                          <Image src={assetForm.watch('imageUrl')!} alt="Preview" fill className="object-cover" />
-                          <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2 h-8 w-8 rounded-full shadow-lg" onClick={() => assetForm.setValue('imageUrl', '')}>
-                            <X className="h-4 w-4" />
+              <ScrollArea className="flex-1">
+                <div className="p-6 space-y-8 no-scrollbar">
+                  {/* UPLOAD WORKSTATION - Height 140px */}
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="h-[140px] w-full max-w-[300px] rounded-[1.5rem] bg-neutral-50 border-2 border-dashed border-neutral-200 flex flex-col items-center justify-center overflow-hidden relative group shadow-inner">
+                      <video ref={videoRef} className={cn("w-full h-full object-cover", !isCameraActive && "hidden")} autoPlay muted playsInline />
+                      
+                      {!isCameraActive && (
+                        assetForm.watch('imageUrl') ? (
+                          <div className="relative w-full h-full">
+                            <Image src={assetForm.watch('imageUrl')!} alt="Preview" fill className="object-cover" />
+                            <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2 h-8 w-8 rounded-full shadow-lg" onClick={() => assetForm.setValue('imageUrl', '')}>
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center gap-2">
+                            <ImageIcon className="h-8 w-8 text-neutral-300" />
+                            <span className="text-[8px] font-black uppercase tracking-widest text-neutral-400">Profile Image Required</span>
+                          </div>
+                        )
+                      )}
+
+                      {isCameraActive && (
+                        <div className="absolute bottom-2 left-0 right-0 flex justify-center">
+                          <Button type="button" onClick={capturePhoto} className="rounded-full h-10 w-10 p-0 bg-[#0FA5A0] border-4 border-white shadow-2xl">
+                            <div className="h-5 w-5 rounded-full border-2 border-white" />
                           </Button>
                         </div>
-                      ) : (
-                        <div className="flex flex-col items-center gap-2">
-                          <ImageIcon className="h-10 w-10 text-neutral-300" />
-                          <span className="text-[9px] font-black uppercase tracking-widest text-neutral-400">Profile Image Required</span>
-                        </div>
-                      )
+                      )}
+                    </div>
+
+                    {hasCameraPermission === false && (
+                      <Alert variant="destructive" className="max-w-[300px] rounded-xl py-2">
+                        <AlertTriangle className="h-3 w-3" />
+                        <AlertDescription className="text-[9px] font-bold">Allow camera access in settings.</AlertDescription>
+                      </Alert>
                     )}
 
-                    {isCameraActive && (
-                      <div className="absolute bottom-3 left-0 right-0 flex justify-center">
-                        <Button type="button" onClick={capturePhoto} className="rounded-full h-12 w-12 p-0 bg-[#0FA5A0] border-4 border-white shadow-2xl">
-                          <div className="h-6 w-6 rounded-full border-2 border-white" />
+                    {!(isCameraActive) && (
+                      <div className="flex gap-3 w-full max-w-[300px]">
+                        <Button type="button" variant="outline" onClick={startCamera} className="flex-1 h-9 text-[8px] font-black uppercase rounded-xl gap-2 border-slate-200">
+                          <Camera className="h-3 w-3" /> Use Camera
                         </Button>
+                        <div className="relative flex-1">
+                          <Button type="button" variant="outline" className="w-full h-9 text-[8px] font-black uppercase rounded-xl gap-2 border-slate-200">
+                            <Upload className="h-3 w-3" /> Library
+                          </Button>
+                          <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer z-10" onChange={(e) => handleImageChange(e, assetForm)} />
+                        </div>
                       </div>
                     )}
                   </div>
+                  
+                  {/* FORM MATRIX - PRIMARY FIELDS (Visible first) */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField control={assetForm.control} name="tagId" render={({ field }) => (
+                      <FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Sheep Tag ID</Label><FormControl><Input placeholder="e.g. 101-A" className="h-10 rounded-xl bg-white border-slate-200 font-bold text-sm px-4" {...field} /></FormControl></FormItem>
+                    )} />
+                    <FormField control={assetForm.control} name="registrationDate" render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <Label className="text-[9px] font-black uppercase opacity-40 mb-1">Reg. Date</Label>
+                        <Popover open={isRegDatePickerOpen} onOpenChange={setIsRegDatePickerOpen}>
+                          <PopoverTrigger asChild>
+                            <Button variant="outline" className="h-10 rounded-xl bg-white border-slate-200 w-full text-left justify-between font-black uppercase text-[11px]">
+                              {field.value ? format(field.value, "MMM dd, yyyy") : "Pick date"}
+                              <CalendarIcon className="h-3.5 w-3.5 opacity-20" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0 border-none bg-white shadow-2xl z-[150]" align="start">
+                            <Calendar mode="single" selected={field.value} onSelect={(date) => { if (date) { field.onChange(date); setIsRegDatePickerOpen(false); } }} initialFocus />
+                          </PopoverContent>
+                        </Popover>
+                      </FormItem>
+                    )} />
+                  </div>
 
-                  {hasCameraPermission === false && (
-                    <Alert variant="destructive" className="max-w-[300px] rounded-xl py-2">
-                      <AlertTriangle className="h-3 w-3" />
-                      <AlertDescription className="text-[9px] font-bold">Allow camera access in settings.</AlertDescription>
-                    </Alert>
-                  )}
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField control={assetForm.control} name="breed" render={({ field }) => (
+                      <FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Breed</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="h-10 rounded-xl bg-white border-slate-200 font-bold text-xs"><SelectValue placeholder="Select" /></SelectTrigger></FormControl><SelectContent className="z-[160]"><SelectItem value="Standard">Standard</SelectItem><SelectItem value="Nellore">Nellore</SelectItem><SelectItem value="Deccani">Deccani</SelectItem></SelectContent></Select></FormItem>
+                    )} />
+                    <FormField control={assetForm.control} name="gender" render={({ field }) => (
+                      <FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Gender</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="h-10 rounded-xl bg-white border-slate-200 font-bold text-xs"><SelectValue placeholder="Select" /></SelectTrigger></FormControl><SelectContent className="z-[160]"><SelectItem value="female">Female</SelectItem><SelectItem value="male">Male</SelectItem></SelectContent></Select></FormItem>
+                    )} />
+                  </div>
 
-                  {!(isCameraActive) && (
-                    <div className="flex gap-3 w-full max-w-[300px]">
-                      <Button type="button" variant="outline" onClick={startCamera} className="flex-1 h-10 text-[9px] font-black uppercase rounded-xl gap-2 border-slate-200">
-                        <Camera className="h-3.5 w-3.5" /> Use Camera
-                      </Button>
-                      <div className="relative flex-1">
-                        <Button type="button" variant="outline" className="w-full h-10 text-[9px] font-black uppercase rounded-xl gap-2 border-slate-200">
-                          <Upload className="h-3.5 w-3.5" /> Library
-                        </Button>
-                        <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer z-10" onChange={(e) => handleImageChange(e, assetForm)} />
-                      </div>
-                    </div>
-                  )}
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField control={assetForm.control} name="tagId" render={({ field }) => (
-                    <FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Sheep Tag ID</Label><FormControl><Input placeholder="e.g. 101-A" className="h-10 rounded-xl bg-white border-slate-200 font-bold text-sm px-4" {...field} /></FormControl></FormItem>
-                  )} />
-                  <FormField control={assetForm.control} name="registrationDate" render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <Label className="text-[9px] font-black uppercase opacity-40 mb-1">Reg. Date</Label>
-                      <Popover open={isRegDatePickerOpen} onOpenChange={setIsRegDatePickerOpen}>
-                        <PopoverTrigger asChild>
-                          <Button variant="outline" className="h-10 rounded-xl bg-white border-slate-200 w-full text-left justify-between font-black uppercase text-[11px]">
-                            {field.value ? format(field.value, "MMM dd, yyyy") : "Pick date"}
-                            <CalendarIcon className="h-3.5 w-3.5 opacity-20" />
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0 border-none bg-white shadow-2xl z-[150]" align="start">
-                          <Calendar mode="single" selected={field.value} onSelect={(date) => { if (date) { field.onChange(date); setIsRegDatePickerOpen(false); } }} initialFocus />
-                        </PopoverContent>
-                      </Popover>
-                    </FormItem>
-                  )} />
-                </div>
+                  {/* SCROLL BELOW FIELDS */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField control={assetForm.control} name="age" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Age (Months)</Label><FormControl><Input type="number" placeholder="4" className="h-10 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>)} />
+                    <FormField control={assetForm.control} name="currentWeight" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Weight (KG)</Label><FormControl><Input type="number" step="0.1" placeholder="20" className="h-10 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>)} />
+                  </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField control={assetForm.control} name="breed" render={({ field }) => (
-                    <FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Breed</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="h-10 rounded-xl bg-white border-slate-200 font-bold text-xs"><SelectValue placeholder="Select" /></SelectTrigger></FormControl><SelectContent className="z-[160]"><SelectItem value="Standard">Standard</SelectItem><SelectItem value="Nellore">Nellore</SelectItem><SelectItem value="Deccani">Deccani</SelectItem></SelectContent></Select></FormItem>
-                  )} />
-                  <FormField control={assetForm.control} name="gender" render={({ field }) => (
-                    <FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Gender</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="h-10 rounded-xl bg-white border-slate-200 font-bold text-xs"><SelectValue placeholder="Select" /></SelectTrigger></FormControl><SelectContent className="z-[160]"><SelectItem value="female">Female</SelectItem><SelectItem value="male">Male</SelectItem></SelectContent></Select></FormItem>
-                  )} />
-                </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField control={assetForm.control} name="color" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Color</Label><FormControl><Input placeholder="White/Brown" className="h-10 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>)} />
+                    <FormField control={assetForm.control} name="source" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Source</Label><FormControl><Input placeholder="Internal/Purchase" className="h-10 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>)} />
+                  </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField control={assetForm.control} name="age" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Age (Months)</Label><FormControl><Input type="number" placeholder="4" className="h-10 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>)} />
-                  <FormField control={assetForm.control} name="currentWeight" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Weight (KG)</Label><FormControl><Input type="number" step="0.1" placeholder="20" className="h-10 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>)} />
-                </div>
+                  <div className="space-y-6">
+                    <FormField control={assetForm.control} name="healthStatus" render={({ field }) => (
+                      <FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Health Status</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="h-10 rounded-xl bg-white border-slate-200 font-bold text-xs"><SelectValue /></SelectTrigger></FormControl><SelectContent className="z-[160]"><SelectItem value="Healthy">Healthy</SelectItem><SelectItem value="Ill">Under Treatment</SelectItem><SelectItem value="Recovering">Recovering</SelectItem><SelectItem value="Alert">Critical Alert</SelectItem></SelectContent></Select></FormItem>
+                    )} />
+                    
+                    <FormField control={assetForm.control} name="vaccination" render={({ field }) => (
+                      <FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Recent Vaccination</Label><FormControl><Input placeholder="e.g. FMD, PPR" className="h-10 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>
+                    )} />
 
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField control={assetForm.control} name="color" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Color</Label><FormControl><Input placeholder="White/Brown" className="h-10 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>)} />
-                  <FormField control={assetForm.control} name="source" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Source</Label><FormControl><Input placeholder="Internal/Purchase" className="h-10 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>)} />
+                    <FormField control={assetForm.control} name="notes" render={({ field }) => (
+                      <FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Operational Notes</Label><FormControl><Textarea placeholder="Additional biological or clinical context..." className="rounded-xl border-slate-200 min-h-[100px] font-medium text-xs p-4" {...field} /></FormControl></FormItem>
+                    )} />
+                  </div>
                 </div>
-              </div>
+              </ScrollArea>
 
               <div className="p-6 shrink-0 bg-white border-t">
                 <Button type="submit" disabled={isUploading || isCameraActive} className="w-full h-14 rounded-full bg-gradient-to-r from-[#0FA5A0] to-[#176E6C] text-white font-black uppercase tracking-[0.2em] shadow-2xl transition-all active:scale-95 border-none text-[11px]">
@@ -577,7 +606,7 @@ export default function LivestockPage() {
 
       {/* EDIT DIALOG */}
       <Dialog open={isEditDialogOpen} onOpenChange={(open) => { setIsEditDialogOpen(open); if (!open) stopCamera(); }}>
-        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[90dvh] flex flex-col z-[100]">
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[88dvh] flex flex-col z-[100]">
           <DialogHeader className="bg-[#111111] p-6 text-left text-white shrink-0 relative">
             <div className="flex items-center gap-4">
               <div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]">
@@ -595,56 +624,80 @@ export default function LivestockPage() {
 
           <Form {...editForm}>
             <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="flex flex-col flex-1 min-h-0">
-              <div className="flex-1 overflow-y-auto p-6 space-y-8 no-scrollbar">
-                <div className="flex flex-col items-center gap-4">
-                  <div className="h-48 w-full max-w-[300px] rounded-[1.5rem] bg-neutral-50 border-2 border-dashed border-neutral-200 flex flex-col items-center justify-center overflow-hidden relative group shadow-inner">
-                    <video ref={videoRef} className={cn("w-full h-full object-cover", !isCameraActive && "hidden")} autoPlay muted playsInline />
-                    {!isCameraActive && (
-                      editForm.watch('imageUrl') ? (
-                        <div className="relative w-full h-full">
-                          <Image src={editForm.watch('imageUrl')!} alt="Preview" fill className="object-cover" />
-                          <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2 h-8 w-8 rounded-full shadow-lg" onClick={() => editForm.setValue('imageUrl', '')}>
-                            <X className="h-4 w-4" />
-                          </Button>
+              <ScrollArea className="flex-1">
+                <div className="p-6 space-y-8 no-scrollbar">
+                  {/* UPLOAD WORKSTATION - Height 140px */}
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="h-[140px] w-full max-w-[300px] rounded-[1.5rem] bg-neutral-50 border-2 border-dashed border-neutral-200 flex flex-col items-center justify-center overflow-hidden relative group shadow-inner">
+                      <video ref={videoRef} className={cn("w-full h-full object-cover", !isCameraActive && "hidden")} autoPlay muted playsInline />
+                      {!isCameraActive && (
+                        editForm.watch('imageUrl') ? (
+                          <div className="relative w-full h-full">
+                            <Image src={editForm.watch('imageUrl')!} alt="Preview" fill className="object-cover" />
+                            <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2 h-8 w-8 rounded-full shadow-lg" onClick={() => editForm.setValue('imageUrl', '')}>
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center gap-2">
+                            <ImageIcon className="h-8 w-8 text-neutral-300" />
+                            <span className="text-[8px] font-black uppercase tracking-widest text-neutral-400">Profile Image Required</span>
+                          </div>
+                        )
+                      )}
+                      {isCameraActive && (
+                        <div className="absolute bottom-2 left-0 right-0 flex justify-center">
+                          <Button type="button" onClick={capturePhoto} className="rounded-full h-10 w-10 p-0 bg-[#0FA5A0] border-4 border-white shadow-2xl"><div className="h-5 w-5 rounded-full border-2 border-white" /></Button>
                         </div>
-                      ) : (
-                        <div className="flex flex-col items-center gap-2">
-                          <ImageIcon className="h-10 w-10 text-neutral-300" />
-                          <span className="text-[9px] font-black uppercase tracking-widest text-neutral-400">Profile Image Required</span>
-                        </div>
-                      )
-                    )}
-                    {isCameraActive && (
-                      <div className="absolute bottom-3 left-0 right-0 flex justify-center">
-                        <Button type="button" onClick={capturePhoto} className="rounded-full h-12 w-12 p-0 bg-[#0FA5A0] border-4 border-white shadow-2xl"><div className="h-6 w-6 rounded-full border-2 border-white" /></Button>
+                      )}
+                    </div>
+                    {!(isCameraActive) && (
+                      <div className="flex gap-3 w-full max-w-[300px]">
+                        <Button type="button" variant="outline" onClick={startCamera} className="flex-1 h-9 text-[8px] font-black uppercase rounded-xl gap-2 border-slate-200"><Camera className="h-3 w-3" /> Camera</Button>
+                        <div className="relative flex-1"><Button type="button" variant="outline" className="w-full h-9 text-[8px] font-black uppercase rounded-xl gap-2 border-slate-200"><Upload className="h-3 w-3" /> Library</Button><input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer z-10" onChange={(e) => handleImageChange(e, editForm)} /></div>
                       </div>
                     )}
                   </div>
-                  {!(isCameraActive) && (
-                    <div className="flex gap-3 w-full max-w-[300px]">
-                      <Button type="button" variant="outline" onClick={startCamera} className="flex-1 h-10 text-[9px] font-black uppercase rounded-xl gap-2 border-slate-200"><Camera className="h-3.5 w-3.5" /> Camera</Button>
-                      <div className="relative flex-1"><Button type="button" variant="outline" className="w-full h-10 text-[9px] font-black uppercase rounded-xl gap-2 border-slate-200"><Upload className="h-3.5 w-3.5" /> Library</Button><input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer z-10" onChange={(e) => handleImageChange(e, editForm)} /></div>
-                    </div>
-                  )}
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField control={editForm.control} name="tagId" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Tag ID</Label><FormControl><Input className="h-10 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>)} />
-                  <FormField control={editForm.control} name="registrationDate" render={({ field }) => (
-                    <FormItem className="flex flex-col"><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Reg. Date</Label><Popover open={isEditRegDatePickerOpen} onOpenChange={setIsEditRegDatePickerOpen}><PopoverTrigger asChild><Button variant="outline" className="h-10 rounded-xl bg-white border-slate-200 w-full text-left justify-between font-black uppercase text-[11px]">{field.value ? format(field.value, "MMM dd, yyyy") : "Pick date"}<CalendarIcon className="h-3.5 w-3.5 opacity-20" /></Button></PopoverTrigger><PopoverContent className="w-auto p-0 border-none bg-white shadow-2xl z-[150]" align="start"><Calendar mode="single" selected={field.value} onSelect={(date) => { if (date) { field.onChange(date); setIsEditRegDatePickerOpen(false); } }} initialFocus /></PopoverContent></Popover></FormItem>
-                  )} />
-                </div>
+                  
+                  {/* FORM MATRIX - PRIMARY FIELDS */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField control={editForm.control} name="tagId" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Tag ID</Label><FormControl><Input className="h-10 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>)} />
+                    <FormField control={editForm.control} name="registrationDate" render={({ field }) => (
+                      <FormItem className="flex flex-col"><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Reg. Date</Label><Popover open={isEditRegDatePickerOpen} onOpenChange={setIsEditRegDatePickerOpen}><PopoverTrigger asChild><Button variant="outline" className="h-10 rounded-xl bg-white border-slate-200 w-full text-left justify-between font-black uppercase text-[11px]">{field.value ? format(field.value, "MMM dd, yyyy") : "Pick date"}<CalendarIcon className="h-3.5 w-3.5 opacity-20" /></Button></PopoverTrigger><PopoverContent className="w-auto p-0 border-none bg-white shadow-2xl z-[150]" align="start"><Calendar mode="single" selected={field.value} onSelect={(date) => { if (date) { field.onChange(date); setIsEditRegDatePickerOpen(false); } }} initialFocus /></PopoverContent></Popover></FormItem>
+                    )} />
+                  </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField control={editForm.control} name="breed" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Breed</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="h-10 rounded-xl bg-white border-slate-200 font-bold text-xs"><SelectValue /></SelectTrigger></FormControl><SelectContent className="z-[160]"><SelectItem value="Standard">Standard</SelectItem><SelectItem value="Nellore">Nellore</SelectItem><SelectItem value="Deccani">Deccani</SelectItem></SelectContent></Select></FormItem>)} />
-                  <FormField control={editForm.control} name="gender" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Gender</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="h-10 rounded-xl bg-white border-slate-200 font-bold text-xs"><SelectValue /></SelectTrigger></FormControl><SelectContent className="z-[160]"><SelectItem value="female">Female</SelectItem><SelectItem value="male">Male</SelectItem></SelectContent></Select></FormItem>)} />
-                </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField control={editForm.control} name="breed" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Breed</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="h-10 rounded-xl bg-white border-slate-200 font-bold text-xs"><SelectValue /></SelectTrigger></FormControl><SelectContent className="z-[160]"><SelectItem value="Standard">Standard</SelectItem><SelectItem value="Nellore">Nellore</SelectItem><SelectItem value="Deccani">Deccani</SelectItem></SelectContent></Select></FormItem>)} />
+                    <FormField control={editForm.control} name="gender" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Gender</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="h-10 rounded-xl bg-white border-slate-200 font-bold text-xs"><SelectValue /></SelectTrigger></FormControl><SelectContent className="z-[160]"><SelectItem value="female">Female</SelectItem><SelectItem value="male">Male</SelectItem></SelectContent></Select></FormItem>)} />
+                  </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField control={editForm.control} name="age" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Age</Label><FormControl><Input type="number" className="h-10 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>)} />
-                  <FormField control={editForm.control} name="currentWeight" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Weight</Label><FormControl><Input type="number" step="0.1" className="h-10 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>)} />
+                  {/* SCROLL BELOW FIELDS */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField control={editForm.control} name="age" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Age</Label><FormControl><Input type="number" className="h-10 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>)} />
+                    <FormField control={editForm.control} name="currentWeight" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Weight</Label><FormControl><Input type="number" step="0.1" className="h-10 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>)} />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField control={editForm.control} name="color" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Color</Label><FormControl><Input className="h-10 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>)} />
+                    <FormField control={editForm.control} name="source" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Source</Label><FormControl><Input className="h-10 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>)} />
+                  </div>
+
+                  <div className="space-y-6">
+                    <FormField control={editForm.control} name="healthStatus" render={({ field }) => (
+                      <FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Health Status</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="h-10 rounded-xl bg-white border-slate-200 font-bold text-xs"><SelectValue /></SelectTrigger></FormControl><SelectContent className="z-[160]"><SelectItem value="Healthy">Healthy</SelectItem><SelectItem value="Ill">Under Treatment</SelectItem><SelectItem value="Recovering">Recovering</SelectItem><SelectItem value="Alert">Critical Alert</SelectItem></SelectContent></Select></FormItem>
+                    )} />
+                    
+                    <FormField control={editForm.control} name="vaccination" render={({ field }) => (
+                      <FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Recent Vaccination</Label><FormControl><Input placeholder="e.g. FMD, PPR" className="h-10 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>
+                    )} />
+
+                    <FormField control={editForm.control} name="notes" render={({ field }) => (
+                      <FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Operational Notes</Label><FormControl><Textarea placeholder="Additional biological or clinical context..." className="rounded-xl border-slate-200 min-h-[100px] font-medium text-xs p-4" {...field} /></FormControl></FormItem>
+                    )} />
+                  </div>
                 </div>
-              </div>
+              </ScrollArea>
 
               <div className="p-6 shrink-0 bg-white border-t flex gap-3">
                 <Button type="button" variant="outline" onClick={() => deleteTrackedSheep(editingSheep!.id, editingSheep!._path)} className="h-14 rounded-full border-rose-100 text-rose-600 font-black uppercase tracking-widest px-6 transition-all active:scale-95"><Trash2 className="h-5 w-5" /></Button>

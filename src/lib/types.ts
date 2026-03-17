@@ -1,4 +1,3 @@
-
 import type { z } from 'zod';
 import type { analyzeFarmCosts } from '@/ai/flows/analyze-farm-costs';
 
@@ -91,6 +90,9 @@ export type TrackedSheep = {
   registrationDate?: string;
   color?: string;
   source?: string;
+  healthStatus?: string;
+  vaccination?: string;
+  notes?: string;
   createdBy?: string;
   creatorEmail?: string;
   creatorName?: string;
