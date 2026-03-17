@@ -99,8 +99,8 @@ export default function DashboardPage() {
       {/* PRIMARY NODE: FARM LEDGER (Center Anchor) */}
       <section className="mb-8 relative z-10">
         <Link href="/dashboard/farm-ledger">
-          <div className="hub-node hub-glow-teal p-8 border-primary/20 group">
-            <div className="flex justify-between items-start mb-6">
+          <div className="hub-node hub-glow-teal p-5 h-[220px] rounded-[28px] border-primary/20 group flex flex-col justify-between">
+            <div className="flex justify-between items-start">
               <div className="p-3 rounded-2xl bg-primary/20 border border-primary/30 text-primary">
                 <IconFarmCost className="h-8 w-8" />
               </div>
@@ -122,36 +122,44 @@ export default function DashboardPage() {
       {/* FINANCIAL GRID (Floating Elements) */}
       <section className="mb-10 relative z-10">
         <div className="grid grid-cols-2 gap-4">
-          <Link href="/dashboard/monthly-ledger" className="hub-node hub-glow-teal p-5">
-            <div className="h-10 w-10 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center text-primary mb-4">
+          <Link href="/dashboard/monthly-ledger" className="hub-node hub-glow-teal p-5 h-[220px] rounded-[28px] flex flex-col justify-between">
+            <div className="h-10 w-10 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center text-primary">
               <ArrowUpCircle className="h-5 w-5" />
             </div>
-            <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Inflow</p>
-            <p className="text-lg font-black text-white tracking-tight">₹{totalCashInflow.toLocaleString()}</p>
+            <div>
+              <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Inflow</p>
+              <p className="text-lg font-black text-white tracking-tight">₹{totalCashInflow.toLocaleString()}</p>
+            </div>
           </Link>
           
-          <Link href="/dashboard/sales" className="hub-node hub-glow-blue p-5">
-            <div className="h-10 w-10 rounded-xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400 mb-4">
+          <Link href="/dashboard/sales" className="hub-node hub-glow-blue p-5 h-[220px] rounded-[28px] flex flex-col justify-between">
+            <div className="h-10 w-10 rounded-xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
               <TrendingUp className="h-5 w-5" />
             </div>
-            <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Receivables</p>
-            <p className="text-lg font-black text-white tracking-tight">₹{totalReceivables.toLocaleString()}</p>
+            <div>
+              <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Receivables</p>
+              <p className="text-lg font-black text-white tracking-tight">₹{totalReceivables.toLocaleString()}</p>
+            </div>
           </Link>
 
-          <Link href="/dashboard/purchase" className="hub-node hub-glow-orange p-5">
-            <div className="h-10 w-10 rounded-xl bg-orange-500/20 border border-orange-500/30 flex items-center justify-center text-orange-400 mb-4">
+          <Link href="/dashboard/purchase" className="hub-node hub-glow-orange p-5 h-[220px] rounded-[28px] flex flex-col justify-between">
+            <div className="h-10 w-10 rounded-xl bg-orange-500/20 border border-orange-500/30 flex items-center justify-center text-orange-400">
               <TrendingDown className="h-5 w-5" />
             </div>
-            <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Payables</p>
-            <p className="text-lg font-black text-white tracking-tight">₹{totalPayables.toLocaleString()}</p>
+            <div>
+              <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Payables</p>
+              <p className="text-lg font-black text-white tracking-tight">₹{totalPayables.toLocaleString()}</p>
+            </div>
           </Link>
 
-          <Link href="/dashboard/overview" className="hub-node p-5">
-            <div className="h-10 w-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/60 mb-4">
+          <Link href="/dashboard/overview" className="hub-node p-5 h-[220px] rounded-[28px] flex flex-col justify-between">
+            <div className="h-10 w-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/60">
               <LayoutGrid className="h-5 w-5" />
             </div>
-            <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Matrix</p>
-            <p className="text-lg font-black text-white tracking-tight">Overview</p>
+            <div>
+              <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Matrix</p>
+              <p className="text-lg font-black text-white tracking-tight">Overview</p>
+            </div>
           </Link>
         </div>
       </section>
@@ -185,7 +193,7 @@ export default function DashboardPage() {
   const HubCard = ({ item }: { item: any }) => {
     return (
       <Link href={item.href} className="group transition-all active:scale-95 block">
-        <div className="premium-card w-full h-[240px] flex flex-col items-center justify-center gap-6 relative overflow-hidden">
+        <div className={cn("w-full h-[220px] rounded-[28px] p-5 flex flex-col items-center justify-center gap-6 relative overflow-hidden bg-white border border-[#D9D9D9] shadow-[0_4px_12px_rgba(0,0,0,0.08)] transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_10px_25px_rgba(15,165,160,0.1)] group-hover:border-primary/30")}>
           <div className={cn("absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-700", item.color)} />
           <div className="relative w-20 h-20 transition-transform group-hover:scale-110 duration-700 z-10 text-primary group-hover:text-white flex items-center justify-center">
             <item.icon className="w-full h-full" />

@@ -63,7 +63,7 @@ export default function OverviewPage() {
 
   const StatCard = ({ title, value, subValue, icon: Icon, href, btnText, gradient, isHealth }: any) => (
     <div className={cn(
-      "relative overflow-hidden rounded-[24px] p-5 flex flex-col justify-between shadow-2xl transition-all active:scale-95 group",
+      "relative overflow-hidden rounded-[28px] p-5 h-[220px] flex flex-col justify-between shadow-2xl transition-all active:scale-95 group",
       gradient
     )}>
       {/* GLOW EFFECT */}
@@ -229,40 +229,48 @@ export default function OverviewPage() {
       </div>
 
       <div className="grid grid-cols-4 gap-6">
-        <div className="bg-white rounded-xl border border-[#D9D9D9] p-6 shadow-sm border-l-[5px] border-l-[#0FA5A0]">
-          <div className="flex items-center gap-3 mb-4">
+        <div className="bg-white rounded-[28px] border border-[#D9D9D9] p-5 h-[220px] shadow-sm border-l-[5px] border-l-[#0FA5A0] flex flex-col justify-between overflow-hidden">
+          <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-full bg-[#0FA5A0] flex items-center justify-center text-white"><Users className="h-5 w-5" /></div>
             <h3 className="text-sm font-bold text-[#2F4F4F]">Total Sheep</h3>
           </div>
-          <p className="text-3xl font-black text-[#176E6C] mb-4">{totalSheep}</p>
-          <Button onClick={() => router.push('/dashboard/livestock')} className="w-full bg-[#176E6C] text-white text-[9px] font-black uppercase tracking-widest">View Sheep Records</Button>
+          <div className="space-y-4">
+            <p className="text-3xl font-black text-[#176E6C]">{totalSheep}</p>
+            <Button onClick={() => router.push('/dashboard/livestock')} className="w-full bg-[#176E6C] text-white text-[9px] font-black uppercase tracking-widest rounded-xl">View Sheep Records</Button>
+          </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-[#D9D9D9] p-6 shadow-sm border-l-[5px] border-l-[#43A047]">
-          <div className="flex items-center gap-3 mb-4">
+        <div className="bg-white rounded-[28px] border border-[#D9D9D9] p-5 h-[220px] shadow-sm border-l-[5px] border-l-[#43A047] flex flex-col justify-between overflow-hidden">
+          <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-full bg-[#43A047] flex items-center justify-center text-white"><Plus className="h-5 w-5" /></div>
             <h3 className="text-sm font-bold text-[#2F4F4F]">Health Records</h3>
           </div>
-          <p className="text-3xl font-black text-[#176E6C] mb-4">Stable</p>
-          <Button onClick={() => router.push('/dashboard/medicine')} className="w-full bg-[#176E6C] text-white text-[9px] font-black uppercase tracking-widest">View Health Alerts</Button>
+          <div className="space-y-4">
+            <p className="text-3xl font-black text-[#176E6C]">Stable</p>
+            <Button onClick={() => router.push('/dashboard/medicine')} className="w-full bg-[#176E6C] text-white text-[9px] font-black uppercase tracking-widest rounded-xl">View Health Alerts</Button>
+          </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-[#D9D9D9] p-6 shadow-sm border-l-[5px] border-l-[#0FA5A0]">
-          <div className="flex items-center gap-3 mb-4">
+        <div className="bg-white rounded-[28px] border border-[#D9D9D9] p-5 h-[220px] shadow-sm border-l-[5px] border-l-[#0FA5A0] flex flex-col justify-between overflow-hidden">
+          <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-full bg-[#0FA5A0] flex items-center justify-center text-white"><Wheat className="h-5 w-5" /></div>
             <h3 className="text-sm font-bold text-[#2F4F4F]">Feed Cost</h3>
           </div>
-          <p className="text-3xl font-black text-[#176E6C] mb-4">₹{totalFeedCost.toLocaleString()}</p>
-          <Button onClick={() => router.push('/dashboard/feed')} className="w-full bg-[#176E6C] text-white text-[9px] font-black uppercase tracking-widest">View Full Report</Button>
+          <div className="space-y-4">
+            <p className="text-3xl font-black text-[#176E6C]">₹{totalFeedCost.toLocaleString()}</p>
+            <Button onClick={() => router.push('/dashboard/feed')} className="w-full bg-[#176E6C] text-white text-[9px] font-black uppercase tracking-widest rounded-xl">View Full Report</Button>
+          </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-[#D9D9D9] p-6 shadow-sm border-l-[5px] border-l-[#0FA5A0]">
-          <div className="flex items-center gap-3 mb-4">
+        <div className="bg-white rounded-[28px] border border-[#D9D9D9] p-5 h-[220px] shadow-sm border-l-[5px] border-l-[#0FA5A0] flex flex-col justify-between overflow-hidden">
+          <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-full bg-[#0FA5A0] flex items-center justify-center text-white"><Activity className="h-5 w-5" /></div>
             <h3 className="text-sm font-bold text-[#2F4F4F]">Labour Cost</h3>
           </div>
-          <p className="text-3xl font-black text-[#176E6C] mb-4">₹{totalLaborCost.toLocaleString()}</p>
-          <Button onClick={() => router.push('/dashboard/labor')} className="w-full bg-[#176E6C] text-white text-[9px] font-black uppercase tracking-widest">View Full Report</Button>
+          <div className="space-y-4">
+            <p className="text-3xl font-black text-[#176E6C]">₹{totalLaborCost.toLocaleString()}</p>
+            <Button onClick={() => router.push('/dashboard/labor')} className="w-full bg-[#176E6C] text-white text-[9px] font-black uppercase tracking-widest rounded-xl">View Full Report</Button>
+          </div>
         </div>
       </div>
 
