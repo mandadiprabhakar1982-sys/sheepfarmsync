@@ -1,4 +1,3 @@
-
 'use client';
 
 import { UserNav } from '@/components/user-nav';
@@ -34,7 +33,10 @@ export default function DashboardLayout({
 
   return (
     <SidebarProvider>
-      <div className="app-container dashboard-backdrop bg-[#F5F7F8]">
+      <div className={cn(
+        "app-container dashboard-backdrop",
+        isMobile ? "bg-[#020617]" : "bg-[#F5F7F8]"
+      )}>
         {!isMobile && <AppSidebar />}
 
         <SidebarInset className="flex flex-col h-full bg-transparent overflow-hidden">
@@ -76,7 +78,7 @@ export default function DashboardLayout({
             "scroll-content",
             isMobile ? "p-0" : "p-12"
           )}>
-            <div className={cn("max-w-7xl mx-auto h-full", isMobile ? "px-4" : "")}>
+            <div className={cn("max-w-7xl mx-auto h-full", isMobile ? "" : "")}>
               {children}
             </div>
           </main>

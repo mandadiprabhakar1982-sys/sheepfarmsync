@@ -18,7 +18,8 @@ import {
   ShoppingBag,
   Stethoscope,
   Heart,
-  Loader2
+  Loader2,
+  Syringe
 } from 'lucide-react';
 import { format, addMonths, parseISO, isToday, isYesterday } from 'date-fns';
 
@@ -171,97 +172,154 @@ export default function MedicinePage() {
   }
 
   return (
-    <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col relative">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-8 shrink-0">
-        <PageHeader title="Medical & Health" description="Clinical History & Medicine Costs" className="mb-0" />
+    <div className="md:animate-in md:fade-in md:duration-700 max-w-7xl mx-auto h-full flex flex-col relative">
+      {/* MOBILE NEURAL VIEW */}
+      <div className="block md:hidden mobile-neural-screen">
+        <header className="mb-8">
+          <h1 className="text-3xl font-black text-white tracking-tight leading-none mb-2">Medical & Health</h1>
+          <p className="text-sm font-medium text-white/40">Clinical history and pharma audit.</p>
+        </header>
 
-        <div className="flex items-center gap-4">
-          <Button 
-            onClick={() => activeTab === 'clinical' ? setIsClinicalDialogOpen(true) : setIsProcurementDialogOpen(true)} 
-            className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-[#0FA5A0] hover:bg-[#176E6C] text-white gap-2 shadow-xl border-none"
-          >
-            <PlusCircle className="h-5 w-5 text-white" />
-            {activeTab === 'clinical' ? 'Log Treatment' : 'Buy Medicine'}
-          </Button>
-          <div className="px-6 py-3 bg-neutral-900 rounded-2xl text-white flex items-center gap-4 shadow-xl shrink-0">
-            <ShieldCheck className="h-5 w-5 text-emerald-400" />
-            <div>
-              <p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Net Med Spend</p>
-              <p className="text-xl font-black tracking-tight text-white">₹{totalMedicineCost.toLocaleString()}</p>
+        <div className="grid grid-cols-2 gap-4 mb-8">
+          <div className="mobile-glass-card p-5">
+            <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1">Med Spend</p>
+            <h2 className="text-2xl font-black text-white tracking-tight">₹{totalMedicineCost.toLocaleString()}</h2>
+          </div>
+          <div className="mobile-glass-card p-5 border-l-4 border-l-rose-500">
+            <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1">Alerts</p>
+            <h2 className="text-2xl font-black text-rose-400 tracking-tight">None</h2>
+          </div>
+        </div>
+
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="mb-10 p-1.5 bg-white/5 rounded-2xl h-14 border border-white/10">
+            <TabsTrigger value="clinical" className="flex-1 rounded-xl text-white/40 data-[state=active]:bg-white/10 data-[state=active]:text-white">Clinical</TabsTrigger>
+            <TabsTrigger value="pharma" className="flex-1 rounded-xl text-white/40 data-[state=active]:bg-white/10 data-[state=active]:text-white">Med Cost</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="clinical" className="space-y-8 pb-32">
+            {groupedClinical.length > 0 ? groupedClinical.map((group) => (
+              <div key={group.date} className="space-y-4">
+                <p className="text-[11px] font-black uppercase tracking-widest text-white/30 px-2">{formatGroupDate(group.date)}</p>
+                <div className="space-y-4">
+                  {group.items.map((task) => (
+                    <div key={task.id} className="mobile-glass-card p-5 flex items-center justify-between group active:scale-[0.98] transition-all">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Badge className="bg-primary/20 text-primary border-none font-black text-[7px] uppercase px-1.5 py-0.5">ID: {task.sheepId}</Badge>
+                          <h3 className="text-lg font-black text-white truncate leading-none">{task.medicineName}</h3>
+                        </div>
+                        <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest truncate">{task.healthType} • {task.administeredBy}</p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <p className="text-xl font-black text-primary">₹{task.cost}</p>
+                        <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mt-1">
+                          <CheckCircle2 className="h-2.5 w-2.5" />
+                          <span className="text-[8px] font-black uppercase tracking-widest">Logged</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )) : <div className="py-20 text-center opacity-20 font-black uppercase text-xs text-white">No clinical records found</div>}
+          </TabsContent>
+
+          <TabsContent value="pharma" className="space-y-8 pb-32">
+            {groupedPharma.length > 0 ? groupedPharma.map((group) => (
+              <div key={group.date} className="space-y-4">
+                <p className="text-[11px] font-black uppercase tracking-widest text-white/30 px-2">{formatGroupDate(group.date)}</p>
+                <div className="space-y-4">
+                  {group.items.map((expense) => (
+                    <div key={expense.id} className="mobile-glass-card p-5 flex items-center justify-between group active:scale-[0.98] transition-all">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-lg font-black text-white truncate leading-none mb-1">{expense.shopName}</h3>
+                        <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest truncate">{expense.description || 'Verified Bill'}</p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <p className="text-xl font-black text-primary">₹{expense.totalAmountSpent.toLocaleString()}</p>
+                        {expense.outstandingDues > 0 ? (
+                          <Badge className="bg-rose-500/10 text-rose-400 border-none font-black text-[8px] uppercase px-2 py-0.5 mt-1">₹{expense.outstandingDues} Due</Badge>
+                        ) : (
+                          <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mt-1">
+                            <CheckCircle2 className="h-2.5 w-2.5" />
+                            <span className="text-[8px] font-black uppercase tracking-widest">Paid</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )) : <div className="py-20 text-center opacity-20 font-black uppercase text-xs text-white">No bills discovered</div>}
+          </TabsContent>
+        </Tabs>
+
+        <button 
+          onClick={() => activeTab === 'clinical' ? setIsClinicalDialogOpen(true) : setIsProcurementDialogOpen(true)}
+          className="fixed bottom-24 right-6 h-16 w-16 rounded-full bg-primary text-white shadow-2xl flex items-center justify-center active:scale-90 transition-all z-[120]"
+        >
+          <Plus className="h-8 w-8" />
+        </button>
+      </div>
+
+      {/* DESKTOP VIEW */}
+      <div className="hidden md:flex flex-col h-full">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-8 shrink-0">
+          <PageHeader title="Medical & Health" description="Clinical History & Medicine Costs" className="mb-0" />
+
+          <div className="flex items-center gap-4">
+            <Button 
+              onClick={() => activeTab === 'clinical' ? setIsClinicalDialogOpen(true) : setIsProcurementDialogOpen(true)} 
+              className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-[#0FA5A0] hover:bg-[#176E6C] text-white gap-2 shadow-xl border-none"
+            >
+              <PlusCircle className="h-5 w-5 text-white" />
+              {activeTab === 'clinical' ? 'Log Treatment' : 'Buy Medicine'}
+            </Button>
+            <div className="px-6 py-3 bg-neutral-900 rounded-2xl text-white flex items-center gap-4 shadow-xl shrink-0">
+              <ShieldCheck className="h-5 w-5 text-emerald-400" />
+              <div>
+                <p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Net Med Spend</p>
+                <p className="text-xl font-black tracking-tight text-white">₹{totalMedicineCost.toLocaleString()}</p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div className="space-y-6 flex-1 min-h-0 flex flex-col">
-        <div className="relative shrink-0 w-full max-w-xl">
-          <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
-          <Input 
-            placeholder={activeTab === 'clinical' ? "Search Sheep ID or Medicine..." : "Search Supplier or Item..."} 
-            value={searchTerm} 
-            onChange={(e) => setSearchTerm(e.target.value)} 
-            className="h-12 md:h-14 pl-12 pr-12 rounded-2xl md:rounded-full bg-white border-none text-[#2F4F4F] font-bold shadow-sm" 
-          />
-          {searchTerm && <button onClick={() => setSearchTerm('')} className="absolute right-5 top-1/2 -translate-y-1/2"><X className="h-4 w-4 text-slate-300" /></button>}
-        </div>
+        <div className="space-y-6 flex-1 min-h-0 flex flex-col">
+          <div className="relative shrink-0 w-full max-w-xl">
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
+            <Input 
+              placeholder={activeTab === 'clinical' ? "Search Sheep ID or Medicine..." : "Search Supplier or Item..."} 
+              value={searchTerm} 
+              onChange={(e) => setSearchTerm(e.target.value)} 
+              className="h-12 md:h-14 pl-12 pr-12 rounded-2xl md:rounded-full bg-white border-none text-[#2F4F4F] font-bold shadow-sm" 
+            />
+            {searchTerm && <button onClick={() => setSearchTerm('')} className="absolute right-5 top-1/2 -translate-y-1/2"><X className="h-4 w-4 text-slate-300" /></button>}
+          </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
-          <TabsList className="grid w-full grid-cols-2 mb-8 p-1.5 bg-[#D7F2F1] rounded-2xl h-14 md:h-16 md:max-w-md shadow-inner">
-            <TabsTrigger value="clinical" className="tab-trigger-tactical">
-              <Activity className="h-3.5 w-3.5" /> Clinical
-            </TabsTrigger>
-            <TabsTrigger value="pharma" className="tab-trigger-tactical">
-              <History className="h-3.5 w-3.5" /> Med Cost
-            </TabsTrigger>
-          </TabsList>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
+            <TabsList className="grid w-full grid-cols-2 mb-8 p-1.5 bg-[#D7F2F1] rounded-2xl h-14 md:h-16 md:max-w-md shadow-inner">
+              <TabsTrigger value="clinical" className="tab-trigger-tactical">
+                <Activity className="h-3.5 w-3.5" /> Clinical
+              </TabsTrigger>
+              <TabsTrigger value="pharma" className="tab-trigger-tactical">
+                <History className="h-3.5 w-3.5" /> Med Cost
+              </TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="clinical" className="flex-1 flex flex-col min-h-0 m-0">
-            <div className="flex-1 min-h-0 flex flex-col premium-card overflow-hidden bg-white">
-              <CardHeader className="bg-[#0FA5A0] text-white p-10 shrink-0">
-                <div className="flex justify-between items-end">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-3"><Heart className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase text-white">Clinical History</CardTitle></div>
-                    <CardDescription className="text-white/60 text-[10px] font-black uppercase tracking-[0.2em]">Medical Protocol & Treatment Audit</CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-
-              <ScrollArea className="flex-1 overflow-hidden">
-                {/* MOBILE VIEW */}
-                <div className="block md:hidden p-4 space-y-8">
-                  {groupedClinical.length > 0 ? groupedClinical.map((group) => (
-                    <div key={group.date} className="space-y-4">
-                      <div className="px-2 py-2 mb-3 bg-[#D7F2F1] rounded-lg">
-                        <p className="text-[11px] font-black uppercase tracking-widest text-[#176E6C]">{formatGroupDate(group.date)}</p>
-                      </div>
-                      <div className="space-y-4">
-                        {group.items.map((task) => (
-                          <div key={task.id} className="bg-white rounded-[1.25rem] p-5 flex items-center justify-between shadow-sm border border-slate-100 active:scale-[0.98] transition-all">
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1">
-                                <Badge className="bg-[#D7F2F1] text-[#0FA5A0] border-none font-black text-[7px] uppercase px-1.5 py-0.5 tracking-tighter">ID: {task.sheepId}</Badge>
-                                <h3 className="text-lg font-black text-[#2F4F4F] truncate leading-none">{task.medicineName}</h3>
-                              </div>
-                              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest truncate">
-                                {task.healthType} • By {task.administeredBy}
-                              </p>
-                            </div>
-                            <div className="text-right shrink-0">
-                              <p className="text-xl font-black text-[#0FA5A0]">₹{task.cost.toLocaleString()}</p>
-                              <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#ecfdf5] text-[#43A047] border border-[#d1fae5] mt-1">
-                                <CheckCircle2 className="h-2.5 w-2.5" />
-                                <span className="text-[9px] font-black uppercase tracking-widest">Recorded</span>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+            <TabsContent value="clinical" className="flex-1 flex flex-col min-h-0 m-0">
+              <div className="flex-1 min-h-0 flex flex-col premium-card overflow-hidden bg-white">
+                <CardHeader className="bg-[#0FA5A0] text-white p-10 shrink-0">
+                  <div className="flex justify-between items-end">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-3"><Heart className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase text-white">Clinical History</CardTitle></div>
+                      <CardDescription className="text-white/60 text-[10px] font-black uppercase tracking-[0.2em]">Medical Protocol & Treatment Audit</CardDescription>
                     </div>
-                  )) : <div className="py-20 text-center opacity-20 font-black uppercase text-xs">No clinical records found</div>}
-                </div>
+                  </div>
+                </CardHeader>
 
-                {/* DESKTOP VIEW */}
-                <div className="hidden md:block">
+                <ScrollArea className="flex-1 overflow-hidden">
                   <Table>
                     <TableHeader className="bg-[#0FA5A0] sticky top-0 z-10">
                       <TableRow className="border-none hover:bg-transparent">
@@ -289,59 +347,22 @@ export default function MedicinePage() {
                       ))}
                     </TableBody>
                   </Table>
-                </div>
-              </ScrollArea>
-            </div>
-          </TabsContent>
+                </ScrollArea>
+              </div>
+            </TabsContent>
 
-          <TabsContent value="pharma" className="flex-1 flex flex-col min-h-0 m-0">
-            <div className="flex-1 min-h-0 flex flex-col premium-card overflow-hidden bg-white">
-              <CardHeader className="bg-[#0FA5A0] text-white p-10 shrink-0">
-                <div className="flex justify-between items-end">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-3"><ShoppingBag className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase text-white">Medical Bills</CardTitle></div>
-                    <CardDescription className="text-white/60 text-[10px] font-black uppercase tracking-[0.2em]">Medicine Procurement & Payment Audit</CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-
-              <ScrollArea className="flex-1 overflow-hidden">
-                {/* MOBILE VIEW */}
-                <div className="block md:hidden p-4 space-y-8">
-                  {groupedPharma.length > 0 ? groupedPharma.map((group) => (
-                    <div key={group.date} className="space-y-4">
-                      <div className="px-2 py-2 mb-3 bg-[#D7F2F1] rounded-lg">
-                        <p className="text-[11px] font-black uppercase tracking-widest text-[#176E6C]">{formatGroupDate(group.date)}</p>
-                      </div>
-                      <div className="space-y-4">
-                        {group.items.map((expense) => (
-                          <div key={expense.id} className="bg-white rounded-[1.25rem] p-5 flex items-center justify-between shadow-sm border border-slate-100 active:scale-[0.98] transition-all">
-                            <div className="flex-1 min-w-0">
-                              <h3 className="text-lg font-black text-[#2F4F4F] truncate leading-none mb-1">{expense.shopName}</h3>
-                              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest truncate">
-                                {expense.description || 'Verified Bill'}
-                              </p>
-                            </div>
-                            <div className="text-right shrink-0">
-                              <p className="text-xl font-black text-[#2F4F4F]">₹{expense.totalAmountSpent.toLocaleString()}</p>
-                              {expense.outstandingDues > 0 ? (
-                                <Badge className="bg-rose-50 text-rose-600 border-none font-black text-[8px] uppercase px-2 py-0.5 mt-1 tracking-tighter">₹{expense.outstandingDues} Due</Badge>
-                              ) : (
-                                <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#ecfdf5] text-[#43A047] border border-[#d1fae5] mt-1">
-                                  <CheckCircle2 className="h-2.5 w-2.5" />
-                                  <span className="text-[9px] font-black uppercase tracking-widest">Paid</span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+            <TabsContent value="pharma" className="flex-1 flex flex-col min-h-0 m-0">
+              <div className="flex-1 min-h-0 flex flex-col premium-card overflow-hidden bg-white">
+                <CardHeader className="bg-[#0FA5A0] text-white p-10 shrink-0">
+                  <div className="flex justify-between items-end">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-3"><ShoppingBag className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase text-white">Medical Bills</CardTitle></div>
+                      <CardDescription className="text-white/60 text-[10px] font-black uppercase tracking-[0.2em]">Medicine Procurement & Payment Audit</CardDescription>
                     </div>
-                  )) : <div className="py-20 text-center opacity-20 font-black uppercase text-xs">No medicine bills discovered</div>}
-                </div>
+                  </div>
+                </CardHeader>
 
-                {/* DESKTOP VIEW */}
-                <div className="hidden md:block">
+                <ScrollArea className="flex-1 overflow-hidden">
                   <Table>
                     <TableHeader className="bg-[#0FA5A0] sticky top-0 z-10">
                       <TableRow className="border-none hover:bg-transparent">
@@ -371,11 +392,11 @@ export default function MedicinePage() {
                       ))}
                     </TableBody>
                   </Table>
-                </div>
-              </ScrollArea>
-            </div>
-          </TabsContent>
-        </Tabs>
+                </ScrollArea>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
 
       {/* DIALOGS */}

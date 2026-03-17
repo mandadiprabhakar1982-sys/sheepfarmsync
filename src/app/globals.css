@@ -138,6 +138,19 @@
   @apply shadow-[0_0_20px_rgba(245,158,11,0.25)];
 }
 
+/* MOBILE NEURAL THEME */
+.mobile-neural-screen {
+  @apply bg-[#020617] min-h-full px-4 pt-6 pb-32 relative overflow-hidden animate-in fade-in duration-700;
+}
+
+.mobile-glass-card {
+  @apply bg-white/5 backdrop-blur-2xl border border-white/10 rounded-[24px] shadow-2xl overflow-hidden;
+}
+
+.mobile-neon-text {
+  @apply text-white shadow-[0_0_10px_rgba(34,211,238,0.3)];
+}
+
 @layer utilities {
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
