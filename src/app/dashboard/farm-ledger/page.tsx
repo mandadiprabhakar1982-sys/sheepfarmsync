@@ -129,59 +129,60 @@ export default function FarmLedgerPage() {
   }
 
   return (
-    <div className="mobile-neural-screen pb-[110px]">
-      {/* MOBILE NEURAL VIEW */}
-      <header className="mb-8 pt-4">
+    <div className="flex flex-col h-full overflow-hidden">
+      <header className="shrink-0 px-5 pt-4 pb-8">
         <h1 className="text-[34px] font-[800] text-white tracking-tight leading-[1.1]">Farm Ledger</h1>
-        <p className="text-sm font-medium text-white/40">Verified operational outflow stream.</p>
+        <p className="text-sm font-medium text-white/40 mb-6">Verified operational outflow stream.</p>
+
+        <div className="mobile-glass-card p-8 border-l-4 border-l-primary">
+          <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1">Total Operational Outflow</p>
+          <h2 className="text-4xl font-black text-white tracking-tighter">₹{totalExpenses.toLocaleString()}</h2>
+          <div className="flex items-center gap-2 text-[9px] font-bold text-primary uppercase tracking-widest mt-2">
+            <ShieldCheck className="h-3 w-3" /> System Audit Clear
+          </div>
+        </div>
       </header>
 
-      <div className="mobile-glass-card p-8 border-l-4 border-l-primary mb-8">
-        <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1">Total Operational Outflow</p>
-        <h2 className="text-4xl font-black text-white tracking-tighter">₹{totalExpenses.toLocaleString()}</h2>
-        <div className="flex items-center gap-2 text-[9px] font-bold text-primary uppercase tracking-widest mt-2">
-          <ShieldCheck className="h-3 w-3" /> System Audit Clear
+      <div className="flex-1 overflow-y-auto pb-32 px-5 no-scrollbar">
+        <div className="relative mb-8">
+          <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/20" />
+          <Input 
+            placeholder="Search Ledger..." 
+            value={searchTerm} 
+            onChange={(e) => setSearchTerm(e.target.value)} 
+            className="h-14 pl-12 rounded-2xl bg-white/5 border-white/10 text-white font-bold placeholder:text-white/20 shadow-xl" 
+          />
         </div>
-      </div>
 
-      <div className="relative mb-8">
-        <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/20" />
-        <Input 
-          placeholder="Search Ledger..." 
-          value={searchTerm} 
-          onChange={(e) => setSearchTerm(e.target.value)} 
-          className="h-14 pl-12 rounded-2xl bg-white/5 border-white/10 text-white font-bold placeholder:text-white/20 shadow-xl" 
-        />
-      </div>
-
-      <div className="space-y-10">
-        {groupedData.length > 0 ? groupedData.map((group) => (
-          <div key={group.date} className="space-y-4">
-            <p className="text-[11px] font-black uppercase tracking-widest text-white/30 px-2">{formatGroupDate(group.date)}</p>
-            <div className="space-y-4">
-              {group.items.map((item) => (
-                <div key={item.id} className="mobile-glass-card p-5 flex items-center justify-between active:scale-[0.98] transition-all">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Badge className={cn("border-none font-black text-[7px] uppercase px-1.5 py-0.5", item.mColor)}>
-                        {item.cat}
-                      </Badge>
-                      <h3 className="text-lg font-black text-white truncate leading-none">{item.source}</h3>
+        <div className="space-y-10">
+          {groupedData.length > 0 ? groupedData.map((group) => (
+            <div key={group.date} className="space-y-4">
+              <p className="text-[11px] font-black uppercase tracking-widest text-white/30 px-2">{formatGroupDate(group.date)}</p>
+              <div className="space-y-4">
+                {group.items.map((item) => (
+                  <div key={item.id} className="mobile-glass-card p-5 flex items-center justify-between active:scale-[0.98] transition-all">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Badge className={cn("border-none font-black text-[7px] uppercase px-1.5 py-0.5", item.mColor)}>
+                          {item.cat}
+                        </Badge>
+                        <h3 className="text-lg font-black text-white truncate leading-none">{item.source}</h3>
+                      </div>
+                      <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Disbursement</p>
                     </div>
-                    <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Disbursement</p>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <p className="text-xl font-black text-white">-₹{item.amount.toLocaleString()}</p>
-                    <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mt-1">
-                      <CheckCircle2 className="h-2.5 w-2.5" />
-                      <span className="text-[8px] font-black uppercase tracking-widest">Verified</span>
+                    <div className="text-right shrink-0">
+                      <p className="text-xl font-black text-white">-₹{item.amount.toLocaleString()}</p>
+                      <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mt-1">
+                        <CheckCircle2 className="h-2.5 w-2.5" />
+                        <span className="text-[8px] font-black uppercase tracking-widest">Verified</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-        )) : <div className="py-20 text-center opacity-20 font-black uppercase text-xs text-white">No records discovered</div>}
+          )) : <div className="py-20 text-center opacity-20 font-black uppercase text-xs text-white">No records discovered</div>}
+        </div>
       </div>
 
       <button 

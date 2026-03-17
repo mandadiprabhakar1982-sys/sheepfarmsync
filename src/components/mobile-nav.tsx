@@ -24,13 +24,13 @@ export function MobileNav() {
 
   return (
     <div 
-      className="md:hidden fixed bottom-0 left-0 right-0 max-w-md mx-auto z-50 bg-[#020617]/95 backdrop-blur-xl border-t border-white/10 flex items-start justify-center px-4"
+      className="fixed bottom-0 left-0 right-0 max-w-md mx-auto h-20 bg-[#081122]/95 backdrop-blur-xl border-t border-white/10 flex justify-around items-center z-50 rounded-t-3xl shadow-2xl"
       style={{ 
-        height: 'calc(84px + env(safe-area-inset-bottom))',
+        height: 'calc(80px + env(safe-area-inset-bottom))',
         paddingBottom: 'env(safe-area-inset-bottom)'
       }}
     >
-      <div className="flex items-center justify-between w-full h-[64px]">
+      <div className="flex items-center justify-between w-full h-20 px-4">
         {navItems.map((item, index) => {
           const Icon = item.icon;
           const isActive = item.href === '/dashboard' 

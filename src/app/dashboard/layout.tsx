@@ -31,10 +31,10 @@ export default function DashboardLayout({
 
   if (isMobile) {
     return (
-      <div className="min-h-screen w-full bg-[#020617]">
+      <div className="h-screen flex flex-col bg-[#020617] overflow-hidden">
         {/* FIXED HEADER */}
         <header 
-          className="sticky top-0 left-0 right-0 z-30 bg-[#020617]/80 backdrop-blur-md px-5 flex items-center justify-between border-b border-white/5"
+          className="shrink-0 bg-[#020617]/80 backdrop-blur-md px-5 flex items-center justify-between border-b border-white/5 z-40"
           style={{ 
             paddingTop: 'env(safe-area-inset-top)', 
             height: 'calc(64px + env(safe-area-inset-top))' 
@@ -57,8 +57,8 @@ export default function DashboardLayout({
           </div>
         </header>
 
-        {/* MAIN CONTENT AREA */}
-        <main className="px-0">
+        {/* MAIN CONTENT AREA - SCROLLABLE BODY */}
+        <main className="flex-1 min-h-0 relative">
           {children}
         </main>
 

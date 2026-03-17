@@ -256,8 +256,8 @@ export default function LivestockPage() {
   }
 
   return (
-    <div className="mobile-neural-screen flex flex-col h-full overflow-hidden p-0">
-      {/* MOBILE NEURAL HEADER - STICKY TOP */}
+    <div className="flex flex-col h-full overflow-hidden">
+      {/* HEADER SECTION */}
       <header className="shrink-0 px-5 pt-4 pb-6">
         <div className="flex items-center justify-between mb-1">
           <h2 className="text-[34px] font-[800] text-white tracking-tight leading-[1.1]">Sheep List</h2>
@@ -279,9 +279,8 @@ export default function LivestockPage() {
         </div>
       </header>
 
-      {/* INTERNAL SCROLL AREA WITH BOTTOM CLEARANCE */}
-      <div className="flex-1 overflow-y-auto px-5 pb-32 no-scrollbar">
-        {/* DATA GRID */}
+      {/* INDEPENDENT SCROLLING CONTAINER */}
+      <div className="flex-1 overflow-y-auto pb-32 px-5 no-scrollbar">
         <div className="space-y-4">
           {filteredAssets.length > 0 ? filteredAssets.map((sheep) => (
             <div 
@@ -325,15 +324,15 @@ export default function LivestockPage() {
         </div>
       </div>
 
-      {/* MOBILE FAB - FIXED POSITION */}
+      {/* MOBILE FAB - POSITIONED ABOVE MENU */}
       <button 
         onClick={() => { assetForm.reset({ registrationDate: new Date() }); setIsEntryDialogOpen(true); }}
-        className="md:hidden fixed bottom-24 right-6 h-16 w-16 rounded-full bg-[#14d5c7] text-white shadow-2xl flex items-center justify-center active:scale-90 transition-all z-20"
+        className="fixed bottom-24 right-6 h-16 w-16 rounded-full bg-[#14d5c7] text-white shadow-2xl flex items-center justify-center active:scale-90 transition-all z-20"
       >
         <Plus className="h-8 w-8 stroke-[3px]" />
       </button>
 
-      {/* DIALOGS */}
+      {/* DIALOGS REMAIN SAME... */}
       <Dialog open={!!zoomImage} onOpenChange={() => setZoomImage(null)}>
         <DialogContent className="max-w-3xl p-0 overflow-hidden bg-transparent border-none shadow-none z-[200]">
           <div className="relative aspect-square w-full">
