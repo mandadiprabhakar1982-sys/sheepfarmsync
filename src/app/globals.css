@@ -31,15 +31,15 @@
     --border: 0 0% 85%;          /* #D9D9D9 */
     --input: 0 0% 85%;
     --ring: 178 83% 35%;
-    --radius: 1rem;              /* 16px */
+    --radius: 0.5rem;            /* 8px requested radius */
 
-    --sidebar-background: 177 85% 27%; /* #0B8F8A */
+    --sidebar-background: 178 83% 35%; /* #0FA5A0 */
     --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 178 83% 35%;
+    --sidebar-primary: 178 65% 26%;    /* #176E6C */
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 178 68% 22%;     /* #146B68 */
+    --sidebar-accent: 178 65% 26%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 177 85% 22%;
+    --sidebar-border: 178 83% 30%;
     --sidebar-ring: 178 83% 35%;
 
     --success: 123 43% 45%;      /* #43A047 */
@@ -79,12 +79,17 @@
 }
 
 .premium-card {
-  @apply bg-white rounded-[16px] border border-[#D9D9D9] shadow-[0_4px_12px_rgba(0,0,0,0.08)] transition-all duration-300;
+  @apply bg-white rounded-[8px] border border-[#D9D9D9] shadow-[0_4px_12px_rgba(0,0,0,0.08)] transition-all duration-300;
 }
 
 .premium-card:hover {
   @apply -translate-y-1 shadow-[0_10px_25px_rgba(15,165,160,0.1)];
   border-color: rgba(15, 165, 160, 0.3);
+}
+
+/* Tactical Left Border Card */
+.tactical-card {
+  @apply bg-white rounded-[12px] border-l-[5px] border-l-[#0FA5A0] shadow-[0_4px_12px_rgba(0,0,0,0.08)] transition-all;
 }
 
 .form-input-tactical {
@@ -109,6 +114,28 @@
 
 .subtitle {
   @apply text-[10px] font-bold uppercase tracking-[0.3em] text-[#0FA5A0]/60;
+}
+
+/* HIGH FIDELITY HUB STYLES */
+.hub-node {
+  @apply relative overflow-hidden backdrop-blur-md bg-white/10 border border-white/20 rounded-[20px] shadow-[0_8px_32px_rgba(0,0,0,0.12)] transition-all active:scale-95;
+}
+
+.hub-node::before {
+  content: '';
+  @apply absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-50;
+}
+
+.hub-glow-teal {
+  @apply shadow-[0_0_20px_rgba(15,165,160,0.25)];
+}
+
+.hub-glow-blue {
+  @apply shadow-[0_0_20px_rgba(59,130,246,0.25)];
+}
+
+.hub-glow-orange {
+  @apply shadow-[0_0_20px_rgba(245,158,11,0.25)];
 }
 
 @layer utilities {

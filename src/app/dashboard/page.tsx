@@ -16,7 +16,9 @@ import {
   Loader2,
   ChevronRight,
   Zap,
-  ArrowUpCircle
+  ArrowUpCircle,
+  LayoutGrid,
+  ShieldCheck
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -73,103 +75,105 @@ export default function DashboardPage() {
   const isAdmin = userRole === 'admin';
 
   const MobileHome = (
-    <div className="max-w-lg mx-auto animate-in fade-in duration-500 dashboard-stack pb-24">
-      <section>
-        <h2 className="text-xl font-black tracking-tight text-foreground mb-6 px-2">Financial Summary</h2>
-        <div className="space-y-4">
-          <Link href="/dashboard/monthly-ledger" className="block">
-            <div className="premium-card p-5 flex items-center justify-between active:scale-[0.98]">
-              <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-2xl flex items-center justify-center text-white shadow-md bg-primary"><ArrowUpCircle className="h-6 w-6" /></div>
-                <span className="text-[11px] font-black text-foreground/70">Cash Inflow</span>
+    <div className="min-h-full -mx-4 -mt-4 px-4 pt-6 pb-32 bg-gradient-to-b from-[#0B2424] via-[#0F172A] to-[#020617] animate-in fade-in duration-1000 relative overflow-hidden">
+      {/* BACKGROUND ACCENTS */}
+      <div className="absolute top-[-10%] -right-[20%] w-[80%] h-[40%] bg-primary/10 blur-[120px] rounded-full" />
+      <div className="absolute bottom-0 -left-[20%] w-[80%] h-[40%] bg-blue-500/5 blur-[120px] rounded-full" />
+
+      {/* HEADER SECTION */}
+      <header className="mb-10 px-2 relative z-10">
+        <div className="flex items-center gap-4 mb-2">
+          <div className="h-10 w-10 rounded-xl bg-primary/20 backdrop-blur-xl border border-primary/30 flex items-center justify-center">
+            <Zap className="h-5 w-5 text-primary shadow-[0_0_15px_rgba(15,165,160,0.5)]" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-black text-white tracking-tight leading-none">Mpr Hub</h1>
+            <p className="text-[9px] font-black text-primary uppercase tracking-[0.3em] mt-1">Tactical Enterprise Node</p>
+          </div>
+        </div>
+      </header>
+
+      {/* PRIMARY NODE: FARM LEDGER (Center Anchor) */}
+      <section className="mb-8 px-2 relative z-10">
+        <Link href="/dashboard/farm-ledger">
+          <div className="hub-node hub-glow-teal p-8 border-primary/20 group">
+            <div className="flex justify-between items-start mb-6">
+              <div className="p-3 rounded-2xl bg-primary/20 border border-primary/30 text-primary">
+                <IconFarmCost className="h-8 w-8" />
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-2xl font-black tracking-tighter text-primary">₹{totalCashInflow.toLocaleString()}</span>
-                <ChevronRight className="h-4 w-4 text-slate-300" />
+              <div className="bg-white/5 backdrop-blur-md rounded-full p-2 text-white/40 group-hover:text-primary transition-colors">
+                <ChevronRight className="h-5 w-5" />
               </div>
             </div>
+            <div>
+              <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-1">Operational Audit</p>
+              <h2 className="text-3xl font-black text-white tracking-tighter mb-1">₹{totalExpenses.toLocaleString()}</h2>
+              <div className="flex items-center gap-2 text-[9px] font-bold text-primary uppercase tracking-widest">
+                <ShieldCheck className="h-3 w-3" /> System Audit Clear
+              </div>
+            </div>
+          </div>
+        </Link>
+      </section>
+
+      {/* FINANCIAL GRID (Floating Elements) */}
+      <section className="mb-10 px-2 relative z-10">
+        <div className="grid grid-cols-2 gap-4">
+          <Link href="/dashboard/monthly-ledger" className="hub-node hub-glow-teal p-5">
+            <div className="h-10 w-10 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center text-primary mb-4">
+              <ArrowUpCircle className="h-5 w-5" />
+            </div>
+            <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Inflow</p>
+            <p className="text-lg font-black text-white tracking-tight">₹{totalCashInflow.toLocaleString()}</p>
           </Link>
-          <Link href="/dashboard/sales" className="block">
-            <div className="premium-card p-5 flex items-center justify-between active:scale-[0.98]">
-              <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-2xl flex items-center justify-center text-white shadow-md bg-blue-500"><TrendingUp className="h-6 w-6" /></div>
-                <span className="text-[11px] font-black text-foreground/70">Receivables</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-2xl font-black tracking-tighter text-foreground">₹{totalReceivables.toLocaleString()}</span>
-                <ChevronRight className="h-4 w-4 text-slate-300" />
-              </div>
+          
+          <Link href="/dashboard/sales" className="hub-node hub-glow-blue p-5">
+            <div className="h-10 w-10 rounded-xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400 mb-4">
+              <TrendingUp className="h-5 w-5" />
             </div>
+            <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Receivables</p>
+            <p className="text-lg font-black text-white tracking-tight">₹{totalReceivables.toLocaleString()}</p>
           </Link>
-          <Link href="/dashboard/purchase" className="block">
-            <div className="premium-card p-5 flex items-center justify-between active:scale-[0.98]">
-              <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-2xl flex items-center justify-center text-white shadow-md bg-[#f59e0b]"><TrendingDown className="h-6 w-6" /></div>
-                <span className="text-[11px] font-black text-foreground/70">Payables</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-2xl font-black tracking-tighter text-foreground">₹{totalPayables.toLocaleString()}</span>
-                <ChevronRight className="h-4 w-4 text-slate-300" />
-              </div>
+
+          <Link href="/dashboard/purchase" className="hub-node hub-glow-orange p-5">
+            <div className="h-10 w-10 rounded-xl bg-orange-500/20 border border-orange-500/30 flex items-center justify-center text-orange-400 mb-4">
+              <TrendingDown className="h-5 w-5" />
             </div>
+            <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Payables</p>
+            <p className="text-lg font-black text-white tracking-tight">₹{totalPayables.toLocaleString()}</p>
+          </Link>
+
+          <Link href="/dashboard/overview" className="hub-node p-5">
+            <div className="h-10 w-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/60 mb-4">
+              <LayoutGrid className="h-5 w-5" />
+            </div>
+            <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Matrix</p>
+            <p className="text-lg font-black text-white tracking-tight">Overview</p>
           </Link>
         </div>
       </section>
 
-      <section>
-        <h2 className="text-xl font-black tracking-tight text-foreground mb-6 px-2">Operational Audit</h2>
-        
-        <div className="mb-6 px-2">
-          <Link href="/dashboard/farm-ledger">
-            <div className="bg-primary rounded-[2rem] p-8 text-white shadow-xl border border-white/10 relative overflow-hidden active:scale-[0.98] transition-all">
-              <div className="absolute top-0 right-0 p-8 opacity-10 rotate-12">
-                <IconFarmCost className="h-32 w-32" />
-              </div>
-              <div className="relative z-10">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="h-10 w-10 rounded-xl bg-white/20 flex items-center justify-center">
-                    <Zap className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-black tracking-tight leading-none">Daily Farm Ledger</h3>
-                    <p className="text-[8px] font-bold uppercase tracking-widest text-white/40 mt-1">Operational Cost Center</p>
-                  </div>
-                </div>
-                <div className="flex justify-between items-end">
-                  <div>
-                    <p className="text-[10px] font-black text-white/80 uppercase tracking-widest">Total Farm Spend</p>
-                    <p className="text-3xl font-black tracking-tighter">₹{totalExpenses.toLocaleString()}</p>
-                  </div>
-                  <div className="bg-white/20 backdrop-blur-md rounded-full p-2 text-white shadow-lg">
-                    <ChevronRight className="h-5 w-5" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
+      {/* CORE NODES (Interlocking) */}
+      <section className="px-2 relative z-10">
+        <h3 className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] mb-6 px-2">Sub-Process Systems</h3>
+        <div className="grid grid-cols-4 gap-4">
           {[
-            { label: 'Fodder', val: totalFeedCost, icon: Wheat, href: '/dashboard/feed' },
-            { label: 'Labour', val: totalLaborCost, icon: Users, href: '/dashboard/labor' },
-            { label: 'Medical', val: totalMedicineCost, icon: Heart, href: '/dashboard/medicine' },
-            { label: 'Expenses', val: totalFarmExpenses, icon: Wallet, href: '/dashboard/expenses' },
+            { icon: Wheat, href: '/dashboard/feed', glow: 'hub-glow-teal' },
+            { icon: Users, href: '/dashboard/labor', glow: 'hub-glow-teal' },
+            { icon: Heart, href: '/dashboard/medicine', glow: 'hub-glow-teal' },
+            { icon: Wallet, href: '/dashboard/expenses', glow: 'hub-glow-teal' },
           ].map((item, i) => (
-            <Link key={i} href={item.href} className="premium-card p-6 flex flex-col items-center text-center aspect-square justify-center active:scale-[0.98]">
-              <div className="h-16 w-16 rounded-[1.5rem] bg-secondary flex items-center justify-center text-primary mb-4 shadow-lg shadow-primary/10">
-                <item.icon className="h-8 w-8" />
-              </div>
-              <p className="text-[9px] font-black text-slate-400 mb-1">{item.label}:</p>
-              <p className="text-xl font-black tracking-tighter text-secondary-foreground">₹{item.val.toLocaleString()}</p>
+            <Link key={i} href={item.href} className={cn("hub-node aspect-square flex items-center justify-center", item.glow)}>
+              <item.icon className="h-6 w-6 text-white/60 group-hover:text-primary transition-colors" />
             </Link>
           ))}
         </div>
       </section>
 
-      <div className="pt-4 px-2">
-        <Button onClick={() => router.push('/dashboard/expenses')} className="w-full h-16 rounded-2xl bg-foreground hover:bg-black text-white font-black uppercase tracking-[0.2em] shadow-xl text-sm gap-3 border-none">
-          <Plus className="h-6 w-6 text-primary" /> Log Misc Expense
+      {/* ACTION TRIGGER */}
+      <div className="mt-12 px-2 relative z-10">
+        <Button onClick={() => router.push('/dashboard/expenses')} className="w-full h-16 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-black uppercase tracking-[0.2em] shadow-2xl text-xs gap-3">
+          <Plus className="h-5 w-5 text-primary" /> Log Entry
         </Button>
       </div>
     </div>
