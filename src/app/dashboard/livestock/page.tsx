@@ -36,7 +36,7 @@ import { uploadToStorage } from '@/lib/upload';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { CardTitle, CardDescription } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Dialog,
@@ -457,7 +457,7 @@ export default function LivestockPage() {
         <Plus className="h-7 w-7 stroke-[3px]" />
       </button>
 
-      {/* ENROLLMENT DIALOG */}
+      {/* ENROLLMENT DIALOG (Flutter Layout Sync) */}
       <Dialog open={isEntryDialogOpen} onOpenChange={(open) => { setIsEntryDialogOpen(open); if (!open) stopCamera(); }}>
         <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[88dvh] flex flex-col z-[100]">
           {/* FIXED HEADER */}
@@ -478,12 +478,13 @@ export default function LivestockPage() {
 
           <Form {...assetForm}>
             <form onSubmit={assetForm.handleSubmit(onAssetSubmit)} className="flex flex-col flex-1 min-h-0">
-              {/* EXPANDED SCROLL CONTENT */}
+              {/* EXPANDED SCROLLABLE BODY */}
               <ScrollArea className="flex-1">
                 <div className="p-6 space-y-8 no-scrollbar">
                   {/* UPLOAD WORKSTATION - Fixed 140px height */}
                   <div className="flex flex-col items-center gap-4">
                     <div className="h-[140px] w-full max-w-[300px] rounded-[1.5rem] bg-neutral-50 border-2 border-dashed border-neutral-200 flex flex-col items-center justify-center overflow-hidden relative group shadow-inner">
+                      {/* Standard Instruction: Always show video irrespective of permission check */}
                       <video ref={videoRef} className={cn("w-full h-full object-cover", !isCameraActive && "hidden")} autoPlay muted playsInline />
                       
                       {!isCameraActive && (
@@ -514,7 +515,7 @@ export default function LivestockPage() {
                     {hasCameraPermission === false && (
                       <Alert variant="destructive" className="max-w-[300px] rounded-xl py-2">
                         <AlertTriangle className="h-3 w-3" />
-                        <AlertDescription className="text-[9px] font-bold">Allow camera access in settings.</AlertDescription>
+                        <AlertDescription className="text-[9px] font-bold">Please allow camera access in browser settings.</AlertDescription>
                       </Alert>
                     )}
 
@@ -555,7 +556,7 @@ export default function LivestockPage() {
                               onSelect={(date) => { 
                                 if (date) { 
                                   field.onChange(date); 
-                                  // Snappy logic: close immediately on selection
+                                  // Snappy selection: close immediately
                                   setIsRegDatePickerOpen(false); 
                                 } 
                               }} 
@@ -616,7 +617,7 @@ export default function LivestockPage() {
         </DialogContent>
       </Dialog>
 
-      {/* EDIT DIALOG */}
+      {/* EDIT DIALOG (Flutter Layout Sync) */}
       <Dialog open={isEditDialogOpen} onOpenChange={(open) => { setIsEditDialogOpen(open); if (!open) stopCamera(); }}>
         <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[88dvh] flex flex-col z-[100]">
           {/* FIXED HEADER */}
@@ -637,10 +638,10 @@ export default function LivestockPage() {
 
           <Form {...editForm}>
             <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="flex flex-col flex-1 min-h-0">
-              {/* EXPANDED SCROLL CONTENT */}
+              {/* EXPANDED SCROLLABLE BODY */}
               <ScrollArea className="flex-1">
                 <div className="p-6 space-y-8 no-scrollbar">
-                  {/* UPLOAD WORKSTATION - Fixed 140px height */}
+                  {/* UPLOAD WORKSTATION */}
                   <div className="flex flex-col items-center gap-4">
                     <div className="h-[140px] w-full max-w-[300px] rounded-[1.5rem] bg-neutral-50 border-2 border-dashed border-neutral-200 flex flex-col items-center justify-center overflow-hidden relative group shadow-inner">
                       <video ref={videoRef} className={cn("w-full h-full object-cover", !isCameraActive && "hidden")} autoPlay muted playsInline />
@@ -673,7 +674,7 @@ export default function LivestockPage() {
                     )}
                   </div>
                   
-                  {/* FORM MATRIX - PRIMARY FIELDS FIRST */}
+                  {/* PRIMARY FORM MATRIX */}
                   <div className="grid grid-cols-2 gap-4">
                     <FormField control={editForm.control} name="tagId" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Tag ID</Label><FormControl><Input className="h-10 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>)} />
                     <FormField control={editForm.control} name="registrationDate" render={({ field }) => (
@@ -711,7 +712,6 @@ export default function LivestockPage() {
                     <FormField control={editForm.control} name="gender" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Gender</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="h-10 rounded-xl bg-white border-slate-200 font-bold text-xs"><SelectValue /></SelectTrigger></FormControl><SelectContent className="z-[160]"><SelectItem value="female">Female</SelectItem><SelectItem value="male">Male</SelectItem></SelectContent></Select></FormItem>)} />
                   </div>
 
-                  {/* SCROLL BELOW FIELDS */}
                   <div className="grid grid-cols-2 gap-4">
                     <FormField control={editForm.control} name="age" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Age</Label><FormControl><Input type="number" className="h-10 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>)} />
                     <FormField control={editForm.control} name="currentWeight" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Weight</Label><FormControl><Input type="number" step="0.1" className="h-10 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>)} />
