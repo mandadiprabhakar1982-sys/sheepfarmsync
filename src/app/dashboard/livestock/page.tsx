@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useRef, useEffect } from 'react';
@@ -21,7 +20,8 @@ import {
   Upload,
   Calendar as CalendarIcon,
   CheckCircle2,
-  ChevronRight
+  ChevronRight,
+  AlertTriangle
 } from 'lucide-react';
 import { format, parseISO, isValid } from 'date-fns';
 import Image from 'next/image';
@@ -37,6 +37,7 @@ import { uploadToStorage } from '@/lib/upload';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import {
   Dialog,
   DialogContent,
@@ -94,6 +95,7 @@ export default function LivestockPage() {
 
   // Live Camera State
   const [isCameraActive, setIsCameraActive] = useState(false);
+  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const assetForm = useForm<AssetFormData>({
@@ -122,16 +124,19 @@ export default function LivestockPage() {
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: { facingMode: 'environment' } 
       });
+      setHasCameraPermission(true);
       setIsCameraActive(true);
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
     } catch (error) {
       console.error('Error accessing camera:', error);
+      setHasCameraPermission(false);
+      setIsCameraActive(false);
       toast({
         variant: 'destructive',
         title: 'Camera Access Denied',
-        description: 'Please allow camera access in your browser settings.',
+        description: 'Please enable camera permissions in your browser settings to use this feature.',
       });
     }
   };
@@ -251,7 +256,7 @@ export default function LivestockPage() {
   return (
     <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col relative md:px-0 bg-[#020617] md:bg-transparent">
       {/* MOBILE PREMIUM HEADER */}
-      <div className="md:hidden flex flex-col bg-gradient-to-br from-[#0FA5A0] to-[#176E6C] rounded-b-[2.5rem] overflow-hidden shadow-2xl relative">
+      <div className="md:hidden flex flex-col bg-gradient-to-br from-[#0FA5A0] to-[#176E6C] rounded-b-[2.5rem] overflow-hidden shadow-2xl relative shrink-0">
         <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
           <div className="absolute top-[-20%] right-[-10%] w-[300px] h-[300px] bg-white blur-[80px] rounded-full" />
         </div>
@@ -366,7 +371,13 @@ export default function LivestockPage() {
                 className="bg-white rounded-[1.5rem] p-4 flex items-center gap-4 shadow-xl active:scale-[0.98] transition-all relative overflow-hidden"
                 onClick={() => handleEditClick(sheep)}
               >
-                <div className="h-16 w-16 rounded-2xl bg-slate-50 border border-slate-100 overflow-hidden relative shrink-0 shadow-sm">
+                <div 
+                  className="h-16 w-16 rounded-2xl bg-slate-50 border border-slate-100 overflow-hidden relative shrink-0 shadow-sm cursor-zoom-in group/img"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (sheep.imageUrl) setZoomImage(sheep.imageUrl);
+                  }}
+                >
                   {sheep.imageUrl ? (
                     <Image src={sheep.imageUrl} alt="Sheep" fill className="object-cover" sizes="64px" />
                   ) : <ImageIcon className="h-full w-full p-4 text-slate-200" />}
@@ -487,29 +498,40 @@ export default function LivestockPage() {
                     {/* CAMERA UI */}
                     <div className="flex flex-col items-center gap-6">
                       <div className="h-56 w-full max-w-[340px] rounded-[2rem] bg-neutral-50 border-2 border-dashed border-neutral-200 flex flex-col items-center justify-center overflow-hidden relative group shadow-inner">
-                        {isCameraActive ? (
-                          <>
-                            <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
-                            <div className="absolute bottom-4 left-0 right-0 flex justify-center">
-                              <Button type="button" onClick={capturePhoto} className="rounded-full h-14 w-14 p-0 bg-[#0FA5A0] hover:bg-[#0FA5A0]/90 border-4 border-white shadow-2xl">
-                                <div className="h-7 w-7 rounded-full border-2 border-white" />
+                        <video ref={videoRef} className={cn("w-full h-full object-cover", !isCameraActive && "hidden")} autoPlay muted playsInline />
+                        
+                        {!isCameraActive && (
+                          assetForm.watch('imageUrl') ? (
+                            <div className="relative w-full h-full">
+                              <Image src={assetForm.watch('imageUrl')!} alt="Preview" fill className="object-cover" />
+                              <Button type="button" variant="destructive" size="icon" className="absolute top-3 right-3 h-9 w-9 rounded-full shadow-lg" onClick={() => assetForm.setValue('imageUrl', '')}>
+                                <X className="h-5 w-5" />
                               </Button>
                             </div>
-                          </>
-                        ) : assetForm.watch('imageUrl') ? (
-                          <div className="relative w-full h-full">
-                            <Image src={assetForm.watch('imageUrl')!} alt="Preview" fill className="object-cover" />
-                            <Button type="button" variant="destructive" size="icon" className="absolute top-3 right-3 h-9 w-9 rounded-full shadow-lg" onClick={() => assetForm.setValue('imageUrl', '')}>
-                              <X className="h-5 w-5" />
+                          ) : (
+                            <div className="flex flex-col items-center gap-3">
+                              <ImageIcon className="h-12 w-12 text-neutral-300" />
+                              <span className="text-[11px] font-black uppercase tracking-widest text-neutral-400">Profile Image Required</span>
+                            </div>
+                          )
+                        )}
+
+                        {isCameraActive && (
+                          <div className="absolute bottom-4 left-0 right-0 flex justify-center">
+                            <Button type="button" onClick={capturePhoto} className="rounded-full h-14 w-14 p-0 bg-[#0FA5A0] hover:bg-[#0FA5A0]/90 border-4 border-white shadow-2xl">
+                              <div className="h-7 w-7 rounded-full border-2 border-white" />
                             </Button>
-                          </div>
-                        ) : (
-                          <div className="flex flex-col items-center gap-3">
-                            <ImageIcon className="h-12 w-12 text-neutral-300" />
-                            <span className="text-[11px] font-black uppercase tracking-widest text-neutral-400">Profile Image Required</span>
                           </div>
                         )}
                       </div>
+
+                      {hasCameraPermission === false && (
+                        <Alert variant="destructive" className="max-w-[340px] rounded-2xl border-rose-100 bg-rose-50">
+                          <AlertTriangle className="h-4 w-4" />
+                          <AlertTitle className="text-[10px] font-black uppercase">Access Denied</AlertTitle>
+                          <AlertDescription className="text-[10px] font-bold opacity-70">Please allow camera permissions in your browser settings to use this feature.</AlertDescription>
+                        </Alert>
+                      )}
 
                       {!(isCameraActive) && (
                         <div className="flex gap-4 w-full max-w-[340px]">
@@ -574,8 +596,8 @@ export default function LivestockPage() {
                     </div>
 
                     <div className="grid grid-cols-2 gap-6">
-                      <FormField control={assetForm.control} name="age" render={({ field }) => (<FormItem><Label className="form-label-tactical text-[10px] font-black uppercase opacity-40 mb-2">Age (Months)</Label><FormControl><Input placeholder="4 Months" className="h-12 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>)} />
-                      <FormField control={assetForm.control} name="currentWeight" render={({ field }) => (<FormItem><Label className="form-label-tactical text-[10px] font-black uppercase opacity-40 mb-2">Weight (KG)</Label><FormControl><Input placeholder="e.g. 20 kg" className="h-12 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>)} />
+                      <FormField control={assetForm.control} name="age" render={({ field }) => (<FormItem><Label className="form-label-tactical text-[10px] font-black uppercase opacity-40 mb-2">Age (Months)</Label><FormControl><Input type="number" placeholder="4" className="h-12 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>)} />
+                      <FormField control={assetForm.control} name="currentWeight" render={({ field }) => (<FormItem><Label className="form-label-tactical text-[10px] font-black uppercase opacity-40 mb-2">Weight (KG)</Label><FormControl><Input type="number" step="0.1" placeholder="20" className="h-12 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>)} />
                     </div>
 
                     <div className="grid grid-cols-2 gap-6">
@@ -618,30 +640,41 @@ export default function LivestockPage() {
                     {/* IMAGE PREVIEW */}
                     <div className="flex flex-col items-center gap-6">
                       <div className="h-56 w-full max-w-[340px] rounded-[2rem] bg-neutral-50 border-2 border-dashed border-neutral-200 flex flex-col items-center justify-center overflow-hidden relative group shadow-inner">
-                        {isCameraActive ? (
-                          <>
-                            <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
-                            <div className="absolute bottom-4 left-0 right-0 flex justify-center">
-                              <Button type="button" onClick={capturePhoto} className="rounded-full h-14 w-14 p-0 bg-[#0FA5A0] hover:bg-[#0FA5A0]/90 border-4 border-white shadow-2xl">
-                                <div className="h-7 w-7 rounded-full border-2 border-white" />
+                        <video ref={videoRef} className={cn("w-full h-full object-cover", !isCameraActive && "hidden")} autoPlay muted playsInline />
+                        
+                        {!isCameraActive && (
+                          editForm.watch('imageUrl') ? (
+                            <div className="relative w-full h-full">
+                              <Image src={editForm.watch('imageUrl')!} alt="Preview" fill className="object-cover" />
+                              <Button type="button" variant="destructive" size="icon" className="absolute top-3 right-3 h-9 w-9 rounded-full shadow-lg" onClick={() => editForm.setValue('imageUrl', '')}>
+                                <X className="h-5 w-5" />
                               </Button>
                             </div>
-                          </>
-                        ) : editForm.watch('imageUrl') ? (
-                          <div className="relative w-full h-full">
-                            <Image src={editForm.watch('imageUrl')!} alt="Preview" fill className="object-cover" />
-                            <Button type="button" variant="destructive" size="icon" className="absolute top-3 right-3 h-9 w-9 rounded-full shadow-lg" onClick={() => editForm.setValue('imageUrl', '')}>
-                              <X className="h-5 w-5" />
+                          ) : (
+                            <div className="flex flex-col items-center gap-3">
+                              <ImageIcon className="h-12 w-12 text-neutral-300" />
+                              <span className="text-[11px] font-black uppercase tracking-widest text-neutral-400">Profile Image Required</span>
+                            </div>
+                          )
+                        )}
+
+                        {isCameraActive && (
+                          <div className="absolute bottom-4 left-0 right-0 flex justify-center">
+                            <Button type="button" onClick={capturePhoto} className="rounded-full h-14 w-14 p-0 bg-[#0FA5A0] hover:bg-[#0FA5A0]/90 border-4 border-white shadow-2xl">
+                              <div className="h-7 w-7 rounded-full border-2 border-white" />
                             </Button>
-                          </div>
-                        ) : (
-                          <div className="flex flex-col items-center gap-3">
-                            <ImageIcon className="h-12 w-12 text-neutral-300" />
-                            <span className="text-[11px] font-black uppercase tracking-widest text-neutral-400">Profile Image Required</span>
                           </div>
                         )}
                       </div>
                       
+                      {hasCameraPermission === false && (
+                        <Alert variant="destructive" className="max-w-[340px] rounded-2xl border-rose-100 bg-rose-50">
+                          <AlertTriangle className="h-4 w-4" />
+                          <AlertTitle className="text-[10px] font-black uppercase">Access Denied</AlertTitle>
+                          <AlertDescription className="text-[10px] font-bold opacity-70">Please allow camera permissions in your browser settings.</AlertDescription>
+                        </Alert>
+                      )}
+
                       {!(isCameraActive) && (
                         <div className="flex gap-4 w-full max-w-[340px]">
                           <Button type="button" variant="outline" onClick={startCamera} className="flex-1 h-12 text-[10px] font-black uppercase rounded-2xl gap-2 border-slate-200 hover:bg-slate-50">
@@ -706,7 +739,7 @@ export default function LivestockPage() {
 
                     <div className="grid grid-cols-2 gap-6">
                       <FormField control={editForm.control} name="age" render={({ field }) => (<FormItem><Label className="form-label-tactical text-[10px] font-black uppercase opacity-40 mb-2">Age (Months)</Label><FormControl><Input type="number" className="h-12 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>)} />
-                      <FormField control={editForm.control} name="currentWeight" render={({ field }) => (<FormItem><Label className="form-label-tactical text-[10px] font-black uppercase opacity-40 mb-2">Weight (KG)</Label><FormControl><Input type="number" className="h-12 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>)} />
+                      <FormField control={editForm.control} name="currentWeight" render={({ field }) => (<FormItem><Label className="form-label-tactical text-[10px] font-black uppercase opacity-40 mb-2">Weight (KG)</Label><FormControl><Input type="number" step="0.1" className="h-12 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>)} />
                     </div>
 
                     <div className="grid grid-cols-2 gap-6">
