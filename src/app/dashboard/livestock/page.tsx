@@ -84,6 +84,10 @@ export default function LivestockPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [zoomImage, setZoomImage] = useState<string | null>(null);
 
+  // Controlled Popover States for Date Pickers
+  const [isRegDatePickerOpen, setIsRegDatePickerOpen] = useState(false);
+  const [isEditRegDatePickerOpen, setIsEditRegDatePickerOpen] = useState(false);
+
   // Live Camera State
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
@@ -199,7 +203,7 @@ export default function LivestockPage() {
     editForm.reset({
       tagId: sheep.tagId,
       registrationDate: sheep.registrationDate ? parseISO(sheep.registrationDate) : new Date(),
-      gender: sheep.gender || 'female',
+      gender: (sheep.gender as 'male' | 'female') || 'female',
       age: sheep.age,
       currentWeight: sheep.currentWeight,
       breed: sheep.breed || 'Standard',
@@ -433,15 +437,23 @@ export default function LivestockPage() {
                       <FormField control={assetForm.control} name="registrationDate" render={({ field }) => (
                         <FormItem className="flex flex-col">
                           <Label className="form-label-tactical">Reg. Date</Label>
-                          <Popover>
+                          <Popover open={isRegDatePickerOpen} onOpenChange={setIsRegDatePickerOpen}>
                             <PopoverTrigger asChild>
                               <Button variant="outline" className="form-input-tactical w-full text-left justify-between font-bold">
                                 {field.value ? format(field.value, "MMM dd, yyyy") : "Pick date"}
                                 <CalendarIcon className="h-4 w-4 opacity-20" />
                               </Button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0 border-none bg-white shadow-2xl">
-                              <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
+                            <PopoverContent className="w-auto p-0 border-none bg-white shadow-2xl" align="start">
+                              <Calendar 
+                                mode="single" 
+                                selected={field.value} 
+                                onSelect={(date) => {
+                                  field.onChange(date);
+                                  setIsRegDatePickerOpen(false);
+                                }} 
+                                initialFocus 
+                              />
                             </PopoverContent>
                           </Popover>
                         </FormItem>
@@ -541,15 +553,23 @@ export default function LivestockPage() {
                       <FormField control={editForm.control} name="registrationDate" render={({ field }) => (
                         <FormItem className="flex flex-col">
                           <Label className="form-label-tactical">Reg. Date</Label>
-                          <Popover>
+                          <Popover open={isEditRegDatePickerOpen} onOpenChange={setIsEditRegDatePickerOpen}>
                             <PopoverTrigger asChild>
                               <Button variant="outline" className="form-input-tactical w-full text-left justify-between font-bold">
                                 {field.value ? format(field.value, "MMM dd, yyyy") : "Pick date"}
                                 <CalendarIcon className="h-4 w-4 opacity-20" />
                               </Button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0 border-none bg-white shadow-2xl">
-                              <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
+                            <PopoverContent className="w-auto p-0 border-none bg-white shadow-2xl" align="start">
+                              <Calendar 
+                                mode="single" 
+                                selected={field.value} 
+                                onSelect={(date) => {
+                                  field.onChange(date);
+                                  setIsEditRegDatePickerOpen(false);
+                                }} 
+                                initialFocus 
+                              />
                             </PopoverContent>
                           </Popover>
                         </FormItem>
