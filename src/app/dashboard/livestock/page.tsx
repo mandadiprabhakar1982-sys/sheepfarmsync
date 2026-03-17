@@ -55,6 +55,7 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import type { TrackedSheep } from '@/lib/types';
+import { cn } from '@/lib/utils';
 
 const assetSchema = z.object({
   tagId: z.string().min(1, 'Tag ID is required'),
@@ -83,7 +84,6 @@ export default function LivestockPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [zoomImage, setZoomImage] = useState<string | null>(null);
 
-  // Controlled Popover States for Date Pickers to fix the "not changing" issue
   const [isRegDatePickerOpen, setIsRegDatePickerOpen] = useState(false);
   const [isEditRegDatePickerOpen, setIsEditRegDatePickerOpen] = useState(false);
 
@@ -112,7 +112,6 @@ export default function LivestockPage() {
     return list;
   }, [trackedSheep, searchTerm]);
 
-  // CAMERA LOGIC
   const startCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ 
@@ -245,55 +244,70 @@ export default function LivestockPage() {
   return (
     <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-[calc(100vh-140px)] md:h-full flex flex-col relative px-4 md:px-0">
       <div className="flex-1 min-h-0 flex flex-col premium-card overflow-hidden bg-white mb-20 md:mb-0">
-        <CardHeader className="bg-[#0FA5A0] text-white p-2.5 px-5 shrink-0">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2">
-            <div className="space-y-0">
-              <div className="flex items-center gap-2">
-                <div className="p-1 bg-white/20 rounded-lg">
-                  <LayoutGrid className="h-4 w-4 text-white" />
-                </div>
-                <CardTitle className="text-lg font-black tracking-tight leading-none uppercase text-white">Sheep Registry</CardTitle>
+        <CardHeader className="bg-[#0FA5A0] text-white p-4 md:p-2.5 px-6 md:px-5 shrink-0 relative overflow-hidden">
+          {/* TACTICAL BACKGROUND BLUR */}
+          <div className="absolute top-[-50%] right-[-10%] w-[200px] h-[200px] bg-white/5 blur-[60px] rounded-full pointer-events-none" />
+          
+          <div className="flex flex-col gap-4 relative z-10">
+            {/* TITLE BLOCK */}
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-white/20 rounded-lg shadow-inner">
+                <LayoutGrid className="h-4 w-4 md:h-4 md:w-4 text-white" />
               </div>
-              <CardDescription className="text-white/60 text-[8px] font-black uppercase tracking-[0.2em] ml-7">Verified Individual Flock Records</CardDescription>
+              <div>
+                <CardTitle className="text-lg md:text-lg font-black tracking-tighter leading-none uppercase text-white">Sheep Registry</CardTitle>
+                <CardDescription className="text-white/60 text-[8px] font-bold uppercase tracking-[0.2em]">Verified Individual Flock Records</CardDescription>
+              </div>
             </div>
 
-            <div className="relative flex-1 max-w-xs">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3 w-3 text-white/40" />
-              <Input 
-                placeholder="Search Tag or Breed..." 
-                value={searchTerm} 
-                onChange={(e) => setSearchTerm(e.target.value)} 
-                className="h-8 pl-9 pr-3 rounded-lg bg-white/10 border-white/20 text-white placeholder:text-white/40 text-xs font-bold focus-visible:ring-white/20" 
-              />
+            {/* TACTICAL INPUT MATRIX */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+              <div className="relative flex-1 max-w-full md:max-w-xs">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3 w-3 text-white/40" />
+                <Input 
+                  placeholder="Search Tag or Breed..." 
+                  value={searchTerm} 
+                  onChange={(e) => setSearchTerm(e.target.value)} 
+                  className="h-9 md:h-8 pl-9 pr-3 rounded-xl md:rounded-lg bg-white/10 border-white/20 text-white placeholder:text-white/40 text-xs font-bold focus-visible:ring-white/20" 
+                />
+              </div>
+
+              <div className="flex items-center gap-3">
+                {/* NET SHEEP BADGE - MATCHING IMAGE */}
+                <div className="px-3 py-1.5 bg-black/20 rounded-xl md:rounded-lg text-white flex items-center gap-2.5 border border-white/10 shadow-inner">
+                  <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
+                  <div>
+                    <p className="text-[7px] md:text-[6px] font-black uppercase tracking-widest opacity-40 leading-none">Net Sheep</p>
+                    <p className="text-base md:text-base font-black tracking-tighter leading-none mt-0.5">{totalSheep}</p>
+                  </div>
+                </div>
+
+                <Button 
+                  onClick={() => {
+                    assetForm.reset({ registrationDate: new Date() });
+                    setIsEntryDialogOpen(true);
+                  }} 
+                  className="hidden md:flex h-8 px-3 rounded-lg font-black uppercase tracking-widest bg-white text-[#0FA5A0] hover:bg-white/90 gap-1.5 shadow-xl border-none text-[10px]"
+                >
+                  <PlusCircle className="h-3.5 w-3.5" />
+                  Add Sheep
+                </Button>
+              </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <Button 
-                onClick={() => {
-                  assetForm.reset({ registrationDate: new Date() });
-                  setIsEntryDialogOpen(true);
-                }} 
-                className="hidden md:flex h-8 px-3 rounded-lg font-black uppercase tracking-widest bg-white text-[#0FA5A0] hover:bg-white/90 gap-1.5 shadow-xl border-none text-[10px]"
-              >
-                <PlusCircle className="h-3.5 w-3.5" />
-                Add Sheep
-              </Button>
-              
-              <div className="px-3 py-0.5 bg-black/20 rounded-lg text-white flex items-center gap-2 border border-white/10">
-                <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
-                <div>
-                  <p className="text-[6px] font-black uppercase tracking-widest opacity-40 leading-none">Net Sheep</p>
-                  <p className="text-base font-black tracking-tighter leading-none mt-0.5">{totalSheep}</p>
-                </div>
-              </div>
+            {/* MOBILE COLUMN HEADERS - INSIDE TEAL SECTION */}
+            <div className="flex md:hidden border-t border-white/10 pt-3 pb-1">
+              <div className="w-[45%] text-[9px] font-black uppercase tracking-[0.2em] text-white/40">Sheep Identity</div>
+              <div className="w-[55%] text-[9px] font-black uppercase tracking-[0.2em] text-white/40">Attributes</div>
             </div>
           </div>
         </CardHeader>
 
         <ScrollArea className="flex-1 overflow-hidden">
-          <div className="min-w-[800px] md:min-w-full">
+          {/* DESKTOP VIEW */}
+          <div className="hidden md:block">
             <Table>
-              <TableHeader className="bg-[#0FA5A0] sticky top-0 z-10">
+              <TableHeader className="bg-[#0FA5A0] sticky top-0 z-10 border-b-none">
                 <TableRow className="border-none hover:bg-transparent">
                   <TableHead className="text-[10px] font-black uppercase tracking-widest py-4 pl-10 text-white w-[25%]">Sheep Identity</TableHead>
                   <TableHead className="text-[10px] font-black uppercase tracking-widest py-4 text-white w-[25%]">Attributes</TableHead>
@@ -336,7 +350,7 @@ export default function LivestockPage() {
                       <span className="text-[16px] font-black text-[#2F4F4F]">{sheep.currentWeight} kg</span>
                     </TableCell>
                     <TableCell className="text-right pr-10">
-                      <div className="flex items-center justify-end gap-2 md:opacity-0 group-hover:opacity-100 transition-all">
+                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all">
                         <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100" onClick={() => handleEditClick(sheep)}>
                           <Pencil className="h-3.5 w-3.5" />
                         </Button>
@@ -354,24 +368,59 @@ export default function LivestockPage() {
               </TableBody>
             </Table>
           </div>
+
+          {/* MOBILE VIEW - MATCHING IMAGE DENSITY */}
+          <div className="block md:hidden">
+            {filteredAssets.length > 0 ? (
+              <div className="divide-y divide-slate-100">
+                {filteredAssets.map((sheep) => (
+                  <div key={sheep.id} className="p-4 py-5 flex items-center justify-between bg-white active:bg-slate-50 transition-colors" onClick={() => handleEditClick(sheep)}>
+                    <div className="flex items-center gap-4 w-[45%] shrink-0">
+                      <div className="h-12 w-12 rounded-2xl bg-slate-50 border border-slate-100 overflow-hidden relative shrink-0 shadow-sm">
+                        {sheep.imageUrl ? (
+                          <Image src={sheep.imageUrl} alt="Sheep" fill className="object-cover" sizes="48px" />
+                        ) : <ImageIcon className="h-full w-full p-3 text-slate-200" />}
+                      </div>
+                      <span className="text-[14px] font-black text-[#2F4F4F] tracking-tight">Tag: {sheep.tagId}</span>
+                    </div>
+                    
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-col">
+                        <span className="text-[13px] font-black text-[#2F4F4F] leading-tight mb-1">{sheep.breed || 'Standard'}</span>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter whitespace-nowrap">
+                          {sheep.age} Months • {sheep.gender} • {sheep.registrationDate}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="shrink-0 ml-2">
+                      <ChevronRight className="h-4 w-4 text-slate-300" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="py-24 text-center opacity-20 font-black uppercase text-[10px] tracking-widest">No assets discovered</div>
+            )}
+          </div>
           <ScrollBar orientation="horizontal" />
         </ScrollArea>
       </div>
 
-      {/* MOBILE FAB */}
+      {/* MOBILE FAB - MATCHING IMAGE */}
       <button 
         onClick={() => {
           assetForm.reset({ registrationDate: new Date() });
           setIsEntryDialogOpen(true);
         }}
-        className="md:hidden fixed bottom-24 right-6 h-16 w-16 rounded-full bg-[#0FA5A0] text-white shadow-2xl flex items-center justify-center active:scale-90 transition-all z-[120]"
+        className="md:hidden fixed bottom-24 right-6 h-16 w-16 rounded-full bg-[#0FA5A0] text-white shadow-[0_10px_30px_rgba(15,165,160,0.4)] flex items-center justify-center active:scale-90 transition-all z-[120] border-4 border-white/10"
       >
-        <Plus className="h-8 w-8" />
+        <Plus className="h-8 w-8 stroke-[3px]" />
       </button>
 
       {/* ENROLLMENT DIALOG */}
       <Dialog open={isEntryDialogOpen} onOpenChange={(open) => { setIsEntryDialogOpen(open); if (!open) stopCamera(); }}>
-        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white max-h-[95vh] flex flex-col">
+        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white max-h-[95vh] flex flex-col">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]">
@@ -490,7 +539,7 @@ export default function LivestockPage() {
 
       {/* EDIT DIALOG */}
       <Dialog open={isEditDialogOpen} onOpenChange={(open) => { setIsEditDialogOpen(open); if (!open) stopCamera(); }}>
-        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white max-h-[95vh] flex flex-col">
+        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white max-h-[95vh] flex flex-col">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400">
@@ -594,9 +643,14 @@ export default function LivestockPage() {
                       <FormField control={editForm.control} name="age" render={({ field }) => (<FormItem><Label className="form-label-tactical">Age (Months)</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
                     </div>
                   </div>
-                  <Button type="submit" disabled={isUploading || isCameraActive} className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase tracking-widest shadow-xl">
-                    {isUploading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Synchronize Record'}
-                  </Button>
+                  <div className="flex gap-4">
+                    <Button type="button" variant="outline" onClick={() => deleteTrackedSheep(editingSheep.id, editingSheep._path)} className="h-16 rounded-2xl border-rose-100 text-rose-600 font-black uppercase tracking-widest px-8">
+                      <Trash2 className="h-5 w-5" />
+                    </Button>
+                    <Button type="submit" disabled={isUploading || isCameraActive} className="flex-1 h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase tracking-widest shadow-xl">
+                      {isUploading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Synchronize Record'}
+                    </Button>
+                  </div>
                 </form>
               </Form>
             </div>
@@ -624,5 +678,24 @@ export default function LivestockPage() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+function ChevronRight(props: any) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="m9 18 6-6-6-6" />
+    </svg>
   );
 }
