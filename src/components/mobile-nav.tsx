@@ -24,7 +24,7 @@ export function MobileNav() {
 
   return (
     <div 
-      className="md:hidden shrink-0 w-full px-4 flex flex-col items-center justify-center bg-[#020617] border-t border-white/5"
+      className="md:hidden shrink-0 w-full px-4 flex flex-col items-center justify-center bg-[#020617] border-t border-white/5 z-50"
       style={{ 
         height: 'calc(64px + env(safe-area-inset-bottom))',
         paddingBottom: 'env(safe-area-inset-bottom)'
@@ -42,8 +42,8 @@ export function MobileNav() {
               key={index} 
               href={item.href}
               className={cn(
-                "flex flex-col items-center justify-center gap-1 transition-all active:scale-90 flex-1",
-                isActive ? "text-[#14d5c7]" : "text-white/20"
+                "flex flex-col items-center justify-center gap-1 transition-all active:scale-90 flex-1 h-full",
+                isActive ? "text-[#14d5c7]" : "text-white/30"
               )}
             >
               <div className={cn(
