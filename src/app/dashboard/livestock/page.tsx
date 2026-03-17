@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -18,7 +18,9 @@ import {
   Maximize2,
   Image as ImageIcon,
   Upload,
-  Calendar as CalendarIcon
+  Calendar as CalendarIcon,
+  CheckCircle2,
+  AlertCircle
 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import Image from 'next/image';
@@ -52,6 +54,7 @@ import {
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import type { TrackedSheep } from '@/lib/types';
 
 const assetSchema = z.object({
@@ -81,6 +84,11 @@ export default function LivestockPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [zoomImage, setZoomImage] = useState<string | null>(null);
 
+  // Live Camera State
+  const [isCameraActive, setIsCameraActive] = useState(false);
+  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
   const assetForm = useForm<AssetFormData>({
     resolver: zodResolver(assetSchema),
     defaultValues: { 
@@ -101,6 +109,53 @@ export default function LivestockPage() {
     }
     return list;
   }, [trackedSheep, searchTerm]);
+
+  // CAMERA LOGIC
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: 'environment' } 
+      });
+      setHasCameraPermission(true);
+      setIsCameraActive(true);
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+    } catch (error) {
+      console.error('Error accessing camera:', error);
+      setHasCameraPermission(false);
+      toast({
+        variant: 'destructive',
+        title: 'Camera Access Denied',
+        description: 'Please allow camera access in your browser settings.',
+      });
+    }
+  };
+
+  const stopCamera = () => {
+    if (videoRef.current && videoRef.current.srcObject) {
+      const stream = videoRef.current.srcObject as MediaStream;
+      stream.getTracks().forEach(track => track.stop());
+      videoRef.current.srcObject = null;
+    }
+    setIsCameraActive(false);
+  };
+
+  const capturePhoto = () => {
+    if (videoRef.current) {
+      const canvas = document.createElement('canvas');
+      canvas.width = videoRef.current.videoWidth;
+      canvas.height = videoRef.current.videoHeight;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL('image/jpeg');
+        const activeForm = isEntryDialogOpen ? assetForm : editForm;
+        activeForm.setValue('imageUrl', dataUrl);
+        stopCamera();
+      }
+    }
+  };
 
   const onAssetSubmit: SubmitHandler<AssetFormData> = async (data) => {
     setIsUploading(true);
@@ -164,6 +219,13 @@ export default function LivestockPage() {
     }
   };
 
+  // Clean up camera on unmount
+  useEffect(() => {
+    return () => {
+      stopCamera();
+    };
+  }, []);
+
   if (isLoading) {
     return (
       <div className="flex h-full w-full items-center justify-center min-h-[60vh]">
@@ -173,7 +235,7 @@ export default function LivestockPage() {
   }
 
   return (
-    <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col relative px-4 md:px-0">
+    <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-[calc(100vh-140px)] md:h-full flex flex-col relative px-4 md:px-0">
       <div className="flex-1 min-h-0 flex flex-col premium-card overflow-hidden bg-white mb-20 md:mb-0">
         <CardHeader className="bg-[#0FA5A0] text-white p-2.5 px-5 shrink-0">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2">
@@ -300,8 +362,8 @@ export default function LivestockPage() {
       </button>
 
       {/* ENROLLMENT DIALOG */}
-      <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>
-        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white max-h-[90vh] flex flex-col">
+      <Dialog open={isEntryDialogOpen} onOpenChange={(open) => { setIsEntryDialogOpen(open); if (!open) stopCamera(); }}>
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white max-h-[95vh] flex flex-col">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]">
@@ -316,29 +378,52 @@ export default function LivestockPage() {
               <Form {...assetForm}>
                 <form onSubmit={assetForm.handleSubmit(onAssetSubmit)} className="space-y-8">
                   <div className="space-y-6">
-                    {/* IMAGE UPLOAD UI */}
+                    {/* ENHANCED CAMERA UI */}
                     <div className="flex flex-col items-center gap-4">
-                      <div className="h-32 w-32 rounded-[2rem] bg-neutral-100 border-2 border-dashed border-neutral-300 flex flex-col items-center justify-center overflow-hidden relative group shadow-inner">
-                        {assetForm.watch('imageUrl') ? (
-                          <Image src={assetForm.watch('imageUrl')!} alt="Preview" fill className="object-cover" />
+                      <div className="h-48 w-full max-w-[300px] rounded-[2rem] bg-neutral-100 border-2 border-dashed border-neutral-300 flex flex-col items-center justify-center overflow-hidden relative group shadow-inner">
+                        {isCameraActive ? (
+                          <>
+                            <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
+                            <div className="absolute bottom-4 left-0 right-0 flex justify-center">
+                              <Button type="button" onClick={capturePhoto} className="rounded-full h-12 w-12 p-0 bg-primary hover:bg-primary/90 border-4 border-white shadow-xl">
+                                <div className="h-6 w-6 rounded-full border-2 border-white" />
+                              </Button>
+                            </div>
+                          </>
+                        ) : assetForm.watch('imageUrl') ? (
+                          <div className="relative w-full h-full">
+                            <Image src={assetForm.watch('imageUrl')!} alt="Preview" fill className="object-cover" />
+                            <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2 h-8 w-8 rounded-full" onClick={() => assetForm.setValue('imageUrl', '')}>
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
                         ) : (
-                          <ImageIcon className="h-8 w-8 text-neutral-300" />
+                          <div className="flex flex-col items-center gap-2">
+                            <ImageIcon className="h-10 w-10 text-neutral-300" />
+                            <span className="text-[10px] font-black uppercase text-neutral-400">Profile Image Required</span>
+                          </div>
                         )}
                       </div>
-                      <div className="flex gap-2">
-                        <div className="relative">
-                          <Button type="button" variant="outline" size="sm" className="h-8 text-[9px] font-black uppercase rounded-lg gap-2 border-slate-200">
-                            <Camera className="h-3 w-3" /> Use Camera
+
+                      {!(isCameraActive) && (
+                        <div className="flex gap-2">
+                          <Button type="button" variant="outline" size="sm" onClick={startCamera} className="h-9 px-4 text-[10px] font-black uppercase rounded-xl gap-2 border-slate-200">
+                            <Camera className="h-4 w-4" /> Use Camera
                           </Button>
-                          <input type="file" accept="image/*" capture="environment" className="absolute inset-0 opacity-0 cursor-pointer z-10" onChange={(e) => handleImageChange(e, assetForm)} />
+                          <div className="relative">
+                            <Button type="button" variant="outline" size="sm" className="h-9 px-4 text-[10px] font-black uppercase rounded-xl gap-2 border-slate-200">
+                              <Upload className="h-4 w-4" /> Select File
+                            </Button>
+                            <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer z-10" onChange={(e) => handleImageChange(e, assetForm)} />
+                          </div>
                         </div>
-                        <div className="relative">
-                          <Button type="button" variant="outline" size="sm" className="h-8 text-[9px] font-black uppercase rounded-lg gap-2 border-slate-200">
-                            <Upload className="h-3 w-3" /> Select File
-                          </Button>
-                          <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer z-10" onChange={(e) => handleImageChange(e, assetForm)} />
-                        </div>
-                      </div>
+                      )}
+
+                      {isCameraActive && (
+                        <Button type="button" variant="ghost" size="sm" onClick={stopCamera} className="text-[10px] font-black uppercase tracking-widest text-rose-500">
+                          Cancel Live Feed
+                        </Button>
+                      )}
                     </div>
                     
                     <div className="grid grid-cols-2 gap-4">
@@ -377,7 +462,7 @@ export default function LivestockPage() {
                       <FormField control={assetForm.control} name="age" render={({ field }) => (<FormItem><Label className="form-label-tactical">Age (Months)</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
                     </div>
                   </div>
-                  <Button type="submit" disabled={isUploading} className="w-full h-16 rounded-2xl bg-[#0FA5A0] hover:bg-[#176E6C] text-white font-black uppercase tracking-widest shadow-xl">
+                  <Button type="submit" disabled={isUploading || isCameraActive} className="w-full h-16 rounded-2xl bg-[#0FA5A0] hover:bg-[#176E6C] text-white font-black uppercase tracking-widest shadow-xl">
                     {isUploading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Commit to Registry'}
                   </Button>
                 </form>
@@ -388,8 +473,8 @@ export default function LivestockPage() {
       </Dialog>
 
       {/* EDIT DIALOG */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white max-h-[90vh] flex flex-col">
+      <Dialog open={isEditDialogOpen} onOpenChange={(open) => { setIsEditDialogOpen(open); if (!open) stopCamera(); }}>
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white max-h-[95vh] flex flex-col">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400">
@@ -406,27 +491,47 @@ export default function LivestockPage() {
                   <div className="space-y-6">
                     {/* IMAGE UPLOAD UI */}
                     <div className="flex flex-col items-center gap-4">
-                      <div className="h-32 w-32 rounded-[2rem] bg-neutral-100 border-2 border-dashed border-neutral-300 flex flex-col items-center justify-center overflow-hidden relative group shadow-inner">
-                        {editForm.watch('imageUrl') ? (
-                          <Image src={editForm.watch('imageUrl')!} alt="Preview" fill className="object-cover" />
+                      <div className="h-48 w-full max-w-[300px] rounded-[2rem] bg-neutral-100 border-2 border-dashed border-neutral-300 flex flex-col items-center justify-center overflow-hidden relative group shadow-inner">
+                        {isCameraActive ? (
+                          <>
+                            <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
+                            <div className="absolute bottom-4 left-0 right-0 flex justify-center">
+                              <Button type="button" onClick={capturePhoto} className="rounded-full h-12 w-12 p-0 bg-primary hover:bg-primary/90 border-4 border-white shadow-xl">
+                                <div className="h-6 w-6 rounded-full border-2 border-white" />
+                              </Button>
+                            </div>
+                          </>
+                        ) : editForm.watch('imageUrl') ? (
+                          <div className="relative w-full h-full">
+                            <Image src={editForm.watch('imageUrl')!} alt="Preview" fill className="object-cover" />
+                            <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2 h-8 w-8 rounded-full" onClick={() => editForm.setValue('imageUrl', '')}>
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
                         ) : (
-                          <ImageIcon className="h-8 w-8 text-neutral-300" />
+                          <ImageIcon className="h-10 w-10 text-neutral-300" />
                         )}
                       </div>
-                      <div className="flex gap-2">
-                        <div className="relative">
-                          <Button type="button" variant="outline" size="sm" className="h-8 text-[9px] font-black uppercase rounded-lg gap-2 border-slate-200">
-                            <Camera className="h-3 w-3" /> Camera
+                      
+                      {!(isCameraActive) && (
+                        <div className="flex gap-2">
+                          <Button type="button" variant="outline" size="sm" onClick={startCamera} className="h-9 px-4 text-[10px] font-black uppercase rounded-xl gap-2 border-slate-200">
+                            <Camera className="h-4 w-4" /> Use Camera
                           </Button>
-                          <input type="file" accept="image/*" capture="environment" className="absolute inset-0 opacity-0 cursor-pointer z-10" onChange={(e) => handleImageChange(e, editForm)} />
+                          <div className="relative">
+                            <Button type="button" variant="outline" size="sm" className="h-9 px-4 text-[10px] font-black uppercase rounded-xl gap-2 border-slate-200">
+                              <Upload className="h-4 w-4" /> Select File
+                            </Button>
+                            <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer z-10" onChange={(e) => handleImageChange(e, editForm)} />
+                          </div>
                         </div>
-                        <div className="relative">
-                          <Button type="button" variant="outline" size="sm" className="h-8 text-[9px] font-black uppercase rounded-lg gap-2 border-slate-200">
-                            <Upload className="h-3 w-3" /> Library
-                          </Button>
-                          <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer z-10" onChange={(e) => handleImageChange(e, editForm)} />
-                        </div>
-                      </div>
+                      )}
+
+                      {isCameraActive && (
+                        <Button type="button" variant="ghost" size="sm" onClick={stopCamera} className="text-[10px] font-black uppercase tracking-widest text-rose-500">
+                          Cancel Live Feed
+                        </Button>
+                      )}
                     </div>
                     
                     <div className="grid grid-cols-2 gap-4">
@@ -465,7 +570,7 @@ export default function LivestockPage() {
                       <FormField control={editForm.control} name="age" render={({ field }) => (<FormItem><Label className="form-label-tactical">Age (Months)</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
                     </div>
                   </div>
-                  <Button type="submit" disabled={isUploading} className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase tracking-widest shadow-xl">
+                  <Button type="submit" disabled={isUploading || isCameraActive} className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase tracking-widest shadow-xl">
                     {isUploading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Synchronize Record'}
                   </Button>
                 </form>
