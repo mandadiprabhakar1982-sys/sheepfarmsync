@@ -19,7 +19,6 @@ import {
 } from 'lucide-react';
 import { format, parseISO, isToday, isYesterday } from 'date-fns';
 
-import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -155,122 +154,124 @@ export default function PurchasePage() {
 
   return (
     <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col relative">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-8 shrink-0">
-        <PageHeader title="Sheep Buying" description="Record Purchases from Farmers" className="mb-0" />
+      <div className="flex-1 min-h-0 flex flex-col premium-card overflow-hidden bg-white">
+        <CardHeader className="bg-[#0FA5A0] text-white p-8 shrink-0">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div className="space-y-1">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-white/20 rounded-lg">
+                  <ShoppingBag className="h-6 w-6 text-white" />
+                </div>
+                <CardTitle className="text-3xl font-black tracking-tight leading-none uppercase text-white">Sheep Buying</CardTitle>
+              </div>
+              <CardDescription className="text-white/60 text-[10px] font-black uppercase tracking-[0.2em]">Verified Sheep Procurement Audit</CardDescription>
+            </div>
 
-        <div className="flex items-center gap-4">
-          <Button onClick={() => setIsEntryDialogOpen(true)} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-[#0FA5A0] hover:bg-[#176E6C] text-white gap-2 shadow-xl border-none">
-            <PlusCircle className="h-5 w-5 text-white" />
-            Record Buying
-          </Button>
-          <div className="px-6 py-3 bg-neutral-900 rounded-2xl text-white flex items-center gap-4 shadow-xl shrink-0">
-            <ShieldCheck className="h-5 w-5 text-emerald-400" />
-            <div>
-              <p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Net Buy Spend</p>
-              <p className="text-xl font-black tracking-tight text-white">₹{totalPurchaseCost.toLocaleString()}</p>
+            {/* MERGED SEARCH MATRIX */}
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+              <Input 
+                placeholder="Search Farmer or Village..." 
+                value={searchTerm} 
+                onChange={(e) => setSearchTerm(e.target.value)} 
+                className="h-12 pl-11 pr-4 rounded-xl bg-white/10 border-white/20 text-white placeholder:text-white/40 font-bold focus-visible:ring-white/20" 
+              />
+            </div>
+
+            <div className="flex items-center gap-4">
+              <Button 
+                onClick={() => setIsEntryDialogOpen(true)} 
+                className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-white text-[#0FA5A0] hover:bg-white/90 gap-2 shadow-xl border-none"
+              >
+                <PlusCircle className="h-5 w-5" />
+                Record Buy
+              </Button>
+              
+              <div className="px-6 py-2 bg-black/20 rounded-xl text-white flex items-center gap-4 border border-white/10">
+                <ShieldCheck className="h-5 w-5 text-emerald-400" />
+                <div>
+                  <p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Net Buy Spend</p>
+                  <p className="text-2xl font-black tracking-tighter leading-none mt-1">₹{totalPurchaseCost.toLocaleString()}</p>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+        </CardHeader>
 
-      <div className="space-y-6 flex-1 min-h-0 flex flex-col">
-        <div className="relative shrink-0 w-full max-w-xl">
-          <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
-          <Input 
-            placeholder="Search Farmer or Village..." 
-            value={searchTerm} 
-            onChange={(e) => setSearchTerm(e.target.value)} 
-            className="h-12 md:h-14 pl-12 pr-12 rounded-2xl md:rounded-full bg-white border-none text-[#2F4F4F] font-bold shadow-sm" 
-          />
-          {searchTerm && <button onClick={() => setSearchTerm('')} className="absolute right-5 top-1/2 -translate-y-1/2"><X className="h-4 w-4 text-slate-300" /></button>}
-        </div>
-
-        <div className="flex-1 min-h-0 flex flex-col premium-card overflow-hidden bg-white">
-          <CardHeader className="bg-[#0FA5A0] text-white p-10 shrink-0">
-            <div className="flex justify-between items-end">
-              <div className="space-y-1">
-                <div className="flex items-center gap-3"><ShoppingBag className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase text-white">Buying Ledger</CardTitle></div>
-                <CardDescription className="text-white/60 text-[10px] font-black uppercase tracking-[0.2em]">Verified Sheep Procurement Stream</CardDescription>
+        <ScrollArea className="flex-1 overflow-hidden">
+          {/* MOBILE VIEW */}
+          <div className="block md:hidden p-4 space-y-8">
+            {groupedPurchases.length > 0 ? groupedPurchases.map((group) => (
+              <div key={group.date} className="space-y-4">
+                <div className="px-2 py-2 mb-3 bg-[#D7F2F1] rounded-lg">
+                  <p className="text-[11px] font-black uppercase tracking-widest text-[#176E6C]">{formatGroupDate(group.date)}</p>
+                </div>
+                <div className="space-y-4">
+                  {group.items.map((p) => (
+                    <div key={p.id} className="bg-white rounded-[1.25rem] p-5 flex items-center justify-between shadow-sm border border-slate-100 active:scale-[0.98] transition-all" onClick={() => handleEditClick(p)}>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-lg font-black text-[#2F4F4F] truncate leading-none mb-1">{p.farmerName}</h3>
+                        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                          {p.villageName} • {p.animalCount} Head
+                        </p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <p className="text-xl font-black text-[#2F4F4F]">₹{p.purchasePrice.toLocaleString()}</p>
+                        {p.dueAmount > 0 ? (
+                          <Badge className="bg-rose-50 text-rose-600 border-none font-black text-[8px] uppercase px-2 py-0.5 mt-1 tracking-tighter">₹{p.dueAmount} Due</Badge>
+                        ) : (
+                          <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#ecfdf5] text-[#43A047] border border-[#d1fae5] mt-1">
+                            <CheckCircle2 className="h-2.5 w-2.5" />
+                            <span className="text-[9px] font-black uppercase tracking-widest">Settled</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <p className="text-4xl font-black tracking-tighter">₹{totalPurchaseCost.toLocaleString()}</p>
-            </div>
-          </CardHeader>
+            )) : <div className="py-20 text-center opacity-20 font-black uppercase text-xs">No buying records found</div>}
+          </div>
 
-          <ScrollArea className="flex-1 overflow-hidden">
-            {/* MOBILE VIEW */}
-            <div className="block md:hidden p-4 space-y-8">
-              {groupedPurchases.length > 0 ? groupedPurchases.map((group) => (
-                <div key={group.date} className="space-y-4">
-                  <div className="px-2 py-2 mb-3 bg-[#D7F2F1] rounded-lg">
-                    <p className="text-[11px] font-black uppercase tracking-widest text-[#176E6C]">{formatGroupDate(group.date)}</p>
-                  </div>
-                  <div className="space-y-4">
-                    {group.items.map((p) => (
-                      <div key={p.id} className="bg-white rounded-[1.25rem] p-5 flex items-center justify-between shadow-sm border border-slate-100 active:scale-[0.98] transition-all" onClick={() => handleEditClick(p)}>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-lg font-black text-[#2F4F4F] truncate leading-none mb-1">{p.farmerName}</h3>
-                          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-                            {p.villageName} • {p.animalCount} Head
-                          </p>
+          {/* DESKTOP VIEW */}
+          <div className="hidden md:block">
+            <Table>
+              <TableHeader className="bg-[#0FA5A0] sticky top-0 z-10">
+                <TableRow className="border-none hover:bg-transparent">
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-white">Buying Date</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-white">Farmer / Village</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-center text-white">Head Count</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-white">Purchase Value</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredPurchases.map((p) => (
+                  <TableRow key={p.id} className="hover:bg-slate-50 border-b border-slate-100 group cursor-pointer transition-colors" onClick={() => handleEditClick(p)}>
+                    <TableCell className="py-6 pl-10 text-[11px] font-black text-slate-400">{p.purchaseDate}</TableCell>
+                    <TableCell>
+                      <div className="flex flex-col"><span className="text-[14px] font-black text-[#2F4F4F]">{p.farmerName}</span><span className="text-[9px] font-bold text-slate-400 uppercase">{p.villageName}</span></div>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Badge className="bg-[#D7F2F1] text-[#0FA5A0] border-none font-black text-[10px] px-3 uppercase tracking-widest">{p.animalCount} Head</Badge>
+                    </TableCell>
+                    <TableCell className="text-right pr-10">
+                      <div className="flex items-center justify-end gap-4">
+                        <div className="flex flex-col items-end">
+                          <span className="text-[18px] font-black text-[#2F4F4F]">₹{p.purchasePrice.toLocaleString()}</span>
+                          {p.dueAmount > 0 && <span className="text-[9px] font-bold text-rose-500 uppercase">₹{p.dueAmount.toLocaleString()} Pending</span>}
                         </div>
-                        <div className="text-right shrink-0">
-                          <p className="text-xl font-black text-[#2F4F4F]">₹{p.purchasePrice.toLocaleString()}</p>
-                          {p.dueAmount > 0 ? (
-                            <Badge className="bg-rose-50 text-rose-600 border-none font-black text-[8px] uppercase px-2 py-0.5 mt-1 tracking-tighter">₹{p.dueAmount} Due</Badge>
-                          ) : (
-                            <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#ecfdf5] text-[#43A047] border border-[#d1fae5] mt-1">
-                              <CheckCircle2 className="h-2.5 w-2.5" />
-                              <span className="text-[9px] font-black uppercase tracking-widest">Settled</span>
-                            </div>
-                          )}
+                        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                          <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-emerald-50 text-[#43A047]" onClick={(e) => { e.stopPropagation(); handleEditClick(p); }}><Pencil className="h-4 w-4" /></Button>
+                          <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-rose-50 text-rose-600" onClick={(e) => { e.stopPropagation(); deletePurchase(p.id, p._path); }}><Trash2 className="h-4 w-4" /></Button>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </div>
-              )) : <div className="py-20 text-center opacity-20 font-black uppercase text-xs">No buying records found</div>}
-            </div>
-
-            {/* DESKTOP VIEW */}
-            <div className="hidden md:block">
-              <Table>
-                <TableHeader className="bg-[#0FA5A0] sticky top-0 z-10">
-                  <TableRow className="border-none hover:bg-transparent">
-                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-white">Buying Date</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-white">Farmer / Village</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-center text-white">Head Count</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-white">Purchase Value</TableHead>
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredPurchases.map((p) => (
-                    <TableRow key={p.id} className="hover:bg-slate-50 border-b border-slate-100 group cursor-pointer transition-colors" onClick={() => handleEditClick(p)}>
-                      <TableCell className="py-6 pl-10 text-[11px] font-black text-slate-400">{p.purchaseDate}</TableCell>
-                      <TableCell>
-                        <div className="flex flex-col"><span className="text-[14px] font-black text-[#2F4F4F]">{p.farmerName}</span><span className="text-[9px] font-bold text-slate-400 uppercase">{p.villageName}</span></div>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Badge className="bg-[#D7F2F1] text-[#0FA5A0] border-none font-black text-[10px] px-3 uppercase tracking-widest">{p.animalCount} Head</Badge>
-                      </TableCell>
-                      <TableCell className="text-right pr-10">
-                        <div className="flex items-center justify-end gap-4">
-                          <div className="flex flex-col items-end">
-                            <span className="text-[18px] font-black text-[#2F4F4F]">₹{p.purchasePrice.toLocaleString()}</span>
-                            {p.dueAmount > 0 && <span className="text-[9px] font-bold text-rose-500 uppercase">₹{p.dueAmount.toLocaleString()} Pending</span>}
-                          </div>
-                          <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
-                            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-emerald-50 text-[#43A047]" onClick={(e) => { e.stopPropagation(); handleEditClick(p); }}><Pencil className="h-4 w-4" /></Button>
-                            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-rose-50 text-rose-600" onClick={(e) => { e.stopPropagation(); deletePurchase(p.id, p._path); }}><Trash2 className="h-4 w-4" /></Button>
-                          </div>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </ScrollArea>
-        </div>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </ScrollArea>
       </div>
 
       <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>

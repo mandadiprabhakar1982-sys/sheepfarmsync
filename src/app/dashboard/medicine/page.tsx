@@ -37,7 +37,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { PageHeader } from '@/components/page-header';
 import {
   Dialog,
   DialogContent,
@@ -172,7 +171,7 @@ export default function MedicinePage() {
   }
 
   return (
-    <div className="md:animate-in md:fade-in md:duration-700 max-w-7xl mx-auto h-full flex flex-col relative">
+    <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col relative">
       {/* MOBILE NEURAL VIEW */}
       <div className="block md:hidden mobile-neural-screen">
         <header className="mb-8">
@@ -263,63 +262,65 @@ export default function MedicinePage() {
         </button>
       </div>
 
-      {/* DESKTOP VIEW */}
+      {/* DESKTOP VIEW - MERGED TACTICAL HUB */}
       <div className="hidden md:flex flex-col h-full">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-8 shrink-0">
-          <PageHeader title="Medical & Health" description="Clinical History & Medicine Costs" className="mb-0" />
+        <div className="flex-1 min-h-0 flex flex-col premium-card overflow-hidden bg-white">
+          <CardHeader className="bg-[#0FA5A0] text-white p-8 shrink-0">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+              <div className="space-y-1">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-white/20 rounded-lg">
+                    <Syringe className="h-6 w-6 text-white" />
+                  </div>
+                  <CardTitle className="text-3xl font-black tracking-tight leading-none uppercase text-white">Medical & Health</CardTitle>
+                </div>
+                <CardDescription className="text-white/60 text-[10px] font-black uppercase tracking-[0.2em]">Clinical History & Medicine Costs</CardDescription>
+              </div>
 
-          <div className="flex items-center gap-4">
-            <Button 
-              onClick={() => activeTab === 'clinical' ? setIsClinicalDialogOpen(true) : setIsProcurementDialogOpen(true)} 
-              className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-[#0FA5A0] hover:bg-[#176E6C] text-white gap-2 shadow-xl border-none"
-            >
-              <PlusCircle className="h-5 w-5 text-white" />
-              {activeTab === 'clinical' ? 'Log Treatment' : 'Buy Medicine'}
-            </Button>
-            <div className="px-6 py-3 bg-neutral-900 rounded-2xl text-white flex items-center gap-4 shadow-xl shrink-0">
-              <ShieldCheck className="h-5 w-5 text-emerald-400" />
-              <div>
-                <p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Net Med Spend</p>
-                <p className="text-xl font-black tracking-tight text-white">₹{totalMedicineCost.toLocaleString()}</p>
+              {/* MERGED SEARCH MATRIX */}
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+                <Input 
+                  placeholder={activeTab === 'clinical' ? "Search Sheep ID or Medicine..." : "Search Shop or Bill..."} 
+                  value={searchTerm} 
+                  onChange={(e) => setSearchTerm(e.target.value)} 
+                  className="h-12 pl-11 pr-4 rounded-xl bg-white/10 border-white/20 text-white placeholder:text-white/40 font-bold focus-visible:ring-white/20" 
+                />
+              </div>
+
+              <div className="flex items-center gap-4">
+                <Button 
+                  onClick={() => activeTab === 'clinical' ? setIsClinicalDialogOpen(true) : setIsProcurementDialogOpen(true)} 
+                  className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-white text-[#0FA5A0] hover:bg-white/90 gap-2 shadow-xl border-none"
+                >
+                  <PlusCircle className="h-5 w-5" />
+                  {activeTab === 'clinical' ? 'Log Treatment' : 'Buy Medicine'}
+                </Button>
+                
+                <div className="px-6 py-2 bg-black/20 rounded-xl text-white flex items-center gap-4 border border-white/10">
+                  <ShieldCheck className="h-5 w-5 text-emerald-400" />
+                  <div>
+                    <p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Net Med Spend</p>
+                    <p className="text-2xl font-black tracking-tighter leading-none mt-1">₹{totalMedicineCost.toLocaleString()}</p>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
+          </CardHeader>
 
-        <div className="space-y-6 flex-1 min-h-0 flex flex-col">
-          <div className="relative shrink-0 w-full max-w-xl">
-            <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
-            <Input 
-              placeholder={activeTab === 'clinical' ? "Search Sheep ID or Medicine..." : "Search Supplier or Item..."} 
-              value={searchTerm} 
-              onChange={(e) => setSearchTerm(e.target.value)} 
-              className="h-12 md:h-14 pl-12 pr-12 rounded-2xl md:rounded-full bg-white border-none text-[#2F4F4F] font-bold shadow-sm" 
-            />
-            {searchTerm && <button onClick={() => setSearchTerm('')} className="absolute right-5 top-1/2 -translate-y-1/2"><X className="h-4 w-4 text-slate-300" /></button>}
-          </div>
+          <div className="px-8 pt-6">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-6 p-1.5 bg-[#D7F2F1] rounded-2xl h-14 md:h-16 md:max-w-md shadow-inner">
+                <TabsTrigger value="clinical" className="tab-trigger-tactical">
+                  <Activity className="h-3.5 w-3.5" /> Clinical Records
+                </TabsTrigger>
+                <TabsTrigger value="pharma" className="tab-trigger-tactical">
+                  <History className="h-3.5 w-3.5" /> Medical Bills
+                </TabsTrigger>
+              </TabsList>
 
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
-            <TabsList className="grid w-full grid-cols-2 mb-8 p-1.5 bg-[#D7F2F1] rounded-2xl h-14 md:h-16 md:max-w-md shadow-inner">
-              <TabsTrigger value="clinical" className="tab-trigger-tactical">
-                <Activity className="h-3.5 w-3.5" /> Clinical
-              </TabsTrigger>
-              <TabsTrigger value="pharma" className="tab-trigger-tactical">
-                <History className="h-3.5 w-3.5" /> Med Cost
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="clinical" className="flex-1 flex flex-col min-h-0 m-0">
-              <div className="flex-1 min-h-0 flex flex-col premium-card overflow-hidden bg-white">
-                <CardHeader className="bg-[#0FA5A0] text-white p-10 shrink-0">
-                  <div className="flex justify-between items-end">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-3"><Heart className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase text-white">Clinical History</CardTitle></div>
-                      <CardDescription className="text-white/60 text-[10px] font-black uppercase tracking-[0.2em]">Medical Protocol & Treatment Audit</CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-
-                <ScrollArea className="flex-1 overflow-hidden">
+              <TabsContent value="clinical" className="m-0">
+                <ScrollArea className="h-[calc(100vh-320px)]">
                   <Table>
                     <TableHeader className="bg-[#0FA5A0] sticky top-0 z-10">
                       <TableRow className="border-none hover:bg-transparent">
@@ -348,21 +349,10 @@ export default function MedicinePage() {
                     </TableBody>
                   </Table>
                 </ScrollArea>
-              </div>
-            </TabsContent>
+              </TabsContent>
 
-            <TabsContent value="pharma" className="flex-1 flex flex-col min-h-0 m-0">
-              <div className="flex-1 min-h-0 flex flex-col premium-card overflow-hidden bg-white">
-                <CardHeader className="bg-[#0FA5A0] text-white p-10 shrink-0">
-                  <div className="flex justify-between items-end">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-3"><ShoppingBag className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase text-white">Medical Bills</CardTitle></div>
-                      <CardDescription className="text-white/60 text-[10px] font-black uppercase tracking-[0.2em]">Medicine Procurement & Payment Audit</CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-
-                <ScrollArea className="flex-1 overflow-hidden">
+              <TabsContent value="pharma" className="m-0">
+                <ScrollArea className="h-[calc(100vh-320px)]">
                   <Table>
                     <TableHeader className="bg-[#0FA5A0] sticky top-0 z-10">
                       <TableRow className="border-none hover:bg-transparent">
@@ -393,9 +383,9 @@ export default function MedicinePage() {
                     </TableBody>
                   </Table>
                 </ScrollArea>
-              </div>
-            </TabsContent>
-          </Tabs>
+              </TabsContent>
+            </Tabs>
+          </div>
         </div>
       </div>
 

@@ -10,7 +10,8 @@ import {
   Plus,
   ShieldCheck,
   Wheat,
-  Loader2
+  Loader2,
+  Search
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -41,14 +42,12 @@ import { useFarm } from '@/context/FarmContext';
 import { useState, useMemo } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Label } from '@/components/ui/label';
-import { PageHeader } from '@/components/page-header';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 
 const feedTypes = ['TMR', 'Silage', 'Groundnut', 'Other'] as const;
@@ -68,6 +67,7 @@ export default function FeedPage() {
   const { feedCosts, addFeedCost, deleteFeedCost, totalFeedCost, isLoading } = useFarm();
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [isEntryDialogOpen, setIsEntryDialogOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   
   const form = useForm<FeedFormData>({
     resolver: zodResolver(formSchema),
@@ -80,8 +80,9 @@ export default function FeedPage() {
 
   const sortedFeedCosts = useMemo(() => {
     if (!feedCosts) return [];
-    return [...feedCosts].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }, [feedCosts]);
+    const filtered = feedCosts.filter(f => f.feedType.toLowerCase().includes(searchTerm.toLowerCase()));
+    return [...filtered].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }, [feedCosts, searchTerm]);
 
   const onSubmit: SubmitHandler<FeedFormData> = (data) => {
     const newCost = { ...data, date: format(data.date, 'yyyy-MM-dd') };
@@ -104,36 +105,45 @@ export default function FeedPage() {
 
   return (
     <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col relative">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-8 shrink-0">
-        <PageHeader title="Fodder & Feed" description="Inventory & Cost Tracking" className="mb-0" />
-        
-        <div className="flex items-center gap-4">
-          <Button onClick={() => setIsEntryDialogOpen(true)} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-[#0FA5A0] hover:bg-[#176E6C] text-white gap-2 shadow-xl border-none">
-            <PlusCircle className="h-5 w-5 text-white" />
-            Record Fodder
-          </Button>
-
-          <div className="px-6 py-3 bg-neutral-900 rounded-2xl text-white flex items-center gap-4 shadow-xl shrink-0">
-            <ShieldCheck className="h-5 w-5 text-emerald-400" />
-            <div>
-              <p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Net Fodder Cost</p>
-              <p className="text-xl font-black tracking-tight text-white">₹{totalFeedCost.toLocaleString()}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div className="flex-1 min-h-0 flex flex-col premium-card overflow-hidden bg-white">
-        <CardHeader className="bg-[#0FA5A0] text-white p-10 shrink-0">
-          <div className="flex justify-between items-end">
+        <CardHeader className="bg-[#0FA5A0] text-white p-8 shrink-0">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="space-y-1">
               <div className="flex items-center gap-3">
-                <Wheat className="h-6 w-6" />
-                <CardTitle className="text-2xl font-black tracking-tight leading-none uppercase text-white">Fodder Ledger</CardTitle>
+                <Wheat className="h-6 w-6 text-white" />
+                <CardTitle className="text-3xl font-black tracking-tight leading-none uppercase text-white">Fodder Ledger</CardTitle>
               </div>
               <CardDescription className="text-white/60 text-[10px] font-black uppercase tracking-[0.2em]">Inventory Procurement History</CardDescription>
             </div>
-            <p className="text-4xl font-black tracking-tighter">₹{totalFeedCost.toLocaleString()}</p>
+
+            {/* MERGED SEARCH */}
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+              <Input 
+                placeholder="Search Feed Type..." 
+                value={searchTerm} 
+                onChange={(e) => setSearchTerm(e.target.value)} 
+                className="h-12 pl-11 pr-4 rounded-xl bg-white/10 border-white/20 text-white placeholder:text-white/40 font-bold focus-visible:ring-white/20" 
+              />
+            </div>
+
+            <div className="flex items-center gap-4">
+              <Button 
+                onClick={() => setIsEntryDialogOpen(true)} 
+                className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-white text-[#0FA5A0] hover:bg-white/90 gap-2 shadow-xl border-none"
+              >
+                <PlusCircle className="h-5 w-5" />
+                Record Fodder
+              </Button>
+              
+              <div className="px-6 py-2 bg-black/20 rounded-xl text-white flex items-center gap-4 border border-white/10">
+                <ShieldCheck className="h-5 w-5 text-emerald-400" />
+                <div>
+                  <p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Net Fodder Cost</p>
+                  <p className="text-2xl font-black tracking-tighter leading-none mt-1">₹{totalFeedCost.toLocaleString()}</p>
+                </div>
+              </div>
+            </div>
           </div>
         </CardHeader>
 
