@@ -460,7 +460,6 @@ export default function LivestockPage() {
       {/* ENROLLMENT DIALOG */}
       <Dialog open={isEntryDialogOpen} onOpenChange={(open) => { setIsEntryDialogOpen(open); if (!open) stopCamera(); }}>
         <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[88dvh] flex flex-col z-[100]">
-          {/* FIXED HEADER */}
           <DialogHeader className="bg-[#111111] p-6 text-left text-white shrink-0 relative">
             <div className="flex items-center gap-4">
               <div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]">
@@ -478,10 +477,8 @@ export default function LivestockPage() {
 
           <Form {...assetForm}>
             <form onSubmit={assetForm.handleSubmit(onAssetSubmit)} className="flex flex-col flex-1 min-h-0">
-              {/* EXPANDED SCROLLABLE BODY */}
               <ScrollArea className="flex-1">
                 <div className="p-6 space-y-8 no-scrollbar">
-                  {/* UPLOAD WORKSTATION */}
                   <div className="flex flex-col items-center gap-4">
                     <div className="h-[140px] w-full max-w-[300px] rounded-[1.5rem] bg-neutral-50 border-2 border-dashed border-neutral-200 flex flex-col items-center justify-center overflow-hidden relative group shadow-inner">
                       <video ref={videoRef} className={cn("w-full h-full object-cover", !isCameraActive && "hidden")} autoPlay muted playsInline />
@@ -533,7 +530,6 @@ export default function LivestockPage() {
                     )}
                   </div>
                   
-                  {/* PRIMARY FORM MATRIX */}
                   <div className="grid grid-cols-2 gap-4">
                     <FormField control={assetForm.control} name="tagId" render={({ field }) => (
                       <FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Sheep Tag ID</Label><FormControl><Input placeholder="e.g. 101-A" className="h-10 rounded-xl bg-white border-slate-200 font-bold text-sm px-4" {...field} /></FormControl></FormItem>
@@ -607,7 +603,6 @@ export default function LivestockPage() {
                 </div>
               </ScrollArea>
 
-              {/* FIXED FOOTER SAVE BUTTON */}
               <div className="p-6 shrink-0 bg-white border-t">
                 <Button type="submit" disabled={isUploading || isCameraActive} className="w-full h-14 rounded-full bg-gradient-to-r from-[#0FA5A0] to-[#176E6C] text-white font-black uppercase tracking-[0.2em] shadow-2xl transition-all active:scale-95 border-none text-[11px]">
                   {isUploading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Save Enrollment'}
@@ -621,7 +616,6 @@ export default function LivestockPage() {
       {/* EDIT DIALOG */}
       <Dialog open={isEditDialogOpen} onOpenChange={(open) => { setIsEditDialogOpen(open); if (!open) stopCamera(); }}>
         <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[88dvh] flex flex-col z-[100]">
-          {/* FIXED HEADER */}
           <DialogHeader className="bg-[#111111] p-6 text-left text-white shrink-0 relative">
             <div className="flex items-center gap-4">
               <div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]">
@@ -639,10 +633,8 @@ export default function LivestockPage() {
 
           <Form {...editForm}>
             <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="flex flex-col flex-1 min-h-0">
-              {/* EXPANDED SCROLLABLE BODY */}
               <ScrollArea className="flex-1">
                 <div className="p-6 space-y-8 no-scrollbar">
-                  {/* UPLOAD WORKSTATION */}
                   <div className="flex flex-col items-center gap-4">
                     <div className="h-[140px] w-full max-w-[300px] rounded-[1.5rem] bg-neutral-50 border-2 border-dashed border-neutral-200 flex flex-col items-center justify-center overflow-hidden relative group shadow-inner">
                       <video ref={videoRef} className={cn("w-full h-full object-cover", !isCameraActive && "hidden")} autoPlay muted playsInline />
@@ -675,7 +667,6 @@ export default function LivestockPage() {
                     )}
                   </div>
                   
-                  {/* PRIMARY FORM MATRIX */}
                   <div className="grid grid-cols-2 gap-4">
                     <FormField control={editForm.control} name="tagId" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 mb-1">Tag ID</Label><FormControl><Input className="h-10 rounded-xl bg-white border-slate-200 font-bold" {...field} /></FormControl></FormItem>)} />
                     <FormField control={editForm.control} name="registrationDate" render={({ field }) => (
@@ -743,7 +734,6 @@ export default function LivestockPage() {
                 </div>
               </ScrollArea>
 
-              {/* FIXED FOOTER SAVE BUTTON */}
               <div className="p-6 shrink-0 bg-white border-t flex gap-3">
                 <Button type="button" variant="outline" onClick={() => deleteTrackedSheep(editingSheep!.id, editingSheep!._path)} className="h-14 rounded-full border-rose-100 text-rose-600 font-black uppercase tracking-widest px-6 transition-all active:scale-95"><Trash2 className="h-5 w-5" /></Button>
                 <Button type="submit" disabled={isUploading || isCameraActive} className="flex-1 h-14 rounded-full bg-gradient-to-r from-[#0FA5A0] to-[#176E6C] text-white font-black uppercase tracking-[0.2em] shadow-2xl transition-all active:scale-95 border-none text-[11px]">{isUploading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Save Changes'}</Button>
