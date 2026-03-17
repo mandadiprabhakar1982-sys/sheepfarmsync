@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useFarm } from '@/context/FarmContext';
@@ -82,14 +81,14 @@ export default function OverviewPage() {
           <h2 className="text-4xl font-black text-white tracking-tighter">{value}</h2>
           {isHealth ? (
             <div className="flex flex-col gap-2 mt-2">
-              <p className="text-[10px] font-black text-white/70 uppercase tracking-widest flex items-center gap-2">
+              <div className="text-[10px] font-black text-white/70 uppercase tracking-widest flex items-center gap-2">
                 <span className="text-yellow-400">8 Alert</span>
                 <div className="flex-1 h-1.5 rounded-full overflow-hidden flex bg-white/10">
                   <div className="w-[40%] bg-red-500" />
                   <div className="w-[30%] bg-yellow-400" />
                   <div className="w-[30%] bg-emerald-400" />
                 </div>
-              </p>
+              </div>
             </div>
           ) : subValue ? (
             <p className="text-[10px] font-black text-white/70 uppercase tracking-widest mt-1">{subValue}</p>
