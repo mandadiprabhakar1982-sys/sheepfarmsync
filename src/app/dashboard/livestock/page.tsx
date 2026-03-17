@@ -200,45 +200,45 @@ export default function LivestockPage() {
       </div>
 
       {/* DESKTOP VIEW - MERGED TACTICAL HUB */}
-      <div className="hidden md:flex flex-col h-full">
+      <div className="hidden md:flex flex-col h-full px-4 md:px-0">
         <div className="flex-1 min-h-0 flex flex-col premium-card overflow-hidden bg-white">
-          <CardHeader className="bg-[#0FA5A0] text-white p-8 shrink-0">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-              <div className="space-y-1">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-white/20 rounded-lg">
-                    <LayoutGrid className="h-6 w-6 text-white" />
+          <CardHeader className="bg-[#0FA5A0] text-white p-4 px-6 shrink-0">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-1.5 bg-white/20 rounded-lg">
+                    <LayoutGrid className="h-5 w-5 text-white" />
                   </div>
-                  <CardTitle className="text-3xl font-black tracking-tight leading-none uppercase text-white">Sheep Registry</CardTitle>
+                  <CardTitle className="text-xl font-black tracking-tight leading-none uppercase text-white">Sheep Registry</CardTitle>
                 </div>
-                <CardDescription className="text-white/60 text-[10px] font-black uppercase tracking-[0.2em]">Verified Individual Flock Records</CardDescription>
+                <CardDescription className="text-white/60 text-[9px] font-black uppercase tracking-[0.2em] ml-9">Verified Individual Flock Records</CardDescription>
               </div>
 
               {/* MERGED SEARCH MATRIX */}
               <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/40" />
                 <Input 
                   placeholder="Search Sheep Tag or Breed..." 
                   value={searchTerm} 
                   onChange={(e) => setSearchTerm(e.target.value)} 
-                  className="h-12 pl-11 pr-4 rounded-xl bg-white/10 border-white/20 text-white placeholder:text-white/40 font-bold focus-visible:ring-white/20" 
+                  className="h-9 pl-10 pr-4 rounded-xl bg-white/10 border-white/20 text-white placeholder:text-white/40 font-bold focus-visible:ring-white/20" 
                 />
               </div>
 
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 <Button 
                   onClick={() => setIsEntryDialogOpen(true)} 
-                  className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-white text-[#0FA5A0] hover:bg-white/90 gap-2 shadow-xl border-none"
+                  className="h-9 px-4 rounded-xl font-black uppercase tracking-widest bg-white text-[#0FA5A0] hover:bg-white/90 gap-2 shadow-xl border-none"
                 >
-                  <PlusCircle className="h-5 w-5" />
+                  <PlusCircle className="h-4 w-4" />
                   Add Sheep
                 </Button>
                 
-                <div className="px-6 py-2 bg-black/20 rounded-xl text-white flex items-center gap-4 border border-white/10">
-                  <ShieldCheck className="h-5 w-5 text-emerald-400" />
+                <div className="px-4 py-1 bg-black/20 rounded-xl text-white flex items-center gap-3 border border-white/10">
+                  <ShieldCheck className="h-4 w-4 text-emerald-400" />
                   <div>
-                    <p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Net Sheep</p>
-                    <p className="text-2xl font-black tracking-tighter leading-none mt-1">{totalSheep}</p>
+                    <p className="text-[7px] font-black uppercase tracking-widest opacity-40 leading-none">Net Sheep</p>
+                    <p className="text-lg font-black tracking-tighter leading-none mt-0.5">{totalSheep}</p>
                   </div>
                 </div>
               </div>
@@ -249,33 +249,33 @@ export default function LivestockPage() {
             <Table>
               <TableHeader className="bg-[#0FA5A0] sticky top-0 z-10">
                 <TableRow className="border-none hover:bg-transparent">
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-white">Sheep Identity</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-white">Attributes</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-center text-white">Status</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-white">Current Weight</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-6 pl-10 text-white">Sheep Identity</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-6 text-white">Attributes</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-6 text-center text-white">Status</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-6 text-right pr-10 text-white">Current Weight</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredAssets.map((sheep) => (
                   <TableRow key={sheep.id} className="hover:bg-slate-50 border-b border-slate-100 group cursor-pointer transition-colors">
-                    <TableCell className="pl-10 py-8">
+                    <TableCell className="pl-10 py-6">
                       <div className="flex items-center gap-4">
-                        <div className="h-12 w-12 rounded-xl bg-slate-50 border border-slate-100 overflow-hidden relative shrink-0">
-                          {sheep.imageUrl ? <Image src={sheep.imageUrl} alt="Sheep" fill className="object-cover" sizes="48px" /> : <LayoutGrid className="h-full w-full p-3 text-slate-200" />}
+                        <div className="h-10 w-10 rounded-xl bg-slate-50 border border-slate-100 overflow-hidden relative shrink-0">
+                          {sheep.imageUrl ? <Image src={sheep.imageUrl} alt="Sheep" fill className="object-cover" sizes="40px" /> : <LayoutGrid className="h-full w-full p-2 text-slate-200" />}
                         </div>
-                        <span className="text-[16px] font-black text-[#2F4F4F]">Tag: {sheep.tagId}</span>
+                        <span className="text-[14px] font-black text-[#2F4F4F]">Tag: {sheep.tagId}</span>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex flex-col"><span className="text-[14px] font-bold text-slate-600">{sheep.breed || 'Standard'}</span><span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{sheep.age} Months • {sheep.gender}</span></div>
+                      <div className="flex flex-col"><span className="text-[13px] font-bold text-slate-600">{sheep.breed || 'Standard'}</span><span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{sheep.age} Months • {sheep.gender}</span></div>
                     </TableCell>
                     <TableCell className="text-center">
-                      <Badge className="bg-[#ecfdf5] text-[#43A047] border-none font-black text-[10px] px-3 uppercase tracking-widest">Verified</Badge>
+                      <Badge className="bg-[#ecfdf5] text-[#43A047] border-none font-black text-[9px] px-2.5 py-0.5 uppercase tracking-widest">Verified</Badge>
                     </TableCell>
                     <TableCell className="text-right pr-10">
                       <div className="flex items-center justify-end gap-4">
-                        <span className="text-xl font-black text-[#2F4F4F]">{sheep.currentWeight} kg</span>
-                        <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-rose-50 text-rose-600 opacity-0 group-hover:opacity-100 transition-all" onClick={(e) => { e.stopPropagation(); deleteTrackedSheep(sheep.id, sheep._path); }}><Trash2 className="h-4 w-4" /></Button>
+                        <span className="text-lg font-black text-[#2F4F4F]">{sheep.currentWeight} kg</span>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-rose-50 text-rose-600 opacity-0 group-hover:opacity-100 transition-all" onClick={(e) => { e.stopPropagation(); deleteTrackedSheep(sheep.id, sheep._path); }}><Trash2 className="h-3.5 w-3.5" /></Button>
                       </div>
                     </TableCell>
                   </TableRow>

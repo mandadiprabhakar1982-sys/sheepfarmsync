@@ -154,29 +154,7 @@ export default function PersonalFinancePage() {
   }
 
   return (
-    <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col relative">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-8 shrink-0">
-        <PageHeader title="Personal Finance" description="Unified Private & Business Accounts" className="mb-0" />
-
-        <div className="flex items-center gap-2 md:gap-4 overflow-x-auto pb-2 no-scrollbar md:w-auto w-full">
-          <Button onClick={() => setIsIncomeDialogOpen(true)} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-[#0FA5A0] hover:bg-[#176E6C] text-white gap-2 shadow-xl border-none shrink-0">
-            <ArrowUpCircle className="h-5 w-5 text-white" />
-            Record Income
-          </Button>
-          <Button onClick={() => setIsExpenseDialogOpen(true)} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-rose-600 hover:bg-rose-700 text-white gap-2 shadow-xl border-none shrink-0">
-            <ArrowDownCircle className="h-5 w-5 text-white" />
-            Log Expense
-          </Button>
-          <div className="hidden md:flex px-6 py-3 bg-neutral-900 rounded-2xl text-white items-center gap-4 shadow-xl shrink-0">
-            <ShieldCheck className="h-5 w-5 text-emerald-400" />
-            <div>
-              <p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Net Period Flow</p>
-              <p className="text-xl font-black tracking-tight text-white">₹{netCashFlow.toLocaleString()}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
+    <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col relative px-4 md:px-0">
       <div className="space-y-6 flex-1 min-h-0 flex flex-col">
         <div className="flex flex-col md:flex-row gap-4 items-center shrink-0">
           <div className="relative flex-1 w-full">
@@ -201,13 +179,35 @@ export default function PersonalFinancePage() {
 
           <TabsContent value={activeTab} className="flex-1 min-h-0 flex flex-col m-0">
             <div className="flex-1 min-h-0 flex flex-col premium-card overflow-hidden bg-white">
-              <CardHeader className="bg-[#0FA5A0] text-white p-10 shrink-0">
-                <div className="flex justify-between items-end">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-3"><ArrowRightLeft className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase text-white">{activeTab.replace('_', ' ')} Audit</CardTitle></div>
-                    <CardDescription className="text-white/60 text-[10px] font-black uppercase tracking-[0.2em]">Verified Personal Financial Cash Flow</CardDescription>
+              <CardHeader className="bg-[#0FA5A0] text-white p-4 px-6 shrink-0">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2.5">
+                      <div className="p-1.5 bg-white/20 rounded-lg">
+                        <ArrowRightLeft className="h-5 w-5 text-white" />
+                      </div>
+                      <CardTitle className="text-xl font-black tracking-tight leading-none uppercase text-white">{activeTab.replace('_', ' ')} Audit</CardTitle>
+                    </div>
+                    <CardDescription className="text-white/60 text-[9px] font-black uppercase tracking-[0.2em] ml-9">Verified Personal Financial Cash Flow</CardDescription>
                   </div>
-                  <p className="text-4xl font-black tracking-tighter">₹{netCashFlow.toLocaleString()}</p>
+
+                  <div className="flex items-center gap-3">
+                    <Button onClick={() => setIsIncomeDialogOpen(true)} className="h-9 px-4 rounded-xl font-black uppercase tracking-widest bg-white text-[#0FA5A0] hover:bg-white/90 gap-2 shadow-xl border-none">
+                      <ArrowUpCircle className="h-4 w-4" />
+                      Income
+                    </Button>
+                    <Button onClick={() => setIsExpenseDialogOpen(true)} className="h-9 px-4 rounded-xl font-black uppercase tracking-widest bg-rose-600 hover:bg-rose-700 text-white gap-2 shadow-xl border-none">
+                      <ArrowDownCircle className="h-4 w-4" />
+                      Expense
+                    </Button>
+                    <div className="px-4 py-1 bg-black/20 rounded-xl text-white flex items-center gap-3 border border-white/10">
+                      <ShieldCheck className="h-4 w-4 text-emerald-400" />
+                      <div>
+                        <p className="text-[7px] font-black uppercase tracking-widest opacity-40 leading-none">Net Period</p>
+                        <p className="text-lg font-black tracking-tighter leading-none mt-0.5">₹{netCashFlow.toLocaleString()}</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </CardHeader>
 
@@ -248,10 +248,10 @@ export default function PersonalFinancePage() {
                   <Table>
                     <TableHeader className="bg-[#0FA5A0] sticky top-0 z-10">
                       <TableRow className="border-none hover:bg-transparent">
-                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 pl-10 text-white">Transaction Date</TableHead>
-                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-white">Origin / Description</TableHead>
-                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-center text-white">Ledger Category</TableHead>
-                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-8 text-right pr-10 text-white">Amount</TableHead>
+                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-6 pl-10 text-white">Transaction Date</TableHead>
+                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-6 text-white">Origin / Description</TableHead>
+                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-6 text-center text-white">Ledger Category</TableHead>
+                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-6 text-right pr-10 text-white">Amount</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
