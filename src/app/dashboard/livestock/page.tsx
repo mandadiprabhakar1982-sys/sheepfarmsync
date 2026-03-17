@@ -537,7 +537,7 @@ export default function LivestockPage() {
                     <FormField control={assetForm.control} name="registrationDate" render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <Label className="text-[9px] font-black uppercase opacity-40 mb-1">Reg. Date</Label>
-                        <Popover open={isRegDatePickerOpen} onOpenChange={setIsRegDatePickerOpen}>
+                        <Popover open={isRegDatePickerOpen} onOpenChange={setIsRegDatePickerOpen} modal={true}>
                           <PopoverTrigger asChild>
                             <Button variant="outline" className="h-10 rounded-xl bg-white border-slate-200 w-full text-left justify-between font-black uppercase text-[11px]">
                               {field.value instanceof Date
@@ -672,7 +672,7 @@ export default function LivestockPage() {
                     <FormField control={editForm.control} name="registrationDate" render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <Label className="text-[9px] font-black uppercase opacity-40 mb-1">Reg. Date</Label>
-                        <Popover open={isEditRegDatePickerOpen} onOpenChange={setIsEditRegDatePickerOpen}>
+                        <Popover open={isEditRegDatePickerOpen} onOpenChange={setIsEditRegDatePickerOpen} modal={true}>
                           <PopoverTrigger asChild>
                             <Button variant="outline" className="h-10 rounded-xl bg-white border-slate-200 w-full text-left justify-between font-black uppercase text-[11px]">
                               {field.value instanceof Date
