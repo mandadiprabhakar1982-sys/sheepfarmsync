@@ -22,8 +22,14 @@ export function MobileNav() {
   ];
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-[#020617]/80 backdrop-blur-2xl border-t border-white/5 px-2">
-      <div className="flex items-center justify-between h-20 max-w-lg mx-auto">
+    <div 
+      className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#020617]/95 backdrop-blur-2xl border-t border-white/5 flex flex-col items-center justify-center w-full"
+      style={{ 
+        height: '84px',
+        paddingBottom: 'env(safe-area-inset-bottom)'
+      }}
+    >
+      <div className="flex items-center justify-between w-full max-w-lg px-6 h-full">
         {navItems.map((item, index) => {
           const Icon = item.icon;
           // Exact match for the Hub, prefix match for sub-pages
@@ -36,7 +42,7 @@ export function MobileNav() {
               key={index} 
               href={item.href}
               className={cn(
-                "flex flex-col items-center justify-center flex-1 gap-1.5 transition-all active:scale-90 h-full",
+                "flex flex-col items-center justify-center gap-1.5 transition-all active:scale-90 h-full",
                 isActive ? "text-cyan-400" : "text-white/30"
               )}
             >
@@ -56,7 +62,6 @@ export function MobileNav() {
           );
         })}
       </div>
-      <div className="h-[env(safe-area-inset-bottom)]" />
     </div>
   );
 }
