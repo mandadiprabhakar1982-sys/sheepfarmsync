@@ -1,3 +1,4 @@
+
 'use client';
 
 import dynamic from 'next/dynamic';
@@ -14,7 +15,8 @@ import {
   Heart,
   Syringe,
   Baby,
-  ShoppingBag
+  ShoppingBag,
+  ArrowUpRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -41,7 +43,8 @@ export default function OverviewPage() {
     trackedSheep,
     avgWeight,
     isLoading,
-    totalSales
+    totalSales,
+    healthTasks
   } = useFarm();
 
   if (isLoading || !isHydrated) {
@@ -52,9 +55,11 @@ export default function OverviewPage() {
     );
   }
 
+  // Live Stats Computation
   const healthyCount = (trackedSheep || []).filter(s => s.healthStatus === 'Healthy').length;
   const careCount = (trackedSheep || []).filter(s => s.healthStatus === 'Ill' || s.healthStatus === 'Recovering').length;
   const pregnantCount = (trackedSheep || []).filter(s => s.notes?.toLowerCase().includes('pregnant')).length;
+  const alertCount = (healthTasks || []).filter(t => t.healthType === 'Treatment').length;
 
   const growthData = [
     { name: 'Oct', weight: 55 },
@@ -66,6 +71,7 @@ export default function OverviewPage() {
 
   const MobileView = (
     <div className="min-h-full bg-[#020617] text-white px-5 pt-8 pb-[110px] animate-in fade-in duration-700">
+      {/* HEADER SECTION */}
       <div className="mb-10">
         <div className="flex items-center justify-between mb-1">
           <h2 className="text-[34px] font-[800] tracking-tight leading-none">Dashboard</h2>
@@ -77,8 +83,13 @@ export default function OverviewPage() {
         <p className="text-white/40 text-sm font-medium">Overview of Your Sheep Farm</p>
       </div>
 
+      {/* PREMIUM GLOSSY GRID */}
       <div className="grid grid-cols-2 gap-4 mb-10">
-        <div className="glossy-card bg-gradient-to-br from-[#11c5be] to-[#0d8f89] h-[220px] flex flex-col justify-between p-5 card-inner-shadow" onClick={() => router.push('/dashboard/livestock')}>
+        {/* TOTAL SHEEP */}
+        <div 
+          className="glossy-card bg-gradient-to-br from-[#11c5be] to-[#0d8f89] h-[220px] flex flex-col justify-between p-5 card-inner-shadow cursor-pointer" 
+          onClick={() => router.push('/dashboard/livestock')}
+        >
           <div className="glossy-overlay" />
           <div className="h-10 w-10 rounded-full bg-white/20 border border-white/30 flex items-center justify-center">
             <Activity className="h-5 w-5 text-white" />
@@ -87,13 +98,21 @@ export default function OverviewPage() {
             <p className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-1">Total Sheep</p>
             <div className="flex items-end gap-2">
               <span className="text-5xl font-black tracking-tighter leading-none">{totalSheep}</span>
-              <div className="mb-1 flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/20 text-[10px] font-black">+12 <TrendingUp className="h-2.5 w-2.5" /></div>
+              <div className="mb-1 flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/20 text-[10px] font-black">
+                +12 <TrendingUp className="h-2.5 w-2.5" />
+              </div>
             </div>
           </div>
-          <button className="w-full rounded-2xl bg-white/10 py-3 font-black text-[9px] uppercase tracking-[0.2em] border border-white/10 flex items-center justify-center gap-2">View Records <ChevronRight className="h-3 w-3" /></button>
+          <button className="w-full rounded-2xl bg-white/10 py-3 font-black text-[9px] uppercase tracking-[0.2em] border border-white/10 flex items-center justify-center gap-2">
+            View Records <ChevronRight className="h-3 w-3" />
+          </button>
         </div>
 
-        <div className="glossy-card bg-gradient-to-br from-[#db2777] to-[#9d174d] h-[220px] flex flex-col justify-between p-5 card-inner-shadow" onClick={() => router.push('/dashboard/medicine')}>
+        {/* HEALTH ALERTS */}
+        <div 
+          className="glossy-card bg-gradient-to-br from-[#db2777] to-[#9d174d] h-[220px] flex flex-col justify-between p-5 card-inner-shadow cursor-pointer" 
+          onClick={() => router.push('/dashboard/medicine')}
+        >
           <div className="glossy-overlay" />
           <div className="h-10 w-10 rounded-full bg-white/20 border border-white/30 flex items-center justify-center">
             <HeartPulse className="h-5 w-5 text-white" />
@@ -101,7 +120,7 @@ export default function OverviewPage() {
           <div>
             <p className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-1">Health Alerts</p>
             <div className="flex items-center gap-3">
-              <span className="text-5xl font-black tracking-tighter leading-none">8</span>
+              <span className="text-5xl font-black tracking-tighter leading-none">{alertCount}</span>
               <span className="px-2.5 py-1 rounded-full bg-white text-[#db2777] text-[10px] font-black uppercase tracking-widest">Alert</span>
             </div>
             <div className="flex gap-1 mt-3">
@@ -112,10 +131,16 @@ export default function OverviewPage() {
               <div className="h-1 flex-1 bg-white/20 rounded-full" />
             </div>
           </div>
-          <button className="w-full rounded-2xl bg-white/10 py-3 font-black text-[9px] uppercase tracking-[0.2em] border border-white/10 flex items-center justify-center gap-2">View Alerts <ChevronRight className="h-3 w-3" /></button>
+          <button className="w-full rounded-2xl bg-white/10 py-3 font-black text-[9px] uppercase tracking-[0.2em] border border-white/10 flex items-center justify-center gap-2">
+            View Alerts <ChevronRight className="h-3 w-3" />
+          </button>
         </div>
 
-        <div className="glossy-card bg-gradient-to-br from-[#f59e0b] to-[#d97706] h-[220px] flex flex-col justify-between p-5 card-inner-shadow" onClick={() => router.push('/dashboard/feed')}>
+        {/* FEED COST */}
+        <div 
+          className="glossy-card bg-gradient-to-br from-[#f59e0b] to-[#d97706] h-[220px] flex flex-col justify-between p-5 card-inner-shadow cursor-pointer" 
+          onClick={() => router.push('/dashboard/feed')}
+        >
           <div className="glossy-overlay" />
           <div className="h-10 w-10 rounded-full bg-white/20 border border-white/30 flex items-center justify-center">
             <IndianRupee className="h-5 w-5 text-white" />
@@ -125,10 +150,16 @@ export default function OverviewPage() {
             <div className="text-3xl font-black tracking-tight leading-none">₹{totalFeedCost.toLocaleString()}</div>
             <div className="mt-2 inline-flex items-center px-2.5 py-1 rounded-full bg-[#115e59] text-[9px] font-black text-[#5eead4] uppercase tracking-widest">This Month</div>
           </div>
-          <button className="w-full rounded-2xl bg-white/10 py-3 font-black text-[9px] uppercase tracking-[0.2em] border border-white/10 flex items-center justify-center gap-2">View Reports <ChevronRight className="h-3 w-3" /></button>
+          <button className="w-full rounded-2xl bg-white/10 py-3 font-black text-[9px] uppercase tracking-[0.2em] border border-white/10 flex items-center justify-center gap-2">
+            View Reports <ChevronRight className="h-3 w-3" />
+          </button>
         </div>
 
-        <div className="glossy-card bg-gradient-to-br from-[#3b82f6] to-[#1d4ed8] h-[220px] flex flex-col justify-between p-5 card-inner-shadow overflow-hidden" onClick={() => router.push('/dashboard/livestock')}>
+        {/* AVG WEIGHT */}
+        <div 
+          className="glossy-card bg-gradient-to-br from-[#3b82f6] to-[#1d4ed8] h-[220px] flex flex-col justify-between p-5 card-inner-shadow overflow-hidden cursor-pointer" 
+          onClick={() => router.push('/dashboard/livestock')}
+        >
           <div className="glossy-overlay" />
           <div className="h-10 w-10 rounded-full bg-white/20 border border-white/30 flex items-center justify-center">
             <BarChart3 className="h-5 w-5 text-white" />
@@ -138,10 +169,13 @@ export default function OverviewPage() {
             <div className="text-4xl font-black tracking-tight leading-none mb-2">{avgWeight.toFixed(1)} <span className="text-xl">kg</span></div>
             <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#5eead4]/20 text-[10px] font-black text-[#5eead4]">+5.2% <TrendingUp className="h-2.5 w-2.5" /></div>
           </div>
-          <button className="w-full rounded-2xl bg-white/10 py-3 font-black text-[9px] uppercase tracking-[0.2em] border border-white/10 flex items-center justify-center gap-2">Weight Chart <ChevronRight className="h-3 w-3" /></button>
+          <button className="w-full rounded-2xl bg-white/10 py-3 font-black text-[9px] uppercase tracking-[0.2em] border border-white/10 flex items-center justify-center gap-2">
+            Weight Chart <ChevronRight className="h-3 w-3" />
+          </button>
         </div>
       </div>
 
+      {/* STATUS MATRIX ROW */}
       <div className="p-1 rounded-[2.5rem] bg-white/5 border border-white/10 shadow-2xl flex items-center h-[90px] mb-10 overflow-hidden">
         {[
           { icon: Heart, label: 'Healthy', val: healthyCount, color: '#14d5c7' },
@@ -173,7 +207,7 @@ export default function OverviewPage() {
         </div>
         <div className="bg-white rounded-[28px] border border-[#D9D9D9] p-5 h-[220px] shadow-sm border-l-[5px] border-l-[#43A047] flex flex-col justify-between overflow-hidden">
           <div className="flex items-center gap-3"><div className="h-10 w-10 rounded-full bg-[#43A047] flex items-center justify-center text-white"><HeartPulse className="h-5 w-5" /></div><h3 className="text-sm font-bold text-[#2F4F4F]">Health Records</h3></div>
-          <div className="space-y-4"><p className="text-3xl font-black text-[#176E6C]">Stable</p><Button onClick={() => router.push('/dashboard/medicine')} className="w-full bg-[#176E6C] text-white text-[9px] font-black uppercase tracking-widest rounded-xl">View Health Alerts</Button></div>
+          <div className="space-y-4"><p className="text-3xl font-black text-[#176E6C]">{alertCount > 0 ? 'Action Required' : 'Stable'}</p><Button onClick={() => router.push('/dashboard/medicine')} className="w-full bg-[#176E6C] text-white text-[9px] font-black uppercase tracking-widest rounded-xl">View Health Alerts</Button></div>
         </div>
         <div className="bg-white rounded-[28px] border border-[#D9D9D9] p-5 h-[220px] shadow-sm border-l-[5px] border-l-[#0FA5A0] flex flex-col justify-between overflow-hidden">
           <div className="flex items-center gap-3"><div className="h-10 w-10 rounded-full bg-[#0FA5A0] flex items-center justify-center text-white"><IndianRupee className="h-5 w-5" /></div><h3 className="text-sm font-bold text-[#2F4F4F]">Feed Cost</h3></div>
