@@ -1,3 +1,4 @@
+
 'use client';
 
 import { UserNav } from '@/components/user-nav';
@@ -38,7 +39,7 @@ export default function DashboardLayout({
       <SidebarInset className="flex flex-col h-full bg-transparent overflow-hidden">
         {/* MOBILE HEADER */}
         {isMobile ? (
-          <header className="h-16 bg-[#020617] px-6 flex items-center justify-between shrink-0 z-50 border-b border-white/5">
+          <header className="h-16 bg-[#020617] px-6 flex items-center justify-between shrink-0 z-30 border-b border-white/5">
             <div className="flex items-center gap-3">
               <SidebarTrigger className="h-10 w-10 text-white/60 hover:text-white bg-white/5 rounded-xl border border-white/10" />
               <div className="h-8 w-8 bg-white/10 rounded-lg flex items-center justify-center ml-1">

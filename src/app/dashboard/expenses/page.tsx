@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useForm, type SubmitHandler } from 'react-hook-form';
@@ -101,7 +102,7 @@ export default function ExpensesPage() {
   return (
     <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col relative bg-white md:bg-transparent">
       {/* MOBILE HEADER */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-[110] bg-[#059669] text-white px-6 py-5 flex items-center justify-between shadow-lg">
+      <div className="md:hidden fixed top-0 left-0 right-0 z-30 bg-[#059669] text-white px-6 py-5 flex items-center justify-between shadow-lg">
         <h2 className="text-xl font-black tracking-tight">Itara Kharchulu</h2>
         <p className="text-xl font-black">₹{totalFarmExpenses.toLocaleString()}</p>
       </div>
@@ -213,24 +214,26 @@ export default function ExpensesPage() {
       {/* MOBILE FAB */}
       <button 
         onClick={() => { form.reset(); setIsEntryDialogOpen(true); }}
-        className="md:hidden fixed bottom-24 right-6 h-14 w-14 rounded-full bg-[#059669] text-white shadow-2xl flex items-center justify-center active:scale-90 transition-all z-[120]"
+        className="md:hidden fixed bottom-24 right-6 h-14 w-14 rounded-full bg-[#059669] text-white shadow-2xl flex items-center justify-center active:scale-90 transition-all z-30"
       >
         <Plus className="h-7 w-7" />
       </button>
 
       <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>
-        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
-          <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
+        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white max-h-[90dvh] flex flex-col">
+          <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
             <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400"><Plus className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase">Kharchu Entry</DialogTitle></div>
             <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Document new farm overhead</DialogDescription>
           </DialogHeader>
-          <div className="p-8">
-            <Form {...form}><form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField control={form.control} name="description" render={({ field }) => (<FormItem><Label className="form-label-tactical">Kharchu Detail</Label><FormControl><Input placeholder="e.g. Electricity bill" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
-              <FormField control={form.control} name="amount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Bill Amount (₹)</Label><FormControl><Input type="number" className="form-input-tactical font-black text-xl" {...field} /></FormControl></FormItem>)} />
-              <Button type="submit" className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase shadow-xl">Record Kharchu</Button>
-            </form></Form>
-          </div>
+          <ScrollArea className="flex-1">
+            <div className="p-8 pb-12">
+              <Form {...form}><form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <FormField control={form.control} name="description" render={({ field }) => (<FormItem><Label className="form-label-tactical">Kharchu Detail</Label><FormControl><Input placeholder="e.g. Electricity bill" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+                <FormField control={form.control} name="amount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Bill Amount (₹)</Label><FormControl><Input type="number" className="form-input-tactical font-black text-xl" {...field} /></FormControl></FormItem>)} />
+                <Button type="submit" className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase shadow-xl">Record Kharchu</Button>
+              </form></Form>
+            </div>
+          </ScrollArea>
         </DialogContent>
       </Dialog>
     </div>

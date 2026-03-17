@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useRef, useEffect } from 'react';
@@ -20,7 +21,8 @@ import {
   Upload,
   Calendar as CalendarIcon,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  ChevronRight
 } from 'lucide-react';
 import { format, parseISO, isValid } from 'date-fns';
 import Image from 'next/image';
@@ -273,7 +275,7 @@ export default function LivestockPage() {
               </div>
 
               <div className="flex items-center gap-3">
-                {/* NET SHEEP BADGE - MATCHING IMAGE */}
+                {/* NET SHEEP BADGE */}
                 <div className="px-3 py-1.5 bg-black/20 rounded-xl md:rounded-lg text-white flex items-center gap-2.5 border border-white/10 shadow-inner">
                   <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
                   <div>
@@ -295,7 +297,7 @@ export default function LivestockPage() {
               </div>
             </div>
 
-            {/* MOBILE COLUMN HEADERS - INSIDE TEAL SECTION */}
+            {/* MOBILE COLUMN HEADERS */}
             <div className="flex md:hidden border-t border-white/10 pt-3 pb-1">
               <div className="w-[45%] text-[9px] font-black uppercase tracking-[0.2em] text-white/40">Sheep Identity</div>
               <div className="w-[55%] text-[9px] font-black uppercase tracking-[0.2em] text-white/40">Attributes</div>
@@ -369,7 +371,7 @@ export default function LivestockPage() {
             </Table>
           </div>
 
-          {/* MOBILE VIEW - MATCHING IMAGE DENSITY */}
+          {/* MOBILE VIEW */}
           <div className="block md:hidden">
             {filteredAssets.length > 0 ? (
               <div className="divide-y divide-slate-100">
@@ -407,20 +409,20 @@ export default function LivestockPage() {
         </ScrollArea>
       </div>
 
-      {/* MOBILE FAB - MATCHING IMAGE */}
+      {/* MOBILE FAB */}
       <button 
         onClick={() => {
           assetForm.reset({ registrationDate: new Date() });
           setIsEntryDialogOpen(true);
         }}
-        className="md:hidden fixed bottom-24 right-6 h-16 w-16 rounded-full bg-[#0FA5A0] text-white shadow-[0_10px_30px_rgba(15,165,160,0.4)] flex items-center justify-center active:scale-90 transition-all z-[120] border-4 border-white/10"
+        className="md:hidden fixed bottom-24 right-6 h-16 w-16 rounded-full bg-[#0FA5A0] text-white shadow-[0_10px_30px_rgba(15,165,160,0.4)] flex items-center justify-center active:scale-90 transition-all z-30 border-4 border-white/10"
       >
         <Plus className="h-8 w-8 stroke-[3px]" />
       </button>
 
       {/* ENROLLMENT DIALOG */}
       <Dialog open={isEntryDialogOpen} onOpenChange={(open) => { setIsEntryDialogOpen(open); if (!open) stopCamera(); }}>
-        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white max-h-[95vh] flex flex-col">
+        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white max-h-[90dvh] flex flex-col">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]">
@@ -431,7 +433,7 @@ export default function LivestockPage() {
             <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Enroll new animal into farm registry</DialogDescription>
           </DialogHeader>
           <ScrollArea className="flex-1">
-            <div className="p-8">
+            <div className="p-8 pb-12">
               <Form {...assetForm}>
                 <form onSubmit={assetForm.handleSubmit(onAssetSubmit)} className="space-y-8">
                   <div className="space-y-6">
@@ -539,7 +541,7 @@ export default function LivestockPage() {
 
       {/* EDIT DIALOG */}
       <Dialog open={isEditDialogOpen} onOpenChange={(open) => { setIsEditDialogOpen(open); if (!open) stopCamera(); }}>
-        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white max-h-[95vh] flex flex-col">
+        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white max-h-[90dvh] flex flex-col">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400">
@@ -550,7 +552,7 @@ export default function LivestockPage() {
             <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Adjust sheep registry parameters</DialogDescription>
           </DialogHeader>
           <ScrollArea className="flex-1">
-            <div className="p-8">
+            <div className="p-8 pb-12">
               <Form {...editForm}>
                 <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-8">
                   <div className="space-y-6">
@@ -644,7 +646,7 @@ export default function LivestockPage() {
                     </div>
                   </div>
                   <div className="flex gap-4">
-                    <Button type="button" variant="outline" onClick={() => deleteTrackedSheep(editingSheep.id, editingSheep._path)} className="h-16 rounded-2xl border-rose-100 text-rose-600 font-black uppercase tracking-widest px-8">
+                    <Button type="button" variant="outline" onClick={() => deleteTrackedSheep(editingSheep!.id, editingSheep!._path)} className="h-16 rounded-2xl border-rose-100 text-rose-600 font-black uppercase tracking-widest px-8">
                       <Trash2 className="h-5 w-5" />
                     </Button>
                     <Button type="submit" disabled={isUploading || isCameraActive} className="flex-1 h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase tracking-widest shadow-xl">
@@ -660,7 +662,7 @@ export default function LivestockPage() {
 
       {/* IMAGE ZOOM DIALOG */}
       <Dialog open={!!zoomImage} onOpenChange={() => setZoomImage(null)}>
-        <DialogContent className="max-w-3xl p-0 overflow-hidden bg-transparent border-none shadow-none">
+        <DialogContent className="max-w-3xl p-0 overflow-hidden bg-transparent border-none shadow-none z-[200]">
           <DialogHeader className="sr-only">
             <DialogTitle>Visual Asset Inspection</DialogTitle>
           </DialogHeader>
@@ -678,24 +680,5 @@ export default function LivestockPage() {
         </DialogContent>
       </Dialog>
     </div>
-  );
-}
-
-function ChevronRight(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="m9 18 6-6-6-6" />
-    </svg>
   );
 }

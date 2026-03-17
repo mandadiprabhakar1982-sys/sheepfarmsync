@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useForm, type SubmitHandler } from 'react-hook-form';
@@ -103,7 +104,7 @@ export default function MortalityPage() {
   return (
     <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col relative bg-white md:bg-transparent">
       {/* MOBILE HEADER */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-[110] bg-[#059669] text-white px-6 py-5 flex items-center justify-between shadow-lg">
+      <div className="md:hidden fixed top-0 left-0 right-0 z-30 bg-[#059669] text-white px-6 py-5 flex items-center justify-between shadow-lg">
         <h2 className="text-xl font-black tracking-tight">Death Log</h2>
         <p className="text-xl font-black">{totalDead} Head</p>
       </div>
@@ -216,27 +217,29 @@ export default function MortalityPage() {
       {/* MOBILE FAB */}
       <button 
         onClick={() => { form.reset(); setIsEntryDialogOpen(true); }}
-        className="md:hidden fixed bottom-24 right-6 h-14 w-14 rounded-full bg-rose-600 text-white shadow-2xl flex items-center justify-center active:scale-90 transition-all z-[120]"
+        className="md:hidden fixed bottom-24 right-6 h-14 w-14 rounded-full bg-rose-600 text-white shadow-2xl flex items-center justify-center active:scale-90 transition-all z-30"
       >
         <Plus className="h-7 w-7" />
       </button>
 
       <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>
-        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
-          <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
+        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white max-h-[90dvh] flex flex-col">
+          <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
             <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-rose-500/20 text-rose-500"><Plus className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase">Death Entry</DialogTitle></div>
             <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Commit mortality record to farm registry</DialogDescription>
           </DialogHeader>
-          <div className="p-8">
-            <Form {...form}><form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField control={form.control} name="causeOfDeath" render={({ field }) => (<FormItem><Label className="form-label-tactical">Cause of Death</Label><FormControl><Input placeholder="e.g. Fever, Injury" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
-              <div className="grid grid-cols-2 gap-4">
-                <FormField control={form.control} name="sheepCount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Head Count</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
-                <FormField control={form.control} name="tagId" render={({ field }) => (<FormItem><Label className="form-label-tactical">Tag ID (Opt)</Label><FormControl><Input className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
-              </div>
-              <Button type="submit" className="w-full h-16 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black uppercase shadow-xl">Record Death</Button>
-            </form></Form>
-          </div>
+          <ScrollArea className="flex-1">
+            <div className="p-8 pb-12">
+              <Form {...form}><form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <FormField control={form.control} name="causeOfDeath" render={({ field }) => (<FormItem><Label className="form-label-tactical">Cause of Death</Label><FormControl><Input placeholder="e.g. Fever, Injury" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={form.control} name="sheepCount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Head Count</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+                  <FormField control={form.control} name="tagId" render={({ field }) => (<FormItem><Label className="form-label-tactical">Tag ID (Opt)</Label><FormControl><Input className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+                </div>
+                <Button type="submit" className="w-full h-16 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black uppercase shadow-xl">Record Death</Button>
+              </form></Form>
+            </div>
+          </ScrollArea>
         </DialogContent>
       </Dialog>
     </div>
