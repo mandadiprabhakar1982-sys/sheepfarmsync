@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -388,6 +387,7 @@ export default function LivestockPage() {
       {/* IMAGE ZOOM DIALOG */}
       <Dialog open={!!zoomImage} onOpenChange={() => setZoomImage(null)}>
         <DialogContent className="max-w-3xl p-0 overflow-hidden bg-transparent border-none shadow-none">
+          <DialogTitle className="sr-only">Sheep Photo Zoom</DialogTitle>
           <div className="relative aspect-square w-full">
             {zoomImage && <Image src={zoomImage} alt="Zoomed view" fill className="object-contain" />}
             <Button 
