@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { 
   TrendingUp, 
   TrendingDown, 
-  ReceiptIndianRupee, 
+  IndianRupee, 
   Wheat, 
   Users, 
   Heart, 
@@ -75,43 +75,29 @@ export default function DashboardPage() {
   const isAdmin = userRole === 'admin';
 
   const MobileHome = (
-    <div 
-      className="min-h-full -mx-4 bg-[#020617] animate-in fade-in duration-1000 relative overflow-hidden"
-      style={{ paddingLeft: '20px', paddingRight: '20px', paddingBottom: '110px' }}
-    >
-      {/* BACKGROUND ACCENTS */}
-      <div className="absolute top-[-10%] -right-[20%] w-[80%] h-[40%] bg-primary/10 blur-[120px] rounded-full" />
-      <div className="absolute bottom-0 -left-[20%] w-[80%] h-[40%] bg-blue-500/5 blur-[120px] rounded-full" />
-
+    <div className="min-h-full bg-[#020617] text-white px-4 pt-6 pb-[110px] animate-in fade-in duration-700">
       {/* HEADER SECTION */}
-      <header className="mb-10 relative z-10">
-        <div className="flex items-center gap-4 mb-2">
-          <div className="h-10 w-10 rounded-xl bg-primary/20 backdrop-blur-xl border border-primary/30 flex items-center justify-center mt-[16px]">
-            <Zap className="h-5 w-5 text-primary shadow-[0_0_15px_rgba(15,165,160,0.5)]" />
-          </div>
-          <div>
-            <h1 className="text-[34px] font-[800] text-white tracking-tight leading-[1.1] mt-[16px]">Mpr Hub</h1>
-            <p className="text-[9px] font-black text-primary uppercase tracking-[0.3em] mt-1">Tactical Enterprise Node</p>
-          </div>
-        </div>
+      <header className="mb-10">
+        <h1 className="text-[34px] font-[800] tracking-tight leading-[1.1]">Mpr Hub</h1>
+        <p className="text-[9px] font-black text-[#14d5c7] uppercase tracking-[0.3em] mt-1">Tactical Enterprise Node</p>
       </header>
 
-      {/* PRIMARY NODE: FARM LEDGER (Fixed 220px) */}
-      <section className="mb-8 relative z-10">
+      {/* PRIMARY NODE: FARM LEDGER */}
+      <section className="mb-8">
         <Link href="/dashboard/farm-ledger">
-          <div className="hub-node hub-glow-teal p-5 h-[220px] rounded-[28px] border-primary/20 group flex flex-col justify-between">
+          <div className="hub-node hub-glow-teal p-5 h-[220px] rounded-[28px] border-white/5 bg-white/5 group flex flex-col justify-between">
             <div className="flex justify-between items-start">
-              <div className="p-3 rounded-2xl bg-primary/20 border border-primary/30 text-primary">
+              <div className="p-3 rounded-2xl bg-[#14d5c7]/20 border border-[#14d5c7]/30 text-[#14d5c7]">
                 <IconFarmCost className="h-8 w-8" />
               </div>
-              <div className="bg-white/5 backdrop-blur-md rounded-full p-2 text-white/40 group-hover:text-primary transition-colors">
+              <div className="bg-white/5 backdrop-blur-md rounded-full p-2 text-white/40 group-hover:text-[#14d5c7] transition-colors">
                 <ChevronRight className="h-5 w-5" />
               </div>
             </div>
             <div>
               <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-1">Operational Audit</p>
               <h2 className="text-3xl font-black text-white tracking-tighter mb-1">₹{totalExpenses.toLocaleString()}</h2>
-              <div className="flex items-center gap-2 text-[9px] font-bold text-primary uppercase tracking-widest">
+              <div className="flex items-center gap-2 text-[9px] font-bold text-[#14d5c7] uppercase tracking-widest">
                 <ShieldCheck className="h-3 w-3" /> System Audit Clear
               </div>
             </div>
@@ -119,11 +105,11 @@ export default function DashboardPage() {
         </Link>
       </section>
 
-      {/* FINANCIAL GRID (2-Column, 16px gap) */}
-      <section className="mb-10 relative z-10">
+      {/* FINANCIAL GRID */}
+      <section className="mb-10">
         <div className="grid grid-cols-2 gap-4">
-          <Link href="/dashboard/monthly-ledger" className="hub-node hub-glow-teal p-5 h-[220px] rounded-[28px] flex flex-col justify-between">
-            <div className="h-10 w-10 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center text-primary">
+          <Link href="/dashboard/monthly-ledger" className="hub-node hub-glow-teal p-5 h-[220px] rounded-[28px] flex flex-col justify-between bg-white/5">
+            <div className="h-10 w-10 rounded-xl bg-[#14d5c7]/20 border border-[#14d5c7]/30 flex items-center justify-center text-[#14d5c7]">
               <ArrowUpCircle className="h-5 w-5" />
             </div>
             <div>
@@ -132,7 +118,7 @@ export default function DashboardPage() {
             </div>
           </Link>
           
-          <Link href="/dashboard/sales" className="hub-node hub-glow-blue p-5 h-[220px] rounded-[28px] flex flex-col justify-between">
+          <Link href="/dashboard/sales" className="hub-node hub-glow-blue p-5 h-[220px] rounded-[28px] flex flex-col justify-between bg-white/5">
             <div className="h-10 w-10 rounded-xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
               <TrendingUp className="h-5 w-5" />
             </div>
@@ -142,7 +128,7 @@ export default function DashboardPage() {
             </div>
           </Link>
 
-          <Link href="/dashboard/purchase" className="hub-node hub-glow-orange p-5 h-[220px] rounded-[28px] flex flex-col justify-between">
+          <Link href="/dashboard/purchase" className="hub-node hub-glow-orange p-5 h-[220px] rounded-[28px] flex flex-col justify-between bg-white/5">
             <div className="h-10 w-10 rounded-xl bg-orange-500/20 border border-orange-500/30 flex items-center justify-center text-orange-400">
               <TrendingDown className="h-5 w-5" />
             </div>
@@ -152,7 +138,7 @@ export default function DashboardPage() {
             </div>
           </Link>
 
-          <Link href="/dashboard/overview" className="hub-node p-5 h-[220px] rounded-[28px] flex flex-col justify-between">
+          <Link href="/dashboard/overview" className="hub-node p-5 h-[220px] rounded-[28px] flex flex-col justify-between bg-white/5">
             <div className="h-10 w-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/60">
               <LayoutGrid className="h-5 w-5" />
             </div>
@@ -165,18 +151,18 @@ export default function DashboardPage() {
       </section>
 
       {/* CORE NODES */}
-      <section className="relative z-10">
+      <section>
         <h3 className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] mb-6 px-2">Sub-Process Systems</h3>
         <div className="grid grid-cols-2 gap-4">
           {[
-            { icon: Wheat, href: '/dashboard/feed', glow: 'hub-glow-teal', label: 'Fodder' },
-            { icon: Users, href: '/dashboard/labor', glow: 'hub-glow-teal', label: 'Labour' },
-            { icon: Heart, href: '/dashboard/medicine', glow: 'hub-glow-teal', label: 'Medical' },
-            { icon: Wallet, href: '/dashboard/expenses', glow: 'hub-glow-teal', label: 'Expenses' },
+            { icon: Wheat, href: '/dashboard/feed', label: 'Fodder' },
+            { icon: Users, href: '/dashboard/labor', label: 'Labour' },
+            { icon: Heart, href: '/dashboard/medicine', label: 'Medical' },
+            { icon: Wallet, href: '/dashboard/expenses', label: 'Expenses' },
           ].map((item, i) => (
-            <Link key={i} href={item.href} className={cn("hub-node h-[120px] p-5 flex flex-col justify-between rounded-[20px]", item.glow)}>
+            <Link key={i} href={item.href} className="hub-node h-[120px] p-5 flex flex-col justify-between rounded-[20px] bg-white/5">
               <div className="h-8 w-8 rounded-lg bg-white/10 flex items-center justify-center">
-                <item.icon className="h-5 w-5 text-white/60 group-hover:text-primary transition-colors" />
+                <item.icon className="h-5 w-5 text-white/60 group-hover:text-[#14d5c7] transition-colors" />
               </div>
               <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">{item.label}</span>
             </Link>
@@ -185,9 +171,9 @@ export default function DashboardPage() {
       </section>
 
       {/* ACTION TRIGGER */}
-      <div className="mt-12 relative z-10">
+      <div className="mt-12">
         <Button onClick={() => router.push('/dashboard/expenses')} className="w-full h-16 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-black uppercase tracking-[0.2em] shadow-2xl text-xs gap-3">
-          <Plus className="h-5 w-5 text-primary" /> Log Entry
+          <Plus className="h-5 w-5 text-[#14d5c7]" /> Log Entry
         </Button>
       </div>
     </div>

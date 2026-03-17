@@ -47,12 +47,11 @@ export default function DashboardLayout({
           >
             <div className="flex items-center gap-3">
               <SidebarTrigger className="h-10 w-10 text-white/60 hover:text-white bg-white/5 rounded-xl border border-white/10" />
-              <div className="h-8 w-8 bg-white/10 rounded-lg flex items-center justify-center ml-1">
-                <div className="h-4 w-4 rounded-full border-2 border-white/40 flex items-center justify-center">
-                  <div className="h-1.5 w-1.5 bg-white rounded-full" />
-                </div>
+              <div className="ml-1">
+                <h1 className="text-2xl font-black text-white tracking-tight leading-none">
+                  Farm<span className="text-[#14d5c7]">Audit</span>
+                </h1>
               </div>
-              <h1 className="text-lg font-black text-white tracking-tight">FarmAudit</h1>
             </div>
             <div className="flex items-center gap-4 text-white">
               <div className="relative">
