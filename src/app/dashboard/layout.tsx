@@ -6,7 +6,7 @@ import { AppSidebar } from '@/components/app-sidebar';
 import { MobileNav } from '@/components/mobile-nav';
 import { useFarm } from '@/context/FarmContext';
 import { useWindowDimensions } from '@/hooks/use-mobile';
-import { Bell, User, Menu } from 'lucide-react';
+import { Bell, User, Menu, Loader2 } from 'lucide-react';
 import { Logo } from '@/components/logo';
 
 export default function DashboardLayout({
@@ -22,8 +22,8 @@ export default function DashboardLayout({
     return (
       <div className="flex h-screen w-full items-center justify-center bg-[#020617] fixed inset-0 z-[9999]">
         <div className="flex flex-col items-center gap-6">
-          <div className="w-12 h-12 border-4 border-white/5 rounded-full border-t-[#14d5c7] animate-spin" />
-          <p className="text-[12px] font-black text-white/40 uppercase tracking-[0.4em]">Establishing Secure Link</p>
+          <Loader2 className="w-12 h-12 text-[#14d5c7] animate-spin" />
+          <p className="text-[12px] font-black text-[#14d5c7] uppercase tracking-[0.4em]">Establishing Secure Link</p>
         </div>
       </div>
     );
@@ -58,7 +58,7 @@ export default function DashboardLayout({
         </header>
 
         {/* MAIN CONTENT AREA - SCROLLABLE BODY */}
-        <main className="flex-1 min-h-0 relative">
+        <main className="flex-1 min-h-0 relative bg-[#020617]">
           {children}
         </main>
 

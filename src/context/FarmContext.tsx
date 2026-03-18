@@ -130,7 +130,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const userProfileRef = useMemo(() => (firestore && user) ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
   const { data: userProfile, isLoading: isProfileDocLoading } = useDoc<UserProfile>(userProfileRef);
   
-  const isLoadingProfile = isUserLoading || isProfileDocLoading || (user && !userProfile);
+  const isLoadingProfile = isUserLoading || isProfileDocLoading;
   
   const isVerified = useMemo(() => !isLoadingProfile && (userProfile?.role === 'collaborator' || userProfile?.role === 'admin'), [userProfile, isLoadingProfile]);
   const isAdmin = useMemo(() => !isLoadingProfile && userProfile?.role === 'admin', [userProfile, isLoadingProfile]);
@@ -223,7 +223,6 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     updateDocumentNonBlocking(docRef, { ...data, updatedAt: serverTimestamp() });
   }, [user, firestore]);
 
-  // GRANULAR STATS COMPUTATION FOR PERFORMANCE
   const deadCount = useMemo(() => (qDead || []).reduce((s, a) => s + Number(a.sheepCount || 0), 0), [qDead]);
   const pCount = useMemo(() => (qPurchases || []).reduce((s, p) => s + Number(p.animalCount || 0), 0), [qPurchases]);
   const sCount = useMemo(() => (qSales || []).reduce((s, x) => s + Number(x.animalCount || 0), 0), [qSales]);
@@ -267,7 +266,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     monthlyIncomes, addMonthlyIncome: (i: any) => upsert('monthlyIncomes', undefined, i), updateMonthlyIncome: (id: string, i: any, path?: string) => { if (!user || !firestore) return; const docRef = path ? doc(firestore, path) : doc(firestore, 'users', user.uid, 'monthlyIncomes', id); updateDocumentNonBlocking(docRef, { ...i, updatedAt: serverTimestamp() }); }, deleteMonthlyIncome: (id: string, path?: string) => remove('monthlyIncomes', id, path),
     monthlyExpenses, addMonthlyExpense: (e: any) => upsert('monthlyExpenses', undefined, e), updateMonthlyExpense: (id: string, e: any, path?: string) => { if (!user || !firestore) return; const docRef = path ? doc(firestore, path) : doc(firestore, 'users', user.uid, 'monthlyExpenses', id); updateDocumentNonBlocking(docRef, { ...e, updatedAt: serverTimestamp() }); }, deleteMonthlyExpense: (id: string, path?: string) => remove('monthlyExpenses', id, path),
     communitySales: qMarket, postToMarketplace, updateMarketplaceSale, deleteMarketplaceSale: (id: string, path?: string) => deleteDocumentNonBlocking(doc(firestore!, path || `communitySales/${id}`)),
-    isLoading: isLoadingProfile || (user && !isVerified) || lPurchases || lSales || lFeed || lMedicine || lLabor || lDead || lTracked || lExpenses || lHealth || lLoans || lCards || lDebts || lIncomes || lMExpenses || lMarket,
+    isLoading: isLoadingProfile || (user && !isVerified && !isProfileDocLoading),
     isLoadingProfile,
     userRole: userProfile?.role || null,
     totalSheep: liveSheepCount,
@@ -294,7 +293,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   }), [
     purchases, sales, feedCosts, medicineExpenses, laborCosts, trackedSheep, deadAnimals, farmExpenses, healthTasks, bankLoans, creditCards, privateDebts, monthlyIncomes, monthlyExpenses, qMarket,
     liveSheepCount, trackedCount, pTotal, fCost, mCost, lCost, eCost, rev, rec, pay, avgWt, dailyFeedTotal, blBal, ccBal, pdBal, mEmiTotal, mIncome, mExpense, totalCashReceivedFromSales, deadCount,
-    isLoadingProfile, user, isVerified, lPurchases, lSales, lFeed, lMedicine, lLabor, lDead, lTracked, lExpenses, lHealth, lLoans, lCards, lDebts, lIncomes, lMExpenses, lMarket,
+    isLoadingProfile, user, isVerified, isProfileDocLoading,
     userProfile, upsert, remove, postToMarketplace, updateMarketplaceSale, firestore, isAdmin
   ]);
 

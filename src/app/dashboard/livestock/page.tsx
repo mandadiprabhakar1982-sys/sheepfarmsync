@@ -7,9 +7,7 @@ import { z } from 'zod';
 import { 
   Trash2, 
   Search,
-  LayoutGrid,
   Plus,
-  PlusCircle,
   ShieldCheck,
   X,
   Loader2,
@@ -18,10 +16,9 @@ import {
   ImageIcon,
   Upload,
   Calendar as CalendarIcon,
-  CheckCircle2,
   ChevronRight,
-  AlertTriangle,
-  Activity
+  Activity,
+  PlusCircle
 } from 'lucide-react';
 import { format, parseISO, isValid } from 'date-fns';
 import Image from 'next/image';
@@ -36,25 +33,13 @@ import { useStorage } from '@/firebase';
 import { uploadToStorage } from '@/lib/upload';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { CardTitle, CardDescription } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogClose,
 } from '@/components/ui/dialog';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
@@ -96,7 +81,6 @@ export default function LivestockPage() {
   const [isRegDatePickerOpen, setIsRegDatePickerOpen] = useState(false);
 
   const [isCameraActive, setIsCameraActive] = useState(false);
-  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const assetForm = useForm<AssetFormData>({
@@ -125,14 +109,12 @@ export default function LivestockPage() {
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: { facingMode: 'environment' } 
       });
-      setHasCameraPermission(true);
       setIsCameraActive(true);
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
     } catch (error) {
       console.error('Error accessing camera:', error);
-      setHasCameraPermission(false);
       setIsCameraActive(false);
       toast({
         variant: 'destructive',
@@ -249,14 +231,15 @@ export default function LivestockPage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-full w-full items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-10 w-10 animate-spin text-[#14d5c7] opacity-20" />
+      <div className="flex h-full w-full flex-col items-center justify-center min-h-[60vh] gap-4">
+        <Loader2 className="h-12 w-12 animate-spin text-[#14d5c7]" />
+        <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">Synchronizing Registry...</p>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
+    <div className="flex flex-col h-full overflow-hidden bg-[#020617]">
       {/* HEADER SECTION */}
       <header className="shrink-0 px-5 pt-4 pb-6">
         <div className="flex items-center justify-between mb-1">
@@ -285,7 +268,7 @@ export default function LivestockPage() {
           {filteredAssets.length > 0 ? filteredAssets.map((sheep) => (
             <div 
               key={sheep.id} 
-              className="glossy-card p-4 flex items-center gap-4 card-inner-shadow"
+              className="glossy-card p-4 flex items-center gap-4 card-inner-shadow cursor-pointer"
               onClick={() => handleEditClick(sheep)}
             >
               <div className="glossy-overlay" />
@@ -319,20 +302,28 @@ export default function LivestockPage() {
               <ChevronRight className="h-5 w-5 text-white/20 shrink-0 relative z-10" />
             </div>
           )) : (
-            <div className="py-24 text-center opacity-20 font-black uppercase text-[10px] tracking-widest text-white">No assets discovered</div>
+            <div className="py-24 text-center space-y-4">
+              <div className="h-16 w-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mx-auto">
+                <Activity className="h-8 w-8 text-white/20" />
+              </div>
+              <div>
+                <h3 className="text-white font-black uppercase text-xs tracking-widest">No Assets Discovered</h3>
+                <p className="text-white/30 text-[10px] mt-1 uppercase font-bold">Use the + button to enroll sheep</p>
+              </div>
+            </div>
           )}
         </div>
       </div>
 
-      {/* MOBILE FAB - POSITIONED ABOVE MENU */}
+      {/* MOBILE FAB */}
       <button 
         onClick={() => { assetForm.reset({ registrationDate: new Date() }); setIsEntryDialogOpen(true); }}
-        className="fixed bottom-24 right-6 h-16 w-16 rounded-full bg-[#14d5c7] text-white shadow-2xl flex items-center justify-center active:scale-90 transition-all z-20"
+        className="fixed bottom-24 right-6 h-16 w-16 rounded-full bg-[#14d5c7] text-white shadow-[0_0_30px_rgba(20,213,199,0.4)] flex items-center justify-center active:scale-90 transition-all z-30"
       >
         <Plus className="h-8 w-8 stroke-[3px]" />
       </button>
 
-      {/* DIALOGS REMAIN SAME... */}
+      {/* ZOOM DIALOG */}
       <Dialog open={!!zoomImage} onOpenChange={() => setZoomImage(null)}>
         <DialogContent className="max-w-3xl p-0 overflow-hidden bg-transparent border-none shadow-none z-[200]">
           <div className="relative aspect-square w-full">
@@ -342,6 +333,7 @@ export default function LivestockPage() {
         </DialogContent>
       </Dialog>
 
+      {/* ENTRY DIALOG */}
       <Dialog open={isEntryDialogOpen} onOpenChange={(open) => { setIsEntryDialogOpen(open); if (!open) stopCamera(); }}>
         <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[88dvh] flex flex-col z-[100]">
           <DialogHeader className="bg-[#111111] p-6 text-left text-white shrink-0 relative">
@@ -358,7 +350,7 @@ export default function LivestockPage() {
                   <div className="flex flex-col items-center gap-4">
                     <div className="h-[140px] w-full max-w-[300px] rounded-[1.5rem] bg-neutral-50 border-2 border-dashed border-neutral-200 flex items-center justify-center overflow-hidden relative shadow-inner">
                       <video ref={videoRef} className={cn("w-full h-full object-cover", !isCameraActive && "hidden")} autoPlay muted playsInline />
-                      {!isCameraActive && (assetForm.watch('imageUrl') ? <div className="relative w-full h-full"><Image src={assetForm.watch('imageUrl')!} alt="Preview" fill className="object-cover" /><Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2 h-8 w-8 rounded-full" onClick={() => assetForm.setValue('imageUrl', '')}><X className="h-4 w-4" /></Button></div> : <div className="flex flex-col items-center gap-2"><ImageIcon className="h-8 w-8 text-neutral-300" /><span className="text-[8px] font-black uppercase tracking-widest text-neutral-400">PHOTO REQUIRED</span></div>)}
+                      {!isCameraActive && (assetForm.watch('imageUrl') ? <div className="relative w-full h-full"><Image src={assetForm.watch('imageUrl')!} alt="Preview" fill className="object-cover" /><Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2 h-8 w-8 rounded-full" onClick={() => assetForm.setValue('imageUrl', '')}><X className="h-4 w-4" /></Button></div> : <div className="flex flex-col items-center gap-2"><ImageIcon className="h-8 w-8 text-neutral-300" /><span className="text-[8px] font-black uppercase tracking-widest text-neutral-400">PHOTO OPTIONAL</span></div>)}
                       {isCameraActive && <div className="absolute bottom-2 left-0 right-0 flex justify-center"><Button type="button" onClick={capturePhoto} className="rounded-full h-10 w-10 p-0 bg-[#14d5c7] border-4 border-white shadow-2xl" /></div>}
                     </div>
                     {!isCameraActive && <div className="flex gap-3 w-full max-w-[300px]"><Button type="button" variant="outline" onClick={startCamera} className="flex-1 h-9 text-[8px] font-black uppercase rounded-xl border-slate-200"><Camera className="h-3 w-3 mr-2" /> Camera</Button><div className="relative flex-1"><Button type="button" variant="outline" className="w-full h-9 text-[8px] font-black uppercase rounded-xl border-slate-200"><Upload className="h-3 w-3 mr-2" /> File</Button><input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={(e) => handleImageChange(e, assetForm)} /></div></div>}
@@ -383,6 +375,7 @@ export default function LivestockPage() {
         </DialogContent>
       </Dialog>
 
+      {/* EDIT DIALOG */}
       <Dialog open={isEditDialogOpen} onOpenChange={(open) => { setIsEditDialogOpen(open); if (!open) stopCamera(); }}>
         <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[88dvh] flex flex-col z-[100]">
           <DialogHeader className="bg-[#111111] p-6 text-left text-white shrink-0 relative">
