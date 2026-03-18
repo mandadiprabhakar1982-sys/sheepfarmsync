@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { PageHeader } from '@/components/page-header';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,8 +14,6 @@ import {
   X, 
   CheckCircle2,
   ArrowRightLeft,
-  Wallet,
-  CreditCard,
   Landmark,
   Home,
   User,
@@ -28,20 +26,15 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { format, parseISO, isValid, isToday, isYesterday } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogClose,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 
-/**
- * @fileOverview Personal Finance Ledger (Standard Indian English)
- * Unified private & business accounts visualization.
- */
 export default function PersonalFinancePage() {
   const { 
     sales, purchases, feedCosts, laborCosts, medicineExpenses, 
@@ -148,7 +141,7 @@ export default function PersonalFinancePage() {
   if (isLoading) {
     return (
       <div className="flex h-full w-full items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-10 w-10 animate-spin text-primary opacity-20" />
+        <Loader2 className="h-10 w-10 animate-spin text-[#14d5c7]" />
       </div>
     );
   }
@@ -211,7 +204,7 @@ export default function PersonalFinancePage() {
                 </div>
               </CardHeader>
 
-              <ScrollArea className="flex-1 overflow-hidden">
+              <div className="flex-1 overflow-y-auto pb-32">
                 {/* MOBILE VIEW */}
                 <div className="block md:hidden p-4 space-y-8">
                   {groupedData.length > 0 ? groupedData.map((group) => (
@@ -266,42 +259,42 @@ export default function PersonalFinancePage() {
                     </TableBody>
                   </Table>
                 </div>
-              </ScrollArea>
+              </div>
             </div>
           </TabsContent>
         </Tabs>
       </div>
 
       <Dialog open={isIncomeDialogOpen} onOpenChange={setIsIncomeDialogOpen}>
-        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
-          <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[70dvh] flex flex-col">
+          <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
             <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]"><ArrowUpCircle className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase text-white">Income Entry</DialogTitle></div>
-            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Document new cash inflow receipt</DialogDescription>
+            <DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose>
           </DialogHeader>
-          <div className="p-8 space-y-6">
+          <div className="dialog-body space-y-6">
             <div className="space-y-2"><Label className="form-label-tactical">Transaction Date</Label><Input type="date" value={entryDate} onChange={(e) => setEntryDate(e.target.value)} className="form-input-tactical" /></div>
             <div className="space-y-2"><Label className="form-label-tactical">Income Source</Label><Input placeholder="e.g. Salary, Rent, Bonus" value={source} onChange={(e) => setSource(e.target.value)} className="form-input-tactical" /></div>
             <div className="space-y-2"><Label className="form-label-tactical">Amount (₹)</Label><Input type="number" placeholder="0" value={amount} onChange={(e) => setAmount(e.target.value)} className="form-input-tactical font-black text-xl text-[#43A047]" /></div>
-            <Button onClick={handleAddIncome} className="w-full h-16 rounded-2xl bg-[#0FA5A0] hover:bg-[#176E6C] text-white font-black uppercase shadow-xl">Commit Income</Button>
           </div>
+          <div className="p-6 shrink-0 border-t"><Button onClick={handleAddIncome} className="w-full h-16 rounded-2xl bg-[#0FA5A0] hover:bg-[#176E6C] text-white font-black uppercase shadow-xl">Commit Income</Button></div>
         </DialogContent>
       </Dialog>
 
       <Dialog open={isExpenseDialogOpen} onOpenChange={setIsExpenseDialogOpen}>
-        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
-          <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[75dvh] flex flex-col">
+          <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
             <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-rose-500/20 text-rose-400"><ArrowDownCircle className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase text-white">Expense Entry</DialogTitle></div>
-            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Document new personal disbursement</DialogDescription>
+            <DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose>
           </DialogHeader>
-          <div className="p-8 space-y-6">
+          <div className="dialog-body space-y-6">
             <div className="space-y-2"><Label className="form-label-tactical">Transaction Date</Label><Input type="date" value={entryDate} onChange={(e) => setEntryDate(e.target.value)} className="form-input-tactical" /></div>
             <div className="space-y-2"><Label className="form-label-tactical">Expense Detail</Label><Input placeholder="e.g. EB Bill, Groceries, EMI" value={source} onChange={(e) => setSource(e.target.value)} className="form-input-tactical" /></div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2"><Label className="form-label-tactical">Amount (₹)</Label><Input type="number" placeholder="0" value={amount} onChange={(e) => setAmount(e.target.value)} className="form-input-tactical font-black" /></div>
               <div className="space-y-2"><Label className="form-label-tactical">Ledger Category</Label><Select value={category} onValueChange={(v: any) => setCategory(v)}><SelectTrigger className="form-input-tactical"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="loan">Bank EMI</SelectItem><SelectItem value="card">Credit Card</SelectItem><SelectItem value="private">Personal Spend</SelectItem><SelectItem value="household">Household</SelectItem></SelectContent></Select></div>
             </div>
-            <Button onClick={handleAddExpense} className="w-full h-16 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black uppercase shadow-xl">Commit Expense</Button>
           </div>
+          <div className="p-6 shrink-0 border-t"><Button onClick={handleAddExpense} className="w-full h-16 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black uppercase shadow-xl">Commit Expense</Button></div>
         </DialogContent>
       </Dialog>
     </div>

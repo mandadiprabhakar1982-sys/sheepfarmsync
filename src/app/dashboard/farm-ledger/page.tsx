@@ -2,38 +2,33 @@
 
 import { useState, useMemo } from 'react';
 import { PageHeader } from '@/components/page-header';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { 
   Search, 
   ShieldCheck, 
-  X, 
   CheckCircle2,
   Plus,
   ArrowRightLeft,
-  Calendar as CalendarIcon,
   Loader2,
-  Zap
+  Zap,
+  X
 } from 'lucide-react';
 import { useFarm } from '@/context/FarmContext';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { format, parseISO, isValid, isToday, isYesterday } from 'date-fns';
+import { format, parseISO, isToday, isYesterday } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogClose,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
-import { IconFarmCost } from '@/components/logo';
 
 export default function FarmLedgerPage() {
   const { 
@@ -123,7 +118,7 @@ export default function FarmLedgerPage() {
   if (isLoading) {
     return (
       <div className="flex h-full w-full items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-10 w-10 animate-spin text-primary opacity-20" />
+        <Loader2 className="h-10 w-10 animate-spin text-[#14d5c7]" />
       </div>
     );
   }
@@ -134,7 +129,7 @@ export default function FarmLedgerPage() {
         <h1 className="text-[34px] font-[800] text-white tracking-tight leading-[1.1]">Farm Ledger</h1>
         <p className="text-sm font-medium text-white/40 mb-6">Verified operational outflow stream.</p>
 
-        <div className="mobile-glass-card p-8 border-l-4 border-l-primary">
+        <div className="hub-node p-8 border-l-4 border-l-primary bg-white/5">
           <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1">Total Operational Outflow</p>
           <h2 className="text-4xl font-black text-white tracking-tighter">₹{totalExpenses.toLocaleString()}</h2>
           <div className="flex items-center gap-2 text-[9px] font-bold text-primary uppercase tracking-widest mt-2">
@@ -161,7 +156,7 @@ export default function FarmLedgerPage() {
                 <p className="text-[11px] font-black uppercase tracking-widest text-white/30 px-2">{formatGroupDate(group.date)}</p>
                 <div className="space-y-4">
                   {group.items.map((item) => (
-                    <div key={item.id} className="mobile-glass-card p-5 flex items-center justify-between active:scale-[0.98] transition-all">
+                    <div key={item.id} className="hub-node p-5 flex items-center justify-between active:scale-[0.98] transition-all bg-white/5">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <Badge className={cn("border-none font-black text-[7px] uppercase px-1.5 py-0.5", item.mColor)}>
@@ -194,21 +189,25 @@ export default function FarmLedgerPage() {
         <Zap className="h-8 w-8" />
       </button>
 
-      {/* QUICK COST SYNC DIALOG */}
       <Dialog open={isQuickEntryOpen} onOpenChange={setIsQuickEntryOpen}>
-        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
-          <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[60dvh] flex flex-col">
+          <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]"><Zap className="h-5 w-5" /></div>
               <DialogTitle className="text-xl font-black uppercase text-white">Quick Sync</DialogTitle>
             </div>
+            <DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose>
           </DialogHeader>
-          <div className="p-8 space-y-6">
+          <div className="dialog-body space-y-6">
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2"><Label className="text-[10px] font-black uppercase opacity-40">Buying (₹)</Label><Input type="number" value={pCost} onChange={(e) => setPCost(e.target.value)} className="h-12 rounded-xl bg-neutral-50 border-none font-bold" /></div>
-              <div className="space-y-2"><Label className="text-[10px] font-black uppercase opacity-40">Fodder (₹)</Label><Input type="number" value={fCost} onChange={(e) => setFCost(e.target.value)} className="h-12 rounded-xl bg-neutral-50 border-none font-bold" /></div>
+              <div className="space-y-2"><Label className="form-label-tactical">Buying (₹)</Label><Input type="number" value={pCost} onChange={(e) => setPCost(e.target.value)} className="form-input-tactical" /></div>
+              <div className="space-y-2"><Label className="form-label-tactical">Fodder (₹)</Label><Input type="number" value={fCost} onChange={(e) => setFCost(e.target.value)} className="form-input-tactical" /></div>
             </div>
-            <Button onClick={handleQuickSync} disabled={isSaving} className="w-full h-16 rounded-2xl bg-[#0FA5A0] text-white font-black uppercase tracking-widest shadow-xl">{isSaving ? <Loader2 className="animate-spin h-5 w-5" /> : 'Commit Sync'}</Button>
+          </div>
+          <div className="p-6 shrink-0 border-t">
+            <Button onClick={handleQuickSync} disabled={isSaving} className="w-full h-16 rounded-2xl bg-[#0FA5A0] text-white font-black uppercase tracking-widest shadow-xl">
+              {isSaving ? <Loader2 className="animate-spin h-5 w-5" /> : 'Commit Sync'}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

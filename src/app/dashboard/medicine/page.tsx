@@ -17,7 +17,6 @@ import {
   CheckCircle2,
   ShoppingBag,
   Stethoscope,
-  Heart,
   Loader2,
   Syringe
 } from 'lucide-react';
@@ -25,8 +24,8 @@ import { format, addMonths, parseISO, isToday, isYesterday } from 'date-fns';
 
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -36,13 +35,12 @@ import { useFarm } from '@/context/FarmContext';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogClose,
 } from '@/components/ui/dialog';
 import type { HealthTask, MedicineExpense } from '@/lib/types';
 
@@ -92,6 +90,7 @@ export default function MedicinePage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isClinicalDialogOpen, setIsClinicalDialogOpen] = useState(false);
   const [isProcurementDialogOpen, setIsProcurementDialogOpen] = useState(false);
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   
   const healthTaskForm = useForm<HealthTaskFormData>({
     resolver: zodResolver(healthTaskFormSchema),
@@ -120,19 +119,6 @@ export default function MedicinePage() {
     );
     return [...filtered].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [medicineExpenses, searchTerm]);
-
-  const groupData = (list: any[], dateKey: string) => {
-    const groups: { [key: string]: any[] } = {};
-    list.forEach(item => {
-      const date = item[dateKey];
-      if (!groups[date]) groups[date] = [];
-      groups[date].push(item);
-    });
-    return Object.entries(groups).map(([date, items]) => ({ date, items }));
-  };
-
-  const groupedClinical = useMemo(() => groupData(sortedHealthTasks, 'date'), [sortedHealthTasks]);
-  const groupedPharma = useMemo(() => groupData(sortedMedicineExpenses, 'date'), [sortedMedicineExpenses]);
 
   const onHealthTaskSubmit: SubmitHandler<HealthTaskFormData> = (data) => {
     addHealthTask({ 
@@ -185,7 +171,6 @@ export default function MedicinePage() {
               <CardDescription className="text-white/60 text-[8px] font-black uppercase tracking-[0.2em] ml-7">Clinical History & Medicine Costs</CardDescription>
             </div>
 
-            {/* COMPRESSED SEARCH MATRIX */}
             <div className="relative flex-1 max-w-xs">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3 w-3 text-white/40" />
               <Input 
@@ -294,43 +279,47 @@ export default function MedicinePage() {
 
       {/* DIALOGS */}
       <Dialog open={isClinicalDialogOpen} onOpenChange={setIsClinicalDialogOpen}>
-        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
-          <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[80dvh] flex flex-col">
+          <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
             <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]"><Stethoscope className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase text-white">Treatment Entry</DialogTitle></div>
-            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Record medical treatment or vaccination</DialogDescription>
+            <DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose>
           </DialogHeader>
-          <div className="p-8 max-h-[75vh] overflow-y-auto no-scrollbar">
-            <Form {...healthTaskForm}><form onSubmit={healthTaskForm.handleSubmit(onHealthTaskSubmit)} className="space-y-6">
-              <div className="grid grid-cols-2 gap-4">
-                <FormField control={healthTaskForm.control} name="sheepId" render={({ field }) => (<FormItem><Label className="form-label-tactical">Sheep Tag ID</Label><FormControl><Input placeholder="e.g. 101" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
-                <FormField control={healthTaskForm.control} name="medicineName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Medicine Name</Label><FormControl><Input placeholder="e.g. Albendazole" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+          <Form {...healthTaskForm}>
+            <form onSubmit={healthTaskForm.handleSubmit(onHealthTaskSubmit)} className="flex-1 flex flex-col min-h-0">
+              <div className="dialog-body space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={healthTaskForm.control} name="sheepId" render={({ field }) => (<FormItem><Label className="form-label-tactical">Sheep Tag ID</Label><FormControl><Input placeholder="e.g. 101" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+                  <FormField control={healthTaskForm.control} name="medicineName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Medicine Name</Label><FormControl><Input placeholder="e.g. Albendazole" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={healthTaskForm.control} name="cost" render={({ field }) => (<FormItem><Label className="form-label-tactical">Medicine Cost (₹)</Label><FormControl><Input type="number" className="form-input-tactical font-black text-[#0FA5A0]" {...field} /></FormControl></FormItem>)} />
+                  <FormField control={healthTaskForm.control} name="administeredBy" render={({ field }) => (<FormItem><Label className="form-label-tactical">By Staff/Vet</Label><FormControl><Input placeholder="Who gave medicine" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+                </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <FormField control={healthTaskForm.control} name="cost" render={({ field }) => (<FormItem><Label className="form-label-tactical">Medicine Cost (₹)</Label><FormControl><Input type="number" className="form-input-tactical font-black text-[#0FA5A0]" {...field} /></FormControl></FormItem>)} />
-                <FormField control={healthTaskForm.control} name="administeredBy" render={({ field }) => (<FormItem><Label className="form-label-tactical">By Staff/Vet</Label><FormControl><Input placeholder="Who gave medicine" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
-              </div>
-              <Button type="submit" className="w-full h-16 rounded-2xl bg-[#0FA5A0] hover:bg-[#176E6C] text-white font-black uppercase tracking-widest shadow-xl">Record Treatment</Button>
-            </form></Form>
-          </div>
+              <div className="p-6 shrink-0 border-t"><Button type="submit" className="w-full h-16 rounded-2xl bg-[#0FA5A0] hover:bg-[#176E6C] text-white font-black uppercase tracking-widest shadow-xl">Record Treatment</Button></div>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
 
       <Dialog open={isProcurementDialogOpen} onOpenChange={setIsProcurementDialogOpen}>
-        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
-          <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[70dvh] flex flex-col">
+          <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
             <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]"><ShoppingBag className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase text-white">Medicine Purchase</DialogTitle></div>
-            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Document medicine purchase from shop</DialogDescription>
+            <DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose>
           </DialogHeader>
-          <div className="p-8 max-h-[75vh] overflow-y-auto no-scrollbar">
-            <Form {...medicineForm}><form onSubmit={medicineForm.handleSubmit(onMedicineExpenseSubmit)} className="space-y-6">
-              <FormField control={medicineForm.control} name="shopName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Shop Name</Label><FormControl><Input placeholder="Medical Shop Identity" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
-              <div className="grid grid-cols-2 gap-4">
-                <FormField control={medicineForm.control} name="totalAmountSpent" render={({ field }) => (<FormItem><Label className="form-label-tactical">Total Bill (₹)</Label><FormControl><Input type="number" className="form-input-tactical font-black text-[#0FA5A0]" {...field} /></FormControl></FormItem>)} />
-                <FormField control={medicineForm.control} name="outstandingDues" render={({ field }) => (<FormItem><Label className="form-label-tactical">Due Amount (₹)</Label><FormControl><Input type="number" className="form-input-tactical text-rose-600" {...field} /></FormControl></FormItem>)} />
+          <Form {...medicineForm}>
+            <form onSubmit={medicineForm.handleSubmit(onMedicineExpenseSubmit)} className="flex-1 flex flex-col min-h-0">
+              <div className="dialog-body space-y-6">
+                <FormField control={medicineForm.control} name="shopName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Shop Name</Label><FormControl><Input placeholder="Medical Shop Identity" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={medicineForm.control} name="totalAmountSpent" render={({ field }) => (<FormItem><Label className="form-label-tactical">Total Bill (₹)</Label><FormControl><Input type="number" className="form-input-tactical font-black text-[#0FA5A0]" {...field} /></FormControl></FormItem>)} />
+                  <FormField control={medicineForm.control} name="outstandingDues" render={({ field }) => (<FormItem><Label className="form-label-tactical">Due Amount (₹)</Label><FormControl><Input type="number" className="form-input-tactical text-rose-600" {...field} /></FormControl></FormItem>)} />
+                </div>
               </div>
-              <Button type="submit" className="w-full h-16 rounded-2xl bg-[#0FA5A0] hover:bg-[#176E6C] text-white font-black uppercase tracking-widest shadow-xl">Record Medicine Bill</Button>
-            </form></Form>
-          </div>
+              <div className="p-6 shrink-0 border-t"><Button type="submit" className="w-full h-16 rounded-2xl bg-[#0FA5A0] hover:bg-[#176E6C] text-white font-black uppercase tracking-widest shadow-xl">Record Medicine Bill</Button></div>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
     </div>

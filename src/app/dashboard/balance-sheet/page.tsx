@@ -17,11 +17,11 @@ import {
   ReceiptIndianRupee, 
   ShieldCheck,
   Plus,
-  Loader2
+  Loader2,
+  X
 } from 'lucide-react';
 import { useFarm } from '@/context/FarmContext';
 import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
 import { differenceInMonths, isValid, parseISO } from 'date-fns';
 import {
@@ -30,12 +30,9 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogClose,
 } from '@/components/ui/dialog';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
-/**
- * @fileOverview Debt & Loans Portfolio visualization.
- */
 export default function BalanceSheetPage() {
   const { toast } = useToast();
   const { 
@@ -151,9 +148,9 @@ export default function BalanceSheetPage() {
   };
 
   const getProgressClass = (val: number) => {
-    if (val < 33) return "progress-red";
-    if (val < 66) return "progress-yellow";
-    return "progress-green";
+    if (val < 33) return "bg-rose-500";
+    if (val < 66) return "bg-amber-500";
+    return "bg-[#14d5c7]";
   };
 
   const SummaryCard = ({ title, value, icon: Icon }: { title: string, value: number, icon: any }) => (
@@ -171,7 +168,7 @@ export default function BalanceSheetPage() {
   if (isLoading) {
     return (
       <div className="flex h-full w-full items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-10 w-10 animate-spin text-primary opacity-20" />
+        <Loader2 className="h-10 w-10 animate-spin text-[#14d5c7]" />
       </div>
     );
   }
@@ -218,7 +215,7 @@ export default function BalanceSheetPage() {
                   <p className="text-4xl font-black tracking-tighter">₹{totalLoanBalance.toLocaleString()}</p>
                 </div>
               </CardHeader>
-              <ScrollArea className="overflow-x-auto">
+              <div className="overflow-x-auto">
                 <Table>
                   <TableHeader className="bg-[#0FA5A0] sticky top-0 z-10">
                     <TableRow className="border-none hover:bg-transparent">
@@ -252,21 +249,20 @@ export default function BalanceSheetPage() {
                     })}
                   </TableBody>
                 </Table>
-              </ScrollArea>
+              </div>
             </Card>
           </TabsContent>
-
-          {/* Cards and Private tabs follow the same tactical pattern... */}
         </Tabs>
       </div>
 
       <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>
-        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
-          <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[80dvh] flex flex-col">
+          <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
             <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]"><Plus className="h-5 w-5" /></div><DialogTitle className="text-xl font-black uppercase text-white">Debt Entry</DialogTitle></div>
             <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Enroll new liability into portfolio</DialogDescription>
+            <DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose>
           </DialogHeader>
-          <div className="p-8 space-y-6">
+          <div className="dialog-body space-y-6">
             {activeTab === 'loans' && (
               <div className="space-y-6">
                 <div className="space-y-2"><Label className="form-label-tactical">Bank Identity</Label><Input value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="Bank Name" className="form-input-tactical" /></div>
@@ -280,8 +276,8 @@ export default function BalanceSheetPage() {
                 </div>
               </div>
             )}
-            <Button onClick={handleAdd} className="w-full h-16 rounded-2xl bg-[#0FA5A0] hover:bg-[#176E6C] text-white font-black uppercase tracking-widest shadow-xl border-none">Record Account</Button>
           </div>
+          <div className="p-6 shrink-0 border-t"><Button onClick={handleAdd} className="w-full h-16 rounded-2xl bg-[#0FA5A0] hover:bg-[#176E6C] text-white font-black uppercase tracking-widest shadow-xl border-none">Record Account</Button></div>
         </DialogContent>
       </Dialog>
     </div>

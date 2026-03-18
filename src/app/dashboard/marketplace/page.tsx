@@ -9,14 +9,15 @@ import { PageHeader } from '@/components/page-header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Globe, MapPin, Scale, MessageSquare, Loader2, Trash2, User, CheckCircle2, Pencil, Save } from 'lucide-react';
+import { Globe, MapPin, Scale, MessageSquare, Loader2, Trash2, User, CheckCircle2, Pencil, Save, X } from 'lucide-react';
 import { useUser } from '@/firebase';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+import { Label } from '@/components/ui/label';
 import type { PublicSale } from '@/lib/types';
 
 const editSaleSchema = z.object({
@@ -63,7 +64,7 @@ export default function MarketplacePage() {
   if (isLoading) {
     return (
       <div className="flex h-[calc(100vh-80px)] w-full items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <Loader2 className="h-8 w-8 animate-spin text-[#14d5c7]" />
       </div>
     );
   }
@@ -226,33 +227,36 @@ export default function MarketplacePage() {
       </div>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
-          <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
+        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl h-[70dvh] flex flex-col">
+          <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
             <DialogTitle className="text-xl font-black uppercase">Edit Listing</DialogTitle>
             <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Update your marketplace post details.</DialogDescription>
+            <DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose>
           </DialogHeader>
           <Form {...editForm}>
-            <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-6 p-8 bg-white">
-              <div className="grid grid-cols-2 gap-4">
-                <FormField control={editForm.control} name="animalCount" render={({ field }) => (
-                  <FormItem><Label className="text-[10px] font-black uppercase opacity-40 ml-2">Count</Label><FormControl><Input type="number" className="h-12 rounded-xl bg-neutral-50 border-none font-black" {...field} /></FormControl></FormItem>
+            <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="flex-1 flex flex-col min-h-0">
+              <div className="dialog-body space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={editForm.control} name="animalCount" render={({ field }) => (
+                    <FormItem><Label className="form-label-tactical">Count</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>
+                  )} />
+                  <FormField control={editForm.control} name="totalWeight" render={({ field }) => (
+                    <FormItem><Label className="form-label-tactical">Weight (kg)</Label><FormControl><Input type="number" step="0.1" className="form-input-tactical" {...field} /></FormControl></FormItem>
+                  )} />
+                </div>
+                <FormField control={editForm.control} name="askingPrice" render={({ field }) => (
+                  <FormItem><Label className="form-label-tactical">Price (₹)</Label><FormControl><Input type="number" className="form-input-tactical font-black" {...field} /></FormControl></FormItem>
                 )} />
-                <FormField control={editForm.control} name="totalWeight" render={({ field }) => (
-                  <FormItem><Label className="text-[10px] font-black uppercase opacity-40 ml-2">Weight (kg)</Label><FormControl><Input type="number" step="0.1" className="h-12 rounded-xl bg-neutral-50 border-none font-black" {...field} /></FormControl></FormItem>
+                <FormField control={editForm.control} name="notes" render={({ field }) => (
+                  <FormItem><Label className="form-label-tactical">Notes</Label><FormControl><Textarea className="rounded-xl bg-neutral-50 border-none font-bold" {...field} /></FormControl></FormItem>
                 )} />
               </div>
-              <FormField control={editForm.control} name="askingPrice" render={({ field }) => (
-                <FormItem><Label className="text-[10px] font-black uppercase opacity-40 ml-2">Price (₹)</Label><FormControl><Input type="number" className="h-12 rounded-xl bg-neutral-50 border-none font-black" {...field} /></FormControl></FormItem>
-              )} />
-              <FormField control={editForm.control} name="notes" render={({ field }) => (
-                <FormItem><Label className="text-[10px] font-black uppercase opacity-40 ml-2">Notes</Label><FormControl><Textarea className="rounded-xl bg-neutral-50 border-none font-bold" {...field} /></FormControl></FormItem>
-              )} />
-              <DialogFooter className="pt-4 gap-4">
-                <Button type="submit" className="primary-btn w-full !bg-neutral-900 hover:!bg-black">
+              <div className="p-6 shrink-0 border-t">
+                <Button type="submit" className="w-full h-16 rounded-2xl bg-neutral-900 hover:bg-black text-white font-black uppercase shadow-xl">
                   <Save className="mr-2 h-4 w-4 text-emerald-400" />
                   Update Listing
                 </Button>
-              </DialogFooter>
+              </div>
             </form>
           </Form>
         </DialogContent>

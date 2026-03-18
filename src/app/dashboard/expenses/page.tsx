@@ -31,10 +31,10 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogClose,
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useFarm } from '@/context/FarmContext';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Label } from '@/components/ui/label';
 import { PageHeader } from '@/components/page-header';
 
@@ -90,10 +90,7 @@ export default function ExpensesPage() {
   if (isLoading) {
     return (
       <div className="flex h-full w-full items-center justify-center">
-        <div className="flex flex-col items-center gap-6">
-          <div className="w-12 h-12 border-4 border-slate-100 rounded-full border-t-emerald-500 animate-spin" />
-          <p className="text-[12px] font-black text-slate-400 uppercase tracking-[0.3em]">SYNCHRONIZING EXPENSES...</p>
-        </div>
+        <Loader2 className="h-12 w-12 animate-spin text-[#14d5c7]" />
       </div>
     );
   }
@@ -205,7 +202,7 @@ export default function ExpensesPage() {
         </div>
       </div>
 
-      {/* MOBILE FAB - FIXED POSITION FIX */}
+      {/* MOBILE FAB */}
       <button 
         onClick={() => { form.reset(); setIsEntryDialogOpen(true); }}
         className="md:hidden fixed bottom-24 right-6 h-14 w-14 rounded-full bg-[#059669] text-white shadow-2xl flex items-center justify-center active:scale-90 transition-all z-30"
@@ -214,20 +211,20 @@ export default function ExpensesPage() {
       </button>
 
       <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>
-        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white max-h-[90dvh] flex flex-col">
+        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[60dvh] flex flex-col">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
             <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400"><Plus className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase">Kharchu Entry</DialogTitle></div>
-            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Document new farm overhead</DialogDescription>
+            <DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose>
           </DialogHeader>
-          <ScrollArea className="flex-1">
-            <div className="p-8 pb-12">
-              <Form {...form}><form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1 flex flex-col min-h-0">
+              <div className="dialog-body space-y-6">
                 <FormField control={form.control} name="description" render={({ field }) => (<FormItem><Label className="form-label-tactical">Kharchu Detail</Label><FormControl><Input placeholder="e.g. Electricity bill" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
                 <FormField control={form.control} name="amount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Bill Amount (₹)</Label><FormControl><Input type="number" className="form-input-tactical font-black text-xl" {...field} /></FormControl></FormItem>)} />
-                <Button type="submit" className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase shadow-xl">Record Kharchu</Button>
-              </form></Form>
-            </div>
-          </ScrollArea>
+              </div>
+              <div className="p-6 shrink-0 border-t"><Button type="submit" className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase shadow-xl">Record Kharchu</Button></div>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
     </div>

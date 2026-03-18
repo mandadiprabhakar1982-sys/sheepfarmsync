@@ -46,6 +46,23 @@
   }
 }
 
+@layer components {
+  .dialog-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    background: #ffffff;
+  }
+
+  .form-input-tactical {
+    @apply h-12 rounded-xl bg-white border border-slate-300 text-slate-900 font-bold px-4 focus-visible:ring-primary/20 transition-all;
+  }
+
+  .form-label-tactical {
+    @apply text-[10px] font-black uppercase tracking-widest opacity-40 ml-2 mb-1 block;
+  }
+}
+
 /* HIGH FIDELITY GLOSSY UTILITIES */
 .glossy-teal { @apply bg-gradient-to-br from-[#11c5be] to-[#0d8f89]; }
 .glossy-magenta { @apply bg-gradient-to-br from-[#db2777] to-[#9d174d]; }

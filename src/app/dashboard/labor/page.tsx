@@ -21,22 +21,21 @@ import { format, isToday, isYesterday, parseISO } from 'date-fns';
 
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
-import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import { useFarm } from '@/context/FarmContext';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogClose,
 } from '@/components/ui/dialog';
 import type { LaborCost } from '@/lib/types';
 
@@ -100,15 +99,6 @@ export default function LaborPage() {
     return [...filtered].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [laborCosts, searchTerm]);
 
-  const groupedLaborCosts = useMemo(() => {
-    const groups: { [key: string]: LaborCost[] } = {};
-    sortedLaborCosts.forEach(cost => {
-      if (!groups[cost.date]) groups[cost.date] = [];
-      groups[cost.date].push(cost);
-    });
-    return Object.entries(groups).map(([date, items]) => ({ date, items }));
-  }, [sortedLaborCosts]);
-
   const onSubmit: SubmitHandler<LaborFormData> = (data) => {
     const newCost = { ...data, date: format(data.date, 'yyyy-MM-dd') };
     addLaborCost(newCost);
@@ -162,7 +152,6 @@ export default function LaborPage() {
               <CardDescription className="text-white/60 text-[8px] font-black uppercase tracking-[0.2em] ml-7">Labour Disbursement Audit</CardDescription>
             </div>
 
-            {/* COMPRESSED SEARCH MATRIX */}
             <div className="relative flex-1 max-w-xs">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3 w-3 text-white/40" />
               <Input 
@@ -196,29 +185,20 @@ export default function LaborPage() {
         <div className="flex-1 overflow-y-auto pb-32">
           {/* MOBILE VIEW */}
           <div className="block md:hidden p-4 space-y-8">
-            {groupedLaborCosts.length > 0 ? groupedLaborCosts.map((group) => (
-              <div key={group.date} className="space-y-4">
-                <div className="px-2 py-2 mb-3 bg-[#D7F2F1] rounded-lg">
-                  <p className="text-[11px] font-black uppercase tracking-widest text-[#176E6C]">{formatGroupDate(group.date)}</p>
+            {sortedLaborCosts.length > 0 ? sortedLaborCosts.map((cost) => (
+              <div key={cost.id} className="bg-white rounded-[1.25rem] p-5 flex items-center justify-between shadow-sm border border-slate-100 active:scale-[0.98] transition-all" onClick={() => handleEditClick(cost)}>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg font-black text-[#2F4F4F] leading-none mb-1">{cost.employeeName}</h3>
+                  <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                    {cost.numberOfLaborers} Staff • ₹{cost.wages} per Head
+                  </p>
                 </div>
-                <div className="space-y-4">
-                  {group.items.map((cost) => (
-                    <div key={cost.id} className="bg-white rounded-[1.25rem] p-5 flex items-center justify-between shadow-sm border border-slate-100 active:scale-[0.98] transition-all" onClick={() => handleEditClick(cost)}>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-lg font-black text-[#2F4F4F] leading-none mb-1">{cost.employeeName}</h3>
-                        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-                          {cost.numberOfLaborers} Staff • ₹{cost.wages} per Head
-                        </p>
-                      </div>
-                      <div className="text-right shrink-0">
-                        <p className="text-xl font-black text-[#0FA5A0]">₹{cost.amountPaid?.toLocaleString() || '0'}</p>
-                        <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#ecfdf5] text-[#43A047] border border-[#d1fae5] mt-1">
-                          <CheckCircle2 className="h-2.5 w-2.5" />
-                          <span className="text-[9px] font-black uppercase tracking-widest">Settled</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                <div className="text-right shrink-0">
+                  <p className="text-xl font-black text-[#0FA5A0]">₹{cost.amountPaid?.toLocaleString() || '0'}</p>
+                  <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#ecfdf5] text-[#43A047] border border-[#d1fae5] mt-1">
+                    <CheckCircle2 className="h-2.5 w-2.5" />
+                    <span className="text-[9px] font-black uppercase tracking-widest">Settled</span>
+                  </div>
                 </div>
               </div>
             )) : <div className="py-20 text-center opacity-20 font-black uppercase text-xs">No records discovered</div>}
@@ -265,14 +245,14 @@ export default function LaborPage() {
       </div>
 
       <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>
-        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
-          <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[80dvh] flex flex-col">
+          <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
             <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]"><Plus className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase text-white">Staff Payment</DialogTitle></div>
-            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Commit new staff expenditure to records</DialogDescription>
+            <DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose>
           </DialogHeader>
-          <div className="p-8 max-h-[70vh] overflow-y-auto no-scrollbar">
-            <Form {...form}><form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              <div className="space-y-6">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1 flex flex-col min-h-0">
+              <div className="dialog-body space-y-6">
                 <FormField control={form.control} name="date" render={({ field }) => (
                   <FormItem className="flex flex-col"><Label className="form-label-tactical">Payment Date</Label><Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}><PopoverTrigger asChild><Button variant="outline" className="form-input-tactical w-full text-left justify-between">{field.value ? format(field.value, "MMM dd, yyyy") : "Pick date"}<CalendarIcon className="h-4 w-4 opacity-20" /></Button></PopoverTrigger><PopoverContent className="w-auto p-0 border-none bg-white shadow-2xl"><Calendar mode="single" selected={field.value} onSelect={(d) => { field.onChange(d); setIsDatePickerOpen(false); }} initialFocus /></PopoverContent></Popover></FormItem>
                 )} />
@@ -288,9 +268,9 @@ export default function LaborPage() {
                   <FormField control={form.control} name="pendingAmount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Pending Balance (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-rose-50 border-rose-100 text-rose-600 font-black" {...field} readOnly /></FormControl></FormItem>)} />
                 </div>
               </div>
-              <Button type="submit" className="w-full h-16 rounded-2xl bg-[#0FA5A0] hover:bg-[#176E6C] text-white font-black text-sm uppercase tracking-widest shadow-xl">Record Payment</Button>
-            </form></Form>
-          </div>
+              <div className="p-6 shrink-0 border-t"><Button type="submit" className="w-full h-16 rounded-2xl bg-[#0FA5A0] hover:bg-[#176E6C] text-white font-black uppercase tracking-widest shadow-xl">Record Payment</Button></div>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
     </div>

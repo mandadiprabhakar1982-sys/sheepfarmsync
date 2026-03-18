@@ -19,7 +19,7 @@ import {
 import { format, parseISO, isToday, isYesterday } from 'date-fns';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -34,6 +34,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogClose,
 } from '@/components/ui/dialog';
 import { 
   Table, 
@@ -44,7 +45,6 @@ import {
   TableRow 
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { useFarm } from '@/context/FarmContext';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -85,15 +85,6 @@ export default function TradeLedgerPage() {
     return filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [sales, purchases, searchTerm]);
 
-  const groupedLedger = useMemo(() => {
-    const groups: { [key: string]: any[] } = {};
-    combinedLedger.forEach(item => {
-      if (!groups[item.date]) groups[item.date] = [];
-      groups[item.date].push(item);
-    });
-    return Object.entries(groups).map(([date, items]) => ({ date, items }));
-  }, [combinedLedger]);
-
   const onSalesSubmit: SubmitHandler<SalesFormData> = async (data) => {
     const payload = { ...data, saleDate: format(data.saleDate, 'yyyy-MM-dd') };
     addSale(payload);
@@ -118,10 +109,7 @@ export default function TradeLedgerPage() {
   if (isLoading) {
     return (
       <div className="flex h-full w-full items-center justify-center">
-        <div className="flex flex-col items-center gap-6">
-          <div className="w-12 h-12 border-4 border-slate-100 rounded-full border-t-emerald-500 animate-spin" />
-          <p className="text-[12px] font-black text-slate-400 uppercase tracking-[0.3em]">SYNCHRONIZING SELLING DATA...</p>
-        </div>
+        <Loader2 className="h-12 w-12 animate-spin text-[#14d5c7]" />
       </div>
     );
   }
@@ -141,7 +129,6 @@ export default function TradeLedgerPage() {
               <CardDescription className="text-white/60 text-[8px] font-black uppercase tracking-[0.2em] ml-7">Verified Cattle Trade Audit</CardDescription>
             </div>
 
-            {/* COMPRESSED SEARCH MATRIX */}
             <div className="relative flex-1 max-w-xs">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3 w-3 text-white/40" />
               <Input 
@@ -172,41 +159,32 @@ export default function TradeLedgerPage() {
           </div>
         </CardHeader>
 
-        <ScrollArea className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-y-auto pb-32">
           {/* MOBILE VIEW */}
           <div className="block md:hidden p-4 space-y-8">
-            {groupedLedger.length > 0 ? groupedLedger.map((group) => (
-              <div key={group.date} className="mb-8">
-                <div className="px-2 py-2 mb-3 bg-[#D7F2F1] rounded-lg">
-                  <p className="text-[11px] font-black uppercase tracking-widest text-[#176E6C]">{formatGroupDate(group.date)}</p>
+            {combinedLedger.length > 0 ? combinedLedger.map((item) => (
+              <div key={item.id} className="bg-white rounded-[1.25rem] p-5 flex items-center justify-between shadow-sm border border-slate-100 active:scale-[0.98] transition-all">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Badge className={cn("border-none font-black text-[7px] uppercase px-1.5 py-0.5", item._type === 'sale' ? "bg-emerald-50 text-emerald-600" : "bg-blue-50 text-blue-600")}>{item._type === 'sale' ? 'AMMAKAM' : 'BUY'}</Badge>
+                    <h3 className="text-lg font-black text-[#2F4F4F] truncate leading-none">{item.entity}</h3>
+                  </div>
+                  <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">{item.loc} • {item.animalCount} Head</p>
                 </div>
-                <div className="space-y-4">
-                  {group.items.map((item) => (
-                    <div key={item.id} className="bg-white rounded-[1.25rem] p-5 flex items-center justify-between shadow-sm border border-slate-100 active:scale-[0.98] transition-all">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <Badge className={cn("border-none font-black text-[7px] uppercase px-1.5 py-0.5", item._type === 'sale' ? "bg-emerald-50 text-emerald-600" : "bg-blue-50 text-blue-600")}>{item._type === 'sale' ? 'AMMAKAM' : 'BUY'}</Badge>
-                          <h3 className="text-lg font-black text-[#2F4F4F] truncate leading-none">{item.entity}</h3>
-                        </div>
-                        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">{item.loc} • {item.animalCount} Head</p>
-                      </div>
-                      <div className="text-right shrink-0">
-                        <p className={cn("text-xl font-black", item._type === 'sale' ? "text-[#059669]" : "text-slate-900")}>
-                          {item._type === 'sale' ? '+' : '-'}₹{item.value.toLocaleString()}
-                        </p>
-                        {item.dues > 0 ? (
-                          <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-rose-50 text-rose-600 border border-rose-100 mt-1">
-                            <span className="text-[9px] font-black uppercase tracking-widest">₹{item.dues.toLocaleString()} Raavalasi</span>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#ecfdf5] text-[#059669] border border-[#d1fae5] mt-1">
-                            <CheckCircle2 className="h-2.5 w-2.5" />
-                            <span className="text-[9px] font-black uppercase tracking-widest">SETTLED</span>
-                          </div>
-                        )}
-                      </div>
+                <div className="text-right shrink-0">
+                  <p className={cn("text-xl font-black", item._type === 'sale' ? "text-[#059669]" : "text-slate-900")}>
+                    {item._type === 'sale' ? '+' : '-'}₹{item.value.toLocaleString()}
+                  </p>
+                  {item.dues > 0 ? (
+                    <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-rose-50 text-rose-600 border border-rose-100 mt-1">
+                      <span className="text-[9px] font-black uppercase tracking-widest">₹{item.dues.toLocaleString()} Raavalasi</span>
                     </div>
-                  ))}
+                  ) : (
+                    <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#ecfdf5] text-[#059669] border border-[#d1fae5] mt-1">
+                      <CheckCircle2 className="h-2.5 w-2.5" />
+                      <span className="text-[9px] font-black uppercase tracking-widest">SETTLED</span>
+                    </div>
+                  )}
                 </div>
               </div>
             )) : <div className="py-20 text-center opacity-20 font-black uppercase text-xs">No selling records discovered</div>}
@@ -242,25 +220,27 @@ export default function TradeLedgerPage() {
               </TableBody>
             </Table>
           </div>
-        </ScrollArea>
+        </div>
       </div>
 
       <Dialog open={isDisposalOpen} onOpenChange={setIsDisposalOpen}>
-        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
-          <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
+        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[70dvh] flex flex-col">
+          <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
             <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400"><Plus className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase text-white">Selling Entry</DialogTitle></div>
-            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Enroll new pashu sale into records</DialogDescription>
+            <DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose>
           </DialogHeader>
-          <div className="p-8 max-h-[70vh] overflow-y-auto no-scrollbar">
-            <Form {...salesForm}><form onSubmit={salesForm.handleSubmit(onSalesSubmit)} className="space-y-6">
-              <FormField control={salesForm.control} name="buyerName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Buyer Identity</Label><FormControl><Input placeholder="e.g. John Doe" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
-              <div className="grid grid-cols-2 gap-4">
-                <FormField control={salesForm.control} name="animalCount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Head Count</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
-                <FormField control={salesForm.control} name="salePrice" render={({ field }) => (<FormItem><Label className="form-label-tactical">Total Price (₹)</Label><FormControl><Input type="number" className="form-input-tactical font-black text-emerald-600" {...field} /></FormControl></FormItem>)} />
+          <Form {...salesForm}>
+            <form onSubmit={salesForm.handleSubmit(onSalesSubmit)} className="flex-1 flex flex-col min-h-0">
+              <div className="dialog-body space-y-6">
+                <FormField control={salesForm.control} name="buyerName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Buyer Identity</Label><FormControl><Input placeholder="e.g. John Doe" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={salesForm.control} name="animalCount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Head Count</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+                  <FormField control={salesForm.control} name="salePrice" render={({ field }) => (<FormItem><Label className="form-label-tactical">Total Price (₹)</Label><FormControl><Input type="number" className="form-input-tactical font-black text-emerald-600" {...field} /></FormControl></FormItem>)} />
+                </div>
               </div>
-              <Button type="submit" className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase shadow-xl">Record Pashu Sell</Button>
-            </form></Form>
-          </div>
+              <div className="p-6 shrink-0 border-t"><Button type="submit" className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase shadow-xl">Record Pashu Sell</Button></div>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
     </div>
