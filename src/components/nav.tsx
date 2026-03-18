@@ -1,4 +1,3 @@
-
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -31,7 +30,6 @@ const links = [
   { href: '/dashboard/marketplace', label: 'Market', icon: Globe },
   { href: '/dashboard/expenses', label: 'Expenses', icon: Receipt },
   { href: '/dashboard/mortality', label: 'Mortality', icon: Skull },
-  { href: '/dashboard/analysis', label: 'Reports', icon: BarChart },
   { href: '/dashboard/feed-calculator', label: 'Calculator', icon: Calculator },
 ];
 
