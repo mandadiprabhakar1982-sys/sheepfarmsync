@@ -332,7 +332,7 @@ export default function LivestockPage() {
         </DialogContent>
       </Dialog>
 
-      {/* ENTRY DIALOG - MATCHING IMAGE */}
+      {/* ENTRY DIALOG */}
       <Dialog open={isEntryDialogOpen} onOpenChange={(open) => { setIsEntryDialogOpen(open); if (!open) stopCamera(); }}>
         <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl h-[88dvh] max-h-[88dvh] flex flex-col z-[100] bg-white">
           <div className="bg-[#111111] p-8 text-white relative shrink-0">
@@ -406,7 +406,20 @@ export default function LivestockPage() {
                               </Button>
                             </PopoverTrigger>
                             <PopoverContent className="w-auto p-0 border-none bg-white shadow-2xl z-[150]" align="start">
-                              <Calendar mode="single" selected={field.value} onSelect={(d) => { if (d) { field.onChange(new Date(d!)); setTimeout(() => setIsRegDatePickerOpen(false), 50); } }} initialFocus />
+                              <Calendar
+                                mode="single"
+                                selected={field.value}
+                                onSelect={(date) => {
+                                  if (date) {
+                                    field.onChange(date);
+                                    setIsRegDatePickerOpen(false);
+                                  }
+                                }}
+                                initialFocus
+                                className="rounded-xl"
+                                fromDate={new Date(2024, 0, 1)}
+                                toDate={new Date(2030, 11, 31)}
+                              />
                             </PopoverContent>
                           </Popover>
                         </FormItem>
@@ -515,7 +528,7 @@ export default function LivestockPage() {
         </DialogContent>
       </Dialog>
 
-      {/* EDIT DIALOG - CONSISTENT STYLE */}
+      {/* EDIT DIALOG */}
       <Dialog open={isEditDialogOpen} onOpenChange={(open) => { setIsEditDialogOpen(open); if (!open) stopCamera(); }}>
         <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl h-[88dvh] max-h-[88dvh] flex flex-col z-[100] bg-white">
           <div className="bg-[#111111] p-8 text-white relative shrink-0">
