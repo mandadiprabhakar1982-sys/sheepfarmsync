@@ -197,7 +197,7 @@ export default function DashboardPage() {
     { title: "Sheep List", subtitle: "Flock Registry", icon: IconFlock, href: '/dashboard/livestock', color: "from-primary/20 to-primary/40" },
     { title: "Selling", subtitle: "Revenue Stream", icon: IconTrade, href: '/dashboard/sales', color: "from-primary/20 to-primary/40" },
     { title: "Medical", subtitle: "Clinical History", icon: IconHealth, href: '/dashboard/medicine', color: "from-primary/20 to-primary/40" },
-    { title: "Fodder", subtitle: "Feed Inventory", icon: IconFeed, color: "from-primary/20 to-primary/40" },
+    { title: "Fodder", subtitle: "Feed Inventory", icon: IconFeed, href: '/dashboard/feed', color: "from-primary/20 to-primary/40" },
     { title: "Labour", subtitle: "Staff & Coolie", icon: IconLabor, href: '/dashboard/labor', color: "from-primary/20 to-primary/40" },
     { title: "Expenses", subtitle: "Misc Overheads", icon: IconExpenses, href: '/dashboard/expenses', color: "from-primary/20 to-primary/40" },
   ];
