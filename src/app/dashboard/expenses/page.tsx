@@ -129,7 +129,7 @@ export default function ExpensesPage() {
       <button onClick={() => { form.reset(); setIsEntryDialogOpen(true); }} className="md:hidden fixed bottom-24 right-6 h-14 w-14 rounded-full bg-[#059669] text-white shadow-2xl flex items-center justify-center active:scale-90 transition-all z-30"><Plus className="h-7 w-7" /></button>
 
       <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>
-        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[88dvh] max-h-[88dvh] flex flex-col">
+        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-visible border-none shadow-2xl bg-white h-[88dvh] max-h-[88dvh] flex flex-col">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
             <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400"><Plus className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase">Kharchu Entry</DialogTitle></div>
             <DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose>

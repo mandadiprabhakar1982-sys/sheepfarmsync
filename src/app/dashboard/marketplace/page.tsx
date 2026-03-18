@@ -227,7 +227,7 @@ export default function MarketplacePage() {
       </div>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl h-[88dvh] max-h-[88dvh] flex flex-col">
+        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-visible border-none shadow-2xl h-[88dvh] max-h-[88dvh] flex flex-col">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
             <DialogTitle className="text-xl font-black uppercase">Edit Listing</DialogTitle>
             <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Update your marketplace post details.</DialogDescription>
@@ -246,8 +246,7 @@ export default function MarketplacePage() {
                     )} />
                   </div>
                   <FormField control={editForm.control} name="askingPrice" render={({ field }) => (
-                    <FormItem><Label className="form-label-tactical">Price (₹)</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>
-                  )} />
+                    <FormItem><Label className="form-label-tactical">Price (₹)</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
                   <FormField control={editForm.control} name="notes" render={({ field }) => (
                     <FormItem><Label className="form-label-tactical">Notes</Label><FormControl><Textarea className="rounded-xl bg-neutral-50 border-none font-bold" {...field} /></FormControl></FormItem>
                   )} />

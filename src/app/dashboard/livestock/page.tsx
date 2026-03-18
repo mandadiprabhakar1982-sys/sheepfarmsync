@@ -334,7 +334,7 @@ export default function LivestockPage() {
 
       {/* ENTRY DIALOG */}
       <Dialog open={isEntryDialogOpen} onOpenChange={(open) => { setIsEntryDialogOpen(open); if (!open) stopCamera(); }}>
-        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl h-[88dvh] max-h-[88dvh] flex flex-col z-[100] bg-white">
+        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-visible border-none shadow-2xl h-[88dvh] max-h-[88dvh] flex flex-col z-[100] bg-white">
           <div className="bg-[#111111] p-8 text-white relative shrink-0">
             <div className="flex items-center gap-4">
               <div className="h-12 w-12 rounded-2xl bg-[#14d5c7]/10 flex items-center justify-center text-[#14d5c7] border border-[#14d5c7]/20">
@@ -530,7 +530,7 @@ export default function LivestockPage() {
 
       {/* EDIT DIALOG */}
       <Dialog open={isEditDialogOpen} onOpenChange={(open) => { setIsEditDialogOpen(open); if (!open) stopCamera(); }}>
-        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl h-[88dvh] max-h-[88dvh] flex flex-col z-[100] bg-white">
+        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-visible border-none shadow-2xl h-[88dvh] max-h-[88dvh] flex flex-col z-[100] bg-white">
           <div className="bg-[#111111] p-8 text-white relative shrink-0">
             <div className="flex items-center gap-4">
               <div className="h-12 w-12 rounded-2xl bg-[#14d5c7]/10 flex items-center justify-center text-[#14d5c7] border border-[#14d5c7]/20">

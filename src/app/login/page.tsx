@@ -1,4 +1,3 @@
-
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -194,7 +193,7 @@ export default function LoginPage() {
       </Card>
 
       <Dialog open={isResetOpen} onOpenChange={setIsResetOpen}>
-        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
+        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-visible border-none shadow-2xl">
           <DialogHeader className="bg-neutral-900 p-8 text-left relative">
             <div className="absolute top-0 right-0 p-6 opacity-10">
               <Mail className="h-20 w-20 text-white rotate-12" />
