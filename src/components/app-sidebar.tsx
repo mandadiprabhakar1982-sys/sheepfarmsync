@@ -4,11 +4,16 @@ import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  LayoutDashboard,
+  LayoutGrid,
   ClipboardList,
   BookOpen,
   ShoppingCart,
-  LayoutGrid,
+  ArrowUpCircle,
+  Infinity,
+  Calculator,
+  Heart,
+  Wallet,
+  FileText,
   ShieldCheck
 } from 'lucide-react';
 
@@ -26,16 +31,25 @@ import {
 import { cn } from '@/lib/utils';
 import { useFarm } from '@/context/FarmContext';
 
+/**
+ * @fileOverview High-Fidelity Enterprise Sidebar.
+ * Implements the 10-node navigation suite from the user model.
+ */
 export function AppSidebar() {
   const pathname = usePathname();
   const { userRole } = useFarm();
-  const isAdmin = userRole === 'admin';
 
   const menu = [
-    { href: '/dashboard/overview', label: "Dashboard", icon: LayoutGrid },
+    { href: '/dashboard', label: "Dashboard", icon: LayoutGrid },
     { href: '/dashboard/livestock', label: "Sheep Record", icon: ClipboardList },
     { href: '/dashboard/farm-ledger', label: "Farm Ledger", icon: BookOpen },
     { href: '/dashboard/purchase', label: "Sheep Buying", icon: ShoppingCart },
+    { href: '/dashboard/feed', label: "Fodder & Feed", icon: ArrowUpCircle },
+    { href: '/dashboard/labor', label: "Labour & Staff", icon: Infinity },
+    { href: '/dashboard/feed-calculator', label: "Calculator", icon: Calculator },
+    { href: '/dashboard/medicine', label: "Health Alerts", icon: Heart },
+    { href: '/dashboard/monthly-ledger', label: "Personal Finance", icon: Wallet },
+    { href: '/dashboard/balance-sheet', label: "Debit & Credit", icon: FileText },
   ];
 
   return (
@@ -48,9 +62,13 @@ export function AppSidebar() {
       <SidebarContent className="px-4 py-8 no-scrollbar">
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu className="gap-2">
+            <SidebarMenu className="gap-1.5">
               {menu.map((item) => {
-                const isActive = pathname === item.href;
+                // Precise path matching for active state
+                const isActive = item.href === '/dashboard' 
+                  ? pathname === '/dashboard' 
+                  : pathname.startsWith(item.href);
+                  
                 const Icon = item.icon;
                 return (
                   <SidebarMenuItem key={item.href}>
@@ -59,7 +77,7 @@ export function AppSidebar() {
                       isActive={isActive}
                       tooltip={item.label}
                       className={cn(
-                        "h-12 px-5 rounded-[30px] transition-all duration-200",
+                        "h-11 px-5 rounded-[30px] transition-all duration-200",
                         isActive 
                           ? "bg-white/10 text-white font-black" 
                           : "text-[#b0d4cc] hover:text-white hover:bg-white/5"
