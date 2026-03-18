@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -166,7 +165,7 @@ export default function MedicinePage() {
   if (isLoading) {
     return (
       <div className="flex h-full w-full items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-10 w-10 animate-spin text-primary opacity-20" />
+        <Loader2 className="h-10 w-10 animate-spin text-[#14d5c7]" />
       </div>
     );
   }
@@ -217,9 +216,9 @@ export default function MedicinePage() {
           </div>
         </CardHeader>
 
-        <div className="px-8 pt-6">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-6 p-1 bg-[#D7F2F1] rounded-2xl h-12 md:max-w-md shadow-inner">
+        <div className="px-8 pt-6 flex-1 flex flex-col min-h-0">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full flex-1 flex flex-col min-h-0">
+            <TabsList className="grid w-full grid-cols-2 mb-6 p-1 bg-[#D7F2F1] rounded-2xl h-12 md:max-w-md shadow-inner shrink-0">
               <TabsTrigger value="clinical" className="rounded-xl font-black text-[9px] uppercase h-10">
                 <Activity className="h-3 w-3 mr-1.5" /> Clinical Records
               </TabsTrigger>
@@ -228,70 +227,66 @@ export default function MedicinePage() {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="clinical" className="m-0">
-              <ScrollArea className="h-[calc(100vh-280px)]">
-                <Table>
-                  <TableHeader className="bg-[#0FA5A0] sticky top-0 z-10">
-                    <TableRow className="border-none hover:bg-transparent">
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-6 pl-10 text-white">Date</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-6 text-white">Sheep (Medicine)</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-6 text-center text-white">Treatment Type</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-6 text-right pr-10 text-white">Cost</TableHead>
+            <TabsContent value="clinical" className="flex-1 min-h-0 overflow-y-auto pb-32 m-0">
+              <Table>
+                <TableHeader className="bg-[#0FA5A0] sticky top-0 z-10">
+                  <TableRow className="border-none hover:bg-transparent">
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-6 pl-10 text-white">Date</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-6 text-white">Sheep (Medicine)</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-6 text-center text-white">Treatment Type</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-6 text-right pr-10 text-white">Cost</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {sortedHealthTasks.map((task) => (
+                    <TableRow key={task.id} className="hover:bg-slate-50 border-b border-slate-100 group transition-colors">
+                      <TableCell className="py-6 pl-10 text-[11px] font-black text-slate-400">{task.date}</TableCell>
+                      <TableCell>
+                        <div className="flex flex-col"><span className="text-[14px] font-black text-[#2F4F4F]">{task.medicineName} (ID: {task.sheepId})</span><span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{task.administeredBy}</span></div>
+                      </TableCell>
+                      <TableCell className="text-center"><Badge className="bg-[#D7F2F1] text-[#0FA5A0] border-none font-black text-[10px] px-3 uppercase tracking-widest">{task.healthType}</Badge></TableCell>
+                      <TableCell className="text-right pr-10">
+                        <div className="flex items-center justify-end gap-4">
+                          <span className="text-[16px] font-black text-[#2F4F4F]">₹{task.cost.toLocaleString()}</span>
+                          <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-rose-600 opacity-0 group-hover:opacity-100 transition-all" onClick={() => deleteHealthTask(task.id, task._path)}><Trash2 className="h-4 w-4" /></Button>
+                        </div>
+                      </TableCell>
                     </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {sortedHealthTasks.map((task) => (
-                      <TableRow key={task.id} className="hover:bg-slate-50 border-b border-slate-100 group transition-colors">
-                        <TableCell className="py-6 pl-10 text-[11px] font-black text-slate-400">{task.date}</TableCell>
-                        <TableCell>
-                          <div className="flex flex-col"><span className="text-[14px] font-black text-[#2F4F4F]">{task.medicineName} (ID: {task.sheepId})</span><span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{task.administeredBy}</span></div>
-                        </TableCell>
-                        <TableCell className="text-center"><Badge className="bg-[#D7F2F1] text-[#0FA5A0] border-none font-black text-[10px] px-3 uppercase tracking-widest">{task.healthType}</Badge></TableCell>
-                        <TableCell className="text-right pr-10">
-                          <div className="flex items-center justify-end gap-4">
-                            <span className="text-[16px] font-black text-[#2F4F4F]">₹{task.cost.toLocaleString()}</span>
-                            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-rose-600 opacity-0 group-hover:opacity-100 transition-all" onClick={() => deleteHealthTask(task.id, task._path)}><Trash2 className="h-4 w-4" /></Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </ScrollArea>
+                  ))}
+                </TableBody>
+              </Table>
             </TabsContent>
 
-            <TabsContent value="pharma" className="m-0">
-              <ScrollArea className="h-[calc(100vh-280px)]">
-                <Table>
-                  <TableHeader className="bg-[#0FA5A0] sticky top-0 z-10">
-                    <TableRow className="border-none hover:bg-transparent">
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-6 pl-10 text-white">Bill Date</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-6 text-white">Shop Identity</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-6 text-center text-white">Status</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-6 text-right pr-10 text-white">Amount Paid</TableHead>
+            <TabsContent value="pharma" className="flex-1 min-h-0 overflow-y-auto pb-32 m-0">
+              <Table>
+                <TableHeader className="bg-[#0FA5A0] sticky top-0 z-10">
+                  <TableRow className="border-none hover:bg-transparent">
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-6 pl-10 text-white">Bill Date</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-6 text-white">Shop Identity</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-6 text-center text-white">Status</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest py-6 text-right pr-10 text-white">Amount Paid</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {sortedMedicineExpenses.map((expense) => (
+                    <TableRow key={expense.id} className="hover:bg-slate-50 border-b border-slate-100 group transition-colors">
+                      <TableCell className="py-6 pl-10 text-[11px] font-black text-slate-400">{expense.date}</TableCell>
+                      <TableCell>
+                        <div className="flex flex-col"><span className="text-[14px] font-black text-[#2F4F4F]">{expense.shopName}</span><span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{expense.description || 'Medicine Bill'}</span></div>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {expense.outstandingDues > 0 ? <Badge variant="destructive" className="font-black text-[10px] uppercase tracking-widest shadow-sm">₹{expense.outstandingDues} Due</Badge> : <Badge className="bg-[#ecfdf5] text-[#43A047] border-none font-black text-[10px] px-3 uppercase tracking-widest">Paid</Badge>}
+                      </TableCell>
+                      <TableCell className="text-right pr-10">
+                        <div className="flex items-center justify-end gap-4">
+                          <span className="text-[16px] font-black text-[#2F4F4F]">₹{expense.totalAmountSpent.toLocaleString()}</span>
+                          <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-rose-600 opacity-0 group-hover:opacity-100 transition-all" onClick={() => deleteMedicineExpense(expense.id, expense._path)}><Trash2 className="h-4 w-4" /></Button>
+                        </div>
+                      </TableCell>
                     </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {sortedMedicineExpenses.map((expense) => (
-                      <TableRow key={expense.id} className="hover:bg-slate-50 border-b border-slate-100 group transition-colors">
-                        <TableCell className="py-6 pl-10 text-[11px] font-black text-slate-400">{expense.date}</TableCell>
-                        <TableCell>
-                          <div className="flex flex-col"><span className="text-[14px] font-black text-[#2F4F4F]">{expense.shopName}</span><span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{expense.description || 'Medicine Bill'}</span></div>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          {expense.outstandingDues > 0 ? <Badge variant="destructive" className="font-black text-[10px] uppercase tracking-widest shadow-sm">₹{expense.outstandingDues} Due</Badge> : <Badge className="bg-[#ecfdf5] text-[#43A047] border-none font-black text-[10px] px-3 uppercase tracking-widest">Paid</Badge>}
-                        </TableCell>
-                        <TableCell className="text-right pr-10">
-                          <div className="flex items-center justify-end gap-4">
-                            <span className="text-[16px] font-black text-[#2F4F4F]">₹{expense.totalAmountSpent.toLocaleString()}</span>
-                            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-rose-600 opacity-0 group-hover:opacity-100 transition-all" onClick={() => deleteMedicineExpense(expense.id, expense._path)}><Trash2 className="h-4 w-4" /></Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </ScrollArea>
+                  ))}
+                </TableBody>
+              </Table>
             </TabsContent>
           </Tabs>
         </div>

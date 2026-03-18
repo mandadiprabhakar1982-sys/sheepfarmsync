@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
@@ -143,7 +142,7 @@ export default function LaborPage() {
   if (isLoading) {
     return (
       <div className="flex h-full w-full items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-10 w-10 animate-spin text-primary opacity-20" />
+        <Loader2 className="h-10 w-10 animate-spin text-[#14d5c7]" />
       </div>
     );
   }
@@ -194,7 +193,7 @@ export default function LaborPage() {
           </div>
         </CardHeader>
 
-        <ScrollArea className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-y-auto pb-32">
           {/* MOBILE VIEW */}
           <div className="block md:hidden p-4 space-y-8">
             {groupedLaborCosts.length > 0 ? groupedLaborCosts.map((group) => (
@@ -262,7 +261,7 @@ export default function LaborPage() {
               </TableBody>
             </Table>
           </div>
-        </ScrollArea>
+        </div>
       </div>
 
       <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>

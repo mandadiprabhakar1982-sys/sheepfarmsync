@@ -61,12 +61,12 @@ export default function DashboardLayout({
           </div>
         </header>
 
-        {/* MAIN CONTENT AREA (flex-1) */}
+        {/* MAIN CONTENT AREA (flex-1) - Pages handle internal scroll with pb-32 */}
         <main className="flex-1 min-h-0 relative bg-[#020617] flex flex-col overflow-hidden">
           {children}
         </main>
 
-        {/* FIXED BOTTOM NAV (fixed but logically at end of stack) */}
+        {/* BOTTOM NAV NODE */}
         <MobileNav />
       </div>
     );

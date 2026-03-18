@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useForm, type SubmitHandler } from 'react-hook-form';
@@ -99,7 +98,7 @@ export default function FeedPage() {
   if (isLoading) {
     return (
       <div className="flex h-full w-full items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-10 w-10 animate-spin text-primary opacity-20" />
+        <Loader2 className="h-10 w-10 animate-spin text-[#14d5c7]" />
       </div>
     );
   }
@@ -150,7 +149,7 @@ export default function FeedPage() {
           </div>
         </CardHeader>
 
-        <ScrollArea className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-y-auto pb-32">
           {/* MOBILE VIEW */}
           <div className="block md:hidden p-4 space-y-4">
             {sortedFeedCosts.length > 0 ? sortedFeedCosts.map((c) => (
@@ -199,7 +198,7 @@ export default function FeedPage() {
               </TableBody>
             </Table>
           </div>
-        </ScrollArea>
+        </div>
       </div>
 
       <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>
