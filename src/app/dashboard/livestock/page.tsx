@@ -314,7 +314,7 @@ export default function LivestockPage() {
         </div>
       </div>
 
-      {/* MOBILE FAB - FIXED POSITION FIX */}
+      {/* MOBILE FAB */}
       <button 
         onClick={() => { assetForm.reset({ registrationDate: new Date() }); setIsEntryDialogOpen(true); }}
         className="fixed bottom-24 right-6 h-16 w-16 rounded-full bg-[#14d5c7] text-[#020617] shadow-[0_0_30px_rgba(20,213,199,0.4)] flex items-center justify-center active:scale-90 transition-all z-30"
@@ -355,16 +355,31 @@ export default function LivestockPage() {
                     {!isCameraActive && <div className="flex gap-3 w-full max-w-[300px]"><Button type="button" variant="outline" onClick={startCamera} className="flex-1 h-9 text-[8px] font-black uppercase rounded-xl border-slate-200"><Camera className="h-3 w-3 mr-2" /> Camera</Button><div className="relative flex-1"><Button type="button" variant="outline" className="w-full h-9 text-[8px] font-black uppercase rounded-xl border-slate-200"><Upload className="h-3 w-3 mr-2" /> File</Button><input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={(e) => handleImageChange(e, assetForm)} /></div></div>}
                   </div>
                   <div className="grid grid-cols-2 gap-4">
-                    <FormField control={assetForm.control} name="tagId" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 tracking-widest">Tag ID</Label><FormControl><Input className="h-12 rounded-xl bg-neutral-50 border-none font-bold" {...field} /></FormControl></FormItem>)} />
-                    <FormField control={assetForm.control} name="registrationDate" render={({ field }) => (<FormItem className="flex flex-col"><Label className="text-[9px] font-black uppercase opacity-40 tracking-widest">Reg. Date</Label><Popover open={isRegDatePickerOpen} onOpenChange={setIsRegDatePickerOpen} modal={true}><PopoverTrigger asChild><Button variant="outline" className="h-12 rounded-xl bg-neutral-50 border-none w-full text-left justify-between font-black uppercase text-[11px]">{field.value instanceof Date ? format(field.value, "MMM dd, yyyy") : "Pick date"}<CalendarIcon className="h-3.5 w-3.5 opacity-20" /></Button></PopoverTrigger><PopoverContent className="w-auto p-0 border-none bg-white shadow-2xl z-[150]" align="start"><Calendar mode="single" selected={field.value} onSelect={(d) => { if (d) { field.onChange(new Date(d!)); setTimeout(() => setIsRegDatePickerOpen(false), 50); } }} initialFocus /></PopoverContent></Popover></FormItem>)} />
+                    <FormField control={assetForm.control} name="tagId" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 tracking-widest">Tag ID</Label><FormControl><Input className="h-12 rounded-xl bg-white border border-slate-300 text-slate-900 font-bold px-4" {...field} /></FormControl></FormItem>)} />
+                    <FormField control={assetForm.control} name="registrationDate" render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <Label className="text-[9px] font-black uppercase opacity-40 tracking-widest">Reg. Date</Label>
+                        <Popover open={isRegDatePickerOpen} onOpenChange={setIsRegDatePickerOpen} modal={true}>
+                          <PopoverTrigger asChild>
+                            <Button variant="outline" className="h-12 rounded-xl bg-white border border-slate-300 w-full text-left justify-between font-black uppercase text-[11px] px-4">
+                              {field.value instanceof Date ? format(field.value, "MMM dd, yyyy") : "Pick date"}
+                              <CalendarIcon className="h-3.5 w-3.5 opacity-20" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0 border-none bg-white shadow-2xl z-[150]" align="start">
+                            <Calendar mode="single" selected={field.value} onSelect={(d) => { if (d) { field.onChange(new Date(d!)); setTimeout(() => setIsRegDatePickerOpen(false), 50); } }} initialFocus />
+                          </PopoverContent>
+                        </Popover>
+                      </FormItem>
+                    )} />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
-                    <FormField control={assetForm.control} name="breed" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 tracking-widest">Breed</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="h-12 rounded-xl bg-neutral-50 border-none font-bold text-xs"><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="Standard">Standard</SelectItem><SelectItem value="Nellore">Nellore</SelectItem><SelectItem value="Deccani">Deccani</SelectItem></SelectContent></Select></FormItem>)} />
-                    <FormField control={assetForm.control} name="gender" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 tracking-widest">Gender</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="h-12 rounded-xl bg-neutral-50 border-none font-bold text-xs"><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="female">Female</SelectItem><SelectItem value="male">Male</SelectItem></SelectContent></Select></FormItem>)} />
+                    <FormField control={assetForm.control} name="breed" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 tracking-widest">Breed</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="h-12 rounded-xl bg-white border border-slate-300 font-bold text-xs px-4"><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="Standard">Standard</SelectItem><SelectItem value="Nellore">Nellore</SelectItem><SelectItem value="Deccani">Deccani</SelectItem></SelectContent></Select></FormItem>)} />
+                    <FormField control={assetForm.control} name="gender" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 tracking-widest">Gender</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="h-12 rounded-xl bg-white border border-slate-300 font-bold text-xs px-4"><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="female">Female</SelectItem><SelectItem value="male">Male</SelectItem></SelectContent></Select></FormItem>)} />
                   </div>
                   <div className="grid grid-cols-2 gap-4 pb-8">
-                    <FormField control={assetForm.control} name="age" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 tracking-widest">Age (Mos)</Label><FormControl><Input type="number" className="h-12 rounded-xl bg-neutral-50 border-none font-bold" {...field} /></FormControl></FormItem>)} />
-                    <FormField control={assetForm.control} name="currentWeight" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 tracking-widest">Weight (KG)</Label><FormControl><Input type="number" step="0.1" className="h-12 rounded-xl bg-neutral-50 border-none font-bold" {...field} /></FormControl></FormItem>)} />
+                    <FormField control={assetForm.control} name="age" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 tracking-widest">Age (Mos)</Label><FormControl><Input type="number" className="h-12 rounded-xl bg-white border border-slate-300 text-slate-900 font-bold px-4" {...field} /></FormControl></FormItem>)} />
+                    <FormField control={assetForm.control} name="currentWeight" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40 tracking-widest">Weight (KG)</Label><FormControl><Input type="number" step="0.1" className="h-12 rounded-xl bg-white border border-slate-300 text-slate-900 font-bold px-4" {...field} /></FormControl></FormItem>)} />
                   </div>
                 </div>
               </ScrollArea>
@@ -394,8 +409,8 @@ export default function LivestockPage() {
                     {!isCameraActive && <div className="flex gap-3 w-full max-w-[300px]"><Button type="button" variant="outline" onClick={startCamera} className="flex-1 h-9 text-[8px] font-black uppercase rounded-xl border-slate-200"><Camera className="h-3 w-3 mr-2" /> Camera</Button><div className="relative flex-1"><Button type="button" variant="outline" className="w-full h-9 text-[8px] font-black uppercase rounded-xl border-slate-200"><Upload className="h-3 w-3 mr-2" /> File</Button><input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={(e) => handleImageChange(e, editForm)} /></div></div>}
                   </div>
                   <div className="grid grid-cols-2 gap-4 pb-8">
-                    <FormField control={editForm.control} name="tagId" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40">Tag ID</Label><FormControl><Input className="h-12 rounded-xl bg-neutral-50 border-none font-bold" {...field} /></FormControl></FormItem>)} />
-                    <FormField control={editForm.control} name="currentWeight" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40">Weight (KG)</Label><FormControl><Input type="number" step="0.1" className="h-12 rounded-xl bg-neutral-50 border-none font-bold" {...field} /></FormControl></FormItem>)} />
+                    <FormField control={editForm.control} name="tagId" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40">Tag ID</Label><FormControl><Input className="h-12 rounded-xl bg-white border border-slate-300 text-slate-900 font-bold px-4" {...field} /></FormControl></FormItem>)} />
+                    <FormField control={editForm.control} name="currentWeight" render={({ field }) => (<FormItem><Label className="text-[9px] font-black uppercase opacity-40">Weight (KG)</Label><FormControl><Input type="number" step="0.1" className="h-12 rounded-xl bg-white border border-slate-300 text-slate-900 font-bold px-4" {...field} /></FormControl></FormItem>)} />
                   </div>
                 </div>
               </ScrollArea>
