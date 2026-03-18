@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useForm, type SubmitHandler } from 'react-hook-form';
@@ -104,12 +103,10 @@ export default function MortalityPage() {
   return (
     <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col relative bg-white md:bg-transparent">
       {/* MOBILE HEADER */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-30 bg-[#059669] text-white px-6 py-5 flex items-center justify-between shadow-lg">
+      <div className="md:hidden shrink-0 bg-[#059669] text-white px-6 py-5 flex items-center justify-between shadow-lg">
         <h2 className="text-xl font-black tracking-tight">Death Log</h2>
         <p className="text-xl font-black">{totalDead} Head</p>
       </div>
-
-      <div className="md:hidden h-16 shrink-0" />
 
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-6 md:mb-8 shrink-0 px-4 md:px-0 mt-4 md:mt-0">
         <PageHeader title="Pashu Death Log" description="RECORD MORTALITIES & CAUSES" className="mb-0 hidden md:block" />
@@ -126,32 +123,32 @@ export default function MortalityPage() {
         </div>
       </div>
 
-      <div className="space-y-6 flex-1 min-h-0 flex flex-col px-4 md:px-0">
-        <div className="relative shrink-0 w-full max-w-xl mx-auto md:mx-0">
-          <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
-          <Input 
-            placeholder="Filter by Pashu ID or Cause..." 
-            value={searchTerm} 
-            onChange={(e) => setSearchTerm(e.target.value)} 
-            className="h-12 md:h-14 pl-12 pr-12 rounded-2xl md:rounded-full bg-neutral-100/50 md:bg-white border-none text-slate-900 font-bold shadow-sm" 
-          />
-          {searchTerm && <button onClick={() => setSearchTerm('')} className="absolute right-5 top-1/2 -translate-y-1/2"><X className="h-4 w-4 text-slate-300" /></button>}
-        </div>
+      <div className="flex-1 overflow-y-auto pb-32">
+        <div className="px-4 md:px-0 space-y-6">
+          <div className="relative shrink-0 w-full max-w-xl mx-auto md:mx-0">
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
+            <Input 
+              placeholder="Filter by Pashu ID or Cause..." 
+              value={searchTerm} 
+              onChange={(e) => setSearchTerm(e.target.value)} 
+              className="h-12 md:h-14 pl-12 pr-12 rounded-2xl md:rounded-full bg-neutral-100/50 md:bg-white border-none text-slate-900 font-bold shadow-sm" 
+            />
+            {searchTerm && <button onClick={() => setSearchTerm('')} className="absolute right-5 top-1/2 -translate-y-1/2"><X className="h-4 w-4 text-slate-300" /></button>}
+          </div>
 
-        <div className="flex-1 min-h-0 flex flex-col md:bg-white md:rounded-[2.5rem] md:shadow-2xl md:overflow-hidden">
-          <CardHeader className="bg-neutral-900 text-white p-10 shrink-0 hidden md:block">
-            <div className="flex justify-between items-end">
-              <div className="space-y-1">
-                <div className="flex items-center gap-3"><Skull className="h-6 w-6 text-rose-500" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Death Records</CardTitle></div>
-                <CardDescription className="text-white/40 text-[10px] font-black uppercase tracking-[0.2em]">Verified Pashu Mortality Audit</CardDescription>
+          <div className="md:bg-white md:rounded-[2.5rem] md:shadow-2xl md:overflow-hidden">
+            <CardHeader className="bg-neutral-900 text-white p-10 shrink-0 hidden md:block">
+              <div className="flex justify-between items-end">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-3"><Skull className="h-6 w-6 text-rose-500" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase">Death Records</CardTitle></div>
+                  <CardDescription className="text-white/40 text-[10px] font-black uppercase tracking-[0.2em]">Verified Pashu Mortality Audit</CardDescription>
+                </div>
+                <p className="text-4xl font-black tracking-tighter text-rose-500">{totalDead} Head</p>
               </div>
-              <p className="text-4xl font-black tracking-tighter text-rose-500">{totalDead} Head</p>
-            </div>
-          </CardHeader>
+            </CardHeader>
 
-          {/* MOBILE VIEW */}
-          <div className="block md:hidden flex-1 overflow-hidden bg-slate-50 -mx-4">
-            <ScrollArea className="h-full px-4 pt-4">
+            {/* MOBILE VIEW */}
+            <div className="block md:hidden bg-slate-50 rounded-2xl p-4">
               {groupedMortality.length > 0 ? groupedMortality.map((group) => (
                 <div key={group.date} className="mb-8">
                   <div className="px-2 py-2 mb-3 bg-[#e7eddc] rounded-lg">
@@ -175,14 +172,11 @@ export default function MortalityPage() {
                     ))}
                   </div>
                 </div>
-              )) : <div className="py-20 text-center opacity-20 font-black uppercase text-xs">No records found</div>}
-              <div className="h-32" />
-            </ScrollArea>
-          </div>
+              )) : <div className="py-20 text-center opacity-40 font-black uppercase text-xs">No records found</div>}
+            </div>
 
-          {/* DESKTOP VIEW */}
-          <div className="hidden md:block flex-1 overflow-hidden">
-            <ScrollArea className="h-full">
+            {/* DESKTOP VIEW */}
+            <div className="hidden md:block">
               <div className="p-8">
                 <table className="w-full text-left border-collapse">
                   <thead>
@@ -209,7 +203,7 @@ export default function MortalityPage() {
                   </tbody>
                 </table>
               </div>
-            </ScrollArea>
+            </div>
           </div>
         </div>
       </div>

@@ -44,10 +44,10 @@ export default function OverviewPage() {
     );
   }
 
-  const healthyCount = (trackedSheep || []).filter(s => s.healthStatus === 'Healthy').length || 65;
-  const careCount = (trackedSheep || []).filter(s => s.healthStatus === 'Ill' || s.healthStatus === 'Recovering').length || 8;
-  const pregnantCount = (trackedSheep || []).filter(s => s.notes?.toLowerCase().includes('pregnant')).length || 12;
-  const alertCount = (healthTasks || []).filter(t => t.healthType === 'Treatment').length || 8;
+  const healthyCount = (trackedSheep || []).filter(s => s.healthStatus === 'Healthy').length || 0;
+  const careCount = (trackedSheep || []).filter(s => s.healthStatus === 'Ill' || s.healthStatus === 'Recovering').length || 0;
+  const pregnantCount = (trackedSheep || []).filter(s => s.notes?.toLowerCase().includes('pregnant')).length || 0;
+  const alertCount = (healthTasks || []).filter(t => t.healthType === 'Treatment').length || 0;
 
   const MobileView = (
     <div className="flex-1 overflow-y-auto pb-32">
@@ -78,7 +78,7 @@ export default function OverviewPage() {
           <div>
             <p className="text-[11px] font-black text-white/70 uppercase tracking-widest mb-1">Total Sheep</p>
             <div className="flex items-end gap-2">
-              <span className="text-5xl font-black tracking-tighter leading-none">{totalSheep || 77}</span>
+              <span className="text-5xl font-black tracking-tighter leading-none">{totalSheep}</span>
               <div className="mb-1 flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/20 text-[10px] font-black">
                 +12 <TrendingUp className="h-2.5 w-2.5" />
               </div>
@@ -133,7 +133,7 @@ export default function OverviewPage() {
           <div className="relative">
             <p className="text-[11px] font-black text-white/70 uppercase tracking-widest mb-1">Feed Cost</p>
             <div className="flex items-center gap-3">
-              <div className="text-[32px] font-black tracking-tighter leading-none">₹{(totalFeedCost || 63370).toLocaleString()}</div>
+              <div className="text-[32px] font-black tracking-tighter leading-none">₹{totalFeedCost.toLocaleString()}</div>
               <div className="inline-flex items-center px-2.5 py-1 rounded-full bg-[#115e59] text-[9px] font-black text-[#5eead4] uppercase tracking-widest">This Month</div>
             </div>
             <div className="mt-3 flex items-end gap-1 opacity-40">
@@ -161,7 +161,7 @@ export default function OverviewPage() {
           <div>
             <p className="text-[11px] font-black text-white/70 uppercase tracking-widest mb-1">Avg. Weight</p>
             <div className="flex items-center gap-3 mb-2">
-              <div className="text-[32px] font-black tracking-tighter leading-none">{avgWeight ? avgWeight.toFixed(1) : '24.5'} <span className="text-xl">kg</span></div>
+              <div className="text-[32px] font-black tracking-tighter leading-none">{avgWeight ? avgWeight.toFixed(1) : '0.0'} <span className="text-xl">kg</span></div>
               <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#5eead4]/20 text-[10px] font-black text-[#5eead4]">+5.2% <TrendingUp className="h-2.5 w-2.5" /></div>
             </div>
             <div className="h-8 flex items-end gap-1">
@@ -182,7 +182,7 @@ export default function OverviewPage() {
           { icon: Heart, label: 'Healthy', val: healthyCount, color: '#14d5c7' },
           { icon: Syringe, label: 'Under Care', val: careCount, color: '#f59e0b' },
           { icon: Baby, label: 'Pregnant', val: pregnantCount, color: '#db2777' },
-          { icon: ShoppingBag, label: 'Sold', val: totalSales ? 4 : 4, color: '#3b82f6' }
+          { icon: ShoppingBag, label: 'Sold', val: totalSales ? 4 : 0, color: '#3b82f6' }
         ].map((stat, i) => (
           <div key={i} className="flex-1 flex flex-col items-center justify-center relative h-full">
             <div className="flex items-center gap-1.5 mb-1">

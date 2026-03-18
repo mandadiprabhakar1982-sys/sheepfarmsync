@@ -32,7 +32,7 @@ export default function DashboardLayout({
   if (isMobile) {
     return (
       <div className="h-screen flex flex-col bg-[#020617] overflow-hidden">
-        {/* FIXED HEADER - Pinned to top */}
+        {/* FIXED HEADER */}
         <header 
           className="shrink-0 bg-[#020617]/80 backdrop-blur-md px-5 flex items-center justify-between z-40 border-b border-white/5"
           style={{ 
@@ -57,12 +57,12 @@ export default function DashboardLayout({
           </div>
         </header>
 
-        {/* MAIN CONTENT AREA - Expands to fill screen */}
+        {/* MAIN CONTENT AREA */}
         <main className="flex-1 min-h-0 relative bg-[#020617] flex flex-col overflow-hidden">
           {children}
         </main>
 
-        {/* FIXED BOTTOM NAV - Pinned to base */}
+        {/* FIXED BOTTOM NAV */}
         <MobileNav />
       </div>
     );
