@@ -50,8 +50,8 @@ export default function OverviewPage() {
   const alertCount = (healthTasks || []).filter(t => t.healthType === 'Treatment').length || 8;
 
   const MobileView = (
-    <div className="flex-1 overflow-y-auto safe-bottom-padding px-5 no-scrollbar">
-      <header className="pt-4 pb-6">
+    <div className="flex-1 overflow-y-auto pb-32">
+      <div className="px-5 pt-4 pb-6">
         <div className="flex items-center justify-between">
           <h1 className="text-[34px] font-[800] text-white tracking-tight leading-[1.1]">Dashboard</h1>
           <div className="bg-white/5 border border-white/10 px-3 py-1.5 rounded-full flex items-center gap-2">
@@ -60,10 +60,10 @@ export default function OverviewPage() {
           </div>
         </div>
         <p className="text-sm font-medium text-white/40 mt-1">Overview of Your Sheep Farm</p>
-      </header>
+      </div>
 
       {/* TACTICAL GRID 2x2 */}
-      <div className="grid grid-cols-2 gap-4 mb-8">
+      <div className="px-5 grid grid-cols-2 gap-4 mb-8">
         {/* TOTAL SHEEP */}
         <div 
           className="hub-node glossy-teal h-[220px] p-5 flex flex-col justify-between card-inner-shadow cursor-pointer"
@@ -177,7 +177,7 @@ export default function OverviewPage() {
       </div>
 
       {/* STATUS MATRIX PANEL */}
-      <div className="p-1 rounded-[2.5rem] bg-white/5 border border-white/10 shadow-2xl flex items-center h-[100px] mb-8 overflow-hidden backdrop-blur-md">
+      <div className="mx-5 p-1 rounded-[2.5rem] bg-white/5 border border-white/10 shadow-2xl flex items-center h-[100px] mb-8 overflow-hidden backdrop-blur-md">
         {[
           { icon: Heart, label: 'Healthy', val: healthyCount, color: '#14d5c7' },
           { icon: Syringe, label: 'Under Care', val: careCount, color: '#f59e0b' },

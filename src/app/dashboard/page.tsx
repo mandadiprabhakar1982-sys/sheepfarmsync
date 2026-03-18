@@ -69,14 +69,14 @@ export default function DashboardPage() {
   const isAdmin = userRole === 'admin';
 
   const MobileHome = (
-    <div className="flex-1 overflow-y-auto pb-32 px-5 no-scrollbar">
-      <header className="pt-4 pb-10">
+    <div className="flex-1 overflow-y-auto pb-32">
+      <header className="px-5 pt-4 pb-10">
         <h1 className="text-[34px] font-[800] text-white tracking-tight leading-[1.1]">Mpr Hub</h1>
         <p className="text-[9px] font-black text-[#14d5c7] uppercase tracking-[0.3em] mt-1">Tactical Enterprise Node</p>
       </header>
 
       {/* PRIMARY NODE: FARM LEDGER */}
-      <section className="mb-8">
+      <section className="px-5 mb-8">
         <Link href="/dashboard/farm-ledger">
           <div className="hub-node hub-glow-teal p-5 h-[220px] rounded-[28px] border-white/5 bg-white/5 group flex flex-col justify-between">
             <div className="flex justify-between items-start">
@@ -99,7 +99,7 @@ export default function DashboardPage() {
       </section>
 
       {/* FINANCIAL GRID */}
-      <section className="mb-10">
+      <section className="px-5 mb-10">
         <div className="grid grid-cols-2 gap-4">
           <Link href="/dashboard/monthly-ledger" className="hub-node hub-glow-teal p-5 h-[220px] rounded-[28px] flex flex-col justify-between bg-white/5">
             <div className="h-10 w-10 rounded-xl bg-[#14d5c7]/20 border border-[#14d5c7]/30 flex items-center justify-center text-[#14d5c7]">
@@ -144,7 +144,7 @@ export default function DashboardPage() {
       </section>
 
       {/* CORE NODES */}
-      <section className="mb-12">
+      <section className="px-5 mb-12">
         <h3 className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] mb-6 px-2">Sub-Process Systems</h3>
         <div className="grid grid-cols-2 gap-4">
           {[
@@ -164,7 +164,7 @@ export default function DashboardPage() {
       </section>
 
       {/* ACTION TRIGGER */}
-      <div className="mb-12">
+      <div className="px-5 mb-12">
         <Button onClick={() => router.push('/dashboard/expenses')} className="w-full h-16 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-black uppercase tracking-[0.2em] shadow-2xl text-xs gap-3">
           <Plus className="h-5 w-5 text-[#14d5c7]" /> Log Entry
         </Button>

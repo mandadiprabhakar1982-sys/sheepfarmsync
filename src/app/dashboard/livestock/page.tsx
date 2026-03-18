@@ -17,8 +17,7 @@ import {
   Upload,
   Calendar as CalendarIcon,
   ChevronRight,
-  Activity,
-  PlusCircle
+  Activity
 } from 'lucide-react';
 import { format, parseISO, isValid } from 'date-fns';
 import Image from 'next/image';
@@ -262,9 +261,9 @@ export default function LivestockPage() {
         </div>
       </header>
 
-      {/* INDEPENDENT SCROLLING CONTAINER */}
-      <div className="flex-1 overflow-y-auto pb-32 px-5 no-scrollbar">
-        <div className="space-y-4">
+      {/* INDEPENDENT SCROLLING CONTAINER - pb-32 Solution */}
+      <div className="flex-1 overflow-y-auto pb-32">
+        <div className="px-5 space-y-4">
           {filteredAssets.length > 0 ? filteredAssets.map((sheep) => (
             <div 
               key={sheep.id} 
@@ -315,7 +314,7 @@ export default function LivestockPage() {
         </div>
       </div>
 
-      {/* MOBILE FAB */}
+      {/* MOBILE FAB - bottom-24 Fix */}
       <button 
         onClick={() => { assetForm.reset({ registrationDate: new Date() }); setIsEntryDialogOpen(true); }}
         className="fixed bottom-24 right-6 h-16 w-16 rounded-full bg-[#14d5c7] text-white shadow-[0_0_30px_rgba(20,213,199,0.4)] flex items-center justify-center active:scale-90 transition-all z-30"
