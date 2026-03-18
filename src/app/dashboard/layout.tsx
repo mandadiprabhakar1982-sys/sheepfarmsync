@@ -12,7 +12,7 @@ import { usePathname } from 'next/navigation';
 
 /**
  * @fileOverview Final Precision Dashboard Layout.
- * Restores consistent sidebar visibility across all desktop screens.
+ * Handles conditional sidebar visibility for full-screen analytics.
  */
 export default function DashboardLayout({
   children,
@@ -23,6 +23,9 @@ export default function DashboardLayout({
   const { width, isHydrated } = useWindowDimensions();
   const pathname = usePathname();
   const isMobile = isHydrated ? width < 768 : false;
+
+  // ROUTES THAT SHOULD BE FULL SCREEN (NO SIDEBAR)
+  const isFullScreenRoute = pathname === '/dashboard/overview';
 
   if (isLoadingProfile || !isHydrated) {
     return (
@@ -38,7 +41,6 @@ export default function DashboardLayout({
   if (isMobile) {
     return (
       <div className="h-screen flex flex-col bg-[#020617] overflow-hidden">
-        {/* FIXED HEADER (shrink-0) */}
         <header 
           className="shrink-0 bg-[#020617]/80 backdrop-blur-md px-5 flex items-center justify-between z-40 border-b border-white/5"
           style={{ 
@@ -63,18 +65,40 @@ export default function DashboardLayout({
           </div>
         </header>
 
-        {/* MAIN CONTENT AREA (flex-1) - Pages handle internal scroll with pb-32 */}
         <main className="flex-1 min-h-0 relative bg-[#020617] flex flex-col overflow-hidden">
           {children}
         </main>
 
-        {/* BOTTOM NAV NODE */}
         <MobileNav />
       </div>
     );
   }
 
-  // DESKTOP STANDARD: SIDEBAR FOR ALL PAGES
+  // CONDITIONAL SIDEBAR FOR DESKTOP
+  if (isFullScreenRoute) {
+    return (
+      <div className="flex flex-col h-screen overflow-hidden bg-[#F8FAFC]">
+        <header className="top-header shrink-0">
+          <div className="flex items-center gap-4 md:gap-6">
+            <Logo />
+            <div className="h-6 w-px bg-slate-200" />
+            <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-500 whitespace-nowrap">
+              Executive Analytics Node
+            </h2>
+          </div>
+          <div className="flex items-center gap-2 md:gap-8">
+            <UserNav />
+          </div>
+        </header>
+        <main className="flex-1 overflow-y-auto p-8 md:p-12 no-scrollbar">
+          <div className="max-w-[1600px] mx-auto h-full">
+            {children}
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <SidebarProvider className="bg-[#F5F7F8]">
       <AppSidebar />
