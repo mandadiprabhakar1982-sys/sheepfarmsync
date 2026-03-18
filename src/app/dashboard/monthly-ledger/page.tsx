@@ -217,7 +217,7 @@ export default function PersonalFinancePage() {
                           <div key={item.id} className="bg-white rounded-[1.25rem] p-5 flex items-center justify-between shadow-sm border border-slate-100 active:scale-[0.98] transition-all">
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1">
-                                <Badge className={cn("border-none font-black text-[7px] uppercase px-1.5 py-0.5 tracking-widest", item.type === 'income' ? "bg-emerald-50 text-[#43A047]" : "bg-slate-100 text-slate-600")}>{item.cat}</Badge>
+                                <Badge className={cn("border-none font-black text-[7px] uppercase px-1.5 py-0.5", item.type === 'income' ? "bg-emerald-50 text-[#43A047]" : "bg-slate-100 text-slate-600")}>{item.cat}</Badge>
                                 <h3 className="text-lg font-black text-[#2F4F4F] truncate leading-none">{item.source}</h3>
                               </div>
                               <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">{item.type === 'income' ? 'Cash Receipt' : 'Disbursement'}</p>
@@ -272,9 +272,11 @@ export default function PersonalFinancePage() {
             <DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose>
           </DialogHeader>
           <div className="dialog-body space-y-6">
-            <div className="space-y-2"><Label className="form-label-tactical">Transaction Date</Label><Input type="date" value={entryDate} onChange={(e) => setEntryDate(e.target.value)} className="form-input-tactical" /></div>
-            <div className="space-y-2 mt-4"><Label className="form-label-tactical">Income Source</Label><Input placeholder="e.g. Salary, Rent, Bonus" value={source} onChange={(e) => setSource(e.target.value)} className="form-input-tactical" /></div>
-            <div className="space-y-2 mt-4"><Label className="form-label-tactical">Amount (₹)</Label><Input type="number" placeholder="0" value={amount} onChange={(e) => setAmount(e.target.value)} className="form-input-tactical font-black text-xl text-[#43A047]" /></div>
+            <div className="min-h-[500px] space-y-6">
+              <div className="space-y-2"><Label className="form-label-tactical">Transaction Date</Label><Input type="date" value={entryDate} onChange={(e) => setEntryDate(e.target.value)} className="form-input-tactical" /></div>
+              <div className="space-y-2 mt-4"><Label className="form-label-tactical">Income Source</Label><Input placeholder="e.g. Salary, Rent, Bonus" value={source} onChange={(e) => setSource(e.target.value)} className="form-input-tactical" /></div>
+              <div className="space-y-2 mt-4"><Label className="form-label-tactical">Amount (₹)</Label><Input type="number" placeholder="0" value={amount} onChange={(e) => setAmount(e.target.value)} className="form-input-tactical font-black text-xl text-[#43A047]" /></div>
+            </div>
           </div>
           <div className="p-6 shrink-0 border-t"><Button onClick={handleAddIncome} className="w-full h-16 rounded-2xl bg-[#0FA5A0] hover:bg-[#176E6C] text-white font-black uppercase shadow-xl">Commit Income</Button></div>
         </DialogContent>
@@ -287,11 +289,13 @@ export default function PersonalFinancePage() {
             <DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose>
           </DialogHeader>
           <div className="dialog-body space-y-6">
-            <div className="space-y-2"><Label className="form-label-tactical">Transaction Date</Label><Input type="date" value={entryDate} onChange={(e) => setEntryDate(e.target.value)} className="form-input-tactical" /></div>
-            <div className="space-y-2 mt-4"><Label className="form-label-tactical">Expense Detail</Label><Input placeholder="e.g. EB Bill, Groceries, EMI" value={source} onChange={(e) => setSource(e.target.value)} className="form-input-tactical" /></div>
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              <div className="space-y-2"><Label className="form-label-tactical">Amount (₹)</Label><Input type="number" placeholder="0" value={amount} onChange={(e) => setAmount(e.target.value)} className="form-input-tactical font-black" /></div>
-              <div className="space-y-2"><Label className="form-label-tactical">Ledger Category</Label><Select value={category} onValueChange={(v: any) => setCategory(v)}><SelectTrigger className="form-input-tactical"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="loan">Bank EMI</SelectItem><SelectItem value="card">Credit Card</SelectItem><SelectItem value="private">Personal Spend</SelectItem><SelectItem value="household">Household</SelectItem></SelectContent></Select></div>
+            <div className="min-h-[500px] space-y-6">
+              <div className="space-y-2"><Label className="form-label-tactical">Transaction Date</Label><Input type="date" value={entryDate} onChange={(e) => setEntryDate(e.target.value)} className="form-input-tactical" /></div>
+              <div className="space-y-2 mt-4"><Label className="form-label-tactical">Expense Detail</Label><Input placeholder="e.g. EB Bill, Groceries, EMI" value={source} onChange={(e) => setSource(e.target.value)} className="form-input-tactical" /></div>
+              <div className="grid grid-cols-2 gap-4 mt-4">
+                <div className="space-y-2"><Label className="form-label-tactical">Amount (₹)</Label><Input type="number" placeholder="0" value={amount} onChange={(e) => setAmount(e.target.value)} className="form-input-tactical font-black" /></div>
+                <div className="space-y-2"><Label className="form-label-tactical">Ledger Category</Label><Select value={category} onValueChange={(v: any) => setCategory(v)}><SelectTrigger className="form-input-tactical"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="loan">Bank EMI</SelectItem><SelectItem value="card">Credit Card</SelectItem><SelectItem value="private">Personal Spend</SelectItem><SelectItem value="household">Household</SelectItem></SelectContent></Select></div>
+              </div>
             </div>
           </div>
           <div className="p-6 shrink-0 border-t"><Button onClick={handleAddExpense} className="w-full h-16 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black uppercase shadow-xl">Commit Expense</Button></div>

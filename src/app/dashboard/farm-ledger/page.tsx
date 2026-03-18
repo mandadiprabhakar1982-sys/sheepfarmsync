@@ -196,9 +196,11 @@ export default function FarmLedgerPage() {
             <DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose>
           </DialogHeader>
           <div className="dialog-body space-y-6">
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              <div className="space-y-2"><Label className="form-label-tactical">Buying (₹)</Label><Input type="number" value={pCost} onChange={(e) => setPCost(e.target.value)} className="form-input-tactical" /></div>
-              <div className="space-y-2"><Label className="form-label-tactical">Fodder (₹)</Label><Input type="number" value={fCost} onChange={(e) => setFCost(e.target.value)} className="form-input-tactical" /></div>
+            <div className="min-h-[500px] space-y-6">
+              <div className="grid grid-cols-2 gap-4 mt-4">
+                <div className="space-y-2"><Label className="form-label-tactical">Buying (₹)</Label><Input type="number" value={pCost} onChange={(e) => setPCost(e.target.value)} className="form-input-tactical" /></div>
+                <div className="space-y-2"><Label className="form-label-tactical">Fodder (₹)</Label><Input type="number" value={fCost} onChange={(e) => setFCost(e.target.value)} className="form-input-tactical" /></div>
+              </div>
             </div>
           </div>
           <div className="p-6 shrink-0 border-t">

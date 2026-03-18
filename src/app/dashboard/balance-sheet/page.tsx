@@ -210,7 +210,7 @@ export default function BalanceSheetPage() {
                 <div className="flex justify-between items-end">
                   <div className="space-y-1">
                     <div className="flex items-center gap-3"><Landmark className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase text-white">Bank Loan Audit</CardTitle></div>
-                    <CardDescription className="text-white/60 text-xs font-black uppercase tracking-[0.2em]">Real-time principal reduction tracking</CardDescription>
+                    <CardDescription className="text-white/60 text-[8px] font-black uppercase tracking-[0.2em]">Real-time principal reduction tracking</CardDescription>
                   </div>
                   <p className="text-4xl font-black tracking-tighter">₹{totalLoanBalance.toLocaleString()}</p>
                 </div>
@@ -263,28 +263,30 @@ export default function BalanceSheetPage() {
             <DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose>
           </DialogHeader>
           <div className="dialog-body space-y-6">
-            {activeTab === 'loans' && (
-              <div className="space-y-6">
-                <div className="space-y-2"><Label className="form-label-tactical">Bank Identity</Label><Input value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="Bank Name" className="form-input-tactical" /></div>
-                <div className="grid grid-cols-2 gap-4 mt-4">
-                  <div className="space-y-2"><Label className="form-label-tactical">Total Loan (₹)</Label><Input type="number" value={totalLoan} onChange={(e) => setTotalLoan(e.target.value)} className="form-input-tactical" /></div>
-                  <div className="space-y-2"><Label className="form-label-tactical">Interest Rate %</Label><Input type="number" value={interest} onChange={(e) => setInterest(e.target.value)} className="form-input-tactical" /></div>
+            <div className="min-h-[500px] space-y-6">
+              {activeTab === 'loans' && (
+                <div className="space-y-6">
+                  <div className="space-y-2"><Label className="form-label-tactical">Bank Identity</Label><Input value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="Bank Name" className="form-input-tactical" /></div>
+                  <div className="grid grid-cols-2 gap-4 mt-4">
+                    <div className="space-y-2"><Label className="form-label-tactical">Total Loan (₹)</Label><Input type="number" value={totalLoan} onChange={(e) => setTotalLoan(e.target.value)} className="form-input-tactical" /></div>
+                    <div className="space-y-2"><Label className="form-label-tactical">Interest Rate %</Label><Input type="number" value={interest} onChange={(e) => setInterest(e.target.value)} className="form-input-tactical" /></div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 mt-4">
+                    <div className="space-y-2"><Label className="form-label-tactical">Start Date</Label><Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="form-input-tactical" /></div>
+                    <div className="space-y-2"><Label className="form-label-tactical">Monthly EMI (₹)</Label><Input type="number" value={monthlyEmi} onChange={(e) => setMonthlyEmi(e.target.value)} className="form-input-tactical font-black text-[#0FA5A0]" /></div>
+                  </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4 mt-4">
-                  <div className="space-y-2"><Label className="form-label-tactical">Start Date</Label><Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="form-input-tactical" /></div>
-                  <div className="space-y-2"><Label className="form-label-tactical">Monthly EMI (₹)</Label><Input type="number" value={monthlyEmi} onChange={(e) => setMonthlyEmi(e.target.value)} className="form-input-tactical font-black text-[#0FA5A0]" /></div>
+              )}
+              {activeTab === 'cards' && (
+                <div className="space-y-6">
+                  <div className="space-y-2"><Label className="form-label-tactical">Bank Identity</Label><Input value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="Bank Name" className="form-input-tactical" /></div>
+                  <div className="grid grid-cols-2 gap-4 mt-4">
+                    <div className="space-y-2"><Label className="form-label-tactical">Total Limit (₹)</Label><Input type="number" value={cardTotalLimit} onChange={(e) => setCardTotalLimit(e.target.value)} className="form-input-tactical" /></div>
+                    <div className="space-y-2"><Label className="form-label-tactical">Outstanding (₹)</Label><Input type="number" value={cardOutstanding} onChange={(e) => setCardOutstanding(e.target.value)} className="form-input-tactical text-rose-600" /></div>
+                  </div>
                 </div>
-              </div>
-            )}
-            {activeTab === 'cards' && (
-              <div className="space-y-6">
-                <div className="space-y-2"><Label className="form-label-tactical">Bank Identity</Label><Input value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="Bank Name" className="form-input-tactical" /></div>
-                <div className="grid grid-cols-2 gap-4 mt-4">
-                  <div className="space-y-2"><Label className="form-label-tactical">Total Limit (₹)</Label><Input type="number" value={cardTotalLimit} onChange={(e) => setCardTotalLimit(e.target.value)} className="form-input-tactical" /></div>
-                  <div className="space-y-2"><Label className="form-label-tactical">Outstanding (₹)</Label><Input type="number" value={cardOutstanding} onChange={(e) => setCardOutstanding(e.target.value)} className="form-input-tactical text-rose-600" /></div>
-                </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
           <div className="p-6 shrink-0 border-t"><Button onClick={handleAdd} className="w-full h-16 rounded-2xl bg-[#0FA5A0] hover:bg-[#176E6C] text-white font-black uppercase tracking-widest shadow-xl border-none">Record Account</Button></div>
         </DialogContent>

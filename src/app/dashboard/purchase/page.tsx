@@ -279,20 +279,22 @@ export default function PurchasePage() {
           <Form {...purchaseForm}>
             <form onSubmit={purchaseForm.handleSubmit(onPurchaseSubmit)} className="flex-1 flex flex-col min-h-0">
               <div className="dialog-body space-y-6">
-                <FormField control={purchaseForm.control} name="purchaseDate" render={({ field }) => (
-                  <FormItem className="flex flex-col"><Label className="form-label-tactical">Date of Buying</Label><Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}><PopoverTrigger asChild><Button variant="outline" className="form-input-tactical w-full text-left justify-between">{field.value ? format(field.value, "MMM dd, yyyy") : "Pick date"}<CalendarIcon className="h-4 w-4 opacity-20" /></Button></PopoverTrigger><PopoverContent className="w-auto p-0 border-none bg-white shadow-2xl"><Calendar mode="single" selected={field.value} onSelect={(d) => { field.onChange(d); setIsDatePickerOpen(false); }} initialFocus /></PopoverContent></Popover></FormItem>
-                )} />
-                <div className="grid grid-cols-2 gap-4 mt-4">
-                  <FormField control={purchaseForm.control} name="farmerName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Farmer Name</Label><FormControl><Input placeholder="Seller Name" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
-                  <FormField control={purchaseForm.control} name="villageName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Village</Label><FormControl><Input placeholder="Location" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
-                </div>
-                <div className="grid grid-cols-2 gap-4 mt-4">
-                  <FormField control={purchaseForm.control} name="animalCount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Head Count</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
-                  <FormField control={purchaseForm.control} name="purchasePrice" render={({ field }) => (<FormItem><Label className="form-label-tactical">Total Price (₹)</Label><FormControl><Input type="number" className="form-input-tactical font-black text-[#2F4F4F]" {...field} /></FormControl></FormItem>)} />
-                </div>
-                <div className="grid grid-cols-2 gap-4 mt-4">
-                  <FormField control={purchaseForm.control} name="amountPaid" render={({ field }) => (<FormItem><Label className="form-label-tactical">Amount Paid (₹)</Label><FormControl><Input type="number" className="form-input-tactical font-black text-[#0FA5A0]" {...field} /></FormControl></FormItem>)} />
-                  <FormField control={purchaseForm.control} name="dueAmount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Payable (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-rose-50 text-rose-600 font-black" {...field} readOnly /></FormControl></FormItem>)} />
+                <div className="min-h-[500px] space-y-6">
+                  <FormField control={purchaseForm.control} name="purchaseDate" render={({ field }) => (
+                    <FormItem className="flex flex-col"><Label className="form-label-tactical">Date of Buying</Label><Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}><PopoverTrigger asChild><Button variant="outline" className="form-input-tactical w-full text-left justify-between">{field.value ? format(field.value, "MMM dd, yyyy") : "Pick date"}<CalendarIcon className="h-4 w-4 opacity-20" /></Button></PopoverTrigger><PopoverContent className="w-auto p-0 border-none bg-white shadow-2xl"><Calendar mode="single" selected={field.value} onSelect={(d) => { field.onChange(d); setIsDatePickerOpen(false); }} initialFocus /></PopoverContent></Popover></FormItem>
+                  )} />
+                  <div className="grid grid-cols-2 gap-4 mt-4">
+                    <FormField control={purchaseForm.control} name="farmerName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Farmer Name</Label><FormControl><Input placeholder="Seller Name" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+                    <FormField control={purchaseForm.control} name="villageName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Village</Label><FormControl><Input placeholder="Location" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 mt-4">
+                    <FormField control={purchaseForm.control} name="animalCount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Head Count</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+                    <FormField control={purchaseForm.control} name="purchasePrice" render={({ field }) => (<FormItem><Label className="form-label-tactical">Total Price (₹)</Label><FormControl><Input type="number" className="form-input-tactical font-black text-[#2F4F4F]" {...field} /></FormControl></FormItem>)} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 mt-4">
+                    <FormField control={purchaseForm.control} name="amountPaid" render={({ field }) => (<FormItem><Label className="form-label-tactical">Amount Paid (₹)</Label><FormControl><Input type="number" className="form-input-tactical font-black text-[#0FA5A0]" {...field} /></FormControl></FormItem>)} />
+                    <FormField control={purchaseForm.control} name="dueAmount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Payable (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-rose-50 text-rose-600 font-black" {...field} readOnly /></FormControl></FormItem>)} />
+                  </div>
                 </div>
               </div>
               <div className="p-6 shrink-0 border-t"><Button type="submit" className="w-full h-16 rounded-2xl bg-[#0FA5A0] hover:bg-[#176E6C] text-white font-black uppercase tracking-widest shadow-xl">Record Sheep Buy</Button></div>
@@ -310,10 +312,12 @@ export default function PurchasePage() {
           <Form {...editForm}>
             <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="flex-1 flex flex-col min-h-0">
               <div className="dialog-body space-y-6">
-                <FormField control={editForm.control} name="farmerName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Farmer Name</Label><FormControl><Input className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
-                <div className="grid grid-cols-2 gap-4 mt-4">
-                  <FormField control={editForm.control} name="purchasePrice" render={({ field }) => (<FormItem><Label className="form-label-tactical">Purchase Price (₹)</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
-                  <FormField control={editForm.control} name="amountPaid" render={({ field }) => (<FormItem><Label className="form-label-tactical">Amount Paid (₹)</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+                <div className="min-h-[500px] space-y-6">
+                  <FormField control={editForm.control} name="farmerName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Farmer Name</Label><FormControl><Input className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+                  <div className="grid grid-cols-2 gap-4 mt-4">
+                    <FormField control={editForm.control} name="purchasePrice" render={({ field }) => (<FormItem><Label className="form-label-tactical">Purchase Price (₹)</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+                    <FormField control={editForm.control} name="amountPaid" render={({ field }) => (<FormItem><Label className="form-label-tactical">Amount Paid (₹)</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+                  </div>
                 </div>
               </div>
               <div className="p-6 shrink-0 border-t"><Button type="submit" className="w-full h-16 rounded-2xl bg-[#0FA5A0] hover:bg-[#176E6C] text-white font-black uppercase tracking-widest shadow-xl">Save Changes</Button></div>

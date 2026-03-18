@@ -220,8 +220,10 @@ export default function ExpensesPage() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1 flex flex-col min-h-0">
               <div className="dialog-body space-y-6">
-                <FormField control={form.control} name="description" render={({ field }) => (<FormItem><Label className="form-label-tactical">Kharchu Detail</Label><FormControl><Input placeholder="e.g. Electricity bill" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
-                <FormField control={form.control} name="amount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Bill Amount (₹)</Label><FormControl><Input type="number" className="form-input-tactical font-black text-xl" {...field} /></FormControl></FormItem>)} />
+                <div className="min-h-[500px] space-y-6">
+                  <FormField control={form.control} name="description" render={({ field }) => (<FormItem><Label className="form-label-tactical">Kharchu Detail</Label><FormControl><Input placeholder="e.g. Electricity bill" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+                  <FormField control={form.control} name="amount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Bill Amount (₹)</Label><FormControl><Input type="number" className="form-input-tactical font-black text-xl" {...field} /></FormControl></FormItem>)} />
+                </div>
               </div>
               <div className="p-6 shrink-0 border-t"><Button type="submit" className="w-full h-16 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase shadow-xl">Record Kharchu</Button></div>
             </form>

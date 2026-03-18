@@ -211,47 +211,49 @@ export default function FeedPage() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1 flex flex-col min-h-0">
               <div className="dialog-body space-y-6">
-                <FormField control={form.control} name="date" render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <Label className="form-label-tactical">Date of Buying</Label>
-                    <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
-                      <PopoverTrigger asChild>
-                        <Button variant="outline" className="form-input-tactical w-full text-left justify-between">
-                          {field.value ? format(field.value, "MMMM do, yyyy") : "Pick date"}
-                          <CalendarIcon className="h-4 w-4 opacity-20" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0 border-none bg-white shadow-2xl">
-                        <Calendar mode="single" selected={field.value} onSelect={(d) => { field.onChange(d); setIsDatePickerOpen(false); }} initialFocus className="text-slate-900" />
-                      </PopoverContent>
-                    </Popover>
-                  </FormItem>
-                )} />
-
-                <div className="grid grid-cols-2 gap-4 mt-4">
-                  <FormField control={form.control} name="feedType" render={({ field }) => (
-                    <FormItem>
-                      <Label className="form-label-tactical">Category</Label>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl><SelectTrigger className="form-input-tactical"><SelectValue placeholder="Select" /></SelectTrigger></FormControl>
-                        <SelectContent>
-                          {feedTypes.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
+                <div className="min-h-[500px] space-y-6">
+                  <FormField control={form.control} name="date" render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <Label className="form-label-tactical">Date of Buying</Label>
+                      <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" className="form-input-tactical w-full text-left justify-between">
+                            {field.value ? format(field.value, "MMMM do, yyyy") : "Pick date"}
+                            <CalendarIcon className="h-4 w-4 opacity-20" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0 border-none bg-white shadow-2xl">
+                          <Calendar mode="single" selected={field.value} onSelect={(d) => { field.onChange(d); setIsDatePickerOpen(false); }} initialFocus className="text-slate-900" />
+                        </PopoverContent>
+                      </Popover>
                     </FormItem>
                   )} />
-                  <FormField control={form.control} name="quantity" render={({ field }) => (
-                    <FormItem><Label className="form-label-tactical">Weight (KG)</Label><FormControl><Input type="number" step="0.1" className="form-input-tactical" {...field} /></FormControl></FormItem>
-                  )} />
-                </div>
 
-                <div className="grid grid-cols-2 gap-4 mt-4">
-                  <FormField control={form.control} name="bags" render={({ field }) => (
-                    <FormItem><Label className="form-label-tactical">Bags (Optional)</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>
-                  )} />
-                  <FormField control={form.control} name="cost" render={({ field }) => (
-                    <FormItem><Label className="form-label-tactical">Total Price (₹)</Label><FormControl><Input type="number" step="0.01" className="form-input-tactical text-[#0FA5A0] font-black" {...field} /></FormControl></FormItem>
-                  )} />
+                  <div className="grid grid-cols-2 gap-4 mt-4">
+                    <FormField control={form.control} name="feedType" render={({ field }) => (
+                      <FormItem>
+                        <Label className="form-label-tactical">Category</Label>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl><SelectTrigger className="form-input-tactical"><SelectValue placeholder="Select" /></SelectTrigger></FormControl>
+                          <SelectContent>
+                            {feedTypes.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="quantity" render={({ field }) => (
+                      <FormItem><Label className="form-label-tactical">Weight (KG)</Label><FormControl><Input type="number" step="0.1" className="form-input-tactical" {...field} /></FormControl></FormItem>
+                    )} />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 mt-4">
+                    <FormField control={form.control} name="bags" render={({ field }) => (
+                      <FormItem><Label className="form-label-tactical">Bags (Optional)</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>
+                    )} />
+                    <FormField control={form.control} name="cost" render={({ field }) => (
+                      <FormItem><Label className="form-label-tactical">Total Price (₹)</Label><FormControl><Input type="number" step="0.01" className="form-input-tactical text-[#0FA5A0] font-black" {...field} /></FormControl></FormItem>
+                    )} />
+                  </div>
                 </div>
               </div>
 

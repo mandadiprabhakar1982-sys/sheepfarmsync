@@ -223,10 +223,12 @@ export default function MortalityPage() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1 flex flex-col min-h-0">
               <div className="dialog-body space-y-6">
-                <FormField control={form.control} name="causeOfDeath" render={({ field }) => (<FormItem><Label className="form-label-tactical">Cause of Death</Label><FormControl><Input placeholder="e.g. Fever, Injury" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
-                <div className="grid grid-cols-2 gap-4 mt-4">
-                  <FormField control={form.control} name="sheepCount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Head Count</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
-                  <FormField control={form.control} name="tagId" render={({ field }) => (<FormItem><Label className="form-label-tactical">Tag ID (Opt)</Label><FormControl><Input className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+                <div className="min-h-[500px] space-y-6">
+                  <FormField control={form.control} name="causeOfDeath" render={({ field }) => (<FormItem><Label className="form-label-tactical">Cause of Death</Label><FormControl><Input placeholder="e.g. Fever, Injury" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+                  <div className="grid grid-cols-2 gap-4 mt-4">
+                    <FormField control={form.control} name="sheepCount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Head Count</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+                    <FormField control={form.control} name="tagId" render={({ field }) => (<FormItem><Label className="form-label-tactical">Tag ID (Opt)</Label><FormControl><Input className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+                  </div>
                 </div>
               </div>
               <div className="p-6 shrink-0 border-t"><Button type="submit" className="w-full h-16 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black uppercase shadow-xl">Record Death</Button></div>
