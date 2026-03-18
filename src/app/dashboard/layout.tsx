@@ -49,7 +49,7 @@ export default function DashboardLayout({
             <button className="h-11 w-11 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/60">
               <Menu className="h-5 w-5" />
             </button>
-            <Logo />
+            <div className="logo-box text-white">Farm<span className="text-[#00d1b2]">Audit</span></div>
           </div>
           <div className="flex items-center gap-3 text-white">
             <div className="relative h-11 w-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
@@ -75,17 +75,13 @@ export default function DashboardLayout({
     <SidebarProvider className="bg-[#F5F7F8]">
       <AppSidebar />
       <div className="flex flex-col flex-1 h-screen overflow-hidden">
-        <header className="top-header shrink-0">
-          <div className="flex items-center gap-4 md:gap-6">
-            <Logo />
-            <div className="h-6 w-px bg-slate-200" />
-            <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-500 whitespace-nowrap">
-              Executive Command Center
-            </h2>
+        <header className="header">
+          <div className="header-left">
+            <div className="logo-box">Farm<span>Audit</span></div>
+            <div className="divider-line"></div>
+            <div className="command-tag">Executive Command Center</div>
           </div>
-          <div className="flex items-center gap-2 md:gap-8">
-            <UserNav />
-          </div>
+          <UserNav />
         </header>
         
         <main className="flex-1 overflow-y-auto p-8 md:p-12 no-scrollbar bg-[#F8FAFC]">

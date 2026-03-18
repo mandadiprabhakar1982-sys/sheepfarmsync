@@ -48,6 +48,38 @@
 }
 
 @layer components {
+  /* --- HEADER TACTICAL SUITE --- */
+  .header {
+    @apply h-[80px] bg-white border-b border-slate-100 flex items-center justify-between px-8 shrink-0;
+  }
+  .header-left, .header-right { @apply flex items-center gap-6; }
+  
+  .logo-box { @apply text-2xl font-extrabold text-[#1a252f] tracking-tight; }
+  .logo-box span { @apply text-[#00d1b2]; }
+  
+  .divider-line { @apply w-px h-8 bg-slate-200; }
+  
+  .command-tag { 
+    @apply text-[11px] font-black uppercase tracking-[0.3em] text-slate-400 whitespace-nowrap; 
+  }
+  
+  .notification-btn { 
+    @apply relative h-10 w-10 flex items-center justify-center bg-slate-50 text-slate-400 rounded-full cursor-pointer hover:bg-slate-100 transition-colors; 
+  }
+  .notification-dot { 
+    @apply absolute top-2 right-2.5 w-2 h-2 bg-[#ff4d4d] rounded-full border-2 border-white; 
+  }
+  
+  .account-link { 
+    @apply flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-slate-400 hover:text-[#005f4b] transition-colors; 
+  }
+  
+  .profile-section { @apply flex items-center gap-4 pl-6 border-l border-slate-100 cursor-pointer; }
+  .user-meta { @apply flex flex-col items-end text-right; }
+  .user-name { @apply text-[13px] font-extrabold text-[#1a252f] leading-none; }
+  .user-role { @apply text-[9px] font-black text-[#00d1b2] tracking-widest mt-1; }
+  .user-avatar { @apply w-10 h-10 rounded-full border-2 border-white shadow-sm ring-1 ring-slate-100 transition-transform group-hover:scale-105; }
+
   .sheep-row-organic {
     @apply bg-white border border-[#edf2f7] rounded-[15px] transition-all duration-200 hover:border-[#00d1b2] hover:-translate-y-0.5 shadow-sm;
   }
