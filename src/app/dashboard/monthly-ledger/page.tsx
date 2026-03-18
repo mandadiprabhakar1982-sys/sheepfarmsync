@@ -19,7 +19,8 @@ import {
   User,
   ArrowDownCircle,
   ArrowUpCircle,
-  Loader2
+  Loader2,
+  Calendar as CalendarIcon
 } from 'lucide-react';
 import { useFarm } from '@/context/FarmContext';
 import { useToast } from '@/hooks/use-toast';
@@ -34,6 +35,8 @@ import {
   DialogClose,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { HorizontalDatePicker } from '@/components/horizontal-date-picker';
 
 export default function PersonalFinancePage() {
   const { 
@@ -50,8 +53,11 @@ export default function PersonalFinancePage() {
 
   const [isIncomeDialogOpen, setIsIncomeDialogOpen] = useState(false);
   const [isExpenseDialogOpen, setIsExpenseDialogOpen] = useState(false);
+  
+  const [isIncomeDatePickerOpen, setIsIncomeDatePickerOpen] = useState(false);
+  const [isExpenseDatePickerOpen, setIsExpenseDatePickerOpen] = useState(false);
 
-  const [entryDate, setEntryDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const [entryDate, setEntryDate] = useState<Date>(new Date());
   const [source, setSource] = useState('');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState<'loan' | 'card' | 'private' | 'household'>('household');
@@ -110,16 +116,16 @@ export default function PersonalFinancePage() {
 
   const handleAddIncome = () => {
     if (!source || !amount) return;
-    addMonthlyIncome({ date: entryDate, source, amount: parseFloat(amount) });
+    addMonthlyIncome({ date: format(entryDate, 'yyyy-MM-dd'), source, amount: parseFloat(amount) });
     toast({ title: 'Income Recorded', description: 'Synchronized with Personal Finance.' });
-    setIsIncomeDialogOpen(false); setSource(''); setAmount('');
+    setIsIncomeDialogOpen(false); setSource(''); setAmount(''); setEntryDate(new Date());
   };
 
   const handleAddExpense = () => {
     if (!source || !amount) return;
-    addMonthlyExpense({ date: entryDate, source, amount: parseFloat(amount), category });
+    addMonthlyExpense({ date: format(entryDate, 'yyyy-MM-dd'), source, amount: parseFloat(amount), category });
     toast({ title: 'Expense Logged', description: 'Personal disbursement audit updated.' });
-    setIsExpenseDialogOpen(false); setSource(''); setAmount('');
+    setIsExpenseDialogOpen(false); setSource(''); setAmount(''); setEntryDate(new Date());
   };
 
   const formatGroupDate = (dateStr: string) => {
@@ -162,10 +168,42 @@ export default function PersonalFinancePage() {
 
       <Dialog open={isIncomeDialogOpen} onOpenChange={setIsIncomeDialogOpen}>
         <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-visible border-none shadow-2xl bg-white h-[88dvh] max-h-[88dvh] flex flex-col">
-          <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0"><div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]"><ArrowUpCircle className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase text-white">Income Entry</DialogTitle></div><DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose></DialogHeader>
+          <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]">
+                <ArrowUpCircle className="h-5 w-5" />
+              </div>
+              <DialogTitle className="text-xl font-black tracking-tight uppercase text-white">Income Entry</DialogTitle>
+            </div>
+            <DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose>
+          </DialogHeader>
           <div className="dialog-body space-y-6">
             <div className="min-h-[500px] space-y-6">
-              <div className="space-y-2"><Label className="form-label-tactical">Transaction Date</Label><Input type="date" value={entryDate} onChange={(e) => setEntryDate(e.target.value)} className="form-input-tactical" /></div>
+              <div className="space-y-2">
+                <Label className="form-label-tactical">Transaction Date</Label>
+                <Popover open={isIncomeDatePickerOpen} onOpenChange={setIsIncomeDatePickerOpen}>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="form-input-tactical w-full text-left justify-between">
+                      {entryDate ? format(entryDate, "MMM dd, yyyy") : "Pick date"}
+                      <CalendarIcon className="h-4 w-4 opacity-20" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent 
+                    className="w-[90vw] sm:w-[450px] p-3 bg-white border border-slate-200 rounded-2xl shadow-2xl z-[300] overflow-visible"
+                    align="start"
+                    side="bottom"
+                    sideOffset={8}
+                  >
+                    <HorizontalDatePicker 
+                      selectedDate={entryDate}
+                      onSelect={(date) => {
+                        setEntryDate(date);
+                        setIsIncomeDatePickerOpen(false);
+                      }}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
               <div className="space-y-2 mt-4"><Label className="form-label-tactical">Income Source</Label><Input placeholder="e.g. Salary, Rent, Bonus" value={source} onChange={(e) => setSource(e.target.value)} className="form-input-tactical" /></div>
               <div className="space-y-2 mt-4"><Label className="form-label-tactical">Amount (₹)</Label><Input type="number" placeholder="0" value={amount} onChange={(e) => setAmount(e.target.value)} className="form-input-tactical" /></div>
             </div>
@@ -176,10 +214,42 @@ export default function PersonalFinancePage() {
 
       <Dialog open={isExpenseDialogOpen} onOpenChange={setIsExpenseDialogOpen}>
         <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-visible border-none shadow-2xl bg-white h-[88dvh] max-h-[88dvh] flex flex-col">
-          <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0"><div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-rose-500/20 text-rose-400"><ArrowDownCircle className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase text-white">Expense Entry</DialogTitle></div><DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose></DialogHeader>
+          <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2.5 rounded-xl bg-rose-500/20 text-rose-400">
+                <ArrowDownCircle className="h-5 w-5" />
+              </div>
+              <DialogTitle className="text-xl font-black tracking-tight uppercase text-white">Expense Entry</DialogTitle>
+            </div>
+            <DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose>
+          </DialogHeader>
           <div className="dialog-body space-y-6">
             <div className="min-h-[500px] space-y-6">
-              <div className="space-y-2"><Label className="form-label-tactical">Transaction Date</Label><Input type="date" value={entryDate} onChange={(e) => setEntryDate(e.target.value)} className="form-input-tactical" /></div>
+              <div className="space-y-2">
+                <Label className="form-label-tactical">Transaction Date</Label>
+                <Popover open={isExpenseDatePickerOpen} onOpenChange={setIsExpenseDatePickerOpen}>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="form-input-tactical w-full text-left justify-between">
+                      {entryDate ? format(entryDate, "MMM dd, yyyy") : "Pick date"}
+                      <CalendarIcon className="h-4 w-4 opacity-20" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent 
+                    className="w-[90vw] sm:w-[450px] p-3 bg-white border border-slate-200 rounded-2xl shadow-2xl z-[300] overflow-visible"
+                    align="start"
+                    side="bottom"
+                    sideOffset={8}
+                  >
+                    <HorizontalDatePicker 
+                      selectedDate={entryDate}
+                      onSelect={(date) => {
+                        setEntryDate(date);
+                        setIsExpenseDatePickerOpen(false);
+                      }}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
               <div className="space-y-2 mt-4"><Label className="form-label-tactical">Expense Detail</Label><Input placeholder="e.g. EB Bill, Groceries, EMI" value={source} onChange={(e) => setSource(e.target.value)} className="form-input-tactical" /></div>
               <div className="grid grid-cols-2 gap-4 mt-4">
                 <div className="space-y-2"><Label className="form-label-tactical">Amount (₹)</Label><Input type="number" placeholder="0" value={amount} onChange={(e) => setAmount(e.target.value)} className="form-input-tactical" /></div>

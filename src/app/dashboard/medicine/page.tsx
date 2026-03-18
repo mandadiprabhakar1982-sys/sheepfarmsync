@@ -23,7 +23,7 @@ import {
 import { format, addMonths, parseISO, isToday, isYesterday } from 'date-fns';
 
 import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
+import { HorizontalDatePicker } from '@/components/horizontal-date-picker';
 import { CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -90,7 +90,9 @@ export default function MedicinePage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isClinicalDialogOpen, setIsClinicalDialogOpen] = useState(false);
   const [isProcurementDialogOpen, setIsProcurementDialogOpen] = useState(false);
-  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  
+  const [isTaskDatePickerOpen, setIsTaskDatePickerOpen] = useState(false);
+  const [isPharmaDatePickerOpen, setIsPharmaDatePickerOpen] = useState(false);
   
   const healthTaskForm = useForm<HealthTaskFormData>({
     resolver: zodResolver(healthTaskFormSchema),
@@ -126,7 +128,7 @@ export default function MedicinePage() {
       date: format(data.date, 'yyyy-MM-dd'), 
       nextDueDate: data.nextDueDate ? format(data.nextDueDate, 'yyyy-MM-dd') : format(addMonths(data.date, 3), 'yyyy-MM-dd') 
     });
-    healthTaskForm.reset(); 
+    healthTaskForm.reset({ date: new Date() }); 
     setIsClinicalDialogOpen(false); 
     toast({ title: 'Success!', description: 'Medical record recorded.' });
   };
@@ -136,7 +138,7 @@ export default function MedicinePage() {
       ...data,
       date: format(data.date, 'yyyy-MM-dd')
     });
-    medicineForm.reset();
+    medicineForm.reset({ date: new Date() });
     setIsProcurementDialogOpen(false);
     toast({ title: 'Success!', description: 'Medicine purchase recorded.' });
   };
@@ -274,13 +276,45 @@ export default function MedicinePage() {
       <Dialog open={isClinicalDialogOpen} onOpenChange={setIsClinicalDialogOpen}>
         <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-visible border-none shadow-2xl bg-white h-[88dvh] max-h-[88dvh] flex flex-col">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
-            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]"><Stethoscope className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase text-white">Treatment Entry</DialogTitle></div>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]">
+                <Stethoscope className="h-5 w-5" />
+              </div>
+              <DialogTitle className="text-xl font-black tracking-tight uppercase text-white">Treatment Entry</DialogTitle>
+            </div>
             <DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose>
           </DialogHeader>
           <Form {...healthTaskForm}>
             <form onSubmit={healthTaskForm.handleSubmit(onHealthTaskSubmit)} className="flex-1 flex flex-col min-h-0">
               <div className="dialog-body space-y-6">
                 <div className="min-h-[500px] space-y-6">
+                  <FormField control={healthTaskForm.control} name="date" render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <Label className="form-label-tactical">Treatment Date</Label>
+                      <Popover open={isTaskDatePickerOpen} onOpenChange={setIsTaskDatePickerOpen}>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" className="form-input-tactical w-full text-left justify-between">
+                            {field.value ? format(field.value, "MMM dd, yyyy") : "Pick date"}
+                            <CalendarIcon className="h-4 w-4 opacity-20" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent 
+                          className="w-[90vw] sm:w-[450px] p-3 bg-white border border-slate-200 rounded-2xl shadow-2xl z-[300] overflow-visible"
+                          align="start"
+                          side="bottom"
+                          sideOffset={8}
+                        >
+                          <HorizontalDatePicker 
+                            selectedDate={field.value}
+                            onSelect={(date) => {
+                              field.onChange(date);
+                              setIsTaskDatePickerOpen(false);
+                            }}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </FormItem>
+                  )} />
                   <div className="grid grid-cols-2 gap-4 mt-4">
                     <FormField control={healthTaskForm.control} name="sheepId" render={({ field }) => (<FormItem><Label className="form-label-tactical">Sheep Tag ID</Label><FormControl><Input placeholder="e.g. 101" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
                     <FormField control={healthTaskForm.control} name="medicineName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Medicine Name</Label><FormControl><Input placeholder="e.g. Albendazole" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
@@ -300,13 +334,45 @@ export default function MedicinePage() {
       <Dialog open={isProcurementDialogOpen} onOpenChange={setIsProcurementDialogOpen}>
         <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-visible border-none shadow-2xl bg-white h-[88dvh] max-h-[88dvh] flex flex-col">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
-            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]"><ShoppingBag className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase text-white">Medicine Purchase</DialogTitle></div>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]">
+                <ShoppingBag className="h-5 w-5" />
+              </div>
+              <DialogTitle className="text-xl font-black tracking-tight uppercase text-white">Medicine Purchase</DialogTitle>
+            </div>
             <DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose>
           </DialogHeader>
           <Form {...medicineForm}>
             <form onSubmit={medicineForm.handleSubmit(onMedicineExpenseSubmit)} className="flex-1 flex flex-col min-h-0">
               <div className="dialog-body space-y-6">
                 <div className="min-h-[500px] space-y-6">
+                  <FormField control={medicineForm.control} name="date" render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <Label className="form-label-tactical">Bill Date</Label>
+                      <Popover open={isPharmaDatePickerOpen} onOpenChange={setIsPharmaDatePickerOpen}>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" className="form-input-tactical w-full text-left justify-between">
+                            {field.value ? format(field.value, "MMM dd, yyyy") : "Pick date"}
+                            <CalendarIcon className="h-4 w-4 opacity-20" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent 
+                          className="w-[90vw] sm:w-[450px] p-3 bg-white border border-slate-200 rounded-2xl shadow-2xl z-[300] overflow-visible"
+                          align="start"
+                          side="bottom"
+                          sideOffset={8}
+                        >
+                          <HorizontalDatePicker 
+                            selectedDate={field.value}
+                            onSelect={(date) => {
+                              field.onChange(date);
+                              setIsPharmaDatePickerOpen(false);
+                            }}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </FormItem>
+                  )} />
                   <FormField control={medicineForm.control} name="shopName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Shop Name</Label><FormControl><Input placeholder="Medical Shop Identity" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
                   <div className="grid grid-cols-2 gap-4 mt-4">
                     <FormField control={medicineForm.control} name="totalAmountSpent" render={({ field }) => (<FormItem><Label className="form-label-tactical">Total Bill (₹)</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />

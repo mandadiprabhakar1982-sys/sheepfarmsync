@@ -20,7 +20,7 @@ import {
 import { format, isToday, isYesterday, parseISO } from 'date-fns';
 
 import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
+import { HorizontalDatePicker } from '@/components/horizontal-date-picker';
 import { CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -59,6 +59,7 @@ export default function LaborPage() {
   const { laborCosts, addLaborCost, deleteLaborCost, updateLaborCost, totalLaborCost, isLoading } = useFarm();
   const [searchTerm, setSearchTerm] = useState('');
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [isEditDatePickerOpen, setIsEditDatePickerOpen] = useState(false);
   const [isEntryDialogOpen, setIsEntryDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingCost, setEditingCost] = useState<LaborCost | null>(null);
@@ -75,6 +76,7 @@ export default function LaborPage() {
       totalLaborCosts: 0,
       amountPaid: 0,
       pendingAmount: 0,
+      date: new Date(),
     },
   });
 
@@ -102,7 +104,7 @@ export default function LaborPage() {
   const onSubmit: SubmitHandler<LaborFormData> = (data) => {
     const newCost = { ...data, date: format(data.date, 'yyyy-MM-dd') };
     addLaborCost(newCost);
-    form.reset();
+    form.reset({ date: new Date() });
     setIsEntryDialogOpen(false);
     toast({ title: 'Success!', description: 'Labour cost recorded.' });
   };
@@ -240,7 +242,12 @@ export default function LaborPage() {
       <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>
         <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-visible border-none shadow-2xl bg-white h-[88dvh] max-h-[88dvh] flex flex-col">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
-            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]"><Plus className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase text-white">Staff Payment</DialogTitle></div>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]">
+                <Plus className="h-5 w-5" />
+              </div>
+              <DialogTitle className="text-xl font-black tracking-tight uppercase text-white">Staff Payment</DialogTitle>
+            </div>
             <DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose>
           </DialogHeader>
           <Form {...form}>
@@ -248,12 +255,31 @@ export default function LaborPage() {
               <div className="dialog-body space-y-6">
                 <div className="min-h-[500px] space-y-6">
                   <FormField control={form.control} name="date" render={({ field }) => (
-                    <FormItem className="flex flex-col"><Label className="form-label-tactical">Payment Date</Label><Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}><PopoverTrigger asChild><Button variant="outline" className="form-input-tactical w-full text-left justify-between">{field.value ? format(field.value, "MMM dd, yyyy") : "Pick date"}<CalendarIcon className="h-4 w-4 opacity-20" /></Button></PopoverTrigger><PopoverContent 
-                      className="w-auto p-3 bg-white border border-slate-200 rounded-2xl shadow-2xl z-[300] overflow-visible"
-                      align="start"
-                      side="bottom"
-                      sideOffset={8}
-                    ><Calendar mode="single" selected={field.value} onSelect={(d) => { field.onChange(d); setIsDatePickerOpen(false); }} fromDate={new Date(2024, 0, 1)} toDate={new Date(2030, 11, 31)} initialFocus /></PopoverContent></Popover></FormItem>
+                    <FormItem className="flex flex-col">
+                      <Label className="form-label-tactical">Payment Date</Label>
+                      <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" className="form-input-tactical w-full text-left justify-between">
+                            {field.value ? format(field.value, "MMM dd, yyyy") : "Pick date"}
+                            <CalendarIcon className="h-4 w-4 opacity-20" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent 
+                          className="w-[90vw] sm:w-[450px] p-3 bg-white border border-slate-200 rounded-2xl shadow-2xl z-[300] overflow-visible"
+                          align="start"
+                          side="bottom"
+                          sideOffset={8}
+                        >
+                          <HorizontalDatePicker 
+                            selectedDate={field.value}
+                            onSelect={(date) => {
+                              field.onChange(date);
+                              setIsDatePickerOpen(false);
+                            }}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </FormItem>
                   )} />
                   <FormField control={form.control} name="employeeName" render={({ field }) => (
                     <FormItem><Label className="form-label-tactical">Staff Name</Label><FormControl><Input placeholder="Employee Name" className="form-input-tactical" {...field} /></FormControl></FormItem>
@@ -269,6 +295,62 @@ export default function LaborPage() {
                 </div>
               </div>
               <div className="p-6 shrink-0 border-t"><Button type="submit" className="w-full h-16 rounded-2xl bg-[#0FA5A0] hover:bg-[#176E6C] text-white font-black uppercase tracking-widest shadow-xl">Record Payment</Button></div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-visible border-none shadow-2xl bg-white h-[88dvh] max-h-[88dvh] flex flex-col">
+          <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]">
+                <Pencil className="h-5 w-5" />
+              </div>
+              <DialogTitle className="text-xl font-black tracking-tight uppercase text-white">Edit Payment</DialogTitle>
+            </div>
+            <DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose>
+          </DialogHeader>
+          <Form {...editForm}>
+            <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="flex-1 flex flex-col min-h-0">
+              <div className="dialog-body space-y-6">
+                <div className="min-h-[500px] space-y-6">
+                  <FormField control={editForm.control} name="date" render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <Label className="form-label-tactical">Payment Date</Label>
+                      <Popover open={isEditDatePickerOpen} onOpenChange={setIsEditDatePickerOpen}>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" className="form-input-tactical w-full text-left justify-between">
+                            {field.value ? format(field.value, "MMM dd, yyyy") : "Pick date"}
+                            <CalendarIcon className="h-4 w-4 opacity-20" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent 
+                          className="w-[90vw] sm:w-[450px] p-3 bg-white border border-slate-200 rounded-2xl shadow-2xl z-[300] overflow-visible"
+                          align="start"
+                          side="bottom"
+                          sideOffset={8}
+                        >
+                          <HorizontalDatePicker 
+                            selectedDate={field.value}
+                            onSelect={(date) => {
+                              field.onChange(date);
+                              setIsEditDatePickerOpen(false);
+                            }}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </FormItem>
+                  )} />
+                  <FormField control={editForm.control} name="employeeName" render={({ field }) => (
+                    <FormItem><Label className="form-label-tactical">Staff Name</Label><FormControl><Input className="form-input-tactical" {...field} /></FormControl></FormItem>
+                  )} />
+                  <div className="grid grid-cols-2 gap-4 mt-4">
+                    <FormField control={editForm.control} name="amountPaid" render={({ field }) => (<FormItem><Label className="form-label-tactical">Amount Paid (₹)</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+                  </div>
+                </div>
+              </div>
+              <div className="p-6 shrink-0 border-t"><Button type="submit" className="w-full h-16 rounded-2xl bg-[#0FA5A0] hover:bg-[#176E6C] text-white font-black uppercase tracking-widest shadow-xl">Update Payment</Button></div>
             </form>
           </Form>
         </DialogContent>

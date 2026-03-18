@@ -18,12 +18,13 @@ import {
   ShieldCheck,
   Plus,
   Loader2,
-  X
+  X,
+  Calendar as CalendarIcon
 } from 'lucide-react';
 import { useFarm } from '@/context/FarmContext';
 import { useToast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
-import { differenceInMonths, isValid, parseISO } from 'date-fns';
+import { differenceInMonths, isValid, parseISO, format } from 'date-fns';
 import {
   Dialog,
   DialogContent,
@@ -32,6 +33,8 @@ import {
   DialogTitle,
   DialogClose,
 } from '@/components/ui/dialog';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { HorizontalDatePicker } from '@/components/horizontal-date-picker';
 
 export default function BalanceSheetPage() {
   const { toast } = useToast();
@@ -54,19 +57,23 @@ export default function BalanceSheetPage() {
   const [pendingTenure, setPendingTenure] = useState('');
   const [interest, setInterest] = useState('');
   const [paymentDate, setPaymentDate] = useState('');
-  const [startDate, setStartDate] = useState('');
+  const [startDate, setStartDate] = useState<Date | undefined>(new Date());
   
-  const [cardDueDate, setCardDueDate] = useState('');
+  const [cardDueDate, setCardDueDate] = useState<Date | undefined>(new Date());
   const [cardTotalLimit, setCardTotalLimit] = useState('');
   const [cardOutstanding, setCardOutstanding] = useState('');
   const [cardMinPayment, setCardMinPayment] = useState('');
 
   const [personName, setPersonName] = useState('');
   const [amount, setAmount] = useState('');
-  const [debtDate, setDebtDate] = useState('');
+  const [debtDate, setDebtDate] = useState<Date | undefined>(new Date());
   const [privateInterestRate, setPrivateInterestRate] = useState('');
   const [monthlyInterest, setMonthlyInterest] = useState('');
   const [yearlyInterest, setYearlyInterest] = useState('');
+
+  const [isStartDatePickerOpen, setIsStartDatePickerOpen] = useState(false);
+  const [isCardDatePickerOpen, setIsCardDatePickerOpen] = useState(false);
+  const [isDebtDatePickerOpen, setIsDebtDatePickerOpen] = useState(false);
 
   const [editingItem, setEditingItem] = useState<any>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -79,8 +86,7 @@ export default function BalanceSheetPage() {
       const annualRate = parseFloat(interest) || 0;
       
       if (!isNaN(total) && !isNaN(tenure) && !isNaN(emi)) {
-        const start = parseISO(startDate);
-        if (!isValid(start)) return;
+        const start = startDate;
         const now = new Date();
         const payDay = parseInt(paymentDate) || 1;
         let monthsPassed = Math.max(0, differenceInMonths(now, start));
@@ -108,21 +114,21 @@ export default function BalanceSheetPage() {
   const resetForms = () => {
     setBankName(''); setTotalLoan(''); setBalanceLoan(''); setTotalTenure('');
     setMonthlyEmi(''); setPendingTenure(''); setInterest(''); setPaymentDate('');
-    setStartDate(''); setPersonName(''); setAmount(''); setDebtDate('');
+    setStartDate(new Date()); setPersonName(''); setAmount(''); setDebtDate(new Date());
     setPrivateInterestRate(''); setMonthlyInterest(''); setYearlyInterest('');
-    setCardDueDate(''); setCardTotalLimit(''); setCardOutstanding(''); setCardMinPayment('');
+    setCardDueDate(new Date()); setCardTotalLimit(''); setCardOutstanding(''); setCardMinPayment('');
   };
 
   const handleAdd = () => {
     if (activeTab === 'loans') {
-      if (!bankName || !totalLoan || !balanceLoan) return;
-      addBankLoan({ bankName, totalLoan: parseFloat(totalLoan), balanceLoan: parseFloat(balanceLoan), totalTenure: parseFloat(totalTenure || '0'), monthlyEmi: parseFloat(monthlyEmi || '0'), pendingTenure: parseFloat(pendingTenure || '0'), interest: parseFloat(interest || '0'), paymentDate, startDate });
+      if (!bankName || !totalLoan || !balanceLoan || !startDate) return;
+      addBankLoan({ bankName, totalLoan: parseFloat(totalLoan), balanceLoan: parseFloat(balanceLoan), totalTenure: parseFloat(totalTenure || '0'), monthlyEmi: parseFloat(monthlyEmi || '0'), pendingTenure: parseFloat(pendingTenure || '0'), interest: parseFloat(interest || '0'), paymentDate, startDate: format(startDate, 'yyyy-MM-dd') });
     } else if (activeTab === 'cards') {
-      if (!bankName || !cardOutstanding) return;
-      addCreditCard({ bankName, dueDate: cardDueDate, totalLimit: parseFloat(cardTotalLimit || '0'), outstandingAmount: parseFloat(cardOutstanding), minimumPayment: parseFloat(cardMinPayment || '0') });
+      if (!bankName || !cardOutstanding || !cardDueDate) return;
+      addCreditCard({ bankName, dueDate: format(cardDueDate, 'yyyy-MM-dd'), totalLimit: parseFloat(cardTotalLimit || '0'), outstandingAmount: parseFloat(cardOutstanding), minimumPayment: parseFloat(cardMinPayment || '0') });
     } else if (activeTab === 'private') {
-      if (!personName || !amount) return;
-      addPrivateDebt({ personName, amount: parseFloat(amount), date: debtDate, interestRate: parseFloat(privateInterestRate || '0'), monthlyInterest: parseFloat(monthlyInterest || '0'), yearlyInterest: parseFloat(yearlyInterest || '0') });
+      if (!personName || !amount || !debtDate) return;
+      addPrivateDebt({ personName, amount: parseFloat(amount), date: format(debtDate, 'yyyy-MM-dd'), interestRate: parseFloat(privateInterestRate || '0'), monthlyInterest: parseFloat(monthlyInterest || '0'), yearlyInterest: parseFloat(yearlyInterest || '0') });
     }
     toast({ title: "Account Synchronized", description: "Updated liabilities portfolio." });
     resetForms(); setIsEntryDialogOpen(false);
@@ -134,14 +140,14 @@ export default function BalanceSheetPage() {
       setBankName(item.bankName); setTotalLoan(item.totalLoan.toString());
       setBalanceLoan(item.balanceLoan.toString()); setTotalTenure(item.totalTenure.toString());
       setMonthlyEmi(item.monthlyEmi.toString()); setPendingTenure(item.pendingTenure.toString());
-      setInterest(item.interest.toString()); setPaymentDate(item.paymentDate || ''); setStartDate(item.startDate || '');
+      setInterest(item.interest.toString()); setPaymentDate(item.paymentDate || ''); setStartDate(item.startDate ? parseISO(item.startDate) : new Date());
     } else if (type === 'card') {
-      setBankName(item.bankName); setCardDueDate(item.dueDate || '');
+      setBankName(item.bankName); setCardDueDate(item.dueDate ? parseISO(item.dueDate) : new Date());
       setCardTotalLimit(item.totalLimit.toString()); setCardOutstanding(item.outstandingAmount.toString());
       setCardMinPayment(item.minimumPayment.toString());
     } else if (type === 'private') {
       setPersonName(item.personName); setAmount(item.amount.toString());
-      setDebtDate(item.date || ''); setPrivateInterestRate(item.interestRate?.toString() || '');
+      setDebtDate(item.date ? parseISO(item.date) : new Date()); setPrivateInterestRate(item.interestRate?.toString() || '');
       setMonthlyInterest(item.monthlyInterest?.toString() || ''); setYearlyInterest(item.yearlyInterest?.toString() || '');
     }
     setIsEditDialogOpen(true);
@@ -190,8 +196,101 @@ export default function BalanceSheetPage() {
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0"><div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]"><Plus className="h-5 w-5" /></div><DialogTitle className="text-xl font-black uppercase text-white">Debt Entry</DialogTitle></div><DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Enroll new liability into portfolio</DialogDescription><DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose></DialogHeader>
           <div className="dialog-body space-y-6">
             <div className="min-h-[500px] space-y-6">
-              {activeTab === 'loans' && (<div className="space-y-6"><div className="space-y-2"><Label className="form-label-tactical">Bank Identity</Label><Input value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="Bank Name" className="form-input-tactical" /></div><div className="grid grid-cols-2 gap-4 mt-4"><div className="space-y-2"><Label className="form-label-tactical">Total Loan (₹)</Label><Input type="number" value={totalLoan} onChange={(e) => setTotalLoan(e.target.value)} className="form-input-tactical" /></div><div className="space-y-2"><Label className="form-label-tactical">Interest Rate %</Label><Input type="number" value={interest} onChange={(e) => setInterest(e.target.value)} className="form-input-tactical" /></div></div><div className="grid grid-cols-2 gap-4 mt-4"><div className="space-y-2"><Label className="form-label-tactical">Start Date</Label><Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="form-input-tactical" /></div><div className="space-y-2"><Label className="form-label-tactical">Monthly EMI (₹)</Label><Input type="number" value={monthlyEmi} onChange={(e) => setMonthlyEmi(e.target.value)} className="form-input-tactical" /></div></div></div>)}
-              {activeTab === 'cards' && (<div className="space-y-6"><div className="space-y-2"><Label className="form-label-tactical">Bank Identity</Label><Input value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="Bank Name" className="form-input-tactical" /></div><div className="grid grid-cols-2 gap-4 mt-4"><div className="space-y-2"><Label className="form-label-tactical">Total Limit (₹)</Label><Input type="number" value={cardTotalLimit} onChange={(e) => setCardTotalLimit(e.target.value)} className="form-input-tactical" /></div><div className="space-y-2"><Label className="form-label-tactical">Outstanding (₹)</Label><Input type="number" value={cardOutstanding} onChange={(e) => setCardOutstanding(e.target.value)} className="form-input-tactical text-rose-600" /></div></div></div>)}
+              {activeTab === 'loans' && (<div className="space-y-6">
+                <div className="space-y-2"><Label className="form-label-tactical">Bank Identity</Label><Input value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="Bank Name" className="form-input-tactical" /></div>
+                <div className="grid grid-cols-2 gap-4 mt-4"><div className="space-y-2"><Label className="form-label-tactical">Total Loan (₹)</Label><Input type="number" value={totalLoan} onChange={(e) => setTotalLoan(e.target.value)} className="form-input-tactical" /></div><div className="space-y-2"><Label className="form-label-tactical">Interest Rate %</Label><Input type="number" value={interest} onChange={(e) => setInterest(e.target.value)} className="form-input-tactical" /></div></div>
+                <div className="grid grid-cols-2 gap-4 mt-4">
+                  <div className="space-y-2">
+                    <Label className="form-label-tactical">Start Date</Label>
+                    <Popover open={isStartDatePickerOpen} onOpenChange={setIsStartDatePickerOpen}>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className="form-input-tactical w-full text-left justify-between">
+                          {startDate ? format(startDate, "MMM dd, yyyy") : "Pick date"}
+                          <CalendarIcon className="h-4 w-4 opacity-20" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent 
+                        className="w-[90vw] sm:w-[450px] p-3 bg-white border border-slate-200 rounded-2xl shadow-2xl z-[300] overflow-visible"
+                        align="start"
+                        side="bottom"
+                        sideOffset={8}
+                      >
+                        <HorizontalDatePicker 
+                          selectedDate={startDate}
+                          onSelect={(date) => {
+                            setStartDate(date);
+                            setIsStartDatePickerOpen(false);
+                          }}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <div className="space-y-2"><Label className="form-label-tactical">Monthly EMI (₹)</Label><Input type="number" value={monthlyEmi} onChange={(e) => setMonthlyEmi(e.target.value)} className="form-input-tactical" /></div>
+                </div>
+              </div>)}
+              {activeTab === 'cards' && (<div className="space-y-6">
+                <div className="space-y-2"><Label className="form-label-tactical">Bank Identity</Label><Input value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="Bank Name" className="form-input-tactical" /></div>
+                <div className="grid grid-cols-2 gap-4 mt-4">
+                  <div className="space-y-2">
+                    <Label className="form-label-tactical">Next Due Date</Label>
+                    <Popover open={isCardDatePickerOpen} onOpenChange={setIsCardDatePickerOpen}>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className="form-input-tactical w-full text-left justify-between">
+                          {cardDueDate ? format(cardDueDate, "MMM dd, yyyy") : "Pick date"}
+                          <CalendarIcon className="h-4 w-4 opacity-20" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent 
+                        className="w-[90vw] sm:w-[450px] p-3 bg-white border border-slate-200 rounded-2xl shadow-2xl z-[300] overflow-visible"
+                        align="start"
+                        side="bottom"
+                        sideOffset={8}
+                      >
+                        <HorizontalDatePicker 
+                          selectedDate={cardDueDate}
+                          onSelect={(date) => {
+                            setCardDueDate(date);
+                            setIsCardDatePickerOpen(false);
+                          }}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <div className="space-y-2"><Label className="form-label-tactical">Total Limit (₹)</Label><Input type="number" value={cardTotalLimit} onChange={(e) => setCardTotalLimit(e.target.value)} className="form-input-tactical" /></div>
+                </div>
+                <div className="space-y-2"><Label className="form-label-tactical">Outstanding (₹)</Label><Input type="number" value={cardOutstanding} onChange={(e) => setCardOutstanding(e.target.value)} className="form-input-tactical text-rose-600" /></div>
+              </div>)}
+              {activeTab === 'private' && (<div className="space-y-6">
+                <div className="space-y-2"><Label className="form-label-tactical">Person Name</Label><Input value={personName} onChange={(e) => setPersonName(e.target.value)} placeholder="Name" className="form-input-tactical" /></div>
+                <div className="grid grid-cols-2 gap-4 mt-4">
+                  <div className="space-y-2"><Label className="form-label-tactical">Amount (₹)</Label><Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} className="form-input-tactical" /></div>
+                  <div className="space-y-2">
+                    <Label className="form-label-tactical">Debt Date</Label>
+                    <Popover open={isDebtDatePickerOpen} onOpenChange={setIsDebtDatePickerOpen}>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className="form-input-tactical w-full text-left justify-between">
+                          {debtDate ? format(debtDate, "MMM dd, yyyy") : "Pick date"}
+                          <CalendarIcon className="h-4 w-4 opacity-20" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent 
+                        className="w-[90vw] sm:w-[450px] p-3 bg-white border border-slate-200 rounded-2xl shadow-2xl z-[300] overflow-visible"
+                        align="start"
+                        side="bottom"
+                        sideOffset={8}
+                      >
+                        <HorizontalDatePicker 
+                          selectedDate={debtDate}
+                          onSelect={(date) => {
+                            setDebtDate(date);
+                            setIsDebtDatePickerOpen(false);
+                          }}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
+              </div>)}
             </div>
           </div>
           <div className="p-6 shrink-0 border-t"><Button onClick={handleAdd} className="w-full h-16 rounded-2xl bg-[#0FA5A0] hover:bg-[#176E6C] text-white font-black uppercase tracking-widest shadow-xl border-none">Record Account</Button></div>

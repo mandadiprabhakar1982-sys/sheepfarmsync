@@ -27,7 +27,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useToast } from '@/hooks/use-toast';
 import { useFarm } from '@/context/FarmContext';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
+import { HorizontalDatePicker } from '@/components/horizontal-date-picker';
 import {
   Dialog,
   DialogContent,
@@ -62,6 +62,7 @@ export default function PurchasePage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingPurchase, setEditingPurchase] = useState<LivestockPurchase | null>(null);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [isEditDatePickerOpen, setIsEditDatePickerOpen] = useState(false);
 
   const purchaseForm = useForm<PurchaseFormData>({
     resolver: zodResolver(purchaseFormSchema),
@@ -273,7 +274,12 @@ export default function PurchasePage() {
       <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>
         <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-visible border-none shadow-2xl bg-white h-[88dvh] max-h-[88dvh] flex flex-col">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
-            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]"><Plus className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase text-white">Buying Entry</DialogTitle></div>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]">
+                <Plus className="h-5 w-5" />
+              </div>
+              <DialogTitle className="text-xl font-black tracking-tight uppercase text-white">Buying Entry</DialogTitle>
+            </div>
             <DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose>
           </DialogHeader>
           <Form {...purchaseForm}>
@@ -281,12 +287,31 @@ export default function PurchasePage() {
               <div className="dialog-body space-y-6">
                 <div className="min-h-[500px] space-y-6">
                   <FormField control={purchaseForm.control} name="purchaseDate" render={({ field }) => (
-                    <FormItem className="flex flex-col"><Label className="form-label-tactical">Date of Buying</Label><Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}><PopoverTrigger asChild><Button variant="outline" className="form-input-tactical w-full text-left justify-between">{field.value ? format(field.value, "MMM dd, yyyy") : "Pick date"}<CalendarIcon className="h-4 w-4 opacity-20" /></Button></PopoverTrigger><PopoverContent 
-                      className="w-auto p-3 bg-white border border-slate-200 rounded-2xl shadow-2xl z-[300] overflow-visible"
-                      align="start"
-                      side="bottom"
-                      sideOffset={8}
-                    ><Calendar mode="single" selected={field.value} onSelect={(d) => { field.onChange(d); setIsDatePickerOpen(false); }} fromDate={new Date(2024, 0, 1)} toDate={new Date(2030, 11, 31)} initialFocus /></PopoverContent></Popover></FormItem>
+                    <FormItem className="flex flex-col">
+                      <Label className="form-label-tactical">Date of Buying</Label>
+                      <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" className="form-input-tactical w-full text-left justify-between">
+                            {field.value ? format(field.value, "MMM dd, yyyy") : "Pick date"}
+                            <CalendarIcon className="h-4 w-4 opacity-20" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent 
+                          className="w-[90vw] sm:w-[450px] p-3 bg-white border border-slate-200 rounded-2xl shadow-2xl z-[300] overflow-visible"
+                          align="start"
+                          side="bottom"
+                          sideOffset={8}
+                        >
+                          <HorizontalDatePicker 
+                            selectedDate={field.value}
+                            onSelect={(date) => {
+                              field.onChange(date);
+                              setIsDatePickerOpen(false);
+                            }}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </FormItem>
                   )} />
                   <div className="grid grid-cols-2 gap-4 mt-4">
                     <FormField control={purchaseForm.control} name="farmerName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Farmer Name</Label><FormControl><Input placeholder="Seller Name" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
@@ -311,14 +336,46 @@ export default function PurchasePage() {
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-visible border-none shadow-2xl bg-white h-[88dvh] max-h-[88dvh] flex flex-col">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
-            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]"><Pencil className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase text-white">Update Purchase</DialogTitle></div>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]">
+                <Pencil className="h-5 w-5" />
+              </div>
+              <DialogTitle className="text-xl font-black tracking-tight uppercase text-white">Update Purchase</DialogTitle>
+            </div>
             <DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose>
           </DialogHeader>
           <Form {...editForm}>
             <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="flex-1 flex flex-col min-h-0">
               <div className="dialog-body space-y-6">
                 <div className="min-h-[500px] space-y-6">
-                  <FormField control={editForm.control} name="farmerName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Farmer Name</Label><FormControl><Input className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+                  <FormField control={editForm.control} name="purchaseDate" render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <Label className="form-label-tactical">Date of Buying</Label>
+                      <Popover open={isEditDatePickerOpen} onOpenChange={setIsEditDatePickerOpen}>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" className="form-input-tactical w-full text-left justify-between">
+                            {field.value ? format(field.value, "MMM dd, yyyy") : "Pick date"}
+                            <CalendarIcon className="h-4 w-4 opacity-20" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent 
+                          className="w-[90vw] sm:w-[450px] p-3 bg-white border border-slate-200 rounded-2xl shadow-2xl z-[300] overflow-visible"
+                          align="start"
+                          side="bottom"
+                          sideOffset={8}
+                        >
+                          <HorizontalDatePicker 
+                            selectedDate={field.value}
+                            onSelect={(date) => {
+                              field.onChange(date);
+                              setIsEditDatePickerOpen(false);
+                            }}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </FormItem>
+                  )} />
+                  <FormField control={editForm.control} name="farmerName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Farmer Name</Label><FormControl><Input placeholder="Farmer Name" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
                   <div className="grid grid-cols-2 gap-4 mt-4">
                     <FormField control={editForm.control} name="purchasePrice" render={({ field }) => (<FormItem><Label className="form-label-tactical">Purchase Price (₹)</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
                     <FormField control={editForm.control} name="amountPaid" render={({ field }) => (<FormItem><Label className="form-label-tactical">Amount Paid (₹)</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />

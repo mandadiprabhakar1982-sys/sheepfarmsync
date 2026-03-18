@@ -12,7 +12,8 @@ import {
   PlusCircle,
   Search,
   X,
-  Loader2
+  Loader2,
+  Calendar as CalendarIcon
 } from 'lucide-react';
 import { format, parseISO, isToday, isYesterday } from 'date-fns';
 import { useState, useMemo } from 'react';
@@ -29,11 +30,12 @@ import { Input } from '@/components/ui/input';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogClose,
 } from '@/components/ui/dialog';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { HorizontalDatePicker } from '@/components/horizontal-date-picker';
 import { useToast } from '@/hooks/use-toast';
 import { useFarm } from '@/context/FarmContext';
 import { Label } from '@/components/ui/label';
@@ -53,6 +55,7 @@ export default function MortalityPage() {
   const { toast } = useToast();
   const { deadAnimals, addDeadAnimal, deleteDeadAnimal, totalDead, isLoading } = useFarm();
   const [isEntryDialogOpen, setIsEntryDialogOpen] = useState(false);
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
   const form = useForm<MortalityFormData>({
@@ -78,7 +81,7 @@ export default function MortalityPage() {
   const onSubmit: SubmitHandler<MortalityFormData> = (data) => {
     const newRecord = { ...data, dateOfDeath: format(data.dateOfDeath, 'yyyy-MM-dd') };
     addDeadAnimal(newRecord);
-    form.reset();
+    form.reset({ sheepCount: 1, tagId: '', causeOfDeath: '', dateOfDeath: new Date() });
     setIsEntryDialogOpen(false);
     toast({ title: 'Success!', description: 'Death record saved.' });
   };
@@ -92,7 +95,7 @@ export default function MortalityPage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-full w-full items-center justify-center">
+      <div className="flex h-full w-full items-center justify-center min-h-[60vh]">
         <Loader2 className="h-12 w-12 animate-spin text-[#14d5c7]" />
       </div>
     );
@@ -208,22 +211,54 @@ export default function MortalityPage() {
 
       {/* MOBILE FAB */}
       <button 
-        onClick={() => { form.reset(); setIsEntryDialogOpen(true); }}
+        onClick={() => { form.reset({ sheepCount: 1, tagId: '', causeOfDeath: '', dateOfDeath: new Date() }); setIsEntryDialogOpen(true); }}
         className="md:hidden fixed bottom-24 right-6 h-14 w-14 rounded-full bg-rose-600 text-white shadow-2xl flex items-center justify-center active:scale-90 transition-all z-30"
       >
         <Plus className="h-7 w-7" />
       </button>
 
       <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>
-        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-visible border-none shadow-2xl bg-white h-[75dvh] max-h-[75dvh] flex flex-col">
+        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-visible border-none shadow-2xl bg-white h-[88dvh] max-h-[88dvh] flex flex-col">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
-            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-rose-500/20 text-rose-500"><Plus className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase">Death Entry</DialogTitle></div>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2.5 rounded-xl bg-rose-500/20 text-rose-500">
+                <Plus className="h-5 w-5" />
+              </div>
+              <DialogTitle className="text-xl font-black tracking-tight uppercase">Death Entry</DialogTitle>
+            </div>
             <DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose>
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1 flex flex-col min-h-0">
               <div className="dialog-body space-y-6">
                 <div className="min-h-[500px] space-y-6">
+                  <FormField control={form.control} name="dateOfDeath" render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <Label className="form-label-tactical">Date of Death</Label>
+                      <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" className="form-input-tactical w-full text-left justify-between">
+                            {field.value ? format(field.value, "MMM dd, yyyy") : "Pick date"}
+                            <CalendarIcon className="h-4 w-4 opacity-20" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent 
+                          className="w-[90vw] sm:w-[450px] p-3 bg-white border border-slate-200 rounded-2xl shadow-2xl z-[300] overflow-visible"
+                          align="start"
+                          side="bottom"
+                          sideOffset={8}
+                        >
+                          <HorizontalDatePicker 
+                            selectedDate={field.value}
+                            onSelect={(date) => {
+                              field.onChange(date);
+                              setIsDatePickerOpen(false);
+                            }}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </FormItem>
+                  )} />
                   <FormField control={form.control} name="causeOfDeath" render={({ field }) => (<FormItem><Label className="form-label-tactical">Cause of Death</Label><FormControl><Input placeholder="e.g. Fever, Injury" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
                   <div className="grid grid-cols-2 gap-4 mt-4">
                     <FormField control={form.control} name="sheepCount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Head Count</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
