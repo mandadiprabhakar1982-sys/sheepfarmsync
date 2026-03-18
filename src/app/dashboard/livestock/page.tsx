@@ -314,10 +314,10 @@ export default function LivestockPage() {
         </div>
       </div>
 
-      {/* MOBILE FAB */}
+      {/* MOBILE FAB - FIXED POSITION FIX */}
       <button 
         onClick={() => { assetForm.reset({ registrationDate: new Date() }); setIsEntryDialogOpen(true); }}
-        className="fixed bottom-24 right-6 h-16 w-16 rounded-full bg-[#14d5c7] text-white shadow-[0_0_30px_rgba(20,213,199,0.4)] flex items-center justify-center active:scale-90 transition-all z-30"
+        className="fixed bottom-24 right-6 h-16 w-16 rounded-full bg-[#14d5c7] text-[#020617] shadow-[0_0_30px_rgba(20,213,199,0.4)] flex items-center justify-center active:scale-90 transition-all z-30"
       >
         <Plus className="h-8 w-8 stroke-[3px]" />
       </button>
@@ -368,7 +368,7 @@ export default function LivestockPage() {
                   </div>
                 </div>
               </ScrollArea>
-              <div className="p-6 shrink-0 bg-white border-t"><Button type="submit" disabled={isUploading || isCameraActive} className="w-full h-14 rounded-full bg-gradient-to-r from-[#14d5c7] to-[#0FA5A0] text-white font-black uppercase tracking-[0.2em] shadow-2xl">{isUploading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Save Enrollment'}</Button></div>
+              <div className="p-6 shrink-0 bg-white border-t"><Button type="submit" disabled={isUploading || isCameraActive} className="w-full h-14 rounded-full bg-gradient-to-r from-[#14d5c7] to-[#0FA5A0] text-[#020617] font-black uppercase tracking-[0.2em] shadow-2xl">{isUploading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Save Enrollment'}</Button></div>
             </form>
           </Form>
         </DialogContent>
@@ -399,7 +399,7 @@ export default function LivestockPage() {
                   </div>
                 </div>
               </ScrollArea>
-              <div className="p-6 shrink-0 bg-white border-t flex gap-3"><Button type="button" variant="outline" onClick={() => deleteTrackedSheep(editingSheep!.id, editingSheep!._path)} className="h-14 rounded-full border-rose-100 text-rose-600 px-6"><Trash2 className="h-5 w-5" /></Button><Button type="submit" disabled={isUploading || isCameraActive} className="flex-1 h-14 rounded-full bg-gradient-to-r from-[#14d5c7] to-[#0FA5A0] text-white font-black uppercase tracking-[0.2em] shadow-2xl">{isUploading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Save Changes'}</Button></div>
+              <div className="p-6 shrink-0 bg-white border-t flex gap-3"><Button type="button" variant="outline" onClick={() => deleteTrackedSheep(editingSheep!.id, editingSheep!._path)} className="h-14 rounded-full border-rose-100 text-rose-600 px-6"><Trash2 className="h-5 w-5" /></Button><Button type="submit" disabled={isUploading || isCameraActive} className="flex-1 h-14 rounded-full bg-gradient-to-r from-[#14d5c7] to-[#0FA5A0] text-[#020617] font-black uppercase tracking-[0.2em] shadow-2xl">{isUploading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Save Changes'}</Button></div>
             </form>
           </Form>
         </DialogContent>

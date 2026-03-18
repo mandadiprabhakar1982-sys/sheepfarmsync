@@ -189,7 +189,7 @@ export default function FarmLedgerPage() {
 
       <button 
         onClick={() => setIsQuickEntryOpen(true)}
-        className="fixed bottom-24 right-6 h-16 w-16 rounded-full bg-primary text-white shadow-2xl flex items-center justify-center active:scale-90 transition-all z-20"
+        className="fixed bottom-24 right-6 h-16 w-16 rounded-full bg-primary text-[#020617] shadow-[0_0_30px_rgba(20,213,199,0.4)] flex items-center justify-center active:scale-90 transition-all z-30"
       >
         <Zap className="h-8 w-8" />
       </button>

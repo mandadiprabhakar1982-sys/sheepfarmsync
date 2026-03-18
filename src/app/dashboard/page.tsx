@@ -163,12 +163,13 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      {/* ACTION TRIGGER */}
-      <div className="px-5 mb-12">
-        <Button onClick={() => router.push('/dashboard/expenses')} className="w-full h-16 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-black uppercase tracking-[0.2em] shadow-2xl text-xs gap-3">
-          <Plus className="h-5 w-5 text-[#14d5c7]" /> Log Entry
-        </Button>
-      </div>
+      {/* MOBILE FAB ACTION */}
+      <button 
+        onClick={() => router.push('/dashboard/expenses')}
+        className="fixed bottom-24 right-6 h-16 w-16 rounded-full bg-[#14d5c7] text-[#020617] shadow-[0_0_30px_rgba(20,213,199,0.4)] flex items-center justify-center active:scale-90 transition-all z-30"
+      >
+        <Plus className="h-8 w-8 stroke-[3px]" />
+      </button>
     </div>
   );
 

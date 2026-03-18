@@ -205,7 +205,7 @@ export default function ExpensesPage() {
         </div>
       </div>
 
-      {/* MOBILE FAB */}
+      {/* MOBILE FAB - FIXED POSITION FIX */}
       <button 
         onClick={() => { form.reset(); setIsEntryDialogOpen(true); }}
         className="md:hidden fixed bottom-24 right-6 h-14 w-14 rounded-full bg-[#059669] text-white shadow-2xl flex items-center justify-center active:scale-90 transition-all z-30"
