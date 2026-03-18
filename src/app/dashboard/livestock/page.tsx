@@ -340,7 +340,7 @@ export default function LivestockPage() {
               <div className="h-12 w-12 rounded-2xl bg-[#14d5c7]/10 flex items-center justify-center text-[#14d5c7] border border-[#14d5c7]/20">
                 <Plus className="h-6 w-6 stroke-[3px]" />
               </div>
-              <h2 className="text-2xl font-black uppercase tracking-tight">Enrollment</h2>
+              <DialogTitle className="text-2xl font-black uppercase tracking-tight">Enrollment</DialogTitle>
             </div>
             <DialogClose className="absolute right-8 top-8 text-white/40 hover:text-white transition-colors">
               <X className="h-6 w-6" />
@@ -523,7 +523,7 @@ export default function LivestockPage() {
               <div className="h-12 w-12 rounded-2xl bg-[#14d5c7]/10 flex items-center justify-center text-[#14d5c7] border border-[#14d5c7]/20">
                 <Pencil className="h-6 w-6" />
               </div>
-              <h2 className="text-2xl font-black uppercase tracking-tight">Update Record</h2>
+              <DialogTitle className="text-2xl font-black uppercase tracking-tight">Update Record</DialogTitle>
             </div>
             <DialogClose className="absolute right-8 top-8 text-white/40">
               <X className="h-6 w-6" />
