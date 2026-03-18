@@ -11,7 +11,8 @@ import {
   X,
   CheckCircle2,
   Receipt,
-  PlusCircle
+  PlusCircle,
+  Loader2
 } from 'lucide-react';
 import { format, parseISO, isToday, isYesterday } from 'date-fns';
 import { useState, useMemo } from 'react';
@@ -89,7 +90,7 @@ export default function ExpensesPage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-full w-full items-center justify-center">
+      <div className="flex h-full w-full items-center justify-center min-h-[60vh]">
         <Loader2 className="h-12 w-12 animate-spin text-[#14d5c7]" />
       </div>
     );
@@ -211,7 +212,7 @@ export default function ExpensesPage() {
       </button>
 
       <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>
-        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[60dvh] flex flex-col">
+        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[60dvh] max-h-[60dvh] flex flex-col">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
             <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400"><Plus className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase">Kharchu Entry</DialogTitle></div>
             <DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose>

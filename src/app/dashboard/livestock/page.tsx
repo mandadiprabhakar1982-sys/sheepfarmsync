@@ -333,7 +333,7 @@ export default function LivestockPage() {
 
       {/* ENTRY DIALOG */}
       <Dialog open={isEntryDialogOpen} onOpenChange={(open) => { setIsEntryDialogOpen(open); if (!open) stopCamera(); }}>
-        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[88dvh] flex flex-col z-[100]">
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[88dvh] max-h-[88dvh] flex flex-col z-[100]">
           <DialogHeader className="bg-[#111111] p-6 text-left text-white shrink-0 relative">
             <div className="flex items-center gap-4">
               <div className="p-2.5 rounded-xl bg-[#14d5c7]/20 text-[#14d5c7]"><Plus className="h-5 w-5 stroke-[3px]" /></div>
@@ -391,7 +391,7 @@ export default function LivestockPage() {
 
       {/* EDIT DIALOG */}
       <Dialog open={isEditDialogOpen} onOpenChange={(open) => { setIsEditDialogOpen(open); if (!open) stopCamera(); }}>
-        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[88dvh] flex flex-col z-[100]">
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[88dvh] max-h-[88dvh] flex flex-col z-[100]">
           <DialogHeader className="bg-[#111111] p-6 text-left text-white shrink-0 relative">
             <div className="flex items-center gap-4"><div className="p-2.5 rounded-xl bg-[#14d5c7]/20 text-[#14d5c7]"><Pencil className="h-5 w-5" /></div><div><DialogTitle className="text-xl font-black uppercase text-white leading-none">Update Record</DialogTitle></div></div>
             <DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose>

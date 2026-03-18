@@ -190,16 +190,13 @@ export default function FarmLedgerPage() {
       </button>
 
       <Dialog open={isQuickEntryOpen} onOpenChange={setIsQuickEntryOpen}>
-        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[60dvh] flex flex-col">
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[60dvh] max-h-[60dvh] flex flex-col">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]"><Zap className="h-5 w-5" /></div>
-              <DialogTitle className="text-xl font-black uppercase text-white">Quick Sync</DialogTitle>
-            </div>
+            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]"><Zap className="h-5 w-5" /></div><DialogTitle className="text-xl font-black uppercase text-white">Quick Sync</DialogTitle></div>
             <DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose>
           </DialogHeader>
           <div className="dialog-body space-y-6">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 mt-4">
               <div className="space-y-2"><Label className="form-label-tactical">Buying (₹)</Label><Input type="number" value={pCost} onChange={(e) => setPCost(e.target.value)} className="form-input-tactical" /></div>
               <div className="space-y-2"><Label className="form-label-tactical">Fodder (₹)</Label><Input type="number" value={fCost} onChange={(e) => setFCost(e.target.value)} className="form-input-tactical" /></div>
             </div>

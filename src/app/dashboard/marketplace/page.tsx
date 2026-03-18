@@ -227,7 +227,7 @@ export default function MarketplacePage() {
       </div>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl h-[70dvh] flex flex-col">
+        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl h-[70dvh] max-h-[70dvh] flex flex-col">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
             <DialogTitle className="text-xl font-black uppercase">Edit Listing</DialogTitle>
             <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Update your marketplace post details.</DialogDescription>
@@ -236,7 +236,7 @@ export default function MarketplacePage() {
           <Form {...editForm}>
             <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="flex-1 flex flex-col min-h-0">
               <div className="dialog-body space-y-6">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4 mt-4">
                   <FormField control={editForm.control} name="animalCount" render={({ field }) => (
                     <FormItem><Label className="form-label-tactical">Count</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>
                   )} />
