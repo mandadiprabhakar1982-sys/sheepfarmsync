@@ -11,6 +11,10 @@ import {
   Wallet
 } from 'lucide-react';
 
+/**
+ * @fileOverview Final Precision Mobile Navigation Dock.
+ * Implements the Safe iPhone Fix and follows the locked 80px height protocol.
+ */
 export function MobileNav() {
   const pathname = usePathname();
 

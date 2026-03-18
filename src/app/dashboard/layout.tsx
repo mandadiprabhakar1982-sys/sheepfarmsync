@@ -9,6 +9,10 @@ import { useWindowDimensions } from '@/hooks/use-mobile';
 import { Bell, User, Menu, Loader2 } from 'lucide-react';
 import { Logo } from '@/components/logo';
 
+/**
+ * @fileOverview Final Precision Dashboard Layout.
+ * Implements the 'Best Final Structure' flex-col stack for mobile.
+ */
 export default function DashboardLayout({
   children,
 }: {
@@ -32,11 +36,11 @@ export default function DashboardLayout({
   if (isMobile) {
     return (
       <div className="h-screen flex flex-col bg-[#020617] overflow-hidden">
-        {/* FIXED HEADER */}
+        {/* FIXED HEADER (shrink-0) */}
         <header 
           className="shrink-0 bg-[#020617]/80 backdrop-blur-md px-5 flex items-center justify-between z-40 border-b border-white/5"
           style={{ 
-            paddingTop: 'calc(12px + env(safe-area-inset-top))', 
+            paddingTop: 'env(safe-area-inset-top)', 
             height: 'calc(72px + env(safe-area-inset-top))' 
           }}
         >
@@ -57,12 +61,12 @@ export default function DashboardLayout({
           </div>
         </header>
 
-        {/* MAIN CONTENT AREA */}
+        {/* MAIN CONTENT AREA (flex-1) */}
         <main className="flex-1 min-h-0 relative bg-[#020617] flex flex-col overflow-hidden">
           {children}
         </main>
 
-        {/* FIXED BOTTOM NAV */}
+        {/* FIXED BOTTOM NAV (fixed but logically at end of stack) */}
         <MobileNav />
       </div>
     );
