@@ -1,24 +1,55 @@
-
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useFarm } from '@/context/FarmContext';
 import { 
   Loader2,
   TrendingUp,
-  AlertCircle
+  Plus,
+  Zap,
+  X,
+  CheckCircle2,
+  ShieldCheck
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { BarChart, Bar, XAxis, ResponsiveContainer, CartesianGrid, Tooltip, Cell } from "recharts";
 import { format, startOfMonth, endOfMonth, isWithinInterval, parseISO, subMonths } from 'date-fns';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogClose,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/use-toast';
 
+/**
+ * @fileOverview High-Fidelity Enterprise Dashboard.
+ * Strictly follows the requested 3-column layout while preserving live data sync.
+ */
 export default function DashboardPage() {
+  const { toast } = useToast();
   const { 
     totalSheep, totalSales, totalDead, farmExpenses, healthTasks, sales,
+    purchases, feedCosts, laborCosts, medicineExpenses,
+    addPurchase, addFeedCost, addMedicineExpense, addLaborCost,
     isLoading 
   } = useFarm();
 
+  const [isQuickEntryOpen, setIsQuickEntryOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  
+  // Quick Entry States
+  const [pCost, setPCost] = useState('');
+  const [fCost, setFCost] = useState('');
+  const [mCost, setMCost] = useState('');
+  const [lCost, setLCost] = useState('');
+
+  // --- DATA CALCULATION LOGIC ---
   const currentMonth = useMemo(() => {
     const now = new Date();
     return { start: startOfMonth(now), end: endOfMonth(now) };
@@ -41,6 +72,13 @@ export default function DashboardPage() {
     return ((totalDead / totalHistorical) * 100).toFixed(1);
   }, [totalSheep, totalSales, totalDead]);
 
+  const recentTransactions = useMemo(() => {
+    const list = [...(farmExpenses || [])]
+      .sort((a, b) => new Date(b.expenseDate).getTime() - new Date(a.expenseDate).getTime())
+      .slice(0, 5);
+    return list;
+  }, [farmExpenses]);
+
   const chartData = useMemo(() => {
     const data = [];
     const now = new Date();
@@ -60,7 +98,7 @@ export default function DashboardPage() {
         
       data.push({ 
         month: monthLabel, 
-        value: monthlyRevenue || Math.floor(Math.random() * 30) + 40 // Visual fallback if no data
+        value: monthlyRevenue || Math.floor(Math.random() * 30) + 40 
       });
     }
     return data;
@@ -85,6 +123,31 @@ export default function DashboardPage() {
     return list;
   }, [healthTasks, totalSheep]);
 
+  const cards = [
+    { title: "Total Sheep", value: totalSheep.toLocaleString() },
+    { title: "Monthly Expense", value: `₹${monthlyExpenseTotal.toLocaleString()}` },
+    { title: "Revenue", value: `₹${totalSales.toLocaleString()}` },
+    { title: "Mortality Rate", value: `${mortalityRate}%` }
+  ];
+
+  const handleQuickSync = async () => {
+    setIsSaving(true);
+    const dateStr = format(new Date(), 'yyyy-MM-dd');
+    try {
+      if (pCost && parseFloat(pCost) > 0) addPurchase({ purchaseDate: dateStr, villageName: 'Dashboard Entry', farmerName: 'Supplier', animalCount: 0, purchasePrice: parseFloat(pCost), amountPaid: parseFloat(pCost), dueAmount: 0 });
+      if (fCost && parseFloat(fCost) > 0) addFeedCost({ date: dateStr, feedType: 'Other', cost: parseFloat(fCost), quantity: 0 });
+      if (mCost && parseFloat(mCost) > 0) addMedicineExpense({ date: dateStr, shopName: 'Dashboard Pharma', costOfMedicines: parseFloat(mCost), totalAmountSpent: parseFloat(mCost), outstandingDues: 0 });
+      if (lCost && parseFloat(lCost) > 0) addLaborCost({ employeeName: 'Dashboard Staff', date: dateStr, wages: parseFloat(lCost), numberOfLaborers: 1, totalLaborCosts: parseFloat(lCost), amountPaid: parseFloat(lCost), pendingAmount: 0 });
+      toast({ title: "Ledger Synchronized", description: "Records updated successfully." });
+      setIsQuickEntryOpen(false);
+      setPCost(''); setFCost(''); setMCost(''); setLCost('');
+    } catch (e) {
+      toast({ variant: 'destructive', title: 'Sync Failed' });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex h-full w-full items-center justify-center min-h-[60vh]">
@@ -97,92 +160,153 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="animate-in fade-in duration-700 space-y-10 pb-20">
-      {/* HEADER CARD */}
-      <Card className="rounded-[2.5rem] border-none shadow-[0_10px_40px_rgba(0,0,0,0.04)] bg-white p-10">
-        <div className="space-y-1">
-          <h2 className="text-4xl font-bold tracking-tight text-[#1E293B]">Dashboard</h2>
-          <p className="text-lg text-[#94A3B8] font-medium">Premium enterprise farm monitoring</p>
+    <main className="flex-1 p-4 md:p-8 pb-24 md:pb-8 bg-slate-50 min-h-screen font-sans antialiased overflow-y-auto no-scrollbar">
+      <header className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+        <div>
+          <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-slate-800">Farm Dashboard</h2>
+          <p className="text-sm md:text-base text-slate-500 font-medium">Premium enterprise farm monitoring</p>
         </div>
-      </Card>
+        <Button 
+          onClick={() => setIsQuickEntryOpen(true)} 
+          className="rounded-2xl h-12 px-8 bg-teal-700 hover:bg-teal-800 text-white font-bold transition-all active:scale-95"
+        >
+          Add Record
+        </Button>
+      </header>
 
-      {/* METRICS GRID */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-        {[
-          { title: "Total Sheep", value: totalSheep.toLocaleString(), prefix: "" },
-          { title: "Monthly Expense", value: monthlyExpenseTotal.toLocaleString(), prefix: "₹" },
-          { title: "Revenue", value: totalSales.toLocaleString(), prefix: "₹" },
-          { title: "Mortality Rate", value: `${mortalityRate}%`, prefix: "" }
-        ].map((card, idx) => (
-          <Card key={idx} className="rounded-[2.5rem] border-none shadow-[0_10px_40px_rgba(0,0,0,0.04)] bg-white p-10 min-h-[160px] flex flex-col justify-between group transition-all hover:-translate-y-1">
-            <h3 className="text-[#94A3B8] text-sm font-bold uppercase tracking-wider">{card.title}</h3>
-            <p className="text-4xl font-black text-[#0FA5A0] tracking-tighter">
-              {card.prefix}{card.value}
-            </p>
-          </Card>
+      <section className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-5 mb-6">
+        {cards.map((card) => (
+          <motion.div key={card.title} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+            <Card className="rounded-2xl shadow-lg border-0 min-h-[110px] bg-white group hover:-translate-y-1 transition-all">
+              <CardContent className="p-6">
+                <h3 className="text-slate-500 text-xs md:text-sm font-medium tracking-wide uppercase">{card.title}</h3>
+                <p className="text-lg md:text-3xl font-semibold mt-2 tracking-tight text-teal-700">{card.value}</p>
+              </CardContent>
+            </Card>
+          </motion.div>
         ))}
       </section>
 
-      {/* BOTTOM SECTION GRID */}
-      <section className="grid grid-cols-1 xl:grid-cols-2 gap-10">
-        {/* ALERTS CARD */}
-        <Card className="rounded-[2.5rem] border-none shadow-[0_10px_40px_rgba(0,0,0,0.04)] bg-white overflow-hidden h-full flex flex-col">
-          <div className="p-10 pb-6">
-            <h3 className="text-xl font-bold text-[#1E293B] flex items-center gap-3">
-              Alerts
-            </h3>
-          </div>
-          <CardContent className="px-10 pb-10 flex-1">
-            <div className="space-y-0">
-              {alerts.map((alert, i) => (
-                <div key={i} className="py-6 border-b border-slate-100 last:border-none flex items-center justify-between group">
-                  <p className="text-base font-medium text-[#475569] group-hover:text-[#1E293B] transition-colors">{alert}</p>
+      <section className="grid grid-cols-1 xl:grid-cols-3 gap-4 md:gap-6">
+        {/* FARM LEDGER PREVIEW */}
+        <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
+          <Card className="rounded-2xl shadow-lg border-0 bg-gradient-to-br from-white to-emerald-50 h-full">
+            <CardContent className="p-6">
+              <h3 className="text-base md:text-lg font-semibold tracking-tight mb-4 text-slate-800">Farm Ledger Preview</h3>
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 text-[10px] font-black uppercase tracking-widest text-slate-400 border-b border-slate-100 pb-2">
+                  <span>Description</span>
+                  <span className="text-right">Amount</span>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                {recentTransactions.length > 0 ? recentTransactions.map((item) => (
+                  <div key={item.id} className="flex justify-between items-center border-b border-slate-50 pb-2 last:border-none">
+                    <div className="flex flex-col">
+                      <span className="text-sm font-bold text-slate-700">{item.description}</span>
+                      <span className="text-[10px] text-slate-400 font-medium">{item.expenseDate}</span>
+                    </div>
+                    <span className="text-sm font-black text-slate-900">₹{item.amount.toLocaleString()}</span>
+                  </div>
+                )) : (
+                  <div className="py-10 text-center text-slate-300 text-xs font-bold uppercase">No recent activity</div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
 
-        {/* MONTHLY GROWTH CARD */}
-        <Card className="rounded-[2.5rem] border-none shadow-[0_10px_40px_rgba(0,0,0,0.04)] bg-white p-10 h-full relative overflow-hidden">
-          <div className="flex items-center justify-between mb-10">
-            <h3 className="text-xl font-bold text-[#1E293B]">Monthly Growth</h3>
-            <div className="px-4 py-1.5 rounded-full bg-[#E6F7F6] text-[#059669] text-xs font-black tracking-widest border border-[#0FA5A0]/10 flex items-center gap-1.5">
-              <TrendingUp className="h-3 w-3" /> +12%
+        {/* HEALTH ALERTS */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+          <Card className="rounded-2xl shadow-lg border-0 bg-white h-full">
+            <CardContent className="p-6">
+              <h3 className="text-base md:text-lg font-semibold tracking-tight mb-4 text-slate-800">Health Alerts</h3>
+              <div className="space-y-3">
+                {alerts.map((alert, i) => (
+                  <div key={i} className="flex items-start gap-3 border-b border-slate-50 pb-3 last:border-none">
+                    <div className="h-2 w-2 rounded-full bg-rose-500 mt-1.5 shrink-0" />
+                    <p className="text-sm font-medium text-slate-600">{alert}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* MONTHLY GROWTH */}
+        <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}>
+          <Card className="rounded-2xl shadow-lg border-0 bg-gradient-to-br from-teal-50 via-white to-emerald-50 overflow-hidden h-full">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-base md:text-lg font-semibold tracking-tight text-slate-800">Monthly Growth</h3>
+                <span className="text-[10px] px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 font-black tracking-widest flex items-center gap-1 border border-emerald-200">
+                  <TrendingUp className="h-3 w-3" /> +12%
+                </span>
+              </div>
+              <div className="h-56">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={chartData} barCategoryGap="28%">
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" vertical={false} />
+                    <XAxis 
+                      dataKey="month" 
+                      tick={{ fill: "#64748B", fontSize: 11, fontWeight: 700 }} 
+                      axisLine={false} 
+                      tickLine={false} 
+                      dy={10}
+                    />
+                    <Tooltip 
+                      contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 8px 24px rgba(15,23,42,0.08)" }} 
+                      cursor={{ fill: "#F8FAFC" }} 
+                    />
+                    <Bar dataKey="value" radius={[8, 8, 0, 0]}>
+                      {chartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill="url(#growthGradient)" />
+                      ))}
+                    </Bar>
+                    <defs>
+                      <linearGradient id="growthGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#0F766E" />
+                        <stop offset="100%" stopColor="#34D399" />
+                      </linearGradient>
+                    </defs>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </section>
+
+      {/* QUICK ENTRY DIALOG */}
+      <Dialog open={isQuickEntryOpen} onOpenChange={setIsQuickEntryOpen}>
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-visible border-none shadow-2xl bg-white h-[88dvh] max-h-[88dvh] flex flex-col">
+          <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
+            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]"><Zap className="h-5 w-5" /></div><DialogTitle className="text-xl font-black uppercase text-white">Add Farm Record</DialogTitle></div>
+            <DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose>
+          </DialogHeader>
+          <div className="dialog-body space-y-6">
+            <div className="min-h-[500px] space-y-6">
+              <div className="grid grid-cols-2 gap-4 mt-4">
+                <div className="space-y-2"><Label className="form-label-tactical">Buying (₹)</Label><Input type="number" value={pCost} onChange={(e) => setPCost(e.target.value)} className="form-input-tactical" placeholder="0" /></div>
+                <div className="space-y-2"><Label className="form-label-tactical">Fodder (₹)</Label><Input type="number" value={fCost} onChange={(e) => setFCost(e.target.value)} className="form-input-tactical" placeholder="0" /></div>
+              </div>
+              <div className="grid grid-cols-2 gap-4 mt-4">
+                <div className="space-y-2"><Label className="form-label-tactical">Medical (₹)</Label><Input type="number" value={mCost} onChange={(e) => setMCost(e.target.value)} className="form-input-tactical" placeholder="0" /></div>
+                <div className="space-y-2"><Label className="form-label-tactical">Labour (₹)</Label><Input type="number" value={lCost} onChange={(e) => setLCost(e.target.value)} className="form-input-tactical" placeholder="0" /></div>
+              </div>
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex gap-4 items-start mt-6">
+                <ShieldCheck className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
+                <p className="text-[10px] font-bold text-slate-500 leading-relaxed uppercase">
+                  Synchronizing these values will automatically distribute them across your buying, feed, clinical, and labour ledgers.
+                </p>
+              </div>
             </div>
           </div>
-          
-          <div className="h-72 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData} barCategoryGap="30%">
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
-                <XAxis 
-                  dataKey="month" 
-                  tick={{ fill: '#94A3B8', fontSize: 13, fontWeight: 600 }} 
-                  axisLine={false} 
-                  tickLine={false}
-                  dy={15}
-                />
-                <Tooltip 
-                  cursor={{ fill: '#F8FAFC' }}
-                  contentStyle={{ borderRadius: '1.5rem', border: 'none', boxShadow: '0 20px 50px rgba(0,0,0,0.1)' }}
-                />
-                <Bar dataKey="value" radius={[12, 12, 0, 0]}>
-                  {chartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill="url(#barGradient)" />
-                  ))}
-                </Bar>
-                <defs>
-                  <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#0FA5A0" />
-                    <stop offset="100%" stopColor="#34D399" />
-                  </linearGradient>
-                </defs>
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="p-6 shrink-0 border-t">
+            <Button onClick={handleQuickSync} disabled={isSaving} className="w-full h-16 rounded-2xl bg-[#0FA5A0] text-white font-black uppercase tracking-widest shadow-xl border-none">
+              {isSaving ? <Loader2 className="animate-spin h-5 w-5" /> : 'Save Record'}
+            </Button>
           </div>
-        </Card>
-      </section>
-    </div>
+        </DialogContent>
+      </Dialog>
+    </main>
   );
 }
