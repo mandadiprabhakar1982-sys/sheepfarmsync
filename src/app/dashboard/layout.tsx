@@ -32,42 +32,38 @@ export default function DashboardLayout({
   if (isMobile) {
     return (
       <div className="h-screen flex flex-col bg-[#020617] overflow-hidden">
-        {/* FIXED HEADER */}
+        {/* FIXED HEADER - Matching Reference Image */}
         <header 
-          className="shrink-0 bg-[#020617]/80 backdrop-blur-md px-5 flex items-center justify-between border-b border-white/5 z-40"
+          className="shrink-0 bg-[#020617]/80 backdrop-blur-md px-5 flex items-center justify-between z-40 border-b border-white/5"
           style={{ 
-            paddingTop: 'env(safe-area-inset-top)', 
-            height: 'calc(64px + env(safe-area-inset-top))' 
+            paddingTop: 'calc(12px + env(safe-area-inset-top))', 
+            height: 'calc(72px + env(safe-area-inset-top))' 
           }}
         >
-          <div className="flex items-center gap-3">
-            <button className="h-10 w-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/60">
+          <div className="flex items-center gap-4">
+            <button className="h-11 w-11 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/60">
               <Menu className="h-5 w-5" />
             </button>
             <Logo />
           </div>
-          <div className="flex items-center gap-4 text-white">
-            <div className="relative h-10 w-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
+          <div className="flex items-center gap-3 text-white">
+            <div className="relative h-11 w-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
               <Bell className="h-5 w-5 text-white/60" />
               <span className="absolute -top-1 -right-1 h-4 w-4 bg-[#E53935] rounded-full text-[8px] font-black flex items-center justify-center border-2 border-[#020617]">8</span>
             </div>
-            <div className="h-10 w-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
+            <div className="h-11 w-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden">
               <User className="h-5 w-5 text-white/60" />
             </div>
           </div>
         </header>
 
-        {/* MAIN CONTENT AREA - SCROLLABLE BODY */}
+        {/* MAIN CONTENT AREA */}
         <main className="flex-1 min-h-0 relative bg-[#020617]">
           {children}
         </main>
 
         {/* FIXED BOTTOM NAV */}
         <MobileNav />
-        
-        <SidebarProvider open={false}>
-          <AppSidebar />
-        </SidebarProvider>
       </div>
     );
   }
