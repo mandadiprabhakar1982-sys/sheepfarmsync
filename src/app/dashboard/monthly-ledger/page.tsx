@@ -17,6 +17,7 @@ import {
   Landmark,
   Home,
   User,
+  CreditCard,
   ArrowDownCircle,
   ArrowUpCircle,
   Loader2,
@@ -156,16 +157,147 @@ export default function PersonalFinancePage() {
     <div className="animate-in fade-in duration-700 max-w-7xl mx-auto h-full flex flex-col relative px-4 md:px-0">
       <div className="space-y-6 flex-1 min-h-0 flex flex-col">
         <div className="flex flex-col md:flex-row gap-4 items-center shrink-0">
-          <div className="relative flex-1 w-full"><Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" /><Input placeholder="Search finance records..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="h-12 md:h-14 pl-12 pr-12 rounded-2xl md:rounded-full bg-white border-none font-bold shadow-sm" /></div>
-          <div className="flex gap-2 shrink-0 overflow-x-auto no-scrollbar pb-2 md:pb-0 w-full md:w-auto"><Select value={selectedMonth} onValueChange={setSelectedMonth}><SelectTrigger className="h-12 md:h-14 w-[120px] rounded-2xl bg-white border-none font-bold shadow-sm"><SelectValue placeholder="Month" /></SelectTrigger><SelectContent>{Array.from({ length: 12 }, (_, i) => { const m = (i + 1).toString().padStart(2, '0'); return <SelectItem key={m} value={m}>{format(new Date(2024, i), 'MMMM')}</SelectItem> })}</SelectContent></Select><Select value={selectedYear} onValueChange={setSelectedYear}><SelectTrigger className="h-12 md:h-14 w-[120px] rounded-2xl bg-white border-none font-bold shadow-sm"><SelectValue placeholder="Year" /></SelectTrigger><SelectContent><SelectItem value="ALL">All Time</SelectItem>{['2023', '2024', '2025'].map(y => <SelectItem key={y} value={y}>{y}</SelectItem>)}</SelectContent></Select></div>
+          <div className="relative flex-1 w-full">
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
+            <Input 
+              placeholder="Search finance records..." 
+              value={searchTerm} 
+              onChange={(e) => setSearchTerm(e.target.value)} 
+              className="h-12 md:h-14 pl-12 pr-12 rounded-2xl md:rounded-full bg-white border-none font-bold shadow-sm" 
+            />
+          </div>
+          <div className="flex gap-2 shrink-0 overflow-x-auto no-scrollbar pb-2 md:pb-0 w-full md:w-auto">
+            <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+              <SelectTrigger className="h-12 md:h-14 w-[120px] rounded-2xl bg-white border-none font-bold shadow-sm">
+                <SelectValue placeholder="Month" />
+              </SelectTrigger>
+              <SelectContent>
+                {Array.from({ length: 12 }, (_, i) => { 
+                  const m = (i + 1).toString().padStart(2, '0'); 
+                  return <SelectItem key={m} value={m}>{format(new Date(2024, i), 'MMMM')}</SelectItem> 
+                })}
+              </SelectContent>
+            </Select>
+            <Select value={selectedYear} onValueChange={setSelectedYear}>
+              <SelectTrigger className="h-12 md:h-14 w-[120px] rounded-2xl bg-white border-none font-bold shadow-sm">
+                <SelectValue placeholder="Year" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">All Time</SelectItem>
+                {['2023', '2024', '2025'].map(y => <SelectItem key={y} value={y}>{y}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full flex-1 flex flex-col min-h-0">
-          <TabsList className="w-full h-14 md:h-16 bg-[#D7F2F1] rounded-2xl p-1.5 flex justify-start md:justify-center overflow-x-auto no-scrollbar shadow-inner mb-8"><TabsTrigger value="income" className="tab-trigger-tactical"><ArrowUpCircle className="h-3.5 w-3.5 mr-2" /> Income</TabsTrigger><TabsTrigger value="bank_emi" className="tab-trigger-tactical"><Landmark className="h-3.5 w-3.5 mr-2" /> Bank EMI</TabsTrigger><TabsTrigger value="card" className="tab-trigger-tactical"><CreditCard className="h-3.5 w-3.5 mr-2" /> Card</TabsTrigger><TabsTrigger value="personal" className="tab-trigger-tactical"><User className="h-3.5 w-3.5 mr-2" /> Personal</TabsTrigger><TabsTrigger value="household" className="tab-trigger-tactical"><Home className="h-3.5 w-3.5 mr-2" /> Household</TabsTrigger></TabsList>
-          <TabsContent value={activeTab} className="flex-1 min-h-0 flex flex-col m-0"><div className="flex-1 min-h-0 flex flex-col premium-card overflow-hidden bg-white"><CardHeader className="bg-[#0FA5A0] text-white p-4 px-6 shrink-0"><div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4"><div className="space-y-0.5"><div className="flex items-center gap-2.5"><div className="p-1.5 bg-white/20 rounded-lg"><ArrowRightLeft className="h-5 w-5 text-white" /></div><CardTitle className="text-xl font-black tracking-tight leading-none uppercase text-white">{activeTab.replace('_', ' ')} Audit</CardTitle></div><CardDescription className="text-white/60 text-[9px] font-black uppercase tracking-[0.2em] ml-9">Verified Personal Financial Cash Flow</CardDescription></div><div className="flex items-center gap-3"><Button onClick={() => setIsIncomeDialogOpen(true)} className="h-9 px-4 rounded-xl font-black uppercase tracking-widest bg-white text-[#0FA5A0] hover:bg-white/90 gap-2 shadow-xl border-none"><ArrowUpCircle className="h-4 w-4" /> Income</Button><Button onClick={() => setIsExpenseDialogOpen(true)} className="h-9 px-4 rounded-xl font-black uppercase tracking-widest bg-rose-600 hover:bg-rose-700 text-white gap-2 shadow-xl border-none"><ArrowDownCircle className="h-4 w-4" /> Expense</Button><div className="px-4 py-1 bg-black/20 rounded-xl text-white flex items-center gap-3 border border-white/10"><ShieldCheck className="h-4 w-4 text-emerald-400" /><div><p className="text-[7px] font-black uppercase tracking-widest opacity-40 leading-none">Net Period</p><p className="text-lg font-black tracking-tighter leading-none mt-0.5">₹{netCashFlow.toLocaleString()}</p></div></div></div></div></CardHeader><div className="flex-1 overflow-y-auto pb-32"><div className="block md:hidden p-4 space-y-8">{groupedData.length > 0 ? groupedData.map((group) => (<div key={group.date} className="space-y-4"><div className="px-2 py-2 mb-3 bg-[#D7F2F1] rounded-lg"><p className="text-[11px] font-black uppercase tracking-widest text-[#176E6C]">{formatGroupDate(group.date)}</p></div><div className="space-y-4">{group.items.map((item) => (<div key={item.id} className="bg-white rounded-[1.25rem] p-5 flex items-center justify-between shadow-sm border border-slate-100 active:scale-[0.98] transition-all"><div className="flex-1 min-w-0"><div className="flex items-center gap-2 mb-1"><Badge className={cn("border-none font-black text-[7px] uppercase px-1.5 py-0.5", item.type === 'income' ? "bg-emerald-50 text-[#43A047]" : "bg-slate-100 text-slate-600")}>{item.cat}</Badge><h3 className="text-lg font-black text-[#2F4F4F] truncate leading-none">{item.source}</h3></div><p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">{item.type === 'income' ? 'Cash Receipt' : 'Disbursement'}</p></div><div className="text-right shrink-0"><p className={cn("text-xl font-black", item.type === 'income' ? "text-[#43A047]" : "text-[#2F4F4F]")}>{item.type === 'income' ? '+' : '-'}₹{item.amount.toLocaleString()}</p><div className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#ecfdf5] text-[#43A047] border border-[#d1fae5] mt-1"><CheckCircle2 className="h-2.5 w-2.5" /><span className="text-[9px] font-black uppercase tracking-widest">Verified</span></div></div></div>))}</div></div>)) : <div className="py-20 text-center opacity-20 font-black uppercase text-xs">No records discovered</div>}</div><div className="hidden md:block"><Table><TableHeader className="bg-[#0FA5A0] sticky top-0 z-10"><TableRow className="border-none hover:bg-transparent"><TableHead className="text-[10px] font-black uppercase tracking-widest py-6 pl-10 text-white">Transaction Date</TableHead><TableHead className="text-[10px] font-black uppercase tracking-widest py-6 text-white">Origin / Description</TableHead><TableHead className="text-[10px] font-black uppercase tracking-widest py-6 text-center text-white">Ledger Category</TableHead><TableHead className="text-[10px] font-black uppercase tracking-widest py-6 text-right pr-10 text-white">Amount</TableHead></TableRow></TableHeader><TableBody>{combinedData.map((item) => (<TableRow key={item.id} className="hover:bg-slate-50 border-b border-slate-100 transition-colors"><TableCell className="py-6 pl-10 text-[11px] font-black text-slate-400">{item.date}</TableCell><TableCell><div className="flex flex-col"><span className="text-[14px] font-black text-[#2F4F4F]">{item.source}</span><span className="text-[9px] font-bold text-slate-400 uppercase">Ref: {item.id.slice(0,8)}</span></div></TableCell><TableCell className="text-center"><Badge className="bg-slate-50 text-slate-600 border-none font-black text-[10px] px-3 uppercase tracking-widest">{item.cat}</Badge></TableCell><TableCell className="text-right pr-10"><span className={cn("text-[18px] font-black", item.type === 'income' ? "text-[#43A047]" : "text-[#2F4F4F]")}>{item.type === 'income' ? '+' : '-'}₹{item.amount.toLocaleString()}</span></TableCell></TableRow>))}</TableBody></Table></div></div></div></TabsContent>
+          <TabsList className="w-full h-14 md:h-16 bg-[#D7F2F1] rounded-2xl p-1.5 flex justify-start md:justify-center overflow-x-auto no-scrollbar shadow-inner mb-8">
+            <TabsTrigger value="income" className="tab-trigger-tactical"><ArrowUpCircle className="h-3.5 w-3.5 mr-2" /> Income</TabsTrigger>
+            <TabsTrigger value="bank_emi" className="tab-trigger-tactical"><Landmark className="h-3.5 w-3.5 mr-2" /> Bank EMI</TabsTrigger>
+            <TabsTrigger value="card" className="tab-trigger-tactical"><CreditCard className="h-3.5 w-3.5 mr-2" /> Card</TabsTrigger>
+            <TabsTrigger value="personal" className="tab-trigger-tactical"><User className="h-3.5 w-3.5 mr-2" /> Personal</TabsTrigger>
+            <TabsTrigger value="household" className="tab-trigger-tactical"><Home className="h-3.5 w-3.5 mr-2" /> Household</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value={activeTab} className="flex-1 min-h-0 flex flex-col m-0">
+            <div className="flex-1 min-h-0 flex flex-col premium-card overflow-hidden bg-white">
+              <CardHeader className="bg-[#0FA5A0] text-white p-4 px-6 shrink-0">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2.5">
+                      <div className="p-1.5 bg-white/20 rounded-lg">
+                        <ArrowRightLeft className="h-5 w-5 text-white" />
+                      </div>
+                      <DialogTitle className="text-xl font-black tracking-tight leading-none uppercase text-white">{activeTab.replace('_', ' ')} Audit</DialogTitle>
+                    </div>
+                    <CardDescription className="text-white/60 text-[9px] font-black uppercase tracking-[0.2em] ml-9">Verified Personal Financial Cash Flow</CardDescription>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Button onClick={() => setIsIncomeDialogOpen(true)} className="h-9 px-4 rounded-xl font-black uppercase tracking-widest bg-white text-[#0FA5A0] hover:bg-white/90 gap-2 shadow-xl border-none">
+                      <ArrowUpCircle className="h-4 w-4" /> Income
+                    </Button>
+                    <Button onClick={() => setIsExpenseDialogOpen(true)} className="h-9 px-4 rounded-xl font-black uppercase tracking-widest bg-rose-600 hover:bg-rose-700 text-white gap-2 shadow-xl border-none">
+                      <ArrowDownCircle className="h-4 w-4" /> Expense
+                    </Button>
+                    <div className="px-4 py-1 bg-black/20 rounded-xl text-white flex items-center gap-3 border border-white/10">
+                      <ShieldCheck className="h-4 w-4 text-emerald-400" />
+                      <div>
+                        <p className="text-[7px] font-black uppercase tracking-widest opacity-40 leading-none">Net Period</p>
+                        <p className="text-lg font-black tracking-tighter leading-none mt-0.5">₹{netCashFlow.toLocaleString()}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardHeader>
+              
+              <div className="flex-1 overflow-y-auto pb-32">
+                {/* MOBILE VIEW */}
+                <div className="block md:hidden p-4 space-y-8">
+                  {groupedData.length > 0 ? groupedData.map((group) => (
+                    <div key={group.date} className="space-y-4">
+                      <div className="px-2 py-2 mb-3 bg-[#D7F2F1] rounded-lg">
+                        <p className="text-[11px] font-black uppercase tracking-widest text-[#176E6C]">{formatGroupDate(group.date)}</p>
+                      </div>
+                      <div className="space-y-4">
+                        {group.items.map((item) => (
+                          <div key={item.id} className="bg-white rounded-[1.25rem] p-5 flex items-center justify-between shadow-sm border border-slate-100 active:scale-[0.98] transition-all">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <Badge className={cn("border-none font-black text-[7px] uppercase px-1.5 py-0.5", item.type === 'income' ? "bg-emerald-50 text-[#43A047]" : "bg-slate-100 text-slate-600")}>{item.cat}</Badge>
+                                <h3 className="text-lg font-black text-[#2F4F4F] truncate leading-none">{item.source}</h3>
+                              </div>
+                              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">{item.type === 'income' ? 'Cash Receipt' : 'Disbursement'}</p>
+                            </div>
+                            <div className="text-right shrink-0">
+                              <p className={cn("text-xl font-black", item.type === 'income' ? "text-[#43A047]" : "text-[#2F4F4F]")}>{item.type === 'income' ? '+' : '-'}₹{item.amount.toLocaleString()}</p>
+                              <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#ecfdf5] text-[#43A047] border border-[#d1fae5] mt-1">
+                                <CheckCircle2 className="h-2.5 w-2.5" />
+                                <span className="text-[9px] font-black uppercase tracking-widest">Verified</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )) : <div className="py-20 text-center opacity-20 font-black uppercase text-xs">No records discovered</div>}
+                </div>
+                
+                {/* DESKTOP VIEW */}
+                <div className="hidden md:block">
+                  <Table>
+                    <TableHeader className="bg-[#0FA5A0] sticky top-0 z-10">
+                      <TableRow className="border-none hover:bg-transparent">
+                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-6 pl-10 text-white">Transaction Date</TableHead>
+                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-6 text-white">Origin / Description</TableHead>
+                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-6 text-center text-white">Ledger Category</TableHead>
+                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-6 text-right pr-10 text-white">Amount</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {combinedData.map((item) => (
+                        <TableRow key={item.id} className="hover:bg-slate-50 border-b border-slate-100 transition-colors">
+                          <TableCell className="py-6 pl-10 text-[11px] font-black text-slate-400">{item.date}</TableCell>
+                          <TableCell>
+                            <div className="flex flex-col"><span className="text-[14px] font-black text-[#2F4F4F]">{item.source}</span><span className="text-[9px] font-bold text-slate-400 uppercase">Ref: {item.id.slice(0,8)}</span></div>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <Badge className="bg-slate-50 text-slate-600 border-none font-black text-[10px] px-3 uppercase tracking-widest">{item.cat}</Badge>
+                          </TableCell>
+                          <TableCell className="text-right pr-10">
+                            <span className={cn("text-[18px] font-black", item.type === 'income' ? "text-[#43A047]" : "text-[#2F4F4F]")}>{item.type === 'income' ? '+' : '-'}₹{item.amount.toLocaleString()}</span>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
         </Tabs>
       </div>
 
+      {/* INCOME DIALOG */}
       <Dialog open={isIncomeDialogOpen} onOpenChange={setIsIncomeDialogOpen}>
         <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-visible border-none shadow-2xl bg-white h-[88dvh] max-h-[88dvh] flex flex-col">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
@@ -204,14 +336,23 @@ export default function PersonalFinancePage() {
                   </PopoverContent>
                 </Popover>
               </div>
-              <div className="space-y-2 mt-4"><Label className="form-label-tactical">Income Source</Label><Input placeholder="e.g. Salary, Rent, Bonus" value={source} onChange={(e) => setSource(e.target.value)} className="form-input-tactical" /></div>
-              <div className="space-y-2 mt-4"><Label className="form-label-tactical">Amount (₹)</Label><Input type="number" placeholder="0" value={amount} onChange={(e) => setAmount(e.target.value)} className="form-input-tactical" /></div>
+              <div className="space-y-2 mt-4">
+                <Label className="form-label-tactical">Income Source</Label>
+                <Input placeholder="e.g. Salary, Rent, Bonus" value={source} onChange={(e) => setSource(e.target.value)} className="form-input-tactical" />
+              </div>
+              <div className="space-y-2 mt-4">
+                <Label className="form-label-tactical">Amount (₹)</Label>
+                <Input type="number" placeholder="0" value={amount} onChange={(e) => setAmount(e.target.value)} className="form-input-tactical" />
+              </div>
             </div>
           </div>
-          <div className="p-6 shrink-0 border-t"><Button onClick={handleAddIncome} className="w-full h-16 rounded-2xl bg-[#0FA5A0] hover:bg-[#176E6C] text-white font-black uppercase shadow-xl">Commit Income</Button></div>
+          <div className="p-6 shrink-0 border-t">
+            <Button onClick={handleAddIncome} className="w-full h-16 rounded-2xl bg-[#0FA5A0] hover:bg-[#176E6C] text-white font-black uppercase shadow-xl">Commit Income</Button>
+          </div>
         </DialogContent>
       </Dialog>
 
+      {/* EXPENSE DIALOG */}
       <Dialog open={isExpenseDialogOpen} onOpenChange={setIsExpenseDialogOpen}>
         <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-visible border-none shadow-2xl bg-white h-[88dvh] max-h-[88dvh] flex flex-col">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
@@ -250,14 +391,35 @@ export default function PersonalFinancePage() {
                   </PopoverContent>
                 </Popover>
               </div>
-              <div className="space-y-2 mt-4"><Label className="form-label-tactical">Expense Detail</Label><Input placeholder="e.g. EB Bill, Groceries, EMI" value={source} onChange={(e) => setSource(e.target.value)} className="form-input-tactical" /></div>
+              <div className="space-y-2 mt-4">
+                <Label className="form-label-tactical">Expense Detail</Label>
+                <Input placeholder="e.g. EB Bill, Groceries, EMI" value={source} onChange={(e) => setSource(e.target.value)} className="form-input-tactical" />
+              </div>
               <div className="grid grid-cols-2 gap-4 mt-4">
-                <div className="space-y-2"><Label className="form-label-tactical">Amount (₹)</Label><Input type="number" placeholder="0" value={amount} onChange={(e) => setAmount(e.target.value)} className="form-input-tactical" /></div>
-                <div className="space-y-2"><Label className="form-label-tactical">Ledger Category</Label><Select value={category} onValueChange={(v: any) => setCategory(v)}><SelectTrigger className="form-input-tactical"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="loan">Bank EMI</SelectItem><SelectItem value="card">Credit Card</SelectItem><SelectItem value="private">Personal Spend</SelectItem><SelectItem value="household">Household</SelectItem></SelectContent></Select></div>
+                <div className="space-y-2">
+                  <Label className="form-label-tactical">Amount (₹)</Label>
+                  <Input type="number" placeholder="0" value={amount} onChange={(e) => setAmount(e.target.value)} className="form-input-tactical" />
+                </div>
+                <div className="space-y-2">
+                  <Label className="form-label-tactical">Ledger Category</Label>
+                  <Select value={category} onValueChange={(v: any) => setCategory(v)}>
+                    <SelectTrigger className="form-input-tactical">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="loan">Bank EMI</SelectItem>
+                      <SelectItem value="card">Credit Card</SelectItem>
+                      <SelectItem value="private">Personal Spend</SelectItem>
+                      <SelectItem value="household">Household</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
           </div>
-          <div className="p-6 shrink-0 border-t"><Button onClick={handleAddExpense} className="w-full h-16 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black uppercase shadow-xl">Commit Expense</Button></div>
+          <div className="p-6 shrink-0 border-t">
+            <Button onClick={handleAddExpense} className="w-full h-16 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black uppercase shadow-xl">Commit Expense</Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
