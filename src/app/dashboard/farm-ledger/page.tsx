@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { PageHeader } from '@/components/page-header';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -190,7 +189,7 @@ export default function FarmLedgerPage() {
       </button>
 
       <Dialog open={isQuickEntryOpen} onOpenChange={setIsQuickEntryOpen}>
-        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[60dvh] max-h-[60dvh] flex flex-col">
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[88dvh] max-h-[88dvh] flex flex-col">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
             <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]"><Zap className="h-5 w-5" /></div><DialogTitle className="text-xl font-black uppercase text-white">Quick Sync</DialogTitle></div>
             <DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose>
@@ -200,6 +199,10 @@ export default function FarmLedgerPage() {
               <div className="grid grid-cols-2 gap-4 mt-4">
                 <div className="space-y-2"><Label className="form-label-tactical">Buying (₹)</Label><Input type="number" value={pCost} onChange={(e) => setPCost(e.target.value)} className="form-input-tactical" /></div>
                 <div className="space-y-2"><Label className="form-label-tactical">Fodder (₹)</Label><Input type="number" value={fCost} onChange={(e) => setFCost(e.target.value)} className="form-input-tactical" /></div>
+              </div>
+              <div className="grid grid-cols-2 gap-4 mt-4">
+                <div className="space-y-2"><Label className="form-label-tactical">Medical (₹)</Label><Input type="number" value={mCost} onChange={(e) => setMCost(e.target.value)} className="form-input-tactical" /></div>
+                <div className="space-y-2"><Label className="form-label-tactical">Labour (₹)</Label><Input type="number" value={lCost} onChange={(e) => setLCost(e.target.value)} className="form-input-tactical" /></div>
               </div>
             </div>
           </div>

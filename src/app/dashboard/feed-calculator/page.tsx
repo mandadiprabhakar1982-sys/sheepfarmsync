@@ -55,7 +55,7 @@ export default function FeedCalculatorPage() {
     const gnutPrice = parseFloat(groundnutCost);
     const sizePerBag = parseFloat(bagSize);
 
-    if (isNaN(sheep) || isNaN(startWeight) || isNaN(tmrPrice) || isNaN(gnutPrice) || isNaN(sizePerBag)) {
+    if (isNaN(sheep) || iisNaN(startWeight) || isNaN(tmrPrice) || isNaN(gnutPrice) || isNaN(sizePerBag)) {
       return;
     }
 
@@ -145,12 +145,12 @@ export default function FeedCalculatorPage() {
               )}
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Total Sheep Count</Label>
-                  <Input type="number" value={sheepCount} onChange={(e) => setSheepCount(e.target.value)} className="h-12 rounded-xl bg-neutral-50 border-none font-black text-base px-4" />
+                  <Label className="form-label-tactical ml-2">Total Sheep Count</Label>
+                  <Input type="number" value={sheepCount} onChange={(e) => setSheepCount(e.target.value)} className="form-input-tactical" />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Avg Start Weight (kg)</Label>
-                  <Input type="number" value={weight} onChange={(e) => setWeight(e.target.value)} className="h-12 rounded-xl bg-neutral-50 border-none font-bold px-4" />
+                  <Label className="form-label-tactical ml-2">Avg Start Weight (kg)</Label>
+                  <Input type="number" value={weight} onChange={(e) => setWeight(e.target.value)} className="form-input-tactical" />
                 </div>
               </div>
             </CardContent>
@@ -168,17 +168,17 @@ export default function FeedCalculatorPage() {
               <div className="space-y-6">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">TMR Cost /kg</Label>
-                    <Input type="number" value={tmrCost} onChange={(e) => setTmrCost(e.target.value)} className="h-12 rounded-xl bg-white/10 border-none text-white font-bold" />
+                    <Label className="form-label-tactical text-white/60 ml-2">TMR Cost /kg</Label>
+                    <Input type="number" value={tmrCost} onChange={(e) => setTmrCost(e.target.value)} className="form-input-tactical bg-white/10 border-white/20 text-white" />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">G-Nut Cost /kg</Label>
-                    <Input type="number" value={groundnutCost} onChange={(e) => setGroundnutCost(e.target.value)} className="h-12 rounded-xl bg-white/10 border-none text-white font-bold" />
+                    <Label className="form-label-tactical text-white/60 ml-2">G-Nut Cost /kg</Label>
+                    <Input type="number" value={groundnutCost} onChange={(e) => setGroundnutCost(e.target.value)} className="form-input-tactical bg-white/10 border-white/20 text-white" />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-2">Bag Size (kg/bag)</Label>
-                  <Input type="number" value={bagSize} onChange={(e) => setBagSize(e.target.value)} className="h-12 rounded-xl bg-white/10 border-none text-white font-black text-lg" />
+                  <Label className="form-label-tactical text-white/60 ml-2">Bag Size (kg/bag)</Label>
+                  <Input type="number" value={bagSize} onChange={(e) => setBagSize(e.target.value)} className="form-input-tactical bg-white/10 border-white/20 text-white" />
                 </div>
               </div>
 

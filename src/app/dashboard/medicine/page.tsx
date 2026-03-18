@@ -141,13 +141,6 @@ export default function MedicinePage() {
     toast({ title: 'Success!', description: 'Medicine purchase recorded.' });
   };
 
-  const formatGroupDate = (dateStr: string) => {
-    const d = parseISO(dateStr);
-    if (isToday(d)) return `Today - ${dateStr}`;
-    if (isYesterday(d)) return `Yesterday - ${dateStr}`;
-    return dateStr;
-  };
-
   if (isLoading) {
     return (
       <div className="flex h-full w-full items-center justify-center min-h-[60vh]">
@@ -279,7 +272,7 @@ export default function MedicinePage() {
 
       {/* DIALOGS */}
       <Dialog open={isClinicalDialogOpen} onOpenChange={setIsClinicalDialogOpen}>
-        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[80dvh] max-h-[80dvh] flex flex-col">
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[88dvh] max-h-[88dvh] flex flex-col">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
             <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]"><Stethoscope className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase text-white">Treatment Entry</DialogTitle></div>
             <DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose>
@@ -293,7 +286,7 @@ export default function MedicinePage() {
                     <FormField control={healthTaskForm.control} name="medicineName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Medicine Name</Label><FormControl><Input placeholder="e.g. Albendazole" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
                   </div>
                   <div className="grid grid-cols-2 gap-4 mt-4">
-                    <FormField control={healthTaskForm.control} name="cost" render={({ field }) => (<FormItem><Label className="form-label-tactical">Medicine Cost (₹)</Label><FormControl><Input type="number" className="form-input-tactical font-black text-[#0FA5A0]" {...field} /></FormControl></FormItem>)} />
+                    <FormField control={healthTaskForm.control} name="cost" render={({ field }) => (<FormItem><Label className="form-label-tactical">Medicine Cost (₹)</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
                     <FormField control={healthTaskForm.control} name="administeredBy" render={({ field }) => (<FormItem><Label className="form-label-tactical">By Staff/Vet</Label><FormControl><Input placeholder="Who gave medicine" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
                   </div>
                 </div>
@@ -305,7 +298,7 @@ export default function MedicinePage() {
       </Dialog>
 
       <Dialog open={isProcurementDialogOpen} onOpenChange={setIsProcurementDialogOpen}>
-        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[70dvh] max-h-[70dvh] flex flex-col">
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[88dvh] max-h-[88dvh] flex flex-col">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
             <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]"><ShoppingBag className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase text-white">Medicine Purchase</DialogTitle></div>
             <DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose>
@@ -316,7 +309,7 @@ export default function MedicinePage() {
                 <div className="min-h-[500px] space-y-6">
                   <FormField control={medicineForm.control} name="shopName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Shop Name</Label><FormControl><Input placeholder="Medical Shop Identity" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
                   <div className="grid grid-cols-2 gap-4 mt-4">
-                    <FormField control={medicineForm.control} name="totalAmountSpent" render={({ field }) => (<FormItem><Label className="form-label-tactical">Total Bill (₹)</Label><FormControl><Input type="number" className="form-input-tactical font-black text-[#0FA5A0]" {...field} /></FormControl></FormItem>)} />
+                    <FormField control={medicineForm.control} name="totalAmountSpent" render={({ field }) => (<FormItem><Label className="form-label-tactical">Total Bill (₹)</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
                     <FormField control={medicineForm.control} name="outstandingDues" render={({ field }) => (<FormItem><Label className="form-label-tactical">Due Amount (₹)</Label><FormControl><Input type="number" className="form-input-tactical text-rose-600" {...field} /></FormControl></FormItem>)} />
                   </div>
                 </div>

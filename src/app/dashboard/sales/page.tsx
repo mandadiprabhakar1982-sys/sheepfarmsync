@@ -99,13 +99,6 @@ export default function TradeLedgerPage() {
     toast({ title: 'Pashu Sold', description: 'Transaction recorded in selling ledger.' });
   };
 
-  const formatGroupDate = (dateStr: string) => {
-    const d = parseISO(dateStr);
-    if (isToday(d)) return `TODAY - ${dateStr}`;
-    if (isYesterday(d)) return `YESTERDAY - ${dateStr}`;
-    return dateStr;
-  };
-
   if (isLoading) {
     return (
       <div className="flex h-full w-full items-center justify-center">
@@ -224,7 +217,7 @@ export default function TradeLedgerPage() {
       </div>
 
       <Dialog open={isDisposalOpen} onOpenChange={setIsDisposalOpen}>
-        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[70dvh] max-h-[70dvh] flex flex-col">
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[88dvh] max-h-[88dvh] flex flex-col">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
             <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400"><Plus className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase text-white">Selling Entry</DialogTitle></div>
             <DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose>
@@ -236,7 +229,7 @@ export default function TradeLedgerPage() {
                   <FormField control={salesForm.control} name="buyerName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Buyer Identity</Label><FormControl><Input placeholder="e.g. John Doe" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
                   <div className="grid grid-cols-2 gap-4 mt-4">
                     <FormField control={salesForm.control} name="animalCount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Head Count</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
-                    <FormField control={salesForm.control} name="salePrice" render={({ field }) => (<FormItem><Label className="form-label-tactical">Total Price (₹)</Label><FormControl><Input type="number" className="form-input-tactical font-black text-emerald-600" {...field} /></FormControl></FormItem>)} />
+                    <FormField control={salesForm.control} name="salePrice" render={({ field }) => (<FormItem><Label className="form-label-tactical">Total Price (₹)</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
                   </div>
                 </div>
               </div>

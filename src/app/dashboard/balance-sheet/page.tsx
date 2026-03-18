@@ -153,18 +153,6 @@ export default function BalanceSheetPage() {
     return "bg-[#14d5c7]";
   };
 
-  const SummaryCard = ({ title, value, icon: Icon }: { title: string, value: number, icon: any }) => (
-    <Card className="premium-card p-8 flex items-center gap-6">
-      <div className="p-4 rounded-2xl bg-[#D7F2F1] text-[#0FA5A0] shadow-sm">
-        <Icon className="h-7 w-7" />
-      </div>
-      <div className="min-w-0">
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 mb-1">{title}</p>
-        <p className="text-3xl font-black tracking-tighter text-[#2F4F4F]">₹{value.toLocaleString()}</p>
-      </div>
-    </Card>
-  );
-
   if (isLoading) {
     return (
       <div className="flex h-full w-full items-center justify-center min-h-[60vh]">
@@ -178,114 +166,32 @@ export default function BalanceSheetPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
         <PageHeader title="Debt & Loans" description="Precision Audit of Liabilities" className="mb-0" />
         <div className="flex items-center gap-4">
-          <Button onClick={() => { resetForms(); setIsEntryDialogOpen(true); }} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-[#0FA5A0] hover:bg-[#176E6C] text-white gap-2 shadow-xl border-none">
-            <PlusCircle className="h-5 w-5 text-white" />
-            Add Account
-          </Button>
-          <div className="px-6 py-3 bg-neutral-900 rounded-2xl text-white flex items-center gap-4 shadow-xl">
-            <ShieldCheck className="h-5 w-5 text-emerald-400" />
-            <div><p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Net Debt</p><p className="text-xl font-black tracking-tight">₹{(totalLoanBalance + totalCreditCardDebt + totalPrivateDebt).toLocaleString()}</p></div>
-          </div>
+          <Button onClick={() => { resetForms(); setIsEntryDialogOpen(true); }} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest bg-[#0FA5A0] hover:bg-[#176E6C] text-white gap-2 shadow-xl border-none"><PlusCircle className="h-5 w-5 text-white" /> Add Account</Button>
+          <div className="px-6 py-3 bg-neutral-900 rounded-2xl text-white flex items-center gap-4 shadow-xl"><ShieldCheck className="h-5 w-5 text-emerald-400" /><div><p className="text-[8px] font-black uppercase tracking-widest opacity-40 leading-none">Net Debt</p><p className="text-xl font-black tracking-tight">₹{(totalLoanBalance + totalCreditCardDebt + totalPrivateDebt).toLocaleString()}</p></div></div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-        <SummaryCard title="Monthly EMI" value={totalMonthlyEmi} icon={ReceiptIndianRupee} />
-        <SummaryCard title="Bank Loans" value={totalLoanBalance} icon={Landmark} />
-        <SummaryCard title="Card Debt" value={totalCreditCardDebt} icon={CreditCard} />
-        <SummaryCard title="Private Debt" value={totalPrivateDebt} icon={Banknote} />
+        <Card className="premium-card p-8 flex items-center gap-6"><div className="p-4 rounded-2xl bg-[#D7F2F1] text-[#0FA5A0] shadow-sm"><ReceiptIndianRupee className="h-7 w-7" /></div><div className="min-w-0"><p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 mb-1">Monthly EMI</p><p className="text-3xl font-black tracking-tighter text-[#2F4F4F]">₹{totalMonthlyEmi.toLocaleString()}</p></div></Card>
+        <Card className="premium-card p-8 flex items-center gap-6"><div className="p-4 rounded-2xl bg-[#D7F2F1] text-[#0FA5A0] shadow-sm"><Landmark className="h-7 w-7" /></div><div className="min-w-0"><p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 mb-1">Bank Loans</p><p className="text-3xl font-black tracking-tighter text-[#2F4F4F]">₹{totalLoanBalance.toLocaleString()}</p></div></Card>
+        <Card className="premium-card p-8 flex items-center gap-6"><div className="p-4 rounded-2xl bg-[#D7F2F1] text-[#0FA5A0] shadow-sm"><CreditCard className="h-7 w-7" /></div><div className="min-w-0"><p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 mb-1">Card Debt</p><p className="text-3xl font-black tracking-tighter text-[#2F4F4F]">₹{totalCreditCardDebt.toLocaleString()}</p></div></Card>
+        <Card className="premium-card p-8 flex items-center gap-6"><div className="p-4 rounded-2xl bg-[#D7F2F1] text-[#0FA5A0] shadow-sm"><Banknote className="h-7 w-7" /></div><div className="min-w-0"><p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 mb-1">Private Debt</p><p className="text-3xl font-black tracking-tighter text-[#2F4F4F]">₹{totalPrivateDebt.toLocaleString()}</p></div></Card>
       </div>
 
-      <div className="w-full">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="mb-10 p-1.5 bg-[#D7F2F1] rounded-2xl grid grid-cols-3 h-14 max-w-2xl mx-auto shadow-inner">
-            <TabsTrigger value="loans" className="tab-trigger-tactical">Bank Loans</TabsTrigger>
-            <TabsTrigger value="cards" className="tab-trigger-tactical">Credit Cards</TabsTrigger>
-            <TabsTrigger value="private" className="tab-trigger-tactical">Private Debt</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="loans" className="m-0">
-            <Card className="premium-card overflow-hidden bg-white">
-              <CardHeader className="bg-[#0FA5A0] text-white p-10 py-12">
-                <div className="flex justify-between items-end">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-3"><Landmark className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase text-white">Bank Loan Audit</CardTitle></div>
-                    <CardDescription className="text-white/60 text-[8px] font-black uppercase tracking-[0.2em]">Real-time principal reduction tracking</CardDescription>
-                  </div>
-                  <p className="text-4xl font-black tracking-tighter">₹{totalLoanBalance.toLocaleString()}</p>
-                </div>
-              </CardHeader>
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader className="bg-[#0FA5A0] sticky top-0 z-10">
-                    <TableRow className="border-none hover:bg-transparent">
-                      <TableHead className="text-[10px] font-black uppercase py-6 pl-10 text-white">Bank Name</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase text-white">Repayment Progress</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase text-right text-white">Principal Balance</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase text-right text-white">Next EMI</TableHead>
-                      <TableHead className="w-[100px] text-white"></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {sortedLoans.map((loan) => {
-                      const progress = loan.totalLoan > 0 ? ((loan.totalLoan - loan.balanceLoan) / loan.totalLoan) * 100 : 0;
-                      return (
-                        <TableRow key={loan.id} className="group hover:bg-slate-50 transition-colors border-b border-slate-100">
-                          <TableCell className="pl-10 py-8"><span className="text-[16px] font-black text-[#2F4F4F]">{loan.bankName}</span></TableCell>
-                          <TableCell className="min-w-[180px]">
-                            <div className="space-y-2 py-2">
-                              <div className="flex justify-between text-[8px] font-black uppercase tracking-widest">
-                                <span className="text-[#2F4F4F]">{progress.toFixed(0)}% Repaid</span>
-                                <span className="text-rose-600">{Math.round(loan.pendingTenure)} Mos Left</span>
-                              </div>
-                              <Progress value={progress} className="h-1.5 bg-neutral-100" indicatorClassName={getProgressClass(progress)} />
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-right"><p className="text-[16px] font-black text-[#2F4F4F]">₹{loan.balanceLoan.toLocaleString()}</p><p className="text-[9px] font-bold text-muted-foreground uppercase opacity-40">Of ₹{loan.totalLoan.toLocaleString()}</p></TableCell>
-                          <TableCell className="text-right text-[16px] font-black text-[#2F4F4F]">₹{loan.monthlyEmi.toLocaleString()}</TableCell>
-                          <TableCell className="pr-10 text-right"><Button variant="ghost" size="icon" onClick={() => handleEditClick(loan, 'loan')} className="h-9 w-9 rounded-xl bg-slate-50 hover:bg-slate-100"><Pencil className="h-4 w-4 text-[#0FA5A0]" /></Button></TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </div>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="mb-10 p-1.5 bg-[#D7F2F1] rounded-2xl grid grid-cols-3 h-14 max-w-2xl mx-auto shadow-inner"><TabsTrigger value="loans" className="tab-trigger-tactical">Bank Loans</TabsTrigger><TabsTrigger value="cards" className="tab-trigger-tactical">Credit Cards</TabsTrigger><TabsTrigger value="private" className="tab-trigger-tactical">Private Debt</TabsTrigger></TabsList>
+        <TabsContent value="loans" className="m-0">
+          <Card className="premium-card overflow-hidden bg-white"><CardHeader className="bg-[#0FA5A0] text-white p-10 py-12"><div className="flex justify-between items-end"><div className="space-y-1"><div className="flex items-center gap-3"><Landmark className="h-6 w-6" /><CardTitle className="text-2xl font-black tracking-tight leading-none uppercase text-white">Bank Loan Audit</CardTitle></div><CardDescription className="text-white/60 text-[8px] font-black uppercase tracking-[0.2em]">Real-time principal reduction tracking</CardDescription></div><p className="text-4xl font-black tracking-tighter">₹{totalLoanBalance.toLocaleString()}</p></div></CardHeader><div className="overflow-x-auto"><Table><TableHeader className="bg-[#0FA5A0] sticky top-0 z-10"><TableRow className="border-none hover:bg-transparent"><TableHead className="text-[10px] font-black uppercase py-6 pl-10 text-white">Bank Name</TableHead><TableHead className="text-[10px] font-black uppercase text-white">Repayment Progress</TableHead><TableHead className="text-[10px] font-black uppercase text-right text-white">Principal Balance</TableHead><TableHead className="text-[10px] font-black uppercase text-right text-white">Next EMI</TableHead><TableHead className="w-[100px] text-white"></TableHead></TableRow></TableHeader><TableBody>{sortedLoans.map((loan) => { const progress = loan.totalLoan > 0 ? ((loan.totalLoan - loan.balanceLoan) / loan.totalLoan) * 100 : 0; return (<TableRow key={loan.id} className="group hover:bg-slate-50 transition-colors border-b border-slate-100"><TableCell className="pl-10 py-8"><span className="text-[16px] font-black text-[#2F4F4F]">{loan.bankName}</span></TableCell><TableCell className="min-w-[180px]"><div className="space-y-2 py-2"><div className="flex justify-between text-[8px] font-black uppercase tracking-widest"><span className="text-[#2F4F4F]">{progress.toFixed(0)}% Repaid</span><span className="text-rose-600">{Math.round(loan.pendingTenure)} Mos Left</span></div><Progress value={progress} className="h-1.5 bg-neutral-100" indicatorClassName={getProgressClass(progress)} /></div></TableCell><TableCell className="text-right"><p className="text-[16px] font-black text-[#2F4F4F]">₹{loan.balanceLoan.toLocaleString()}</p><p className="text-[9px] font-bold text-muted-foreground uppercase opacity-40">Of ₹{loan.totalLoan.toLocaleString()}</p></TableCell><TableCell className="text-right text-[16px] font-black text-[#2F4F4F]">₹{loan.monthlyEmi.toLocaleString()}</TableCell><TableCell className="pr-10 text-right"><Button variant="ghost" size="icon" onClick={() => handleEditClick(loan, 'loan')} className="h-9 w-9 rounded-xl bg-slate-50 hover:bg-slate-100"><Pencil className="h-4 w-4 text-[#0FA5A0]" /></Button></TableCell></TableRow>); })}</TableBody></Table></div></Card>
+        </TabsContent>
+      </Tabs>
 
       <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>
-        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[80dvh] max-h-[80dvh] flex flex-col">
-          <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
-            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]"><Plus className="h-5 w-5" /></div><DialogTitle className="text-xl font-black uppercase text-white">Debt Entry</DialogTitle></div>
-            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Enroll new liability into portfolio</DialogDescription>
-            <DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose>
-          </DialogHeader>
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[88dvh] max-h-[88dvh] flex flex-col">
+          <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0"><div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]"><Plus className="h-5 w-5" /></div><DialogTitle className="text-xl font-black uppercase text-white">Debt Entry</DialogTitle></div><DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Enroll new liability into portfolio</DialogDescription><DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose></DialogHeader>
           <div className="dialog-body space-y-6">
             <div className="min-h-[500px] space-y-6">
-              {activeTab === 'loans' && (
-                <div className="space-y-6">
-                  <div className="space-y-2"><Label className="form-label-tactical">Bank Identity</Label><Input value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="Bank Name" className="form-input-tactical" /></div>
-                  <div className="grid grid-cols-2 gap-4 mt-4">
-                    <div className="space-y-2"><Label className="form-label-tactical">Total Loan (₹)</Label><Input type="number" value={totalLoan} onChange={(e) => setTotalLoan(e.target.value)} className="form-input-tactical" /></div>
-                    <div className="space-y-2"><Label className="form-label-tactical">Interest Rate %</Label><Input type="number" value={interest} onChange={(e) => setInterest(e.target.value)} className="form-input-tactical" /></div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 mt-4">
-                    <div className="space-y-2"><Label className="form-label-tactical">Start Date</Label><Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="form-input-tactical" /></div>
-                    <div className="space-y-2"><Label className="form-label-tactical">Monthly EMI (₹)</Label><Input type="number" value={monthlyEmi} onChange={(e) => setMonthlyEmi(e.target.value)} className="form-input-tactical font-black text-[#0FA5A0]" /></div>
-                  </div>
-                </div>
-              )}
-              {activeTab === 'cards' && (
-                <div className="space-y-6">
-                  <div className="space-y-2"><Label className="form-label-tactical">Bank Identity</Label><Input value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="Bank Name" className="form-input-tactical" /></div>
-                  <div className="grid grid-cols-2 gap-4 mt-4">
-                    <div className="space-y-2"><Label className="form-label-tactical">Total Limit (₹)</Label><Input type="number" value={cardTotalLimit} onChange={(e) => setCardTotalLimit(e.target.value)} className="form-input-tactical" /></div>
-                    <div className="space-y-2"><Label className="form-label-tactical">Outstanding (₹)</Label><Input type="number" value={cardOutstanding} onChange={(e) => setCardOutstanding(e.target.value)} className="form-input-tactical text-rose-600" /></div>
-                  </div>
-                </div>
-              )}
+              {activeTab === 'loans' && (<div className="space-y-6"><div className="space-y-2"><Label className="form-label-tactical">Bank Identity</Label><Input value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="Bank Name" className="form-input-tactical" /></div><div className="grid grid-cols-2 gap-4 mt-4"><div className="space-y-2"><Label className="form-label-tactical">Total Loan (₹)</Label><Input type="number" value={totalLoan} onChange={(e) => setTotalLoan(e.target.value)} className="form-input-tactical" /></div><div className="space-y-2"><Label className="form-label-tactical">Interest Rate %</Label><Input type="number" value={interest} onChange={(e) => setInterest(e.target.value)} className="form-input-tactical" /></div></div><div className="grid grid-cols-2 gap-4 mt-4"><div className="space-y-2"><Label className="form-label-tactical">Start Date</Label><Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="form-input-tactical" /></div><div className="space-y-2"><Label className="form-label-tactical">Monthly EMI (₹)</Label><Input type="number" value={monthlyEmi} onChange={(e) => setMonthlyEmi(e.target.value)} className="form-input-tactical" /></div></div></div>)}
+              {activeTab === 'cards' && (<div className="space-y-6"><div className="space-y-2"><Label className="form-label-tactical">Bank Identity</Label><Input value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="Bank Name" className="form-input-tactical" /></div><div className="grid grid-cols-2 gap-4 mt-4"><div className="space-y-2"><Label className="form-label-tactical">Total Limit (₹)</Label><Input type="number" value={cardTotalLimit} onChange={(e) => setCardTotalLimit(e.target.value)} className="form-input-tactical" /></div><div className="space-y-2"><Label className="form-label-tactical">Outstanding (₹)</Label><Input type="number" value={cardOutstanding} onChange={(e) => setCardOutstanding(e.target.value)} className="form-input-tactical text-rose-600" /></div></div></div>)}
             </div>
           </div>
           <div className="p-6 shrink-0 border-t"><Button onClick={handleAdd} className="w-full h-16 rounded-2xl bg-[#0FA5A0] hover:bg-[#176E6C] text-white font-black uppercase tracking-widest shadow-xl border-none">Record Account</Button></div>

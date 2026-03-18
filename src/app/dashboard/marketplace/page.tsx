@@ -207,7 +207,7 @@ export default function MarketplacePage() {
                   <SaleCard key={sale.id} sale={sale} isOwner={user?.uid === sale.sellerId} />
                 ))
               ) : (
-                <EmptyState />
+                <div className="col-span-full py-24 text-center border-4 border-dashed rounded-[3rem] border-neutral-100 bg-white/40"><Globe className="h-10 w-10 mx-auto text-primary opacity-20 mb-4" /><p className="text-muted-foreground text-sm font-bold uppercase tracking-widest opacity-40">No community sales discovered</p></div>
               )}
             </TabsContent>
 
@@ -227,7 +227,7 @@ export default function MarketplacePage() {
       </div>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl h-[70dvh] max-h-[70dvh] flex flex-col">
+        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl h-[88dvh] max-h-[88dvh] flex flex-col">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
             <DialogTitle className="text-xl font-black uppercase">Edit Listing</DialogTitle>
             <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Update your marketplace post details.</DialogDescription>
@@ -236,20 +236,22 @@ export default function MarketplacePage() {
           <Form {...editForm}>
             <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="flex-1 flex flex-col min-h-0">
               <div className="dialog-body space-y-6">
-                <div className="grid grid-cols-2 gap-4 mt-4">
-                  <FormField control={editForm.control} name="animalCount" render={({ field }) => (
-                    <FormItem><Label className="form-label-tactical">Count</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>
+                <div className="min-h-[500px] space-y-6">
+                  <div className="grid grid-cols-2 gap-4 mt-4">
+                    <FormField control={editForm.control} name="animalCount" render={({ field }) => (
+                      <FormItem><Label className="form-label-tactical">Count</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>
+                    )} />
+                    <FormField control={editForm.control} name="totalWeight" render={({ field }) => (
+                      <FormItem><Label className="form-label-tactical">Weight (kg)</Label><FormControl><Input type="number" step="0.1" className="form-input-tactical" {...field} /></FormControl></FormItem>
+                    )} />
+                  </div>
+                  <FormField control={editForm.control} name="askingPrice" render={({ field }) => (
+                    <FormItem><Label className="form-label-tactical">Price (₹)</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>
                   )} />
-                  <FormField control={editForm.control} name="totalWeight" render={({ field }) => (
-                    <FormItem><Label className="form-label-tactical">Weight (kg)</Label><FormControl><Input type="number" step="0.1" className="form-input-tactical" {...field} /></FormControl></FormItem>
+                  <FormField control={editForm.control} name="notes" render={({ field }) => (
+                    <FormItem><Label className="form-label-tactical">Notes</Label><FormControl><Textarea className="rounded-xl bg-neutral-50 border-none font-bold" {...field} /></FormControl></FormItem>
                   )} />
                 </div>
-                <FormField control={editForm.control} name="askingPrice" render={({ field }) => (
-                  <FormItem><Label className="form-label-tactical">Price (₹)</Label><FormControl><Input type="number" className="form-input-tactical font-black" {...field} /></FormControl></FormItem>
-                )} />
-                <FormField control={editForm.control} name="notes" render={({ field }) => (
-                  <FormItem><Label className="form-label-tactical">Notes</Label><FormControl><Textarea className="rounded-xl bg-neutral-50 border-none font-bold" {...field} /></FormControl></FormItem>
-                )} />
               </div>
               <div className="p-6 shrink-0 border-t">
                 <Button type="submit" className="w-full h-16 rounded-2xl bg-neutral-900 hover:bg-black text-white font-black uppercase shadow-xl">
@@ -261,20 +263,6 @@ export default function MarketplacePage() {
           </Form>
         </DialogContent>
       </Dialog>
-    </div>
-  );
-}
-
-function EmptyState() {
-  return (
-    <div className="col-span-full py-24 text-center space-y-6 bg-white/40 rounded-[3rem] border-4 border-dashed border-neutral-100">
-      <div className="bg-primary/5 h-20 w-20 rounded-full flex items-center justify-center mx-auto shadow-inner">
-         <Globe className="h-10 w-10 text-primary opacity-20" />
-      </div>
-      <div className="space-y-2">
-        <h3 className="text-2xl font-black tracking-tight text-neutral-900 uppercase">Marketplace is quiet...</h3>
-        <p className="text-muted-foreground text-sm max-w-xs mx-auto font-bold uppercase tracking-widest opacity-40">No community sales yet. Be the first to contribute!</p>
-      </div>
     </div>
   );
 }

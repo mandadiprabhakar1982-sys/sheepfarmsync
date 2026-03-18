@@ -122,13 +122,6 @@ export default function LaborPage() {
     setIsEditDialogOpen(true);
   };
 
-  const formatGroupDate = (dateStr: string) => {
-    const d = parseISO(dateStr);
-    if (isToday(d)) return `Today - ${dateStr}`;
-    if (isYesterday(d)) return `Yesterday - ${dateStr}`;
-    return dateStr;
-  };
-
   if (isLoading) {
     return (
       <div className="flex h-full w-full items-center justify-center min-h-[60vh]">
@@ -245,7 +238,7 @@ export default function LaborPage() {
       </div>
 
       <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>
-        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[80dvh] max-h-[80dvh] flex flex-col">
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[88dvh] max-h-[88dvh] flex flex-col">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
             <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]"><Plus className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase text-white">Staff Payment</DialogTitle></div>
             <DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose>
@@ -265,8 +258,8 @@ export default function LaborPage() {
                     <FormField control={form.control} name="wages" render={({ field }) => (<FormItem><Label className="form-label-tactical">Wage/Head (₹)</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
                   </div>
                   <div className="grid grid-cols-2 gap-4 mt-4">
-                    <FormField control={form.control} name="amountPaid" render={({ field }) => (<FormItem><Label className="form-label-tactical">Amount Paid (₹)</Label><FormControl><Input type="number" className="form-input-tactical font-black text-[#0FA5A0]" {...field} /></FormControl></FormItem>)} />
-                    <FormField control={form.control} name="pendingAmount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Pending Balance (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-rose-50 border-rose-100 text-rose-600 font-black" {...field} readOnly /></FormControl></FormItem>)} />
+                    <FormField control={form.control} name="amountPaid" render={({ field }) => (<FormItem><Label className="form-label-tactical">Amount Paid (₹)</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
+                    <FormField control={form.control} name="pendingAmount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Pending Balance (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-rose-50 text-rose-600" {...field} readOnly /></FormControl></FormItem>)} />
                   </div>
                 </div>
               </div>
