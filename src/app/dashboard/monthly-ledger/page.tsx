@@ -208,7 +208,7 @@ export default function PersonalFinancePage() {
                       <div className="p-1.5 bg-white/20 rounded-lg">
                         <ArrowRightLeft className="h-5 w-5 text-white" />
                       </div>
-                      <DialogTitle className="text-xl font-black tracking-tight leading-none uppercase text-white">{activeTab.replace('_', ' ')} Audit</DialogTitle>
+                      <CardTitle className="text-xl font-black tracking-tight leading-none uppercase text-white">{activeTab.replace('_', ' ')} Audit</CardTitle>
                     </div>
                     <CardDescription className="text-white/60 text-[9px] font-black uppercase tracking-[0.2em] ml-9">Verified Personal Financial Cash Flow</CardDescription>
                   </div>
