@@ -55,7 +55,16 @@
   }
 
   .form-input-tactical {
-    @apply h-12 rounded-xl bg-white border border-slate-300 text-slate-900 font-bold px-4 focus-visible:ring-primary/20 transition-all;
+    height: 52px;
+    border: 1px solid #dbe2ea;
+    border-radius: 14px;
+    background: #ffffff;
+    color: #0f172a;
+    font-weight: 700;
+    padding-left: 14px;
+    padding-right: 14px;
+    width: 100%;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 transition-all;
   }
 
   .form-label-tactical {
