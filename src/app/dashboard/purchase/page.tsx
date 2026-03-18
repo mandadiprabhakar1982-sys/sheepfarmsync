@@ -281,7 +281,12 @@ export default function PurchasePage() {
               <div className="dialog-body space-y-6">
                 <div className="min-h-[500px] space-y-6">
                   <FormField control={purchaseForm.control} name="purchaseDate" render={({ field }) => (
-                    <FormItem className="flex flex-col"><Label className="form-label-tactical">Date of Buying</Label><Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}><PopoverTrigger asChild><Button variant="outline" className="form-input-tactical w-full text-left justify-between">{field.value ? format(field.value, "MMM dd, yyyy") : "Pick date"}<CalendarIcon className="h-4 w-4 opacity-20" /></Button></PopoverTrigger><PopoverContent className="w-auto p-0 border-none bg-white shadow-2xl"><Calendar mode="single" selected={field.value} onSelect={(d) => { field.onChange(d); setIsDatePickerOpen(false); }} initialFocus /></PopoverContent></Popover></FormItem>
+                    <FormItem className="flex flex-col"><Label className="form-label-tactical">Date of Buying</Label><Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}><PopoverTrigger asChild><Button variant="outline" className="form-input-tactical w-full text-left justify-between">{field.value ? format(field.value, "MMM dd, yyyy") : "Pick date"}<CalendarIcon className="h-4 w-4 opacity-20" /></Button></PopoverTrigger><PopoverContent 
+                      className="w-auto p-3 bg-white border border-slate-200 rounded-2xl shadow-2xl z-[300] overflow-visible"
+                      align="start"
+                      side="bottom"
+                      sideOffset={8}
+                    ><Calendar mode="single" selected={field.value} onSelect={(d) => { field.onChange(d); setIsDatePickerOpen(false); }} fromDate={new Date(2024, 0, 1)} toDate={new Date(2030, 11, 31)} initialFocus /></PopoverContent></Popover></FormItem>
                   )} />
                   <div className="grid grid-cols-2 gap-4 mt-4">
                     <FormField control={purchaseForm.control} name="farmerName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Farmer Name</Label><FormControl><Input placeholder="Seller Name" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />

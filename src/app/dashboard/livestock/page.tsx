@@ -405,7 +405,12 @@ export default function LivestockPage() {
                                 <CalendarIcon className="h-4 w-4 text-slate-300" />
                               </Button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0 border-none bg-white shadow-2xl z-[150]" align="start">
+                            <PopoverContent 
+                              className="w-auto p-3 bg-white border border-slate-200 rounded-2xl shadow-2xl z-[300] overflow-visible"
+                              align="start"
+                              side="bottom"
+                              sideOffset={8}
+                            >
                               <Calendar
                                 mode="single"
                                 selected={field.value}
