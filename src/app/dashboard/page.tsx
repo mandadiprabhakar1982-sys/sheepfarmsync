@@ -173,36 +173,6 @@ export default function DashboardPage() {
     </div>
   );
 
-  const HubCard = ({ item }: { item: any }) => {
-    return (
-      <Link href={item.href} className="group transition-all active:scale-95 block">
-        <div className={cn("w-full h-[220px] rounded-[28px] p-5 flex flex-col items-center justify-center gap-6 relative overflow-hidden bg-white border border-[#D9D9D9] shadow-[0_4px_12px_rgba(0,0,0,0.08)] transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_10px_25px_rgba(15,165,160,0.1)] group-hover:border-primary/30")}>
-          <div className={cn("absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-700", item.color)} />
-          <div className="relative w-20 h-20 transition-transform group-hover:scale-110 duration-700 z-10 text-primary group-hover:text-white flex items-center justify-center">
-            <item.icon className="w-full h-full" />
-          </div>
-          <div className="text-center relative z-10">
-            <h3 className="text-[15px] font-black text-secondary-foreground tracking-widest leading-none mb-1 group-hover:text-white transition-colors">{item.title}</h3>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em] group-hover:text-white/60 transition-colors">{item.subtitle}</p>
-          </div>
-        </div>
-      </Link>
-    );
-  };
-
-  const hubItems = [
-    { title: "Home", subtitle: "Main Control", icon: IconOverview, href: '/dashboard/overview', color: "from-primary/20 to-primary/40" },
-    { title: "Daily Ledger", subtitle: "Farm Cost Audit", icon: IconFarmCost, href: '/dashboard/farm-ledger', color: "from-primary/20 to-primary/40" },
-    { title: "Personal Finance", subtitle: "Unified Accounts", icon: IconLedger, href: '/dashboard/monthly-ledger', adminOnly: true, color: "from-primary/20 to-primary/40" },
-    { title: "Debt & Loans", subtitle: "Debt Portfolio", icon: IconLiabilities, href: '/dashboard/balance-sheet', adminOnly: true, color: "from-primary/20 to-primary/40" },
-    { title: "Sheep List", subtitle: "Flock Registry", icon: IconFlock, href: '/dashboard/livestock', color: "from-primary/20 to-primary/40" },
-    { title: "Selling", subtitle: "Revenue Stream", icon: IconTrade, href: '/dashboard/sales', color: "from-primary/20 to-primary/40" },
-    { title: "Medical", subtitle: "Clinical History", icon: IconHealth, href: '/dashboard/medicine', color: "from-primary/20 to-primary/40" },
-    { title: "Fodder", subtitle: "Feed Inventory", icon: IconFeed, href: '/dashboard/feed', color: "from-primary/20 to-primary/40" },
-    { title: "Labour", subtitle: "Staff & Coolie", icon: IconLabor, href: '/dashboard/labor', color: "from-primary/20 to-primary/40" },
-    { title: "Expenses", subtitle: "Misc Overheads", icon: IconExpenses, href: '/dashboard/expenses', color: "from-primary/20 to-primary/40" },
-  ];
-
   const WebDashboard = (
     <div className="animate-in fade-in duration-500 max-w-7xl mx-auto pb-20 px-4 md:px-0 overflow-y-auto h-full no-scrollbar">
       <div className="flex items-center gap-10 mb-20 mt-10">
@@ -212,9 +182,7 @@ export default function DashboardPage() {
           <p className="text-[11px] font-black text-primary/60 uppercase tracking-[0.5em]">High-Density Management Infrastructure</p>
         </div>
       </div>
-      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
-        {hubItems.map((item, idx) => (item.adminOnly && !isAdmin ? null : <HubCard key={idx} item={item} />))}
-      </div>
+      {/* GRID REMOVED PER USER REQUEST */}
     </div>
   );
 

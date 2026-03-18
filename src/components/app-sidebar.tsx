@@ -53,7 +53,6 @@ export function AppSidebar() {
     {
       label: "Main Control",
       links: [
-        { href: '/dashboard', label: "Home", icon: Home },
         { href: '/dashboard/overview', label: "Dashboard", icon: LayoutDashboard },
         { href: '/dashboard/analysis', label: "AI Reports", icon: Sparkles },
       ]
