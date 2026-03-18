@@ -333,7 +333,7 @@ export default function LivestockPage() {
 
       {/* ENTRY DIALOG */}
       <Dialog open={isEntryDialogOpen} onOpenChange={(open) => { setIsEntryDialogOpen(open); if (!open) stopCamera(); }}>
-        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[88dvh] max-h-[88dvh] flex flex-col z-[100]">
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl h-[88dvh] max-h-[88dvh] flex flex-col z-[100]">
           <DialogHeader className="bg-[#111111] p-6 text-left text-white shrink-0 relative">
             <div className="flex items-center gap-4">
               <div className="p-2.5 rounded-xl bg-[#14d5c7]/20 text-[#14d5c7]"><Plus className="h-5 w-5 stroke-[3px]" /></div>
@@ -343,9 +343,9 @@ export default function LivestockPage() {
           </DialogHeader>
           <Form {...assetForm}>
             <form onSubmit={assetForm.handleSubmit(onAssetSubmit)} className="flex flex-col flex-1 min-h-0">
-              <div className="dialog-body space-y-8">
-                <div className="min-h-[500px] space-y-8">
-                  <div className="flex flex-col items-center gap-4">
+              <div className="dialog-body">
+                <div className="min-h-[500px]">
+                  <div className="flex flex-col items-center gap-4 mb-8">
                     <div className="h-[140px] w-full max-w-[300px] rounded-[1.5rem] bg-neutral-50 border-2 border-dashed border-neutral-200 flex items-center justify-center overflow-hidden relative shadow-inner">
                       <video ref={videoRef} className={cn("w-full h-full object-cover", !isCameraActive && "hidden")} autoPlay muted playsInline />
                       {!isCameraActive && (assetForm.watch('imageUrl') ? <div className="relative w-full h-full"><Image src={assetForm.watch('imageUrl')!} alt="Preview" fill className="object-cover" /><Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2 h-8 w-8 rounded-full" onClick={() => assetForm.setValue('imageUrl', '')}><X className="h-4 w-4" /></Button></div> : <div className="flex flex-col items-center gap-2"><ImageIcon className="h-8 w-8 text-neutral-300" /><span className="text-[8px] font-black uppercase tracking-widest text-neutral-400">PHOTO OPTIONAL</span></div>)}
@@ -361,7 +361,7 @@ export default function LivestockPage() {
                         <Label className="form-label-tactical">Reg. Date</Label>
                         <Popover open={isRegDatePickerOpen} onOpenChange={setIsRegDatePickerOpen} modal={true}>
                           <PopoverTrigger asChild>
-                            <Button variant="outline" className="form-input-tactical w-full text-left justify-between font-black uppercase text-[11px]">
+                            <Button variant="outline" className="form-input-tactical w-full text-left justify-between font-bold uppercase text-[11px]">
                               {field.value instanceof Date ? format(field.value, "MMM dd, yyyy") : "Pick date"}
                               <CalendarIcon className="h-3.5 w-3.5 opacity-20" />
                             </Button>
@@ -385,7 +385,7 @@ export default function LivestockPage() {
                   </div>
                 </div>
               </div>
-              <div className="p-6 shrink-0 bg-white border-t"><Button type="submit" disabled={isUploading || isCameraActive} className="w-full h-14 rounded-full bg-gradient-to-r from-[#14d5c7] to-[#0FA5A0] text-[#020617] font-black uppercase tracking-[0.2em] shadow-2xl">{isUploading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Save Enrollment'}</Button></div>
+              <div className="p-6 shrink-0 bg-white border-t"><Button type="submit" disabled={isUploading || isCameraActive} className="w-full h-16 rounded-full bg-[#14d5c7] text-[#020617] font-black uppercase tracking-[0.2em] shadow-2xl">{isUploading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Save Enrollment'}</Button></div>
             </form>
           </Form>
         </DialogContent>
@@ -393,16 +393,16 @@ export default function LivestockPage() {
 
       {/* EDIT DIALOG */}
       <Dialog open={isEditDialogOpen} onOpenChange={(open) => { setIsEditDialogOpen(open); if (!open) stopCamera(); }}>
-        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[88dvh] max-h-[88dvh] flex flex-col z-[100]">
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl h-[88dvh] max-h-[88dvh] flex flex-col z-[100]">
           <DialogHeader className="bg-[#111111] p-6 text-left text-white shrink-0 relative">
             <div className="flex items-center gap-4"><div className="p-2.5 rounded-xl bg-[#14d5c7]/20 text-[#14d5c7]"><Pencil className="h-5 w-5" /></div><div><DialogTitle className="text-xl font-black uppercase text-white leading-none">Update Record</DialogTitle></div></div>
             <DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose>
           </DialogHeader>
           <Form {...editForm}>
             <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="flex flex-col flex-1 min-h-0">
-              <div className="dialog-body space-y-8">
-                <div className="min-h-[500px] space-y-8">
-                  <div className="flex flex-col items-center gap-4">
+              <div className="dialog-body">
+                <div className="min-h-[500px]">
+                  <div className="flex flex-col items-center gap-4 mb-8">
                     <div className="h-[140px] w-full max-w-[300px] rounded-[1.5rem] bg-neutral-50 border-2 border-dashed border-neutral-200 flex items-center justify-center overflow-hidden relative shadow-inner">
                       <video ref={videoRef} className={cn("w-full h-full object-cover", !isCameraActive && "hidden")} autoPlay muted playsInline />
                       {!isCameraActive && (editForm.watch('imageUrl') ? <div className="relative w-full h-full"><Image src={editForm.watch('imageUrl')!} alt="Preview" fill className="object-cover" /><Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2 h-8 w-8 rounded-full" onClick={() => editForm.setValue('imageUrl', '')}><X className="h-4 w-4" /></Button></div> : <div className="flex flex-col items-center gap-2"><ImageIcon className="h-8 w-8 text-neutral-300" /></div>)}
@@ -416,7 +416,7 @@ export default function LivestockPage() {
                   </div>
                 </div>
               </div>
-              <div className="p-6 shrink-0 bg-white border-t flex gap-3"><Button type="button" variant="outline" onClick={() => deleteTrackedSheep(editingSheep!.id, editingSheep!._path)} className="h-14 rounded-full border-rose-100 text-rose-600 px-6"><Trash2 className="h-5 w-5" /></Button><Button type="submit" disabled={isUploading || isCameraActive} className="flex-1 h-14 rounded-full bg-gradient-to-r from-[#14d5c7] to-[#0FA5A0] text-[#020617] font-black uppercase tracking-[0.2em] shadow-2xl">{isUploading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Save Changes'}</Button></div>
+              <div className="p-6 shrink-0 bg-white border-t flex gap-3"><Button type="button" variant="outline" onClick={() => deleteTrackedSheep(editingSheep!.id, editingSheep!._path)} className="h-16 rounded-full border-rose-100 text-rose-600 px-6"><Trash2 className="h-5 w-5" /></Button><Button type="submit" disabled={isUploading || isCameraActive} className="flex-1 h-16 rounded-full bg-[#14d5c7] text-[#020617] font-black uppercase tracking-[0.2em] shadow-2xl">{isUploading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Save Changes'}</Button></div>
             </form>
           </Form>
         </DialogContent>
