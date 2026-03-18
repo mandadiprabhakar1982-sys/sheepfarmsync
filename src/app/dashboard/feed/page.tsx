@@ -11,7 +11,8 @@ import {
   ShieldCheck,
   Wheat,
   Loader2,
-  Search
+  Search,
+  X
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -40,7 +41,6 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useFarm } from '@/context/FarmContext';
 import { useState, useMemo } from 'react';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Label } from '@/components/ui/label';
 import {
   Dialog,
@@ -48,6 +48,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogClose
 } from '@/components/ui/dialog';
 
 const feedTypes = ['TMR', 'Silage', 'Groundnut', 'Other'] as const;
@@ -118,7 +119,6 @@ export default function FeedPage() {
               <CardDescription className="text-white/60 text-[8px] font-black uppercase tracking-[0.2em] ml-7">Inventory Procurement History</CardDescription>
             </div>
 
-            {/* COMPRESSED SEARCH MATRIX */}
             <div className="relative flex-1 max-w-xs">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3 w-3 text-white/40" />
               <Input 
@@ -202,71 +202,66 @@ export default function FeedPage() {
       </div>
 
       <Dialog open={isEntryDialogOpen} onOpenChange={setIsEntryDialogOpen}>
-        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white">
-          <DialogHeader className="bg-neutral-900 p-8 text-left text-white">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]">
-                <Plus className="h-5 w-5" />
-              </div>
-              <DialogTitle className="text-xl font-black tracking-tight uppercase text-white">Fodder Entry</DialogTitle>
-            </div>
-            <DialogDescription className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Commit fodder procurement to records</DialogDescription>
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl bg-white h-[80dvh] flex flex-col">
+          <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
+            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]"><Plus className="h-5 w-5" /></div><DialogTitle className="text-xl font-black tracking-tight uppercase text-white">Fodder Entry</DialogTitle></div>
+            <DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose>
           </DialogHeader>
           
-          <div className="p-8">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                <div className="space-y-6">
-                  <FormField control={form.control} name="date" render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <Label className="form-label-tactical">Date of Buying</Label>
-                      <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
-                        <PopoverTrigger asChild>
-                          <Button variant="outline" className="form-input-tactical w-full text-left justify-between">
-                            {field.value ? format(field.value, "MMMM do, yyyy") : "Pick date"}
-                            <CalendarIcon className="h-4 w-4 opacity-20" />
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0 border-none bg-white shadow-2xl">
-                          <Calendar mode="single" selected={field.value} onSelect={(d) => { field.onChange(d); setIsDatePickerOpen(false); }} initialFocus className="text-slate-900" />
-                        </PopoverContent>
-                      </Popover>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1 flex flex-col min-h-0">
+              <div className="dialog-body space-y-6">
+                <FormField control={form.control} name="date" render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <Label className="form-label-tactical">Date of Buying</Label>
+                    <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className="form-input-tactical w-full text-left justify-between">
+                          {field.value ? format(field.value, "MMMM do, yyyy") : "Pick date"}
+                          <CalendarIcon className="h-4 w-4 opacity-20" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 border-none bg-white shadow-2xl">
+                        <Calendar mode="single" selected={field.value} onSelect={(d) => { field.onChange(d); setIsDatePickerOpen(false); }} initialFocus className="text-slate-900" />
+                      </PopoverContent>
+                    </Popover>
+                  </FormItem>
+                )} />
+
+                <div className="grid grid-cols-2 gap-4 mt-4">
+                  <FormField control={form.control} name="feedType" render={({ field }) => (
+                    <FormItem>
+                      <Label className="form-label-tactical">Category</Label>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl><SelectTrigger className="form-input-tactical"><SelectValue placeholder="Select" /></SelectTrigger></FormControl>
+                        <SelectContent>
+                          {feedTypes.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
                     </FormItem>
                   )} />
-
-                  <div className="grid grid-cols-2 gap-6">
-                    <FormField control={form.control} name="feedType" render={({ field }) => (
-                      <FormItem>
-                        <Label className="form-label-tactical">Category</Label>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl><SelectTrigger className="form-input-tactical"><SelectValue placeholder="Select" /></SelectTrigger></FormControl>
-                          <SelectContent>
-                            {feedTypes.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                          </SelectContent>
-                        </Select>
-                      </FormItem>
-                    )} />
-                    <FormField control={form.control} name="quantity" render={({ field }) => (
-                      <FormItem><Label className="form-label-tactical">Weight (KG)</Label><FormControl><Input type="number" step="0.1" className="form-input-tactical" {...field} /></FormControl></FormItem>
-                    )} />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-6">
-                    <FormField control={form.control} name="bags" render={({ field }) => (
-                      <FormItem><Label className="form-label-tactical">Bags (Optional)</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>
-                    )} />
-                    <FormField control={form.control} name="cost" render={({ field }) => (
-                      <FormItem><Label className="form-label-tactical">Total Price (₹)</Label><FormControl><Input type="number" step="0.01" className="form-input-tactical text-[#0FA5A0] font-black" {...field} /></FormControl></FormItem>
-                    )} />
-                  </div>
+                  <FormField control={form.control} name="quantity" render={({ field }) => (
+                    <FormItem><Label className="form-label-tactical">Weight (KG)</Label><FormControl><Input type="number" step="0.1" className="form-input-tactical" {...field} /></FormControl></FormItem>
+                  )} />
                 </div>
 
-                <Button type="submit" className="w-full h-16 rounded-2xl bg-[#0FA5A0] hover:bg-[#176E6C] text-white font-black text-sm uppercase tracking-[0.2em] transition-all shadow-xl">
+                <div className="grid grid-cols-2 gap-4 mt-4">
+                  <FormField control={form.control} name="bags" render={({ field }) => (
+                    <FormItem><Label className="form-label-tactical">Bags (Optional)</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>
+                  )} />
+                  <FormField control={form.control} name="cost" render={({ field }) => (
+                    <FormItem><Label className="form-label-tactical">Total Price (₹)</Label><FormControl><Input type="number" step="0.01" className="form-input-tactical text-[#0FA5A0] font-black" {...field} /></FormControl></FormItem>
+                  )} />
+                </div>
+              </div>
+
+              <div className="p-6 shrink-0 border-t">
+                <Button type="submit" className="w-full h-16 rounded-2xl bg-[#0FA5A0] hover:bg-[#176E6C] text-white font-black uppercase shadow-xl">
                   Record Fodder Buy
                 </Button>
-              </form>
-            </Form>
-          </div>
+              </div>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
     </div>

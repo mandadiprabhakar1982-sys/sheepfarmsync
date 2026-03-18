@@ -287,11 +287,11 @@ export default function MedicinePage() {
           <Form {...healthTaskForm}>
             <form onSubmit={healthTaskForm.handleSubmit(onHealthTaskSubmit)} className="flex-1 flex flex-col min-h-0">
               <div className="dialog-body space-y-6">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4 mt-4">
                   <FormField control={healthTaskForm.control} name="sheepId" render={({ field }) => (<FormItem><Label className="form-label-tactical">Sheep Tag ID</Label><FormControl><Input placeholder="e.g. 101" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
                   <FormField control={healthTaskForm.control} name="medicineName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Medicine Name</Label><FormControl><Input placeholder="e.g. Albendazole" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4 mt-4">
                   <FormField control={healthTaskForm.control} name="cost" render={({ field }) => (<FormItem><Label className="form-label-tactical">Medicine Cost (₹)</Label><FormControl><Input type="number" className="form-input-tactical font-black text-[#0FA5A0]" {...field} /></FormControl></FormItem>)} />
                   <FormField control={healthTaskForm.control} name="administeredBy" render={({ field }) => (<FormItem><Label className="form-label-tactical">By Staff/Vet</Label><FormControl><Input placeholder="Who gave medicine" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
                 </div>
@@ -312,7 +312,7 @@ export default function MedicinePage() {
             <form onSubmit={medicineForm.handleSubmit(onMedicineExpenseSubmit)} className="flex-1 flex flex-col min-h-0">
               <div className="dialog-body space-y-6">
                 <FormField control={medicineForm.control} name="shopName" render={({ field }) => (<FormItem><Label className="form-label-tactical">Shop Name</Label><FormControl><Input placeholder="Medical Shop Identity" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4 mt-4">
                   <FormField control={medicineForm.control} name="totalAmountSpent" render={({ field }) => (<FormItem><Label className="form-label-tactical">Total Bill (₹)</Label><FormControl><Input type="number" className="form-input-tactical font-black text-[#0FA5A0]" {...field} /></FormControl></FormItem>)} />
                   <FormField control={medicineForm.control} name="outstandingDues" render={({ field }) => (<FormItem><Label className="form-label-tactical">Due Amount (₹)</Label><FormControl><Input type="number" className="form-input-tactical text-rose-600" {...field} /></FormControl></FormItem>)} />
                 </div>

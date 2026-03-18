@@ -259,11 +259,11 @@ export default function LaborPage() {
                 <FormField control={form.control} name="employeeName" render={({ field }) => (
                   <FormItem><Label className="form-label-tactical">Staff Name</Label><FormControl><Input placeholder="Employee Name" className="form-input-tactical" {...field} /></FormControl></FormItem>
                 )} />
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4 mt-4">
                   <FormField control={form.control} name="numberOfLaborers" render={({ field }) => (<FormItem><Label className="form-label-tactical">Staff Count</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
                   <FormField control={form.control} name="wages" render={({ field }) => (<FormItem><Label className="form-label-tactical">Wage/Head (₹)</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4 mt-4">
                   <FormField control={form.control} name="amountPaid" render={({ field }) => (<FormItem><Label className="form-label-tactical">Amount Paid (₹)</Label><FormControl><Input type="number" className="form-input-tactical font-black text-[#0FA5A0]" {...field} /></FormControl></FormItem>)} />
                   <FormField control={form.control} name="pendingAmount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Pending Balance (₹)</Label><FormControl><Input type="number" className="form-input-tactical bg-rose-50 border-rose-100 text-rose-600 font-black" {...field} readOnly /></FormControl></FormItem>)} />
                 </div>

@@ -224,7 +224,7 @@ export default function MortalityPage() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1 flex flex-col min-h-0">
               <div className="dialog-body space-y-6">
                 <FormField control={form.control} name="causeOfDeath" render={({ field }) => (<FormItem><Label className="form-label-tactical">Cause of Death</Label><FormControl><Input placeholder="e.g. Fever, Injury" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4 mt-4">
                   <FormField control={form.control} name="sheepCount" render={({ field }) => (<FormItem><Label className="form-label-tactical">Head Count</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
                   <FormField control={form.control} name="tagId" render={({ field }) => (<FormItem><Label className="form-label-tactical">Tag ID (Opt)</Label><FormControl><Input className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
                 </div>

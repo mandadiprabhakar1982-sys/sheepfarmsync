@@ -266,13 +266,22 @@ export default function BalanceSheetPage() {
             {activeTab === 'loans' && (
               <div className="space-y-6">
                 <div className="space-y-2"><Label className="form-label-tactical">Bank Identity</Label><Input value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="Bank Name" className="form-input-tactical" /></div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4 mt-4">
                   <div className="space-y-2"><Label className="form-label-tactical">Total Loan (₹)</Label><Input type="number" value={totalLoan} onChange={(e) => setTotalLoan(e.target.value)} className="form-input-tactical" /></div>
                   <div className="space-y-2"><Label className="form-label-tactical">Interest Rate %</Label><Input type="number" value={interest} onChange={(e) => setInterest(e.target.value)} className="form-input-tactical" /></div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4 mt-4">
                   <div className="space-y-2"><Label className="form-label-tactical">Start Date</Label><Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="form-input-tactical" /></div>
                   <div className="space-y-2"><Label className="form-label-tactical">Monthly EMI (₹)</Label><Input type="number" value={monthlyEmi} onChange={(e) => setMonthlyEmi(e.target.value)} className="form-input-tactical font-black text-[#0FA5A0]" /></div>
+                </div>
+              </div>
+            )}
+            {activeTab === 'cards' && (
+              <div className="space-y-6">
+                <div className="space-y-2"><Label className="form-label-tactical">Bank Identity</Label><Input value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="Bank Name" className="form-input-tactical" /></div>
+                <div className="grid grid-cols-2 gap-4 mt-4">
+                  <div className="space-y-2"><Label className="form-label-tactical">Total Limit (₹)</Label><Input type="number" value={cardTotalLimit} onChange={(e) => setCardTotalLimit(e.target.value)} className="form-input-tactical" /></div>
+                  <div className="space-y-2"><Label className="form-label-tactical">Outstanding (₹)</Label><Input type="number" value={cardOutstanding} onChange={(e) => setCardOutstanding(e.target.value)} className="form-input-tactical text-rose-600" /></div>
                 </div>
               </div>
             )}

@@ -352,7 +352,8 @@ export default function LivestockPage() {
                   </div>
                   {!isCameraActive && <div className="flex gap-3 w-full max-w-[300px]"><Button type="button" variant="outline" onClick={startCamera} className="flex-1 h-9 text-[8px] font-black uppercase rounded-xl border-slate-200"><Camera className="h-3 w-3 mr-2" /> Camera</Button><div className="relative flex-1"><Button type="button" variant="outline" className="w-full h-9 text-[8px] font-black uppercase rounded-xl border-slate-200"><Upload className="h-3 w-3 mr-2" /> File</Button><input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={(e) => handleImageChange(e, assetForm)} /></div></div>}
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                
+                <div className="grid grid-cols-2 gap-4 mt-4">
                   <FormField control={assetForm.control} name="tagId" render={({ field }) => (<FormItem><Label className="form-label-tactical">Tag ID</Label><FormControl><Input className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
                   <FormField control={assetForm.control} name="registrationDate" render={({ field }) => (
                     <FormItem className="flex flex-col">
@@ -371,11 +372,13 @@ export default function LivestockPage() {
                     </FormItem>
                   )} />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                
+                <div className="grid grid-cols-2 gap-4 mt-4">
                   <FormField control={assetForm.control} name="breed" render={({ field }) => (<FormItem><Label className="form-label-tactical">Breed</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="form-input-tactical font-bold text-xs"><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="Standard">Standard</SelectItem><SelectItem value="Nellore">Nellore</SelectItem><SelectItem value="Deccani">Deccani</SelectItem></SelectContent></Select></FormItem>)} />
                   <FormField control={assetForm.control} name="gender" render={({ field }) => (<FormItem><Label className="form-label-tactical">Gender</Label><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="form-input-tactical font-bold text-xs"><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="female">Female</SelectItem><SelectItem value="male">Male</SelectItem></SelectContent></Select></FormItem>)} />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                
+                <div className="grid grid-cols-2 gap-4 mt-4">
                   <FormField control={assetForm.control} name="age" render={({ field }) => (<FormItem><Label className="form-label-tactical">Age (Mos)</Label><FormControl><Input type="number" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
                   <FormField control={assetForm.control} name="currentWeight" render={({ field }) => (<FormItem><Label className="form-label-tactical">Weight (KG)</Label><FormControl><Input type="number" step="0.1" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
                 </div>
@@ -404,7 +407,7 @@ export default function LivestockPage() {
                   </div>
                   {!isCameraActive && <div className="flex gap-3 w-full max-w-[300px]"><Button type="button" variant="outline" onClick={startCamera} className="flex-1 h-9 text-[8px] font-black uppercase rounded-xl border-slate-200"><Camera className="h-3 w-3 mr-2" /> Camera</Button><div className="relative flex-1"><Button type="button" variant="outline" className="w-full h-9 text-[8px] font-black uppercase rounded-xl border-slate-200"><Upload className="h-3 w-3 mr-2" /> File</Button><input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={(e) => handleImageChange(e, editForm)} /></div></div>}
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4 mt-4">
                   <FormField control={editForm.control} name="tagId" render={({ field }) => (<FormItem><Label className="form-label-tactical">Tag ID</Label><FormControl><Input className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
                   <FormField control={editForm.control} name="currentWeight" render={({ field }) => (<FormItem><Label className="form-label-tactical">Weight (KG)</Label><FormControl><Input type="number" step="0.1" className="form-input-tactical" {...field} /></FormControl></FormItem>)} />
                 </div>
