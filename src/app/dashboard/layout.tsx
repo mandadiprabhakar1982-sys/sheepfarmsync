@@ -12,7 +12,7 @@ import { usePathname } from 'next/navigation';
 
 /**
  * @fileOverview Final Precision Dashboard Layout.
- * Handles conditional sidebar visibility for full-screen analytics.
+ * Synchronizes the global sidebar across all enterprise modules.
  */
 export default function DashboardLayout({
   children,
@@ -23,9 +23,6 @@ export default function DashboardLayout({
   const { width, isHydrated } = useWindowDimensions();
   const pathname = usePathname();
   const isMobile = isHydrated ? width < 768 : false;
-
-  // ROUTES THAT SHOULD BE FULL SCREEN (NO SIDEBAR)
-  const isFullScreenRoute = pathname === '/dashboard/overview';
 
   if (isLoadingProfile || !isHydrated) {
     return (
@@ -74,37 +71,14 @@ export default function DashboardLayout({
     );
   }
 
-  // CONDITIONAL SIDEBAR FOR DESKTOP
-  if (isFullScreenRoute) {
-    return (
-      <div className="flex flex-col h-screen overflow-hidden bg-[#F8FAFC]">
-        <header className="top-header shrink-0">
-          <div className="flex items-center gap-4 md:gap-6">
-            <Logo />
-            <div className="h-6 w-px bg-slate-200" />
-            <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-500 whitespace-nowrap">
-              Executive Analytics Node
-            </h2>
-          </div>
-          <div className="flex items-center gap-2 md:gap-8">
-            <UserNav />
-          </div>
-        </header>
-        <main className="flex-1 overflow-y-auto p-8 md:p-12 no-scrollbar">
-          <div className="max-w-[1600px] mx-auto h-full">
-            {children}
-          </div>
-        </main>
-      </div>
-    );
-  }
-
   return (
     <SidebarProvider className="bg-[#F5F7F8]">
       <AppSidebar />
       <div className="flex flex-col flex-1 h-screen overflow-hidden">
         <header className="top-header shrink-0">
           <div className="flex items-center gap-4 md:gap-6">
+            <Logo />
+            <div className="h-6 w-px bg-slate-200" />
             <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-500 whitespace-nowrap">
               Executive Command Center
             </h2>
@@ -115,7 +89,7 @@ export default function DashboardLayout({
         </header>
         
         <main className="flex-1 overflow-y-auto p-8 md:p-12 no-scrollbar bg-[#F8FAFC]">
-          <div className="max-w-7xl mx-auto h-full">
+          <div className="max-w-[1600px] mx-auto h-full">
             {children}
           </div>
         </main>
