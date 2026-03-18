@@ -18,6 +18,7 @@ import {
   Calendar as CalendarIcon,
   ChevronRight,
   Activity,
+  Save
 } from 'lucide-react';
 import { format, parseISO, isValid } from 'date-fns';
 import Image from 'next/image';
@@ -77,6 +78,7 @@ export default function LivestockPage() {
   const [zoomImage, setZoomImage] = useState<string | null>(null);
 
   const [isRegDatePickerOpen, setIsRegDatePickerOpen] = useState(false);
+  const [isEditRegDatePickerOpen, setIsEditRegDatePickerOpen] = useState(false);
 
   const [isCameraActive, setIsCameraActive] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -391,13 +393,13 @@ export default function LivestockPage() {
                       <FormField control={assetForm.control} name="tagId" render={({ field }) => (
                         <FormItem>
                           <Label className="form-label-tactical ml-1">Tag ID</Label>
-                          <FormControl><Input className="h-14 rounded-2xl bg-slate-50 border-none text-slate-900 font-bold px-6 focus-visible:ring-2 focus-visible:ring-[#14d5c7]/20" {...field} /></FormControl>
+                          <FormControl><Input className="form-input-tactical h-14 bg-slate-50 border-none" {...field} /></FormControl>
                         </FormItem>
                       )} />
                       <FormField control={assetForm.control} name="registrationDate" render={({ field }) => (
                         <FormItem className="flex flex-col">
                           <Label className="form-label-tactical ml-1">Reg. Date</Label>
-                          <Popover open={isRegDatePickerOpen} onOpenChange={setIsRegDatePickerOpen} modal={true}>
+                          <Popover open={isRegDatePickerOpen} onOpenChange={setIsRegDatePickerOpen}>
                             <PopoverTrigger asChild>
                               <Button variant="outline" className="h-14 rounded-2xl bg-slate-50 border-none text-slate-900 font-bold px-6 justify-between hover:bg-slate-100 transition-colors">
                                 {field.value instanceof Date ? format(field.value, "MMM dd, yyyy") : "Pick date"}
@@ -423,13 +425,13 @@ export default function LivestockPage() {
                       )} />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-6">
+                    <div className="grid grid-cols-2 gap-6 mt-4">
                       <FormField control={assetForm.control} name="breed" render={({ field }) => (
                         <FormItem>
                           <Label className="form-label-tactical ml-1">Breed</Label>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl>
-                              <SelectTrigger className="h-14 rounded-2xl bg-slate-50 border-none text-slate-900 font-bold px-6 focus:ring-[#14d5c7]/20">
+                              <SelectTrigger className="h-14 rounded-2xl bg-slate-50 border-none text-slate-900 font-bold px-6">
                                 <SelectValue />
                               </SelectTrigger>
                             </FormControl>
@@ -459,22 +461,22 @@ export default function LivestockPage() {
                       )} />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-6">
+                    <div className="grid grid-cols-2 gap-6 mt-4">
                       <FormField control={assetForm.control} name="age" render={({ field }) => (
                         <FormItem>
                           <Label className="form-label-tactical ml-1">Age (Months)</Label>
-                          <FormControl><Input type="number" className="h-14 rounded-2xl bg-slate-50 border-none text-slate-900 font-bold px-6" {...field} /></FormControl>
+                          <FormControl><Input type="number" className="form-input-tactical h-14 bg-slate-50 border-none" {...field} /></FormControl>
                         </FormItem>
                       )} />
                       <FormField control={assetForm.control} name="currentWeight" render={({ field }) => (
                         <FormItem>
                           <Label className="form-label-tactical ml-1">Weight (KG)</Label>
-                          <FormControl><Input type="number" step="0.1" className="h-14 rounded-2xl bg-slate-50 border-none text-slate-900 font-bold px-6" {...field} /></FormControl>
+                          <FormControl><Input type="number" step="0.1" className="form-input-tactical h-14 bg-slate-50 border-none" {...field} /></FormControl>
                         </FormItem>
                       )} />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-6">
+                    <div className="grid grid-cols-2 gap-6 mt-4">
                       <FormField control={assetForm.control} name="color" render={({ field }) => (
                         <FormItem>
                           <Label className="form-label-tactical ml-1">Color</Label>
@@ -543,6 +545,7 @@ export default function LivestockPage() {
           <div className="dialog-body p-0 flex flex-col min-h-0 bg-white">
             <div className="flex-1 overflow-y-auto pb-10">
               <div className="min-h-[500px]">
+                {/* PHOTO SECTION */}
                 <div className="p-8 pb-4">
                   <div className="h-48 w-full rounded-[2rem] bg-slate-50 border-2 border-dashed border-slate-200 flex flex-col items-center justify-center gap-3 relative overflow-hidden group">
                     <video ref={videoRef} className={cn("w-full h-full object-cover", !isCameraActive && "hidden")} autoPlay muted playsInline />
@@ -554,14 +557,25 @@ export default function LivestockPage() {
                     ) : (
                       <div className="flex flex-col items-center gap-2">
                         <ImageIcon className="h-10 w-10 text-slate-300" />
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Photo Optional</span>
                       </div>
                     ))}
                     {isCameraActive && <div className="absolute bottom-4 left-0 right-0 flex justify-center"><Button type="button" onClick={capturePhoto} className="rounded-full h-12 w-12 p-0 bg-[#14d5c7] border-4 border-white shadow-2xl" /></div>}
                   </div>
+                  
                   {!isCameraActive && (
-                    <div className="flex gap-4 mt-6">
-                      <Button type="button" variant="outline" onClick={startCamera} className="flex-1 h-12 text-[10px] font-black uppercase rounded-xl border-slate-200"><Camera className="h-4 w-4 mr-2" /> Camera</Button>
-                      <div className="relative flex-1"><Button type="button" variant="outline" className="w-full h-12 text-[10px] font-black uppercase rounded-xl border-slate-200"><Upload className="h-4 w-4 mr-2" /> File</Button><input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={(e) => handleImageChange(e, editForm)} /></div>
+                    <div className="grid grid-cols-2 gap-4 mt-6">
+                      <Button type="button" onClick={startCamera} className="bg-[#111111] hover:bg-black text-white rounded-2xl h-14 uppercase font-black text-[10px] tracking-widest gap-3 shadow-xl">
+                        <Camera className="h-5 w-5 text-[#14d5c7]" />
+                        Camera
+                      </Button>
+                      <div className="relative">
+                        <Button type="button" className="w-full bg-[#111111] hover:bg-black text-white rounded-2xl h-14 uppercase font-black text-[10px] tracking-widest gap-3 shadow-xl">
+                          <Upload className="h-5 w-5 text-[#14d5c7]" />
+                          File
+                        </Button>
+                        <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={(e) => handleImageChange(e, editForm)} />
+                      </div>
                     </div>
                   )}
                 </div>
@@ -572,21 +586,138 @@ export default function LivestockPage() {
                       <FormField control={editForm.control} name="tagId" render={({ field }) => (
                         <FormItem>
                           <Label className="form-label-tactical ml-1">Tag ID</Label>
-                          <FormControl><Input className="h-14 rounded-2xl bg-slate-50 border-none text-slate-900 font-bold px-6" {...field} /></FormControl>
+                          <FormControl><Input className="form-input-tactical h-14 bg-slate-50 border-none" {...field} /></FormControl>
+                        </FormItem>
+                      )} />
+                      <FormField control={editForm.control} name="registrationDate" render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <Label className="form-label-tactical ml-1">Reg. Date</Label>
+                          <Popover open={isEditRegDatePickerOpen} onOpenChange={setIsEditRegDatePickerOpen}>
+                            <PopoverTrigger asChild>
+                              <Button variant="outline" className="h-14 rounded-2xl bg-slate-50 border-none text-slate-900 font-bold px-6 justify-between hover:bg-slate-100 transition-colors">
+                                {field.value instanceof Date ? format(field.value, "MMM dd, yyyy") : "Pick date"}
+                                <CalendarIcon className="h-4 w-4 text-slate-300" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent 
+                              className="w-[90vw] sm:w-[450px] p-3 bg-white border border-slate-200 rounded-2xl shadow-2xl z-[300] overflow-visible"
+                              align="start"
+                              side="bottom"
+                              sideOffset={8}
+                            >
+                              <HorizontalDatePicker 
+                                selectedDate={field.value}
+                                onSelect={(date) => {
+                                  field.onChange(date);
+                                  setIsEditRegDatePickerOpen(false);
+                                }}
+                              />
+                            </PopoverContent>
+                          </Popover>
+                        </FormItem>
+                      )} />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-6 mt-4">
+                      <FormField control={editForm.control} name="breed" render={({ field }) => (
+                        <FormItem>
+                          <Label className="form-label-tactical ml-1">Breed</Label>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger className="h-14 rounded-2xl bg-slate-50 border-none text-slate-900 font-bold px-6">
+                                <SelectValue />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent className="rounded-xl border-none shadow-2xl">
+                              <SelectItem value="Standard">Standard</SelectItem>
+                              <SelectItem value="Nellore">Nellore</SelectItem>
+                              <SelectItem value="Deccani">Deccani</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormItem>
+                      )} />
+                      <FormField control={editForm.control} name="gender" render={({ field }) => (
+                        <FormItem>
+                          <Label className="form-label-tactical ml-1">Gender</Label>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger className="h-14 rounded-2xl bg-slate-50 border-none text-slate-900 font-bold px-6">
+                                <SelectValue />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent className="rounded-xl border-none shadow-2xl">
+                              <SelectItem value="female">Female</SelectItem>
+                              <SelectItem value="male">Male</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormItem>
+                      )} />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-6 mt-4">
+                      <FormField control={editForm.control} name="age" render={({ field }) => (
+                        <FormItem>
+                          <Label className="form-label-tactical ml-1">Age (Months)</Label>
+                          <FormControl><Input type="number" className="form-input-tactical h-14 bg-slate-50 border-none" {...field} /></FormControl>
                         </FormItem>
                       )} />
                       <FormField control={editForm.control} name="currentWeight" render={({ field }) => (
                         <FormItem>
                           <Label className="form-label-tactical ml-1">Weight (KG)</Label>
-                          <FormControl><Input type="number" step="0.1" className="h-14 rounded-2xl bg-slate-50 border-none text-slate-900 font-bold px-6" {...field} /></FormControl>
+                          <FormControl><Input type="number" step="0.1" className="form-input-tactical h-14 bg-slate-50 border-none" {...field} /></FormControl>
+                        </FormItem>
+                      )} />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-6 mt-4">
+                      <FormField control={editForm.control} name="color" render={({ field }) => (
+                        <FormItem>
+                          <Label className="form-label-tactical ml-1">Color</Label>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger className="h-14 rounded-2xl bg-slate-50 border-none text-slate-900 font-bold px-6">
+                                <SelectValue />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent className="rounded-xl border-none shadow-2xl">
+                              <SelectItem value="Brown">Brown</SelectItem>
+                              <SelectItem value="White">White</SelectItem>
+                              <SelectItem value="Black">Black</SelectItem>
+                              <SelectItem value="Spotted">Spotted</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormItem>
+                      )} />
+                      <FormField control={editForm.control} name="source" render={({ field }) => (
+                        <FormItem>
+                          <Label className="form-label-tactical ml-1">Source</Label>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger className="h-14 rounded-2xl bg-slate-50 border-none text-slate-900 font-bold px-6">
+                                <SelectValue />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent className="rounded-xl border-none shadow-2xl">
+                              <SelectItem value="On Farm">On Farm</SelectItem>
+                              <SelectItem value="Purchased">Purchased</SelectItem>
+                              <SelectItem value="Gift">Gift</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </FormItem>
                       )} />
                     </div>
 
                     <div className="flex gap-4 pt-10 pb-10">
-                      <Button type="button" variant="outline" onClick={() => { deleteTrackedSheep(editingSheep!.id, editingSheep!._path); setIsEditDialogOpen(false); }} className="h-20 w-20 rounded-full border-rose-100 text-rose-600 shadow-xl shrink-0 flex items-center justify-center"><Trash2 className="h-6 w-6" /></Button>
-                      <button type="submit" disabled={isUploading || isCameraActive} className="flex-1 h-20 rounded-full bg-[#14d5c7] hover:bg-[#14d5c7]/90 text-[#020617] font-black uppercase tracking-[0.2em] shadow-2xl transition-all active:scale-95 text-lg flex items-center justify-center">
-                        {isUploading ? <Loader2 className="animate-spin h-6 w-6" /> : 'Save Changes'}
+                      <Button type="button" variant="outline" onClick={() => { deleteTrackedSheep(editingSheep!.id, editingSheep!._path); setIsEditDialogOpen(false); }} className="h-20 w-20 rounded-full border-rose-100 text-rose-600 shadow-xl shrink-0 flex items-center justify-center">
+                        <Trash2 className="h-6 w-6" />
+                      </Button>
+                      <button type="submit" disabled={isUploading || isCameraActive} className="flex-1 h-20 rounded-full bg-[#14d5c7] hover:bg-[#14d5c7]/90 text-[#020617] font-black uppercase tracking-[0.2em] shadow-2xl transition-all active:scale-95 text-lg flex items-center justify-center gap-3">
+                        {isUploading ? <Loader2 className="animate-spin h-6 w-6" /> : (
+                          <>
+                            <Save className="h-6 w-6" />
+                            Save Changes
+                          </>
+                        )}
                       </button>
                     </div>
                   </form>
