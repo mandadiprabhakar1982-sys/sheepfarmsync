@@ -28,23 +28,23 @@ export function Shell({ children }: { children: React.ReactNode }) {
   if (isMobile) {
     return (
       <div className="h-screen flex flex-col bg-[#020617] overflow-hidden">
-        <header className="shrink-0 bg-[#020617]/80 backdrop-blur-md px-5 flex items-center justify-between z-40 border-b border-white/5 h-[72px] pt-[env(safe-area-inset-top)]">
-          <div className="flex items-center gap-4">
-            <button className="h-11 w-11 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/60">
-              <Menu className="h-5 w-5" />
-            </button>
-            <div className="logo-box">Farm<span>Audit</span></div>
-          </div>
+        <header className="shrink-0 bg-[#020617]/80 backdrop-blur-md px-5 flex items-center justify-between z-40 border-b border-white/5 h-[64px] pt-[env(safe-area-inset-top)]">
           <div className="flex items-center gap-3">
-            <div className="relative h-11 w-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
-              <Bell className="h-5 w-5 text-white/60" />
+            <button className="h-9 w-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/60">
+              <Menu className="h-4 w-4" />
+            </button>
+            <div className="logo-box text-lg">Farm<span>Audit</span></div>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="relative h-9 w-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
+              <Bell className="h-4 w-4 text-white/60" />
             </div>
-            <div className="h-11 w-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden">
-              <User className="h-5 w-5 text-white/60" />
+            <div className="h-9 w-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden">
+              <User className="h-4 w-4 text-white/60" />
             </div>
           </div>
         </header>
-        <main className="flex-1 min-h-0 relative bg-[#020617] flex flex-col overflow-hidden pb-32">
+        <main className="flex-1 min-h-0 relative bg-[#020617] flex flex-col overflow-hidden pb-20">
           {children}
         </main>
         <MobileNav />
@@ -56,15 +56,15 @@ export function Shell({ children }: { children: React.ReactNode }) {
     <SidebarProvider className="bg-[#F5F7F8]">
       <AppSidebar />
       <div className="flex flex-col flex-1 h-screen overflow-hidden">
-        <header className="header">
+        <header className="header h-[72px]">
           <div className="flex items-center gap-6">
             <div className="logo-box">Farm<span>Audit</span></div>
-            <div className="w-px h-8 bg-slate-200"></div>
+            <div className="w-px h-6 bg-slate-200"></div>
             <div className="command-tag">Enterprise Command Center</div>
           </div>
           <UserNav />
         </header>
-        <main className="flex-1 overflow-y-auto p-10 bg-[#F8FAFC] no-scrollbar">
+        <main className="flex-1 overflow-y-auto p-6 bg-[#F8FAFC] no-scrollbar">
           <div className="max-w-[1600px] mx-auto h-full">
             {children}
           </div>
