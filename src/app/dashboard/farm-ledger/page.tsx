@@ -39,7 +39,7 @@ const ledgerConfig = {
 function FarmLedgerContent() {
   const { 
     farmExpenses, addFarmExpense, deleteFarmExpense, 
-    totalExpenses, totalSales, isLoading 
+    totalExpenses, totalSales, isLoading, ledgerError
   } = useFarm();
   const { toast } = useToast();
 
@@ -58,6 +58,11 @@ function FarmLedgerContent() {
     paymentMode: "Cash" as const,
     remarks: ""
   });
+
+  // EXPLICIT ERROR TRIGGER: Throw the error so the ErrorBoundary can "break the circuit"
+  if (ledgerError) {
+    throw ledgerError;
+  }
 
   // Auto-calculate total amount
   useEffect(() => {

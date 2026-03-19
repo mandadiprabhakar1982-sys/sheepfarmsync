@@ -15,6 +15,7 @@ interface State {
 /**
  * @fileOverview Specialized Error Boundary for Firestore Stability.
  * Prevents re-render loops during index construction or data failures.
+ * Critical for system performance in memory-constrained environments.
  */
 class ErrorBoundary extends Component<Props, State> {
   public state: State = {
@@ -38,7 +39,7 @@ class ErrorBoundary extends Component<Props, State> {
                            this.state.error?.message.includes("index");
 
       return (
-        <div className="hub-node-organic p-12 bg-white border-2 border-dashed border-[#edf2f7] text-center animate-in fade-in duration-500">
+        <div className="hub-node-organic p-12 bg-white border-2 border-dashed border-[#edf2f7] text-center animate-in fade-in duration-500 rounded-[2rem] shadow-xl">
           <div className="flex justify-center mb-6 text-rose-500">
             <div className="p-4 bg-rose-50 rounded-full">
               <AlertTriangle size={48} />
@@ -55,10 +56,10 @@ class ErrorBoundary extends Component<Props, State> {
           <div className="mt-8 flex flex-col items-center gap-4">
             <button 
               onClick={() => window.location.reload()}
-              className="btn-primary-organic inline-flex items-center gap-2 px-10 h-14"
+              className="bg-[#0FA5A0] hover:bg-[#134E4A] text-white rounded-2xl px-10 h-14 text-sm font-black tracking-[0.18em] uppercase shadow-xl transition-all active:scale-95 flex items-center gap-3"
             >
               <RefreshCw size={18} className="animate-spin-slow" />
-              <span>Check Index Status</span>
+              <span>Check Status Again</span>
             </button>
             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-300">
               System Protected | 8GB RAM Safe Mode

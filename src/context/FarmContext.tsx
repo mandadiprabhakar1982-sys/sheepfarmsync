@@ -1,4 +1,3 @@
-
 'use client';
 
 import { createContext, useContext, ReactNode, useMemo, useCallback, useState, useEffect } from 'react';
@@ -46,6 +45,7 @@ interface FarmContextType {
   deleteMarketplaceSale: (id: string, path?: string) => void;
 
   isLoading: boolean;
+  ledgerError: any | null;
   userRole: string | null;
   totalSheep: number;
   totalExpenses: number;
@@ -76,7 +76,6 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   // Master Ledger - Unified transactions
   const eRef = useMemo(() => {
     if (!firestore || !isVerified) return null;
-    // CRITICAL: Must match firestore.indexes.json exactly to avoid loops
     return query(collectionGroup(firestore, 'farmExpenses'), orderBy('date', 'desc'));
   }, [firestore, isVerified]);
 
@@ -94,7 +93,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   
   const mkRef = useMemo(() => (firestore && user) ? collection(firestore, 'communitySales') : null, [firestore, user]);
 
-  const { data: qExpenses, isLoading: lExpenses } = useCollection<FarmExpense>(eRef);
+  const { data: qExpenses, isLoading: lExpenses, error: eExpenses } = useCollection<FarmExpense>(eRef);
   const { data: qTracked, isLoading: lTracked } = useCollection<TrackedSheep>(tRef);
   const { data: qLoans, isLoading: lLoans } = useCollection<BankLoan>(blRef);
   const { data: qCards, isLoading: lCards } = useCollection<CreditCard>(ccRef);
@@ -146,6 +145,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     communitySales: qMarket, postToMarketplace: (s: any) => upsert('communitySales', undefined, s, 'communitySales'), deleteMarketplaceSale: (id: string, path?: string) => remove('communitySales', id, path),
 
     isLoading: !mounted || isUserLoading || isProfileLoading || lExpenses || lTracked || lLoans || lCards || lDebts || lIncomes || lMExpenses || lMarket,
+    ledgerError: eExpenses,
     userRole: userProfile?.role || null,
     totalSheep: (qTracked || []).length,
     totalExpenses: totalExp,
@@ -154,7 +154,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     totalLoanBalance: (qLoans || []).reduce((s, l) => s + (l.balanceLoan || 0), 0),
     totalCreditCardDebt: (qCards || []).reduce((s, c) => s + (c.outstandingAmount || 0), 0),
     totalPrivateDebt: (qDebts || []).reduce((s, d) => s + (d.amount || 0), 0),
-  }), [qExpenses, qTracked, qLoans, qCards, qDebts, qIncomes, qMExpenses, qMarket, isUserLoading, isProfileLoading, lExpenses, lTracked, lLoans, lCards, lDebts, lIncomes, lMExpenses, lMarket, userProfile, totalExp, totalRev, upsert, remove, mounted]);
+  }), [qExpenses, eExpenses, qTracked, qLoans, qCards, qDebts, qIncomes, qMExpenses, qMarket, isUserLoading, isProfileLoading, lExpenses, lTracked, lLoans, lCards, lDebts, lIncomes, lMExpenses, lMarket, userProfile, totalExp, totalRev, upsert, remove, mounted]);
 
   if (!mounted) return null;
   return <FarmContext.Provider value={value}>{children}</FarmContext.Provider>;
