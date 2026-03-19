@@ -1,17 +1,14 @@
 'use client';
 
 import { Shell } from '@/components/shared/Shell';
-import { WebDashboard } from '@/components/web/WebDashboard';
-import { MobileDashboard } from '@/components/mobile/MobileDashboard';
-import { useWindowDimensions } from '@/hooks/use-mobile';
+import { OverviewModule } from '@/projects/public-app/OverviewModule';
 
 export default function DashboardPage() {
-  const { width, isHydrated } = useWindowDimensions();
-  const isMobile = isHydrated ? width < 768 : false;
-
   return (
     <Shell>
-      {isMobile ? <MobileDashboard /> : <WebDashboard />}
+      <div className="container mx-auto py-8">
+        <OverviewModule />
+      </div>
     </Shell>
   );
 }
