@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -10,19 +9,17 @@ import {
   Plus,
   Loader2,
   X,
-  AlertCircle,
   Calendar as CalendarIcon,
-  Filter,
   ArrowUpCircle,
   ArrowDownCircle,
   Search,
-  CheckCircle2,
   FileText
 } from 'lucide-react';
 import { useFarm } from '@/context/FarmContext';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import type { FarmCategory } from '@/lib/types';
 
 const ledgerConfig = {
@@ -35,8 +32,15 @@ const ledgerConfig = {
   Miscellaneous: ["General", "Tax", "Insurance"]
 };
 
-export default function FarmLedgerPage() {
-  const { farmExpenses, addFarmExpense, deleteFarmExpense, totalExpenses, totalSales, isLoading } = useFarm();
+/**
+ * @fileOverview High-Fidelity Master Ledger.
+ * Unified transactional source of truth for all operational pillars.
+ */
+function FarmLedgerContent() {
+  const { 
+    farmExpenses, addFarmExpense, deleteFarmExpense, 
+    totalExpenses, totalSales, isLoading 
+  } = useFarm();
   const { toast } = useToast();
 
   const [showLedgerForm, setShowLedgerForm] = useState(false);
@@ -65,8 +69,8 @@ export default function FarmLedgerPage() {
   const filteredExpenses = useMemo(() => {
     if (!farmExpenses) return [];
     return farmExpenses.filter(e => {
-      const matchesSearch = e.description.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                           e.subcategory.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSearch = (e.description || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
+                           (e.subcategory || '').toLowerCase().includes(searchTerm.toLowerCase());
       const matchesCat = filterCategory === 'All' || e.category === filterCategory;
       return matchesSearch && matchesCat;
     });
@@ -86,7 +90,7 @@ export default function FarmLedgerPage() {
       totalAmount: total,
     } as any);
 
-    toast({ title: "Ledger Synchronized", description: "Record has been committed to the master ledger." });
+    toast({ title: "Ledger Synchronized", description: "Record committed to master registry." });
     setShowLedgerForm(false);
     setLedgerForm({
       date: format(new Date(), 'yyyy-MM-dd'),
@@ -311,5 +315,13 @@ export default function FarmLedgerPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function FarmLedgerPage() {
+  return (
+    <ErrorBoundary>
+      <FarmLedgerContent />
+    </ErrorBoundary>
   );
 }
