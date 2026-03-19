@@ -26,7 +26,6 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: 'cover',
-  // Updated to match your Sidebar color (#005f4b)
   themeColor: '#005f4b', 
 };
 
@@ -42,13 +41,11 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* Swapped Inter for Montserrat */}
-        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
         <link rel="apple-touch-icon" href={appleIcon} />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       </head>
-      {/* Changed class from font-body to font-sans to match your tailwind config */}
       <body className="font-sans antialiased selection:bg-primary selection:text-primary-foreground overflow-x-hidden min-h-screen">
         <FirebaseClientProvider>
           <AuthGuard>

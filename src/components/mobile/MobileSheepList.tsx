@@ -2,32 +2,35 @@
 
 import { useFarm } from '@/context/FarmContext';
 import { Badge } from '@/components/ui/badge';
-import { Scale, Calendar, ChevronRight } from 'lucide-react';
+import { Scale, Calendar, ChevronRight, Activity } from 'lucide-react';
 
 export function MobileSheepList() {
   const { trackedSheep } = useFarm();
 
   return (
-    <div className="space-y-4 px-4 pb-32">
-      {trackedSheep?.map((sheep) => (
-        <div key={sheep.id} className="bg-white/5 border border-white/10 rounded-[1.5rem] p-5 flex items-center gap-4 active:scale-95 transition-all">
-          <div className="h-16 w-16 rounded-2xl bg-[#14d5c7]/10 flex items-center justify-center text-[#14d5c7]">
-            <Scale className="h-8 w-8" />
-          </div>
+    <div className="space-y-6 pb-32">
+      {trackedSheep?.length ? trackedSheep.map((sheep) => (
+        <div key={sheep.id} className="bg-white border-b border-gray-100 pb-6 flex items-center gap-5 active:scale-[0.98] transition-all">
           <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between mb-1">
-              <Badge className="bg-[#14d5c7] text-black border-none font-black text-[10px] px-2 py-0">#{sheep.tagId}</Badge>
-              <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Active</span>
+            <div className="flex items-center justify-between mb-2">
+              <Badge className="bg-emerald-500 text-white border-none font-black text-[10px] px-3 py-0.5 uppercase tracking-widest">#{sheep.tagId}</Badge>
+              <div className="flex items-center gap-1.5 text-[10px] font-black text-emerald-600 uppercase tracking-widest">
+                <Activity className="h-3 w-3" /> Healthy
+              </div>
             </div>
-            <h3 className="text-lg font-black text-white leading-tight truncate">{sheep.breed || 'Standard'}</h3>
-            <div className="flex items-center gap-3 mt-2 text-white/40 text-[10px] font-bold uppercase">
-              <span className="flex items-center gap-1"><Scale className="h-3 w-3" /> {sheep.currentWeight}kg</span>
-              <span className="flex items-center gap-1"><Calendar className="h-3 w-3" /> {sheep.age}m</span>
+            <h3 className="text-2xl font-black text-slate-900 leading-none truncate uppercase tracking-tight">{sheep.breed || 'Standard'}</h3>
+            <div className="flex items-center gap-4 mt-3 text-slate-400 text-[11px] font-bold uppercase tracking-widest">
+              <span className="flex items-center gap-1.5"><Scale className="h-3.5 w-3.5 opacity-40" /> {sheep.currentWeight} KG</span>
+              <span className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5 opacity-40" /> {sheep.age} MOS</span>
             </div>
           </div>
-          <ChevronRight className="h-5 w-5 text-white/20" />
+          <div className="h-12 w-12 rounded-full bg-slate-50 flex items-center justify-center">
+            <ChevronRight className="h-6 w-6 text-slate-300" />
+          </div>
         </div>
-      ))}
+      )) : (
+        <div className="py-20 text-center opacity-20 font-black uppercase text-[10px] tracking-[0.3em]">No Assets Logged</div>
+      )}
     </div>
   );
 }
