@@ -55,6 +55,7 @@ interface FarmContextType {
   totalLoanBalance: number;
   totalCreditCardDebt: number;
   totalPrivateDebt: number;
+  totalMonthlyEmi: number;
 }
 
 const FarmContext = createContext<FarmContextType | undefined>(undefined);
@@ -74,7 +75,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const isVerified = useMemo(() => !isUserLoading && !isProfileLoading && (userProfile?.role === 'collaborator' || userProfile?.role === 'admin'), [userProfile, isUserLoading, isProfileLoading]);
   const isAdmin = useMemo(() => !isUserLoading && !isProfileLoading && userProfile?.role === 'admin', [userProfile, isUserLoading, isProfileLoading]);
 
-  // Master Ledger - Unified transactions
+  // Master Ledger - Unified transactions using chronological index
   const eRef = useMemo(() => {
     if (!firestore || !isVerified) return null;
     return query(collectionGroup(firestore, 'farmExpenses'), orderBy('date', 'desc'));
@@ -156,6 +157,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     totalLoanBalance: (qLoans || []).reduce((s, l) => s + (l.balanceLoan || 0), 0),
     totalCreditCardDebt: (qCards || []).reduce((s, c) => s + (c.outstandingAmount || 0), 0),
     totalPrivateDebt: (qDebts || []).reduce((s, d) => s + (d.amount || 0), 0),
+    totalMonthlyEmi: (qLoans || []).reduce((s, l) => s + (l.monthlyEmi || 0), 0),
   }), [qExpenses, eExpenses, qTracked, qLoans, qCards, qDebts, qIncomes, qMExpenses, qMarket, isUserLoading, isProfileLoading, lExpenses, lTracked, lLoans, lCards, lDebts, lIncomes, lMExpenses, lMarket, userProfile, totalExp, totalRev, totalD, upsert, remove, mounted]);
 
   if (!mounted) return null;

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -15,10 +16,6 @@ export default function AnalysisPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { 
-    purchases, 
-    medicineExpenses, 
-    feedCosts, 
-    laborCosts, 
     farmExpenses,
     isLoading: isFarmDataLoading 
   } = useFarm();
@@ -29,42 +26,6 @@ export default function AnalysisPage() {
     setAnalysis(null);
     try {
       const input = {
-        livestockPurchases: (purchases || []).map(p => ({
-          purchaseDate: p.purchaseDate,
-          villageName: p.villageName,
-          farmerName: p.farmerName,
-          animalCount: p.animalCount,
-          purchasePrice: p.purchasePrice,
-          transportCost: p.transportCost,
-          amountPaid: p.amountPaid,
-          dueAmount: p.dueAmount,
-          payingTimePeriod: p.payingTimePeriod,
-        })),
-        medicineExpenses: (medicineExpenses || []).map(m => ({
-          shopName: m.shopName,
-          date: m.date,
-          description: m.description,
-          costOfMedicines: m.costOfMedicines,
-          totalAmountSpent: m.totalAmountSpent,
-          outstandingDues: m.outstandingDues,
-        })),
-        feedCosts: (feedCosts || []).map(f => ({
-          feedType: f.feedType,
-          cost: f.cost,
-          date: f.date,
-          quantity: f.quantity,
-          bags: f.bags,
-        })),
-        laborCosts: (laborCosts || []).map(l => ({
-          employeeName: l.employeeName,
-          date: l.date,
-          wages: l.wages,
-          numberOfLaborers: l.numberOfLaborers,
-          advancePayments: l.advancePayments,
-          foodCosts: l.foodCosts,
-          fuelCosts: l.fuelCosts,
-          totalLaborCosts: l.totalLaborCosts,
-        })),
         farmExpenses: (farmExpenses || []).map(e => ({
           date: e.date,
           category: e.category,
