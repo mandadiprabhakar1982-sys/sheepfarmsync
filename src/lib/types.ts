@@ -1,51 +1,46 @@
-import type { z } from 'zod';
-import type { analyzeFarmCosts } from '@/ai/flows/analyze-farm-costs';
 
-type AnalyzeFarmCostsInput = Parameters<typeof analyzeFarmCosts>[0];
-
-export type LivestockPurchase = AnalyzeFarmCostsInput['livestockPurchases'][0] & { 
-  id: string; 
+export type UserProfile = {
+  id: string;
   _path?: string;
-  createdBy?: string;
-  creatorEmail?: string;
-  creatorName?: string;
-  imageUrl?: string;
+  email: string;
+  displayName: string | null;
+  role: 'collaborator' | 'admin' | 'viewer';
+  createdAt: any;
+  updatedAt?: any;
 };
 
-export type MedicineExpense = AnalyzeFarmCostsInput['medicineExpenses'][0] & { 
-  id: string; 
+export type FarmCategory = 'Health' | 'Feed' | 'Utility' | 'Labour' | 'Purchase' | 'Sale' | 'Miscellaneous';
+
+export type FarmExpense = {
+  id: string;
   _path?: string;
+  date: string;
+  category: FarmCategory;
+  subcategory: string;
+  description: string;
+  quantity: number;
+  unitCost: number;
+  totalAmount: number;
+  paymentMode: 'Cash' | 'Online' | 'Credit';
+  remarks?: string;
   createdBy?: string;
   creatorEmail?: string;
   creatorName?: string;
+  updatedAt?: any;
 };
 
-export type FeedCost = AnalyzeFarmCostsInput['feedCosts'][0] & { 
-  id: string; 
+export type LivestockPurchase = {
+  id: string;
   _path?: string;
-  createdBy?: string;
-  creatorEmail?: string;
-  creatorName?: string;
-};
-
-export type LaborCost = AnalyzeFarmCostsInput['laborCosts'][0] & { 
-  id: string; 
-  _path?: string;
-  createdBy?: string;
-  creatorEmail?: string;
-  creatorName?: string;
-};
-
-export type FarmExpense = AnalyzeFarmCostsInput['farmExpenses'][0] & { 
-  id: string; 
-  _path?: string;
-  createdBy?: string;
-  creatorEmail?: string;
-  creatorName?: string;
-  imageUrl?: string;
-  paymentMode?: string;
-  notes?: string;
-  expenseType?: string;
+  purchaseDate: string;
+  villageName: string;
+  farmerName: string;
+  animalCount: number;
+  purchasePrice: number;
+  amountPaid: number;
+  dueAmount: number;
+  payingTimePeriod?: string;
+  transportCost?: number;
 };
 
 export type AnimalSale = {
@@ -59,25 +54,6 @@ export type AnimalSale = {
   salePrice: number;
   amountReceived: number;
   outstandingDuesFromBuyer: number;
-  isPublic?: boolean;
-  createdBy?: string;
-  creatorEmail?: string;
-  creatorName?: string;
-  imageUrl?: string;
-};
-
-export type PublicSale = {
-  id: string;
-  _path?: string;
-  sellerId: string;
-  sellerEmail: string;
-  sellerName?: string;
-  saleDate: string;
-  village: string;
-  animalCount: number;
-  totalWeight: number;
-  askingPrice: number;
-  notes?: string;
 };
 
 export type TrackedSheep = {
@@ -86,42 +62,14 @@ export type TrackedSheep = {
   tagId: string;
   currentWeight: number;
   previousWeight?: number;
-  age: number; // in months
+  age: number;
   gender?: 'male' | 'female';
   breed?: string;
   imageUrl?: string;
   registrationDate?: string;
   color?: string;
   source?: string;
-  healthStatus?: string;
-  vaccination?: string;
-  notes?: string;
-  createdBy?: string;
-  creatorEmail?: string;
-  creatorName?: string;
   createdAt?: any;
-  updatedAt?: any;
-};
-
-export type HealthTask = {
-  id: string;
-  _path?: string;
-  date: string;
-  sheepId: string;
-  animalGroup: 'Lamb' | 'Adult' | 'Pregnant' | 'Ram';
-  healthType: 'Vaccination' | 'Deworming' | 'Supplement' | 'Treatment';
-  symptom: 'Fever' | 'Worms' | 'Cough' | 'Injury' | 'None' | 'Other';
-  medicineName: string;
-  dose: number;
-  unit: 'ml' | 'mg' | 'tablet';
-  route: 'Oral' | 'Injection';
-  nextDueDate: string;
-  administeredBy: string;
-  notes?: string;
-  cost: number;
-  createdBy?: string;
-  creatorEmail?: string;
-  creatorName?: string;
 };
 
 export type DeadAnimal = {
@@ -131,20 +79,6 @@ export type DeadAnimal = {
   sheepCount: number;
   tagId?: string;
   causeOfDeath: string;
-  notes?: string;
-  createdBy?: string;
-  creatorEmail?: string;
-  creatorName?: string;
-};
-
-export type UserProfile = {
-  id: string;
-  _path?: string;
-  email: string;
-  displayName: string | null;
-  role: 'collaborator' | 'admin' | 'viewer';
-  createdAt: any;
-  updatedAt?: any;
 };
 
 export interface BankLoan {
@@ -159,7 +93,6 @@ export interface BankLoan {
   interest: number;
   paymentDate?: string;
   startDate?: string;
-  updatedAt?: any;
 }
 
 export interface CreditCard {
@@ -170,7 +103,6 @@ export interface CreditCard {
   totalLimit: number;
   outstandingAmount: number;
   minimumPayment: number;
-  updatedAt?: any;
 }
 
 export interface PrivateDebt {
@@ -179,10 +111,6 @@ export interface PrivateDebt {
   date?: string;
   personName: string;
   amount: number;
-  interestRate?: number;
-  monthlyInterest?: number;
-  yearlyInterest?: number;
-  updatedAt?: any;
 }
 
 export interface MonthlyIncome {
@@ -191,7 +119,6 @@ export interface MonthlyIncome {
   date: string;
   source: string;
   amount: number;
-  updatedAt?: any;
 }
 
 export interface MonthlyExpense {
@@ -201,5 +128,18 @@ export interface MonthlyExpense {
   source: string;
   amount: number;
   category: 'loan' | 'card' | 'private' | 'household';
-  updatedAt?: any;
 }
+
+export type PublicSale = {
+  id: string;
+  _path?: string;
+  sellerId: string;
+  sellerEmail: string;
+  sellerName?: string;
+  saleDate: string;
+  village: string;
+  animalCount: number;
+  totalWeight: number;
+  askingPrice: number;
+  notes?: string;
+};

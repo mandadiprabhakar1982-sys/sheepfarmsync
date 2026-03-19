@@ -15,6 +15,24 @@
       },
       "required": ["id", "email"]
     },
+    "LedgerEntry": {
+      "title": "LedgerEntry",
+      "type": "object",
+      "description": "Unified transaction record for the farm ledger.",
+      "properties": {
+        "id": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "category": { "type": "string", "enum": ["Health", "Feed", "Utility", "Labour", "Purchase", "Sale", "Miscellaneous"] },
+        "subcategory": { "type": "string" },
+        "description": { "type": "string" },
+        "quantity": { "type": "number" },
+        "unitCost": { "type": "number" },
+        "totalAmount": { "type": "number" },
+        "paymentMode": { "type": "string", "enum": ["Cash", "Online", "Credit"] },
+        "remarks": { "type": "string" }
+      },
+      "required": ["id", "date", "category", "totalAmount", "paymentMode"]
+    },
     "MonthlyIncome": {
       "title": "MonthlyIncome",
       "type": "object",
@@ -37,18 +55,6 @@
         "category": { "type": "string", "enum": ["loan", "card", "private", "household"] }
       },
       "required": ["id", "date", "source", "amount", "category"]
-    },
-    "HealthTask": {
-      "title": "HealthTask",
-      "type": "object",
-      "description": "Health-related tasks like vaccinations and deworming.",
-      "properties": {
-        "id": { "type": "string" },
-        "taskName": { "type": "string" },
-        "lastAdministered": { "type": "string", "format": "date" },
-        "nextDueDate": { "type": "string", "format": "date" }
-      },
-      "required": ["id", "taskName", "lastAdministered", "nextDueDate"]
     },
     "TrackedSheep": {
       "title": "TrackedSheep",
@@ -120,6 +126,10 @@
       "schema": { "$ref": "#/backend/entities/UserProfile" },
       "description": "User profiles with role-based access control."
     },
+    "/users/{userId}/farmExpenses/{id}": {
+      "schema": { "$ref": "#/backend/entities/LedgerEntry" },
+      "description": "The master unified farm ledger."
+    },
     "/users/{userId}/monthlyIncomes/{id}": {
       "schema": { "$ref": "#/backend/entities/MonthlyIncome" },
       "description": "Income streams for monthly balance sheet."
@@ -128,37 +138,9 @@
       "schema": { "$ref": "#/backend/entities/MonthlyExpense" },
       "description": "Categorized expenses for monthly balance sheet."
     },
-    "/users/{userId}/healthTasks/{id}": {
-      "schema": { "$ref": "#/backend/entities/HealthTask" },
-      "description": "Subcollection for health records."
-    },
     "/users/{userId}/trackedSheep/{id}": {
       "schema": { "$ref": "#/backend/entities/TrackedSheep" },
       "description": "Subcollection for animal growth records."
-    },
-    "/users/{userId}/livestockPurchases/{id}": {
-      "schema": { "type": "object" },
-      "description": "Subcollection for purchase history."
-    },
-    "/users/{userId}/animalSales/{id}": {
-      "schema": { "type": "object" },
-      "description": "Subcollection for sales history."
-    },
-    "/users/{userId}/feedExpenses/{id}": {
-      "schema": { "type": "object" },
-      "description": "Subcollection for feed costs."
-    },
-    "/users/{userId}/laborExpenses/{id}": {
-      "schema": { "type": "object" },
-      "description": "Subcollection for labor costs."
-    },
-    "/users/{userId}/farmExpenses/{id}": {
-      "schema": { "type": "object" },
-      "description": "Subcollection for general expenses."
-    },
-    "/users/{userId}/deadAnimals/{id}": {
-      "schema": { "type": "object" },
-      "description": "Subcollection for mortality logs."
     },
     "/users/{userId}/bankLoans/{id}": {
       "schema": { "$ref": "#/backend/entities/BankLoan" },
