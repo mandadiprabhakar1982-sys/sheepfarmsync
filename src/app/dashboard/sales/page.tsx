@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
@@ -11,7 +12,8 @@ import {
   X, 
   Plus, 
   CheckCircle2, 
-  Search 
+  Search,
+  Trash2
 } from 'lucide-react';
 import { format, parseISO, isToday, isYesterday } from 'date-fns';
 
@@ -63,7 +65,7 @@ export default function TradeLedgerPage() {
   const { toast } = useToast();
   const { 
     sales, addSale, postToMarketplace,
-    purchases, totalSales, isLoading 
+    purchases, totalSales, isLoading, deleteSale
   } = useFarm();
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -75,9 +77,9 @@ export default function TradeLedgerPage() {
   });
 
   const combinedLedger = useMemo(() => {
-    const s = (sales || []).map(item => ({ ...item, _type: 'sale' as const, date: item.saleDate, entity: item.buyerName, value: item.salePrice, dues: item.outstandingDuesFromBuyer, loc: item.buyerVillage }));
-    const p = (purchases || []).map(item => ({ ...item, _type: 'purchase' as const, date: item.purchaseDate, entity: item.farmerName, value: item.purchasePrice, dues: item.dueAmount, loc: item.villageName }));
-    const filtered = [...s, ...p].filter(item => item.entity.toLowerCase().includes(searchTerm.toLowerCase()));
+    const s = (sales || []).map(item => ({ ...item, _type: 'sale' as const, date: item.date, entity: item.buyerName, value: item.totalAmount, dues: item.outstandingDuesFromBuyer, loc: item.buyerVillage }));
+    const p = (purchases || []).map(item => ({ ...item, _type: 'purchase' as const, date: item.date, entity: item.farmerName, value: item.totalAmount, dues: item.dueAmount, loc: item.villageName }));
+    const filtered = [...s, ...p].filter(item => (item.entity || '').toLowerCase().includes(searchTerm.toLowerCase()));
     return filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [sales, purchases, searchTerm]);
 
@@ -93,6 +95,13 @@ export default function TradeLedgerPage() {
     salesForm.reset();
     setIsDisposalOpen(false);
     toast({ title: 'Pashu Sold', description: 'Transaction recorded in selling ledger.' });
+  };
+
+  const handleDelete = (item: any) => {
+    if (confirm(`Remove this ${item._type} record?`)) {
+      deleteSale(item.id, item._path);
+      toast({ title: "Transaction Removed", description: "Ledger updated." });
+    }
   };
 
   if (isLoading) {
@@ -162,18 +171,16 @@ export default function TradeLedgerPage() {
                 </div>
                 <div className="text-right shrink-0">
                   <p className={cn("text-xl font-black", item._type === 'sale' ? "text-[#059669]" : "text-slate-900")}>
-                    {item._type === 'sale' ? '+' : '-'}₹{item.value.toLocaleString()}
+                    {item._type === 'sale' ? '+' : '-'}₹{(item.value || 0).toLocaleString()}
                   </p>
-                  {item.dues > 0 ? (
-                    <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-rose-50 text-rose-600 border border-rose-100 mt-1">
-                      <span className="text-[9px] font-black uppercase tracking-widest">₹{item.dues.toLocaleString()} Raavalasi</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#ecfdf5] text-[#059669] border border-[#d1fae5] mt-1">
-                      <CheckCircle2 className="h-2.5 w-2.5" />
-                      <span className="text-[9px] font-black uppercase tracking-widest">SETTLED</span>
-                    </div>
-                  )}
+                  <div className="flex items-center justify-end gap-2 mt-1">
+                    <button onClick={() => handleDelete(item)} className="p-1 rounded-full bg-rose-50 text-rose-500"><Trash2 className="h-3 w-3" /></button>
+                    {item.dues > 0 ? (
+                      <span className="text-[9px] font-black uppercase text-rose-600">₹{item.dues.toLocaleString()} Due</span>
+                    ) : (
+                      <CheckCircle2 className="h-3 w-3 text-[#059669]" />
+                    )}
+                  </div>
                 </div>
               </div>
             )) : <div className="py-20 text-center opacity-20 font-black uppercase text-xs">No selling records discovered</div>}
@@ -187,21 +194,24 @@ export default function TradeLedgerPage() {
                   <TableHead className="text-[10px] font-black uppercase tracking-widest py-6 pl-10 text-white">Selling Date</TableHead>
                   <TableHead className="text-[10px] font-black uppercase tracking-widest py-6 text-white">Counterparty (Buyer)</TableHead>
                   <TableHead className="text-[10px] font-black uppercase tracking-widest py-6 text-center text-white">Head Count</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-6 text-right pr-10 text-white">Transaction Value</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest py-6 text-right pr-10 text-white">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {combinedLedger.map((item) => (
-                  <TableRow key={item.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
+                  <TableRow key={item.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors group">
                     <TableCell className="py-6 pl-10 text-[11px] font-black text-slate-400">{item.date}</TableCell>
                     <TableCell>
                       <div className="flex flex-col"><span className="text-[14px] font-black text-[#2F4F4F]">{item.entity}</span><span className="text-[9px] font-bold text-slate-400 uppercase">{item.loc} • {item._type === 'sale' ? 'SELLING' : 'BUYING'}</span></div>
                     </TableCell>
                     <TableCell className="text-center"><span className="text-[14px] font-black">{item.animalCount} Head</span></TableCell>
                     <TableCell className="text-right pr-10">
-                      <div className="flex flex-col items-end">
-                        <span className={cn("text-[18px] font-black", item._type === 'sale' ? "text-emerald-600" : "text-slate-900")}>{item._type === 'sale' ? '+' : '-'}₹{item.value.toLocaleString()}</span>
-                        {item.dues > 0 && <span className="text-[9px] font-bold text-rose-500 uppercase">₹{item.dues.toLocaleString()} Raavalasi</span>}
+                      <div className="flex items-center justify-end gap-4">
+                        <div className="flex flex-col items-end">
+                          <span className={cn("text-[18px] font-black", item._type === 'sale' ? "text-emerald-600" : "text-slate-900")}>{item._type === 'sale' ? '+' : '-'}₹{(item.value || 0).toLocaleString()}</span>
+                          {item.dues > 0 && <span className="text-[9px] font-bold text-rose-500 uppercase">₹{item.dues.toLocaleString()} Due</span>}
+                        </div>
+                        <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-rose-600 opacity-0 group-hover:opacity-100 transition-all" onClick={() => handleDelete(item)}><Trash2 className="h-4 w-4" /></Button>
                       </div>
                     </TableCell>
                   </TableRow>

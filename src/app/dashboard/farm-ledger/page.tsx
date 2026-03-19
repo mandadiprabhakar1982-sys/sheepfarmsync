@@ -12,7 +12,8 @@ import {
   ArrowUpCircle,
   ArrowDownCircle,
   Search,
-  FileText
+  FileText,
+  AlertCircle
 } from 'lucide-react';
 import { useFarm } from '@/context/FarmContext';
 import { useToast } from '@/hooks/use-toast';
@@ -103,16 +104,17 @@ function FarmLedgerContent() {
     });
   };
 
+  const handleDelete = (id: string, path?: string) => {
+    if (confirm("Permanently remove this ledger entry?")) {
+      deleteFarmExpense(id, path);
+      toast({ title: "Entry Removed", description: "Audit trail adjusted." });
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="container mx-auto py-8 max-w-7xl animate-pulse space-y-6">
-        <div className="flex justify-between items-center mb-10">
-          <div className="h-12 bg-[#edf2f7] rounded-xl w-48" />
-          <div className="flex gap-4">
-            <div className="h-12 bg-[#edf2f7] rounded-xl w-32" />
-            <div className="h-12 bg-[#edf2f7] rounded-xl w-32" />
-          </div>
-        </div>
+        <div className="h-12 bg-[#edf2f7] rounded-xl w-48" />
         <div className="h-14 bg-[#edf2f7] rounded-2xl w-full" />
         <div className="space-y-4">
           {[1, 2, 3, 4, 5].map(i => <div key={i} className="h-20 bg-[#edf2f7] rounded-2xl w-full" />)}
@@ -212,8 +214,9 @@ function FarmLedgerContent() {
                   </td>
                   <td className="p-6 text-right">
                     <button 
-                      onClick={() => deleteFarmExpense(e.id, e._path)} 
-                      className="h-10 w-10 rounded-full bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 mx-auto md:ml-auto"
+                      onClick={() => handleDelete(e.id, e._path)} 
+                      className="h-10 w-10 rounded-full bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white flex items-center justify-center transition-all mx-auto md:ml-auto group-hover:scale-110 active:scale-90"
+                      title="Remove Entry"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
