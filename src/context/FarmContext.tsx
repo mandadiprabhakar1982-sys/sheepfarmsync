@@ -11,22 +11,50 @@ import { setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase/no
 
 interface FarmContextType {
   farmExpenses: FarmExpense[] | null;
-  addFarmExpense: (expense: Omit<FarmExpense, 'id' | '_path'>) => void;
+  addFarmExpense: (expense: any) => void;
   deleteFarmExpense: (id: string, path?: string) => void;
-  updateFarmExpense: (id: string, data: Omit<FarmExpense, 'id' | '_path'>, path?: string) => void;
+  updateFarmExpense: (id: string, data: any, path?: string) => void;
   
+  // Specialized Data Streams (Derived from Master Ledger)
+  feedCosts: FarmExpense[];
+  laborCosts: FarmExpense[];
+  medicineExpenses: FarmExpense[];
+  purchases: FarmExpense[];
+  sales: FarmExpense[];
+  deadAnimals: FarmExpense[];
+
+  // Specialized Mutations (Mapping to Master Ledger)
+  addFeedCost: (data: any) => void;
+  deleteFeedCost: (id: string, path?: string) => void;
+  addLaborCost: (data: any) => void;
+  deleteLaborCost: (id: string, path?: string) => void;
+  updateLaborCost: (id: string, data: any, path?: string) => void;
+  addPurchase: (data: any) => void;
+  deletePurchase: (id: string, path?: string) => void;
+  updatePurchase: (id: string, data: any, path?: string) => void;
+  addSale: (data: any) => void;
+  deleteSale: (id: string, path?: string) => void;
+  addHealthTask: (data: any) => void;
+  deleteHealthTask: (id: string, path?: string) => void;
+  addMedicineExpense: (data: any) => void;
+  deleteMedicineExpense: (id: string, path?: string) => void;
+  addDeadAnimal: (data: any) => void;
+  deleteDeadAnimal: (id: string, path?: string) => void;
+
+  // Asset Tracking
   trackedSheep: TrackedSheep[] | null;
   addTrackedSheep: (sheep: Omit<TrackedSheep, 'id' | '_path'>) => void;
   deleteTrackedSheep: (id: string, path?: string) => void;
   updateTrackedSheep: (id: string, data: Omit<TrackedSheep, 'id' | '_path'>, path?: string) => void;
 
-  // Transactions - Derived Helpers
+  // Totals
   totalFeedCost: number;
   totalLaborCost: number;
   totalPurchaseCost: number;
   totalMedicineCost: number;
   totalSales: number;
   totalDead: number;
+  totalExpenses: number;
 
   // Private Financials
   bankLoans: BankLoan[] | null;
@@ -62,7 +90,6 @@ interface FarmContextType {
   ledgerError: any | null;
   userRole: string | null;
   totalSheep: number;
-  totalExpenses: number;
   totalLoanBalance: number;
   totalCreditCardDebt: number;
   totalPrivateDebt: number;
@@ -134,19 +161,26 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     deleteDocumentNonBlocking(docRef);
   }, [user, firestore]);
 
+  // Derived Data Arrays
+  const feedCosts = useMemo(() => qExpenses?.filter(e => e.category === 'Feed') || [], [qExpenses]);
+  const laborCosts = useMemo(() => qExpenses?.filter(e => e.category === 'Labour') || [], [qExpenses]);
+  const medicineExpenses = useMemo(() => qExpenses?.filter(e => e.category === 'Health' && e.subcategory !== 'Mortality') || [], [qExpenses]);
+  const purchases = useMemo(() => qExpenses?.filter(e => e.category === 'Purchase') || [], [qExpenses]);
+  const sales = useMemo(() => qExpenses?.filter(e => e.category === 'Sale') || [], [qExpenses]);
+  const deadAnimals = useMemo(() => qExpenses?.filter(e => e.category === 'Health' && e.subcategory === 'Mortality') || [], [qExpenses]);
+
   // Unified Totals Calculation
   const totals = useMemo(() => {
-    const list = qExpenses || [];
     return {
-      feed: list.filter(e => e.category === 'Feed').reduce((s, e) => s + (e.totalAmount || 0), 0),
-      labor: list.filter(e => e.category === 'Labour').reduce((s, e) => s + (e.totalAmount || 0), 0),
-      med: list.filter(e => e.category === 'Health' && e.subcategory !== 'Mortality').reduce((s, e) => s + (e.totalAmount || 0), 0),
-      purchase: list.filter(e => e.category === 'Purchase').reduce((s, e) => s + (e.totalAmount || 0), 0),
-      sales: list.filter(e => e.category === 'Sale').reduce((s, e) => s + (e.totalAmount || 0), 0),
-      dead: list.filter(e => e.category === 'Health' && e.subcategory === 'Mortality').reduce((s, e) => s + (e.quantity || 0), 0),
-      allExp: list.filter(e => e.category !== 'Sale').reduce((s, e) => s + (e.totalAmount || 0), 0)
+      feed: feedCosts.reduce((s, e) => s + (e.totalAmount || 0), 0),
+      labor: laborCosts.reduce((s, e) => s + (e.totalAmount || 0), 0),
+      med: medicineExpenses.reduce((s, e) => s + (e.totalAmount || 0), 0),
+      purchase: purchases.reduce((s, e) => s + (e.totalAmount || 0), 0),
+      sales: sales.reduce((s, e) => s + (e.totalAmount || 0), 0),
+      dead: deadAnimals.reduce((s, e) => s + (e.quantity || 0), 0),
+      allExp: (qExpenses || []).filter(e => e.category !== 'Sale').reduce((s, e) => s + (e.totalAmount || 0), 0)
     };
-  }, [qExpenses]);
+  }, [qExpenses, feedCosts, laborCosts, medicineExpenses, purchases, sales, deadAnimals]);
 
   const value = useMemo(() => ({
     farmExpenses: qExpenses,
@@ -154,6 +188,39 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     updateFarmExpense: (id: string, e: any, path?: string) => upsert('farmExpenses', id, e, path),
     deleteFarmExpense: (id: string, path?: string) => remove('farmExpenses', id, path),
     
+    // Derived Streams
+    feedCosts,
+    laborCosts,
+    medicineExpenses,
+    purchases,
+    sales,
+    deadAnimals,
+
+    // Specialized Adders
+    addFeedCost: (e: any) => upsert('farmExpenses', undefined, { ...e, category: 'Feed' }),
+    deleteFeedCost: (id: string, path?: string) => remove('farmExpenses', id, path),
+    
+    addLaborCost: (e: any) => upsert('farmExpenses', undefined, { ...e, category: 'Labour', subcategory: 'Staff Payment', totalAmount: e.totalLaborCosts, description: `Labour: ${e.employeeName}` }),
+    deleteLaborCost: (id: string, path?: string) => remove('farmExpenses', id, path),
+    updateLaborCost: (id: string, e: any, path?: string) => upsert('farmExpenses', id, { ...e, totalAmount: e.totalLaborCosts }, path),
+
+    addPurchase: (e: any) => upsert('farmExpenses', undefined, { ...e, category: 'Purchase', subcategory: 'Animal Purchase', totalAmount: e.purchasePrice, description: `Buy: ${e.animalCount} Head from ${e.farmerName}`, date: e.purchaseDate }),
+    deletePurchase: (id: string, path?: string) => remove('farmExpenses', id, path),
+    updatePurchase: (id: string, e: any, path?: string) => upsert('farmExpenses', id, { ...e, totalAmount: e.purchasePrice, date: e.purchaseDate }, path),
+
+    addSale: (e: any) => upsert('farmExpenses', undefined, { ...e, category: 'Sale', subcategory: 'Animal Sale', totalAmount: e.salePrice, description: `Sell: ${e.animalCount} Head to ${e.buyerName}`, date: e.saleDate }),
+    deleteSale: (id: string, path?: string) => remove('farmExpenses', id, path),
+
+    addHealthTask: (e: any) => upsert('farmExpenses', undefined, { ...e, category: 'Health', subcategory: e.healthType, totalAmount: e.cost, description: `Treat: ${e.medicineName} (ID: ${e.sheepId})` }),
+    deleteHealthTask: (id: string, path?: string) => remove('farmExpenses', id, path),
+
+    addMedicineExpense: (e: any) => upsert('farmExpenses', undefined, { ...e, category: 'Health', subcategory: 'Pharma Bill', totalAmount: e.totalAmountSpent, description: `Bill: ${e.shopName}` }),
+    deleteMedicineExpense: (id: string, path?: string) => remove('farmExpenses', id, path),
+
+    addDeadAnimal: (e: any) => upsert('farmExpenses', undefined, { ...e, category: 'Health', subcategory: 'Mortality', quantity: e.sheepCount, totalAmount: 0, description: `Dead: ${e.sheepCount} Head (Cause: ${e.causeOfDeath})`, date: e.dateOfDeath }),
+    deleteDeadAnimal: (id: string, path?: string) => remove('farmExpenses', id, path),
+
+    // Assets
     trackedSheep: qTracked,
     addTrackedSheep: (s: any) => upsert('trackedSheep', undefined, s),
     updateTrackedSheep: (id: string, s: any, path?: string) => upsert('trackedSheep', id, s, path),
@@ -184,7 +251,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     totalCreditCardDebt: (qCards || []).reduce((s, c) => s + (c.outstandingAmount || 0), 0),
     totalPrivateDebt: (qDebts || []).reduce((s, d) => s + (d.amount || 0), 0),
     totalMonthlyEmi: (qLoans || []).reduce((s, l) => s + (l.monthlyEmi || 0), 0),
-  }), [qExpenses, eExpenses, qTracked, qLoans, qCards, qDebts, qIncomes, qMExpenses, qMarket, isUserLoading, isProfileLoading, lExpenses, lTracked, lLoans, lCards, lDebts, lIncomes, lMExpenses, lMarket, userProfile, totals, upsert, remove, mounted]);
+  }), [qExpenses, eExpenses, feedCosts, laborCosts, medicineExpenses, purchases, sales, deadAnimals, qTracked, qLoans, qCards, qDebts, qIncomes, qMExpenses, qMarket, isUserLoading, isProfileLoading, lExpenses, lTracked, lLoans, lCards, lDebts, lIncomes, lMExpenses, lMarket, userProfile, totals, upsert, remove, mounted]);
 
   if (!mounted) return null;
   return <FarmContext.Provider value={value}>{children}</FarmContext.Provider>;
