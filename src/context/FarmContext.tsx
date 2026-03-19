@@ -7,7 +7,7 @@ import type {
   BankLoan, CreditCard, PrivateDebt, MonthlyIncome, MonthlyExpense 
 } from '@/lib/types';
 import { useUser, useFirestore, useCollection, useDoc } from '@/firebase';
-import { collection, doc, serverTimestamp, query, collectionGroup } from 'firebase/firestore';
+import { collection, doc, serverTimestamp, query, collectionGroup, orderBy } from 'firebase/firestore';
 import { setDocumentNonBlocking, deleteDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 interface FarmContextType {
@@ -135,7 +135,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const isVerified = useMemo(() => !isLoadingProfile && (userProfile?.role === 'collaborator' || userProfile?.role === 'admin'), [userProfile, isLoadingProfile]);
   const isAdmin = useMemo(() => !isLoadingProfile && userProfile?.role === 'admin', [userProfile, isLoadingProfile]);
 
-  // Shared Operational Data
+  // Shared Operational Data - Collection Groups for shared view
   const pRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'livestockPurchases')) : null, [firestore, isVerified]);
   const sRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'animalSales')) : null, [firestore, isVerified]);
   const fRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'feedExpenses')) : null, [firestore, isVerified]);
@@ -143,10 +143,10 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const lRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'laborExpenses')) : null, [firestore, isVerified]);
   const dRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'deadAnimals')) : null, [firestore, isVerified]);
   const tRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'trackedSheep')) : null, [firestore, isVerified]);
-  const eRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'farmExpenses')) : null, [firestore, isVerified]);
+  const eRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'farmExpenses'), orderBy('expenseDate', 'desc')) : null, [firestore, isVerified]);
   const hRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'healthTasks')) : null, [firestore, isVerified]);
   
-  // Private Financial Data
+  // Private Financial Data - Direct subcollections
   const blRef = useMemo(() => (firestore && user && isAdmin) ? collection(firestore, 'users', user.uid, 'bankLoans') : null, [firestore, user, isAdmin]);
   const ccRef = useMemo(() => (firestore && user && isAdmin) ? collection(firestore, 'users', user.uid, 'creditCards') : null, [firestore, user, isAdmin]);
   const pdRef = useMemo(() => (firestore && user && isAdmin) ? collection(firestore, 'users', user.uid, 'privateDebts') : null, [firestore, user, isAdmin]);
@@ -184,7 +184,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const laborCosts = useMemo(() => sort(qLabor, 'date'), [qLabor, sort]);
   const deadAnimals = useMemo(() => sort(qDead, 'dateOfDeath'), [qDead, sort]);
   const trackedSheep = useMemo(() => qTracked ? [...qTracked].sort((a, b) => (a.tagId || '').localeCompare(b.tagId || '', undefined, { numeric: true, sensitivity: 'base' })) : null, [qTracked]);
-  const farmExpenses = useMemo(() => sort(qExpenses, 'expenseDate'), [qExpenses, sort]);
+  const farmExpenses = useMemo(() => qExpenses, [qExpenses]); // Already sorted by query
   const healthTasks = useMemo(() => sort(qHealth, 'nextDueDate'), [qHealth, sort]);
   const bankLoans = useMemo(() => qLoans, [qLoans]);
   const creditCards = useMemo(() => qCards, [qCards]);
@@ -266,7 +266,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     monthlyIncomes, addMonthlyIncome: (i: any) => upsert('monthlyIncomes', undefined, i), updateMonthlyIncome: (id: string, i: any, path?: string) => { if (!user || !firestore) return; const docRef = path ? doc(firestore, path) : doc(firestore, 'users', user.uid, 'monthlyIncomes', id); updateDocumentNonBlocking(docRef, { ...i, updatedAt: serverTimestamp() }); }, deleteMonthlyIncome: (id: string, path?: string) => remove('monthlyIncomes', id, path),
     monthlyExpenses, addMonthlyExpense: (e: any) => upsert('monthlyExpenses', undefined, e), updateMonthlyExpense: (id: string, e: any, path?: string) => { if (!user || !firestore) return; const docRef = path ? doc(firestore, path) : doc(firestore, 'users', user.uid, 'monthlyExpenses', id); updateDocumentNonBlocking(docRef, { ...e, updatedAt: serverTimestamp() }); }, deleteMonthlyExpense: (id: string, path?: string) => remove('monthlyExpenses', id, path),
     communitySales: qMarket, postToMarketplace, updateMarketplaceSale, deleteMarketplaceSale: (id: string, path?: string) => deleteDocumentNonBlocking(doc(firestore!, path || `communitySales/${id}`)),
-    isLoading: isLoadingProfile || (user && !isVerified && !isProfileDocLoading),
+    isLoading: isLoadingProfile || lPurchases || lSales || lFeed || lMedicine || lLabor || lDead || lTracked || lExpenses || lHealth || lLoans || lCards || lDebts || lIncomes || lMExpenses || lMarket,
     isLoadingProfile,
     userRole: userProfile?.role || null,
     totalSheep: liveSheepCount,
@@ -293,7 +293,8 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   }), [
     purchases, sales, feedCosts, medicineExpenses, laborCosts, trackedSheep, deadAnimals, farmExpenses, healthTasks, bankLoans, creditCards, privateDebts, monthlyIncomes, monthlyExpenses, qMarket,
     liveSheepCount, trackedCount, pTotal, fCost, mCost, lCost, eCost, rev, rec, pay, avgWt, dailyFeedTotal, blBal, ccBal, pdBal, mEmiTotal, mIncome, mExpense, totalCashReceivedFromSales, deadCount,
-    isLoadingProfile, user, isVerified, isProfileDocLoading,
+    isLoadingProfile, lPurchases, lSales, lFeed, lMedicine, lLabor, lDead, lTracked, lExpenses, lHealth, lLoans, lCards, lDebts, lIncomes, lMExpenses, lMarket,
+    user, isVerified, isProfileDocLoading,
     userProfile, upsert, remove, postToMarketplace, updateMarketplaceSale, firestore, isAdmin
   ]);
 

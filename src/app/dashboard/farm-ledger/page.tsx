@@ -8,11 +8,12 @@ import {
   Trash2, 
   Plus,
   Loader2,
-  X
+  X,
+  AlertCircle
 } from 'lucide-react';
 import { useFarm } from '@/context/FarmContext';
 import { useToast } from '@/hooks/use-toast';
-import { format, parseISO, isValid } from 'date-fns';
+import { format } from 'date-fns';
 
 const ledgerCategories = {
   operational: ["Feed Purchase", "Labour Payment", "Medicine", "Transport", "Veterinary Service"],
@@ -37,19 +38,21 @@ export default function FarmLedgerPage() {
 
   const sortedExpenses = useMemo(() => {
     if (!farmExpenses) return [];
-    return [...farmExpenses].sort((a, b) => new Date(b.expenseDate).getTime() - new Date(a.expenseDate).getTime());
+    // Data is sorted by query, but we keep this for local UI stability
+    return [...farmExpenses];
   }, [farmExpenses]);
 
   const saveLedger = () => {
-    if (!ledgerForm.expenseType || !ledgerForm.amount) {
-      toast({ variant: 'destructive', title: 'Missing Info', description: 'Please enter type and amount.' });
+    const parsedAmount = parseFloat(ledgerForm.amount);
+    if (!ledgerForm.expenseType || isNaN(parsedAmount)) {
+      toast({ variant: 'destructive', title: 'Invalid Entry', description: 'Please enter a valid category and amount.' });
       return;
     }
     
     addFarmExpense({
       expenseDate: ledgerForm.date,
       description: ledgerForm.expenseType,
-      amount: parseFloat(ledgerForm.amount),
+      amount: parsedAmount,
       paymentMode: ledgerForm.paymentMode,
       notes: ledgerForm.notes,
       expenseType: ledgerForm.expenseType
@@ -68,8 +71,9 @@ export default function FarmLedgerPage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-full w-full items-center justify-center min-h-[60vh]">
+      <div className="flex h-full w-full flex-col items-center justify-center min-h-[60vh] gap-4">
         <Loader2 className="h-10 w-10 animate-spin text-[#14d5c7]" />
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Syncing Ledger...</p>
       </div>
     );
   }
@@ -145,6 +149,7 @@ export default function FarmLedgerPage() {
                       <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Amount (₹)</label>
                       <input 
                         placeholder="0.00" 
+                        type="number"
                         className="w-full h-14 border-none bg-slate-50 rounded-2xl px-5 font-bold text-slate-700 focus:ring-2 focus:ring-[#0FA5A0]/20 outline-none" 
                         value={ledgerForm.amount} 
                         onChange={(e) => setLedgerForm({ ...ledgerForm, amount: e.target.value })} 
@@ -211,7 +216,10 @@ export default function FarmLedgerPage() {
                 </div>
               </div>
             )) : (
-              <div className="py-20 text-center opacity-20 font-black uppercase text-xs">No ledger records discovered</div>
+              <div className="py-24 text-center border-4 border-dashed rounded-[3rem] border-slate-100 flex flex-col items-center gap-4">
+                <AlertCircle className="h-10 w-10 text-slate-200" />
+                <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest">No ledger records discovered</p>
+              </div>
             )}
           </div>
         </CardContent>
