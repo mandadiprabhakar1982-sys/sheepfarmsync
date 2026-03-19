@@ -10,7 +10,6 @@ import {
   Plus, 
   ShieldCheck,
   Wheat,
-  Loader2,
   Search,
   X
 } from 'lucide-react';
@@ -90,8 +89,8 @@ export default function FeedPage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-full w-full items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-10 w-10 animate-spin text-[#14d5c7]" />
+      <div className="container mx-auto py-8 max-w-7xl animate-pulse space-y-6">
+        {[1, 2, 3, 4].map(i => <div key={i} className="h-20 bg-[#edf2f7] rounded-2xl w-full" />)}
       </div>
     );
   }

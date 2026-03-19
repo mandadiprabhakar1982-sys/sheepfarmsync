@@ -7,9 +7,7 @@ import { Input } from '@/components/ui/input';
 import { 
   Trash2, 
   Plus,
-  Loader2,
   X,
-  Calendar as CalendarIcon,
   ArrowUpCircle,
   ArrowDownCircle,
   Search,
@@ -32,10 +30,6 @@ const ledgerConfig = {
   Miscellaneous: ["General", "Tax", "Insurance"]
 };
 
-/**
- * @fileOverview High-Fidelity Master Ledger.
- * Unified transactional source of truth for all operational pillars.
- */
 function FarmLedgerContent() {
   const { 
     farmExpenses, addFarmExpense, deleteFarmExpense, 
@@ -59,12 +53,10 @@ function FarmLedgerContent() {
     remarks: ""
   });
 
-  // EXPLICIT ERROR TRIGGER: Throw the error so the ErrorBoundary can "break the circuit"
   if (ledgerError) {
     throw ledgerError;
   }
 
-  // Auto-calculate total amount
   useEffect(() => {
     const qty = parseFloat(ledgerForm.quantity) || 0;
     const unit = parseFloat(ledgerForm.unitCost) || 0;
@@ -112,9 +104,18 @@ function FarmLedgerContent() {
 
   if (isLoading) {
     return (
-      <div className="flex h-full w-full flex-col items-center justify-center min-h-[60vh] gap-4">
-        <Loader2 className="h-10 w-10 animate-spin text-[#0FA5A0]" />
-        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Syncing Master Ledger...</p>
+      <div className="container mx-auto py-8 max-w-7xl animate-pulse space-y-6">
+        <div className="flex justify-between items-center mb-10">
+          <div className="h-12 bg-[#edf2f7] rounded-xl w-48" />
+          <div className="flex gap-4">
+            <div className="h-12 bg-[#edf2f7] rounded-xl w-32" />
+            <div className="h-12 bg-[#edf2f7] rounded-xl w-32" />
+          </div>
+        </div>
+        <div className="h-14 bg-[#edf2f7] rounded-2xl w-full" />
+        <div className="space-y-4">
+          {[1, 2, 3, 4, 5].map(i => <div key={i} className="h-20 bg-[#edf2f7] rounded-2xl w-full" />)}
+        </div>
       </div>
     );
   }
@@ -232,7 +233,6 @@ function FarmLedgerContent() {
         </div>
       </div>
 
-      {/* ENTRY MODAL */}
       {showLedgerForm && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
           <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-200">

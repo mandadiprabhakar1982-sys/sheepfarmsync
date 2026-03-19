@@ -17,10 +17,9 @@ import {
   CheckCircle2,
   ShoppingBag,
   Stethoscope,
-  Loader2,
   Syringe
 } from 'lucide-react';
-import { format, addMonths, parseISO, isToday, isYesterday } from 'date-fns';
+import { format, addMonths } from 'date-fns';
 
 import { Button } from '@/components/ui/button';
 import { HorizontalDatePicker } from '@/components/horizontal-date-picker';
@@ -32,7 +31,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { useFarm } from '@/context/FarmContext';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import {
@@ -42,7 +40,6 @@ import {
   DialogTitle,
   DialogClose,
 } from '@/components/ui/dialog';
-import type { HealthTask, MedicineExpense } from '@/lib/types';
 
 const animalGroups = ['Lamb', 'Adult', 'Pregnant', 'Ram'] as const;
 const healthTypes = ['Vaccination', 'Deworming', 'Supplement', 'Treatment'] as const;
@@ -145,8 +142,8 @@ export default function MedicinePage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-full w-full items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-10 w-10 animate-spin text-[#14d5c7]" />
+      <div className="container mx-auto py-8 max-w-7xl animate-pulse space-y-6">
+        {[1, 2, 3, 4].map(i => <div key={i} className="h-20 bg-[#edf2f7] rounded-2xl w-full" />)}
       </div>
     );
   }
@@ -272,7 +269,6 @@ export default function MedicinePage() {
         </div>
       </div>
 
-      {/* DIALOGS */}
       <Dialog open={isClinicalDialogOpen} onOpenChange={setIsClinicalDialogOpen}>
         <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-visible border-none shadow-2xl bg-white h-[88dvh] max-h-[88dvh] flex flex-col">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">

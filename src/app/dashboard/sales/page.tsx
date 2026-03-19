@@ -5,14 +5,11 @@ import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { 
-  Calendar as CalendarIcon, 
-  Trash2, 
-  Pencil, 
+  PlusCircle, 
   ArrowRightLeft, 
   ShieldCheck, 
   X, 
   Plus, 
-  PlusCircle, 
   CheckCircle2, 
   Search 
 } from 'lucide-react';
@@ -31,7 +28,6 @@ import { Label } from '@/components/ui/label';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogClose,
@@ -66,7 +62,7 @@ type SalesFormData = z.infer<typeof salesFormSchema>;
 export default function TradeLedgerPage() {
   const { toast } = useToast();
   const { 
-    sales, addSale, deleteSale, postToMarketplace,
+    sales, addSale, postToMarketplace,
     purchases, totalSales, isLoading 
   } = useFarm();
 
@@ -101,8 +97,8 @@ export default function TradeLedgerPage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-full w-full items-center justify-center">
-        <Loader2 className="h-12 w-12 animate-spin text-[#14d5c7]" />
+      <div className="container mx-auto py-8 max-w-7xl animate-pulse space-y-6">
+        {[1, 2, 3, 4].map(i => <div key={i} className="h-20 bg-[#edf2f7] rounded-2xl w-full" />)}
       </div>
     );
   }

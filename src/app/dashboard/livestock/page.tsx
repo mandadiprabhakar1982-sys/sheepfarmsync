@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useRef, useEffect } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -14,11 +14,6 @@ import {
   Camera,
   ImageIcon,
   Upload,
-  Calendar as CalendarIcon,
-  ChevronRight,
-  Activity,
-  Save,
-  Filter
 } from 'lucide-react';
 import { format, parseISO, isValid } from 'date-fns';
 import Image from 'next/image';
@@ -32,11 +27,9 @@ import { useFarm } from '@/context/FarmContext';
 import { useStorage } from '@/firebase';
 import { uploadToStorage } from '@/lib/upload';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
   DialogTitle,
   DialogClose,
 } from '@/components/ui/dialog';
@@ -75,7 +68,6 @@ export default function LivestockPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingSheep, setEditingSheep] = useState<TrackedSheep | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [isRegDatePickerOpen, setIsRegDatePickerOpen] = useState(false);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -192,9 +184,12 @@ export default function LivestockPage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-full w-full flex-col items-center justify-center min-h-[60vh] gap-4">
-        <Loader2 className="h-12 w-12 animate-spin text-[#00d1b2]" />
-        <p className="text-[10px] font-black uppercase tracking-[0.3em]">Synchronizing Registry...</p>
+      <div className="container mx-auto py-10 px-10 animate-pulse space-y-8">
+        <div className="h-10 bg-[#edf2f7] rounded-xl w-64 mb-8" />
+        <div className="h-16 bg-[#edf2f7] rounded-[15px] max-w-2xl mb-8" />
+        <div className="space-y-4">
+          {[1, 2, 3, 4].map(i => <div key={i} className="h-20 bg-[#edf2f7] rounded-2xl w-full" />)}
+        </div>
       </div>
     );
   }
@@ -286,7 +281,6 @@ export default function LivestockPage() {
         <Plus className="h-7 w-7" />
       </button>
 
-      {/* ENROLLMENT MODAL */}
       <Dialog open={isEntryDialogOpen} onOpenChange={(open) => { setIsEntryDialogOpen(open); if (!open) stopCamera(); }}>
         <DialogContent className="sm:max-w-xl rounded-[24px] p-0 overflow-hidden border-none shadow-2xl bg-white">
           <div className="bg-[#1a1a1a] p-6 text-white flex justify-between items-center">
@@ -342,7 +336,6 @@ export default function LivestockPage() {
         </DialogContent>
       </Dialog>
 
-      {/* UPDATE MODAL */}
       <Dialog open={isEditDialogOpen} onOpenChange={(open) => { setIsEditDialogOpen(open); if (!open) stopCamera(); }}>
         <DialogContent className="sm:max-w-xl rounded-[24px] p-0 overflow-hidden border-none shadow-2xl bg-white">
           <div className="bg-[#1a1a1a] p-6 text-white flex justify-between items-center">

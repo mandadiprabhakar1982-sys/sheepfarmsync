@@ -15,9 +15,8 @@ import {
   PlusCircle,
   CheckCircle2,
   X,
-  Loader2
 } from 'lucide-react';
-import { format, isToday, isYesterday, parseISO } from 'date-fns';
+import { format } from 'date-fns';
 
 import { Button } from '@/components/ui/button';
 import { HorizontalDatePicker } from '@/components/horizontal-date-picker';
@@ -126,8 +125,8 @@ export default function LaborPage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-full w-full items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-10 w-10 animate-spin text-[#14d5c7]" />
+      <div className="container mx-auto py-8 max-w-7xl animate-pulse space-y-6">
+        {[1, 2, 3, 4].map(i => <div key={i} className="h-20 bg-[#edf2f7] rounded-2xl w-full" />)}
       </div>
     );
   }

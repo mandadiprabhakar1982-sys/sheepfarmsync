@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { PageHeader } from '@/components/page-header';
 import { CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -20,7 +19,6 @@ import {
   CreditCard,
   ArrowDownCircle,
   ArrowUpCircle,
-  Loader2,
   Calendar as CalendarIcon
 } from 'lucide-react';
 import { useFarm } from '@/context/FarmContext';
@@ -41,8 +39,7 @@ import { HorizontalDatePicker } from '@/components/horizontal-date-picker';
 
 export default function PersonalFinancePage() {
   const { 
-    sales, purchases, feedCosts, laborCosts, medicineExpenses, 
-    healthTasks, farmExpenses, monthlyIncomes, monthlyExpenses,
+    farmExpenses, monthlyIncomes, monthlyExpenses,
     addMonthlyIncome, addMonthlyExpense, isLoading 
   } = useFarm();
   const { toast } = useToast();
@@ -65,14 +62,16 @@ export default function PersonalFinancePage() {
 
   const combinedData = useMemo(() => {
     const manualInflows = (monthlyIncomes || []).map(i => ({ id: i.id, date: i.date, source: i.source, amount: i.amount, type: 'income' as const, cat: 'Manual' }));
-    const saleInflows = (sales || []).map(s => ({ id: s.id, date: s.saleDate, source: `Sheep Selling: ${s.buyerName}`, amount: s.amountReceived, type: 'income' as const, cat: 'Selling' }));
     
-    const pOut = (purchases || []).map(p => ({ id: p.id, date: p.purchaseDate, source: `Sheep Buying: ${p.farmerName}`, amount: p.amountPaid, type: 'expense' as const, cat: 'Buying' }));
-    const fOut = (feedCosts || []).map(f => ({ id: f.id, date: f.date, source: `Fodder: ${f.feedType}`, amount: f.cost, type: 'expense' as const, cat: 'Fodder' }));
-    const lOut = (laborCosts || []).map(l => ({ id: l.id, date: l.date, source: `Labour: ${l.employeeName}`, amount: l.amountPaid || 0, type: 'expense' as const, cat: 'Labour' }));
-    const mOut = (medicineExpenses || []).map(m => ({ id: m.id, date: m.date, source: `Pharma: ${m.shopName}`, amount: m.totalAmountSpent, type: 'expense' as const, cat: 'Medical' }));
-    const cOut = (healthTasks || []).map(h => ({ id: h.id, date: h.date, source: `Clinical: ${h.medicineName}`, amount: h.cost, type: 'expense' as const, cat: 'Clinical' }));
-    const eOut = (farmExpenses || []).map(e => ({ id: e.id, date: e.expenseDate, source: `Overhead: ${e.description}`, amount: e.amount, type: 'expense' as const, cat: 'Farm' }));
+    // Include income from sales in the master ledger
+    const saleInflows = (farmExpenses || [])
+      .filter(e => e.category === 'Sale')
+      .map(s => ({ id: s.id, date: s.date, source: `Sale: ${s.subcategory}`, amount: s.totalAmount, type: 'income' as const, cat: 'Selling' }));
+    
+    // Include all non-sale overheads as expenses
+    const farmOutflows = (farmExpenses || [])
+      .filter(e => e.category !== 'Sale')
+      .map(e => ({ id: e.id, date: e.date, source: `${e.category}: ${e.subcategory}`, amount: e.totalAmount, type: 'expense' as const, cat: 'Farm' }));
 
     const privateOutflows = (monthlyExpenses || []).map(e => ({
       id: e.id,
@@ -86,7 +85,7 @@ export default function PersonalFinancePage() {
     }));
 
     const all = [
-      ...manualInflows, ...saleInflows, ...pOut, ...fOut, ...lOut, ...mOut, ...cOut, ...eOut, ...privateOutflows
+      ...manualInflows, ...saleInflows, ...farmOutflows, ...privateOutflows
     ].filter(item => {
       if (!item.date) return false;
       const d = parseISO(item.date);
@@ -107,7 +106,7 @@ export default function PersonalFinancePage() {
     });
 
     return all.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }, [sales, purchases, feedCosts, laborCosts, medicineExpenses, healthTasks, farmExpenses, monthlyIncomes, monthlyExpenses, selectedMonth, selectedYear, searchTerm, activeTab]);
+  }, [farmExpenses, monthlyIncomes, monthlyExpenses, selectedMonth, selectedYear, searchTerm, activeTab]);
 
   const netCashFlow = useMemo(() => {
     return combinedData.reduce((acc, item) => {
@@ -147,8 +146,8 @@ export default function PersonalFinancePage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-full w-full items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-10 w-10 animate-spin text-[#14d5c7]" />
+      <div className="container mx-auto py-8 max-w-7xl animate-pulse space-y-6">
+        {[1, 2, 3, 4].map(i => <div key={i} className="h-20 bg-[#edf2f7] rounded-2xl w-full" />)}
       </div>
     );
   }
