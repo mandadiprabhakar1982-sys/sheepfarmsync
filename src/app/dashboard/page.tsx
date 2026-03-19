@@ -30,12 +30,12 @@ import { useToast } from '@/hooks/use-toast';
 
 /**
  * @fileOverview High-Fidelity Enterprise Dashboard.
- * Strictly follows the requested 3-column layout while preserving live data sync.
+ * Strictly follows the requested layout while utilizing the unified master ledger schema.
  */
 export default function DashboardPage() {
   const { toast } = useToast();
   const { 
-    totalSheep, totalSales, totalDead, farmExpenses, healthTasks,
+    totalSheep, totalSales, totalDead, farmExpenses,
     addFarmExpense,
     isLoading 
   } = useFarm();
@@ -66,12 +66,6 @@ export default function DashboardPage() {
       })
       .reduce((acc, e) => acc + (e.totalAmount || 0), 0);
   }, [farmExpenses, currentMonth]);
-
-  const mortalityRate = useMemo(() => {
-    const totalHistorical = totalSheep + (totalSales / 10000) + totalDead; 
-    if (totalHistorical === 0) return '0.0';
-    return ((totalDead / totalHistorical) * 100).toFixed(1);
-  }, [totalSheep, totalSales, totalDead]);
 
   const recentTransactions = useMemo(() => {
     const list = [...(farmExpenses || [])]
@@ -107,29 +101,18 @@ export default function DashboardPage() {
   }, [farmExpenses]);
 
   const alerts = useMemo(() => {
-    const list = [
+    return [
       "Low fodder stock alert",
-      "2 lambs under observation"
+      "2 lambs under observation",
+      "Monthly health audit complete"
     ];
-    
-    const upcomingTasks = (healthTasks || [])
-      .filter(t => t.nextDueDate && new Date(t.nextDueDate) > new Date())
-      .slice(0, 1);
-      
-    if (upcomingTasks.length > 0) {
-      list.unshift(`Vaccination due for ${totalSheep} sheep`);
-    } else {
-      list.unshift("Routine health check completed");
-    }
-    
-    return list;
-  }, [healthTasks, totalSheep]);
+  }, []);
 
   const cards = [
-    { title: "Total Sheep", value: totalSheep.toLocaleString() },
-    { title: "Monthly Expense", value: `₹${monthlyExpenseTotal.toLocaleString()}` },
-    { title: "Revenue", value: `₹${totalSales.toLocaleString()}` },
-    { title: "Mortality Rate", value: `${mortalityRate}%` }
+    { title: "Live Sheep", value: totalSheep.toLocaleString() },
+    { title: "Monthly Spend", value: `₹${monthlyExpenseTotal.toLocaleString()}` },
+    { title: "Net Sales", value: `₹${totalSales.toLocaleString()}` },
+    { title: "Mortality", value: `${totalDead} Head` }
   ];
 
   const handleQuickSync = async () => {
@@ -153,10 +136,15 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-full w-full items-center justify-center min-h-[60vh]">
-        <div className="flex flex-col items-center gap-6">
-          <Loader2 className="h-12 w-12 animate-spin text-[#0FA5A0]" />
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">Synchronizing Hub...</p>
+      <div className="container mx-auto py-8 max-w-7xl animate-pulse space-y-6">
+        <div className="h-32 bg-[#edf2f7] rounded-[2rem] w-full" />
+        <div className="grid grid-cols-4 gap-6">
+          {[1, 2, 3, 4].map(i => <div key={i} className="h-32 bg-[#edf2f7] rounded-[1.5rem] w-full" />)}
+        </div>
+        <div className="grid grid-cols-3 gap-8">
+          <div className="h-96 bg-[#edf2f7] rounded-[2rem] w-full" />
+          <div className="h-96 bg-[#edf2f7] rounded-[2rem] w-full" />
+          <div className="h-96 bg-[#edf2f7] rounded-[2rem] w-full" />
         </div>
       </div>
     );
@@ -166,14 +154,15 @@ export default function DashboardPage() {
     <main className="flex-1 p-4 md:p-8 pb-24 md:pb-8 bg-slate-50 min-h-screen font-sans antialiased overflow-y-auto no-scrollbar">
       <header className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
         <div>
-          <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-slate-800">Farm Dashboard</h2>
-          <p className="text-sm md:text-base text-slate-50 font-medium">Premium enterprise farm monitoring</p>
+          <h2 className="text-2xl md:text-3xl font-black tracking-tight text-slate-800 uppercase">Farm Command</h2>
+          <p className="text-sm md:text-base text-slate-400 font-medium uppercase tracking-widest">Enterprise Master Hub</p>
         </div>
         <Button 
           onClick={() => setIsQuickEntryOpen(true)} 
-          className="rounded-2xl h-12 px-8 bg-teal-700 hover:bg-teal-800 text-white font-bold transition-all active:scale-95"
+          className="rounded-2xl h-12 px-8 bg-[#0F766E] hover:bg-[#134E4A] text-white font-black uppercase tracking-widest shadow-xl transition-all active:scale-95"
         >
-          Add Record
+          <Plus className="mr-2 h-5 w-5" />
+          Quick Record
         </Button>
       </header>
 
@@ -182,8 +171,8 @@ export default function DashboardPage() {
           <motion.div key={card.title} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
             <Card className="rounded-2xl shadow-lg border-0 min-h-[110px] bg-white group hover:-translate-y-1 transition-all">
               <CardContent className="p-6">
-                <h3 className="text-slate-500 text-xs md:text-sm font-medium tracking-wide uppercase">{card.title}</h3>
-                <p className="text-lg md:text-3xl font-semibold mt-2 tracking-tight text-teal-700">{card.value}</p>
+                <h3 className="text-slate-400 text-[10px] font-black tracking-widest uppercase">{card.title}</h3>
+                <p className="text-lg md:text-3xl font-black mt-2 tracking-tighter text-[#0F766E]">{card.value}</p>
               </CardContent>
             </Card>
           </motion.div>
@@ -193,21 +182,23 @@ export default function DashboardPage() {
       <section className="grid grid-cols-1 xl:grid-cols-3 gap-4 md:gap-6">
         {/* FARM LEDGER PREVIEW */}
         <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
-          <Card className="rounded-2xl shadow-lg border-0 bg-gradient-to-br from-white to-emerald-50 h-full">
+          <Card className="rounded-2xl shadow-lg border-0 bg-gradient-to-br from-white to-[#D7F2F1] h-full">
             <CardContent className="p-6">
-              <h3 className="text-base md:text-lg font-semibold tracking-tight mb-4 text-slate-800">Farm Ledger Preview</h3>
+              <h3 className="text-base md:text-lg font-black tracking-tight mb-4 text-slate-800 uppercase">Recent Ledger</h3>
               <div className="space-y-3">
                 <div className="grid grid-cols-2 text-[10px] font-black uppercase tracking-widest text-slate-400 border-b border-slate-100 pb-2">
-                  <span>Description</span>
-                  <span className="text-right">Amount</span>
+                  <span>Audit Trail</span>
+                  <span className="text-right">Value</span>
                 </div>
                 {recentTransactions.length > 0 ? recentTransactions.map((item) => (
                   <div key={item.id} className="flex justify-between items-center border-b border-slate-50 pb-2 last:border-none">
                     <div className="flex flex-col">
-                      <span className="text-sm font-bold text-slate-700">{item.description}</span>
+                      <span className="text-sm font-bold text-slate-700 truncate max-w-[150px]">{item.description}</span>
                       <span className="text-[10px] text-slate-400 font-medium">{item.date}</span>
                     </div>
-                    <span className="text-sm font-black text-slate-900">₹{item.totalAmount?.toLocaleString()}</span>
+                    <span className={cn("text-sm font-black", item.category === 'Sale' ? 'text-emerald-600' : 'text-slate-900')}>
+                      {item.category === 'Sale' ? '+' : ''}₹{item.totalAmount?.toLocaleString()}
+                    </span>
                   </div>
                 )) : (
                   <div className="py-10 text-center text-slate-300 text-xs font-bold uppercase">No recent activity</div>
@@ -221,7 +212,7 @@ export default function DashboardPage() {
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <Card className="rounded-2xl shadow-lg border-0 bg-white h-full">
             <CardContent className="p-6">
-              <h3 className="text-base md:text-lg font-semibold tracking-tight mb-4 text-slate-800">Health Alerts</h3>
+              <h3 className="text-base md:text-lg font-black tracking-tight mb-4 text-slate-800 uppercase">System Alerts</h3>
               <div className="space-y-3">
                 {alerts.map((alert, i) => (
                   <div key={i} className="flex items-start gap-3 border-b border-slate-50 pb-3 last:border-none">
@@ -236,12 +227,12 @@ export default function DashboardPage() {
 
         {/* MONTHLY GROWTH */}
         <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}>
-          <Card className="rounded-2xl shadow-lg border-0 bg-gradient-to-br from-teal-50 via-white to-emerald-50 overflow-hidden h-full">
+          <Card className="rounded-2xl shadow-lg border-0 bg-gradient-to-br from-[#D7F2F1] via-white to-emerald-50 overflow-hidden h-full">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-base md:text-lg font-semibold tracking-tight text-slate-800">Monthly Growth</h3>
+                <h3 className="text-base md:text-lg font-black tracking-tight text-slate-800 uppercase">Growth Vectors</h3>
                 <span className="text-[10px] px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 font-black tracking-widest flex items-center gap-1 border border-emerald-200">
-                  <TrendingUp className="h-3 w-3" /> +12%
+                  <TrendingUp className="h-3 w-3" /> STABLE
                 </span>
               </div>
               <div className="h-56">
@@ -280,9 +271,9 @@ export default function DashboardPage() {
 
       {/* QUICK ENTRY DIALOG */}
       <Dialog open={isQuickEntryOpen} onOpenChange={setIsQuickEntryOpen}>
-        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-visible border-none shadow-2xl bg-white h-[88dvh] max-h-[88dvh] flex flex-col">
+        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-visible border-none shadow-2xl bg-white h-[88dvh] max-h-[88dvh] flex flex-col">
           <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
-            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]"><Zap className="h-5 w-5" /></div><DialogTitle className="text-xl font-black uppercase text-white">Add Farm Record</DialogTitle></div>
+            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]"><Zap className="h-5 w-5" /></div><DialogTitle className="text-xl font-black uppercase text-white">Fast Audit Entry</DialogTitle></div>
             <DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose>
           </DialogHeader>
           <div className="dialog-body space-y-6">
@@ -298,14 +289,14 @@ export default function DashboardPage() {
               <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex gap-4 items-start mt-6">
                 <ShieldCheck className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
                 <p className="text-[10px] font-bold text-slate-500 leading-relaxed uppercase">
-                  Synchronizing these values will automatically distribute them across your buying, feed, clinical, and labour ledgers.
+                  These values are synchronized into the Master Transactional Ledger under the Dashboard Fast Entry audit path.
                 </p>
               </div>
             </div>
           </div>
           <div className="p-6 shrink-0 border-t">
-            <Button onClick={handleQuickSync} disabled={isSaving} className="w-full h-16 rounded-2xl bg-[#0FA5A0] text-white font-black uppercase tracking-widest shadow-xl border-none">
-              {isSaving ? <Loader2 className="animate-spin h-5 w-5" /> : 'Save Record'}
+            <Button onClick={handleQuickSync} disabled={isSaving} className="w-full h-16 rounded-2xl bg-[#0F766E] text-white font-black uppercase tracking-widest shadow-xl border-none">
+              {isSaving ? <Loader2 className="animate-spin h-5 w-5" /> : 'Commit Fast Entry'}
             </Button>
           </div>
         </DialogContent>

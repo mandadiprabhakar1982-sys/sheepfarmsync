@@ -15,7 +15,7 @@ import { format, startOfMonth, endOfMonth, isWithinInterval, parseISO } from 'da
 
 /**
  * @fileOverview High-Fidelity Overview Module.
- * Full-width enterprise analytics suite without local sidebar.
+ * Full-width enterprise analytics suite using the unified farm master ledger.
  */
 export default function OverviewPage() {
   const { width, isHydrated } = useWindowDimensions();
@@ -37,7 +37,8 @@ export default function OverviewPage() {
       .filter(e => {
         try {
           if (!e.date || e.category === 'Sale') return false;
-          return isWithinInterval(parseISO(e.date), currentMonth);
+          const entryDate = parseISO(e.date);
+          return isWithinInterval(entryDate, currentMonth);
         } catch { return false; }
       })
       .reduce((acc, e) => acc + (e.totalAmount || 0), 0);
@@ -49,23 +50,33 @@ export default function OverviewPage() {
     return ((totalDead / totalHistorical) * 100).toFixed(1);
   }, [totalSheep, totalSales, totalDead]);
 
-  const chartData = [
-    { month: "Jan", value: 40 },
-    { month: "Feb", value: 55 },
-    { month: "Mar", value: 48 },
-    { month: "Apr", value: 70 }
-  ];
+  const chartData = useMemo(() => {
+    // Generate placeholder or dynamic data for the chart
+    return [
+      { month: "Jan", value: 40 },
+      { month: "Feb", value: 55 },
+      { month: "Mar", value: 48 },
+      { month: "Apr", value: 70 }
+    ];
+  }, []);
 
   const alerts = [
-    "Vaccination due for 24 sheep",
+    "Vaccination due for all lambs",
     "Low fodder stock alert",
-    "2 lambs under observation"
+    "Seasonal supplement cycle active"
   ];
 
   if (isLoading || !isHydrated) {
     return (
-      <div className="flex h-full w-full items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-12 w-12 animate-spin text-[#0FA5A0]" />
+      <div className="container mx-auto py-8 max-w-7xl animate-pulse space-y-6">
+        <div className="h-32 bg-[#edf2f7] rounded-[2rem] w-full" />
+        <div className="grid grid-cols-4 gap-6">
+          {[1, 2, 3, 4].map(i => <div key={i} className="h-32 bg-[#edf2f7] rounded-[1.5rem] w-full" />)}
+        </div>
+        <div className="grid grid-cols-2 gap-8">
+          <div className="h-96 bg-[#edf2f7] rounded-[2rem] w-full" />
+          <div className="h-96 bg-[#edf2f7] rounded-[2rem] w-full" />
+        </div>
       </div>
     );
   }
@@ -75,18 +86,18 @@ export default function OverviewPage() {
       {/* HEADER CARD */}
       <Card className="rounded-[2rem] border-none shadow-[0_10px_40px_rgba(0,0,0,0.04)] bg-white p-8 mb-10">
         <div className="space-y-1">
-          <h2 className="text-3xl font-bold tracking-tight text-[#1E293B]">Dashboard</h2>
-          <p className="text-sm text-[#94A3B8] font-medium uppercase tracking-widest">Premium enterprise farm monitoring</p>
+          <h2 className="text-3xl font-bold tracking-tight text-[#1E293B]">Farm Analytics</h2>
+          <p className="text-sm text-[#94A3B8] font-medium uppercase tracking-widest">Master Transactional Intelligence Hub</p>
         </div>
       </Card>
 
       {/* METRICS GRID */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
         {[
-          { title: "Total Sheep", value: totalSheep.toLocaleString() },
-          { title: "Monthly Expense", value: `₹${monthlyExpenseTotal.toLocaleString()}` },
-          { title: "Revenue", value: `₹${totalSales.toLocaleString()}` },
-          { title: "Mortality Rate", value: `${mortalityRate}%` }
+          { title: "Live Sheep", value: totalSheep.toLocaleString() },
+          { title: "Monthly Spend", value: `₹${monthlyExpenseTotal.toLocaleString()}` },
+          { title: "Net Revenue", value: `₹${totalSales.toLocaleString()}` },
+          { title: "Mortality", value: `${totalDead} Head` }
         ].map((card, idx) => (
           <Card key={idx} className="rounded-[1.5rem] border-none shadow-[0_10px_30px_rgba(0,0,0,0.02)] bg-white p-8 min-h-[140px] flex flex-col justify-between group hover:-translate-y-1 transition-all">
             <h3 className="text-[#94A3B8] text-[11px] font-bold uppercase tracking-wider">{card.title}</h3>
@@ -100,7 +111,7 @@ export default function OverviewPage() {
         {/* ALERTS CARD */}
         <Card className="rounded-[2rem] border-none shadow-[0_10px_30px_rgba(0,0,0,0.02)] bg-white overflow-hidden h-full">
           <div className="p-8 pb-4">
-            <h3 className="text-lg font-bold text-[#1E293B]">System Alerts</h3>
+            <h3 className="text-lg font-bold text-[#1E293B]">Health & Safety Protocol</h3>
           </div>
           <CardContent className="px-8 pb-8">
             <div className="space-y-0">
@@ -116,10 +127,10 @@ export default function OverviewPage() {
         {/* MONTHLY GROWTH CARD */}
         <Card className="rounded-[2rem] border-none shadow-[0_10px_30px_rgba(0,0,0,0.02)] bg-white p-8 h-full">
           <div className="flex items-center justify-between mb-8">
-            <h3 className="text-lg font-bold text-[#1E293B]">Monthly Growth</h3>
+            <h3 className="text-lg font-bold text-[#1E293B]">Revenue Trend</h3>
             <div className="px-3 py-1 rounded-full bg-[#E6F7F6] text-[#0FA5A0] text-[10px] font-black tracking-widest border border-[#0FA5A0]/10 flex items-center gap-1.5">
               <TrendingUp className="h-3 w-3" />
-              +12% TARGET
+              STABLE
             </div>
           </div>
           <div className="h-64 w-full mt-4">

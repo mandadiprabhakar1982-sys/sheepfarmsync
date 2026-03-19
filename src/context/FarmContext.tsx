@@ -1,8 +1,9 @@
+
 'use client';
 
 import { createContext, useContext, ReactNode, useMemo, useCallback, useState, useEffect } from 'react';
 import type { 
-  LivestockPurchase, AnimalSale, FarmExpense, TrackedSheep, DeadAnimal, 
+  FarmExpense, TrackedSheep, 
   UserProfile, BankLoan, CreditCard, PrivateDebt, MonthlyIncome, MonthlyExpense, PublicSale
 } from '@/lib/types';
 import { useUser, useFirestore, useCollection, useDoc } from '@/firebase';
@@ -125,6 +126,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
 
   const totalExp = useMemo(() => (qExpenses || []).filter(e => e.category !== 'Sale').reduce((sum, e) => sum + (e.totalAmount || 0), 0), [qExpenses]);
   const totalRev = useMemo(() => (qExpenses || []).filter(e => e.category === 'Sale').reduce((sum, e) => sum + (e.totalAmount || 0), 0), [qExpenses]);
+  const totalD = useMemo(() => (qExpenses || []).filter(e => e.category === 'Health' && e.subcategory === 'Mortality').reduce((sum, e) => sum + (e.quantity || 0), 0), [qExpenses]);
 
   const value = useMemo(() => ({
     farmExpenses: qExpenses,
@@ -150,11 +152,11 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     totalSheep: (qTracked || []).length,
     totalExpenses: totalExp,
     totalSales: totalRev,
-    totalDead: (qExpenses || []).filter(e => e.category === 'Health' && e.subcategory === 'Mortality').length, 
+    totalDead: totalD, 
     totalLoanBalance: (qLoans || []).reduce((s, l) => s + (l.balanceLoan || 0), 0),
     totalCreditCardDebt: (qCards || []).reduce((s, c) => s + (c.outstandingAmount || 0), 0),
     totalPrivateDebt: (qDebts || []).reduce((s, d) => s + (d.amount || 0), 0),
-  }), [qExpenses, eExpenses, qTracked, qLoans, qCards, qDebts, qIncomes, qMExpenses, qMarket, isUserLoading, isProfileLoading, lExpenses, lTracked, lLoans, lCards, lDebts, lIncomes, lMExpenses, lMarket, userProfile, totalExp, totalRev, upsert, remove, mounted]);
+  }), [qExpenses, eExpenses, qTracked, qLoans, qCards, qDebts, qIncomes, qMExpenses, qMarket, isUserLoading, isProfileLoading, lExpenses, lTracked, lLoans, lCards, lDebts, lIncomes, lMExpenses, lMarket, userProfile, totalExp, totalRev, totalD, upsert, remove, mounted]);
 
   if (!mounted) return null;
   return <FarmContext.Provider value={value}>{children}</FarmContext.Provider>;
