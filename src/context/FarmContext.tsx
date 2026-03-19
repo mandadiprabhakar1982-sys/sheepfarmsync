@@ -16,7 +16,7 @@ interface FarmContextType {
   deleteFarmExpense: (id: string, path?: string) => void;
   updateFarmExpense: (id: string, data: any, path?: string) => void;
   
-  // Specialized Data Streams (Derived from Master Ledger)
+  // Specialized Data Streams (Derived from Master Ledger + Legacy)
   feedCosts: FarmExpense[];
   laborCosts: FarmExpense[];
   medicineExpenses: FarmExpense[];
@@ -24,7 +24,7 @@ interface FarmContextType {
   sales: FarmExpense[];
   deadAnimals: FarmExpense[];
 
-  // Specialized Mutations (Mapping to Master Ledger)
+  // Specialized Mutations
   addFeedCost: (data: any) => void;
   deleteFeedCost: (id: string, path?: string) => void;
   addLaborCost: (data: any) => void;
@@ -111,21 +111,20 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const userProfileRef = useMemo(() => (firestore && user) ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
   const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
   
-  // SECURE GATING: Data only streams for verified collaborators and admins
   const isVerified = useMemo(() => !isUserLoading && !isProfileLoading && (userProfile?.role === 'collaborator' || userProfile?.role === 'admin'), [userProfile, isUserLoading, isProfileLoading]);
   const isAdmin = useMemo(() => !isUserLoading && !isProfileLoading && userProfile?.role === 'admin', [userProfile, isUserLoading, isProfileLoading]);
 
-  // Master Ledger Query
-  const eRef = useMemo(() => {
-    if (!firestore || !isVerified) return null;
-    return query(collectionGroup(firestore, 'farmExpenses'), orderBy('date', 'desc'));
-  }, [firestore, isVerified]);
+  // Master and Legacy Data Streams
+  const eRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'farmExpenses'), orderBy('date', 'desc')) : null, [firestore, isVerified]);
+  const feedLegacyRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'feedExpenses')) : null, [firestore, isVerified]);
+  const laborLegacyRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'laborExpenses')) : null, [firestore, isVerified]);
+  const medLegacyRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'medicineExpenses')) : null, [firestore, isVerified]);
+  const purchaseLegacyRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'livestockPurchases')) : null, [firestore, isVerified]);
+  const salesLegacyRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'animalSales')) : null, [firestore, isVerified]);
+  const healthLegacyRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'healthTasks')) : null, [firestore, isVerified]);
+  const deathLegacyRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'deadAnimals')) : null, [firestore, isVerified]);
 
-  const tRef = useMemo(() => {
-    if (!firestore || !isVerified) return null;
-    return query(collectionGroup(firestore, 'trackedSheep'), orderBy('tagId', 'asc'));
-  }, [firestore, isVerified]);
-  
+  const tRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'trackedSheep'), orderBy('tagId', 'asc')) : null, [firestore, isVerified]);
   const blRef = useMemo(() => (firestore && user && isAdmin) ? collection(firestore, 'users', user.uid, 'bankLoans') : null, [firestore, user, isAdmin]);
   const ccRef = useMemo(() => (firestore && user && isAdmin) ? collection(firestore, 'users', user.uid, 'creditCards') : null, [firestore, user, isAdmin]);
   const pdRef = useMemo(() => (firestore && user && isAdmin) ? collection(firestore, 'users', user.uid, 'privateDebts') : null, [firestore, user, isAdmin]);
@@ -134,6 +133,14 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const mkRef = useMemo(() => (firestore && user) ? collection(firestore, 'communitySales') : null, [firestore, user]);
 
   const { data: qExpenses, isLoading: lExpenses, error: eExpenses } = useCollection<FarmExpense>(eRef);
+  const { data: qFeedLegacy } = useCollection(feedLegacyRef);
+  const { data: qLaborLegacy } = useCollection(laborLegacyRef);
+  const { data: qMedLegacy } = useCollection(medLegacyRef);
+  const { data: qPurchaseLegacy } = useCollection(purchaseLegacyRef);
+  const { data: qSalesLegacy } = useCollection(salesLegacyRef);
+  const { data: qHealthLegacy } = useCollection(healthLegacyRef);
+  const { data: qDeathLegacy } = useCollection(deathLegacyRef);
+
   const { data: qTracked, isLoading: lTracked } = useCollection<TrackedSheep>(tRef);
   const { data: qLoans, isLoading: lLoans } = useCollection<BankLoan>(blRef);
   const { data: qCards, isLoading: lCards } = useCollection<CreditCard>(ccRef);
@@ -143,6 +150,121 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const { data: qMarket, isLoading: lMarket } = useCollection<PublicSale>(mkRef);
 
   useEffect(() => { setMounted(true); }, []);
+
+  // SCHEMA NORMALIZATION ENGINE
+  const normalizedExpenses = useMemo(() => {
+    const list: FarmExpense[] = [];
+    
+    // 1. Process New Unified Ledger
+    (qExpenses || []).forEach(e => list.push(e));
+
+    // 2. Normalize Feed Legacy
+    (qFeedLegacy || []).forEach((e: any) => {
+      list.push({
+        id: e.id, _path: e._path,
+        date: e.date || e.expenseDate || '2024-01-01',
+        category: 'Feed',
+        subcategory: e.feedType || 'General',
+        description: e.description || `Feed: ${e.feedType || 'Bulk'}`,
+        quantity: e.quantity || 1,
+        unitCost: e.unitCost || 0,
+        totalAmount: e.totalAmount || e.cost || 0,
+        paymentMode: e.paymentMode || 'Cash'
+      });
+    });
+
+    // 3. Normalize Labour Legacy
+    (qLaborLegacy || []).forEach((e: any) => {
+      list.push({
+        id: e.id, _path: e._path,
+        date: e.date || e.expenseDate || '2024-01-01',
+        category: 'Labour',
+        subcategory: 'Staff Payment',
+        description: e.description || `Labour: ${e.employeeName}`,
+        quantity: e.numberOfLaborers || 1,
+        unitCost: e.wages || 0,
+        totalAmount: e.totalAmount || e.totalLaborCosts || 0,
+        paymentMode: e.paymentMode || 'Cash'
+      });
+    });
+
+    // 4. Normalize Medicine Legacy
+    (qMedLegacy || []).forEach((e: any) => {
+      list.push({
+        id: e.id, _path: e._path,
+        date: e.date || '2024-01-01',
+        category: 'Health',
+        subcategory: 'Pharma Bill',
+        description: e.description || `Medicine: ${e.shopName}`,
+        quantity: 1,
+        unitCost: e.costOfMedicines || 0,
+        totalAmount: e.totalAmount || e.totalAmountSpent || 0,
+        paymentMode: e.paymentMode || 'Cash'
+      });
+    });
+
+    // 5. Normalize Purchase Legacy
+    (qPurchaseLegacy || []).forEach((e: any) => {
+      list.push({
+        id: e.id, _path: e._path,
+        date: e.date || e.purchaseDate || '2024-01-01',
+        category: 'Purchase',
+        subcategory: 'Animal Purchase',
+        description: e.description || `Buy: ${e.animalCount} from ${e.farmerName}`,
+        quantity: e.animalCount || 1,
+        unitCost: (e.purchasePrice || 0) / (e.animalCount || 1),
+        totalAmount: e.totalAmount || e.purchasePrice || 0,
+        paymentMode: e.paymentMode || 'Cash'
+      });
+    });
+
+    // 6. Normalize Sales Legacy
+    (qSalesLegacy || []).forEach((e: any) => {
+      list.push({
+        id: e.id, _path: e._path,
+        date: e.date || e.saleDate || '2024-01-01',
+        category: 'Sale',
+        subcategory: 'Animal Sale',
+        description: e.description || `Sell: ${e.animalCount} to ${e.buyerName}`,
+        quantity: e.animalCount || 1,
+        unitCost: (e.salePrice || 0) / (e.animalCount || 1),
+        totalAmount: e.totalAmount || e.salePrice || 0,
+        paymentMode: e.paymentMode || 'Cash'
+      });
+    });
+
+    // 7. Normalize Health Tasks Legacy
+    (qHealthLegacy || []).forEach((e: any) => {
+      list.push({
+        id: e.id, _path: e._path,
+        date: e.date || '2024-01-01',
+        category: 'Health',
+        subcategory: e.healthType || 'Treatment',
+        description: e.description || `Treat: ${e.medicineName} (ID: ${e.sheepId})`,
+        quantity: 1,
+        unitCost: e.cost || 0,
+        totalAmount: e.totalAmount || e.cost || 0,
+        paymentMode: e.paymentMode || 'Cash'
+      });
+    });
+
+    // 8. Normalize Death Legacy
+    (qDeathLegacy || []).forEach((e: any) => {
+      list.push({
+        id: e.id, _path: e._path,
+        date: e.date || e.dateOfDeath || '2024-01-01',
+        category: 'Health',
+        subcategory: 'Mortality',
+        description: e.description || `Dead: ${e.sheepCount} (Cause: ${e.causeOfDeath})`,
+        quantity: e.sheepCount || 1,
+        unitCost: 0,
+        totalAmount: 0,
+        paymentMode: 'Cash'
+      });
+    });
+
+    return list.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }, [qExpenses, qFeedLegacy, qLaborLegacy, qMedLegacy, qPurchaseLegacy, qSalesLegacy, qHealthLegacy, qDeathLegacy]);
 
   const upsert = useCallback((col: string, id: string | undefined, data: any, path?: string) => {
     if (!user || !firestore) return;
@@ -163,72 +285,70 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     deleteDocumentNonBlocking(docRef);
   }, [user, firestore]);
 
-  // Derived Data Arrays
-  const feedCosts = useMemo(() => qExpenses?.filter(e => e.category === 'Feed') || [], [qExpenses]);
-  const laborCosts = useMemo(() => qExpenses?.filter(e => e.category === 'Labour') || [], [qExpenses]);
-  const medicineExpenses = useMemo(() => qExpenses?.filter(e => e.category === 'Health' && e.subcategory !== 'Mortality') || [], [qExpenses]);
-  const purchases = useMemo(() => qExpenses?.filter(e => e.category === 'Purchase') || [], [qExpenses]);
-  const sales = useMemo(() => qExpenses?.filter(e => e.category === 'Sale') || [], [qExpenses]);
-  const deadAnimals = useMemo(() => qExpenses?.filter(e => e.category === 'Health' && e.subcategory === 'Mortality') || [], [qExpenses]);
+  // Derived Data Arrays from Normalized Master Stream
+  const feedCosts = useMemo(() => normalizedExpenses.filter(e => e.category === 'Feed'), [normalizedExpenses]);
+  const laborCosts = useMemo(() => normalizedExpenses.filter(e => e.category === 'Labour'), [normalizedExpenses]);
+  const medicineExpenses = useMemo(() => normalizedExpenses.filter(e => e.category === 'Health' && e.subcategory !== 'Mortality'), [normalizedExpenses]);
+  const purchases = useMemo(() => normalizedExpenses.filter(e => e.category === 'Purchase'), [normalizedExpenses]);
+  const sales = useMemo(() => normalizedExpenses.filter(e => e.category === 'Sale'), [normalizedExpenses]);
+  const deadAnimals = useMemo(() => normalizedExpenses.filter(e => e.category === 'Health' && e.subcategory === 'Mortality'), [normalizedExpenses]);
 
-  // Unified Totals Calculation
-  const totals = useMemo(() => {
-    return {
-      feed: feedCosts.reduce((s, e) => s + (e.totalAmount || 0), 0),
-      labor: laborCosts.reduce((s, e) => s + (e.totalAmount || 0), 0),
-      med: medicineExpenses.reduce((s, e) => s + (e.totalAmount || 0), 0),
-      purchase: purchases.reduce((s, e) => s + (e.totalAmount || 0), 0),
-      sales: sales.reduce((s, e) => s + (e.totalAmount || 0), 0),
-      dead: deadAnimals.reduce((s, e) => s + (e.quantity || 0), 0),
-      allExp: (qExpenses || []).filter(e => e.category !== 'Sale').reduce((s, e) => s + (e.totalAmount || 0), 0)
-    };
-  }, [qExpenses, feedCosts, laborCosts, medicineExpenses, purchases, sales, deadAnimals]);
+  const totals = useMemo(() => ({
+    feed: feedCosts.reduce((s, e) => s + (e.totalAmount || 0), 0),
+    labor: laborCosts.reduce((s, e) => s + (e.totalAmount || 0), 0),
+    med: medicineExpenses.reduce((s, e) => s + (e.totalAmount || 0), 0),
+    purchase: purchases.reduce((s, e) => s + (e.totalAmount || 0), 0),
+    sales: sales.reduce((s, e) => s + (e.totalAmount || 0), 0),
+    dead: deadAnimals.reduce((s, e) => s + (e.quantity || 0), 0),
+    allExp: normalizedExpenses.filter(e => e.category !== 'Sale').reduce((s, e) => s + (e.totalAmount || 0), 0)
+  }), [normalizedExpenses, feedCosts, laborCosts, medicineExpenses, purchases, sales, deadAnimals]);
 
   const value = useMemo(() => ({
-    farmExpenses: qExpenses,
+    farmExpenses: normalizedExpenses,
     addFarmExpense: (e: any) => upsert('farmExpenses', undefined, e),
     updateFarmExpense: (id: string, e: any, path?: string) => upsert('farmExpenses', id, e, path),
-    deleteFarmExpense: (id: string, path?: string) => remove('farmExpenses', id, path),
+    deleteFarmExpense: (id: string, path?: string) => {
+      // Intelligently delete from correct collection based on path
+      if (path) {
+        const parts = path.split('/');
+        const col = parts[parts.length - 2];
+        const id = parts[parts.length - 1];
+        remove(col, id, path);
+      } else {
+        remove('farmExpenses', id);
+      }
+    },
     
-    // Derived Streams
-    feedCosts,
-    laborCosts,
-    medicineExpenses,
-    purchases,
-    sales,
-    deadAnimals,
+    feedCosts, laborCosts, medicineExpenses, purchases, sales, deadAnimals,
 
-    // Specialized Adders
     addFeedCost: (e: any) => upsert('farmExpenses', undefined, { ...e, category: 'Feed' }),
-    deleteFeedCost: (id: string, path?: string) => remove('farmExpenses', id, path),
+    deleteFeedCost: (id: string, path?: string) => remove(path?.split('/')?.slice(-2, -1)[0] || 'farmExpenses', id, path),
     
     addLaborCost: (e: any) => upsert('farmExpenses', undefined, { ...e, category: 'Labour', subcategory: 'Staff Payment', totalAmount: e.totalLaborCosts, description: `Labour: ${e.employeeName}` }),
-    deleteLaborCost: (id: string, path?: string) => remove('farmExpenses', id, path),
-    updateLaborCost: (id: string, e: any, path?: string) => upsert('farmExpenses', id, { ...e, totalAmount: e.totalLaborCosts }, path),
+    deleteLaborCost: (id: string, path?: string) => remove(path?.split('/')?.slice(-2, -1)[0] || 'farmExpenses', id, path),
+    updateLaborCost: (id: string, e: any, path?: string) => upsert(path?.split('/')?.slice(-2, -1)[0] || 'farmExpenses', id, { ...e, totalAmount: e.totalLaborCosts }, path),
 
-    addPurchase: (e: any) => upsert('farmExpenses', undefined, { ...e, category: 'Purchase', subcategory: 'Animal Purchase', totalAmount: e.purchasePrice, description: `Buy: ${e.animalCount} Head from ${e.farmerName}`, date: e.purchaseDate }),
-    deletePurchase: (id: string, path?: string) => remove('farmExpenses', id, path),
-    updatePurchase: (id: string, e: any, path?: string) => upsert('farmExpenses', id, { ...e, totalAmount: e.purchasePrice, date: e.purchaseDate }, path),
+    addPurchase: (e: any) => upsert('farmExpenses', undefined, { ...e, category: 'Purchase', subcategory: 'Animal Purchase', totalAmount: e.purchasePrice, description: `Buy: ${e.animalCount} from ${e.farmerName}`, date: e.purchaseDate }),
+    deletePurchase: (id: string, path?: string) => remove(path?.split('/')?.slice(-2, -1)[0] || 'farmExpenses', id, path),
+    updatePurchase: (id: string, e: any, path?: string) => upsert(path?.split('/')?.slice(-2, -1)[0] || 'farmExpenses', id, { ...e, totalAmount: e.purchasePrice, date: e.purchaseDate }, path),
 
-    addSale: (e: any) => upsert('farmExpenses', undefined, { ...e, category: 'Sale', subcategory: 'Animal Sale', totalAmount: e.salePrice, description: `Sell: ${e.animalCount} Head to ${e.buyerName}`, date: e.saleDate }),
-    deleteSale: (id: string, path?: string) => remove('farmExpenses', id, path),
+    addSale: (e: any) => upsert('farmExpenses', undefined, { ...e, category: 'Sale', subcategory: 'Animal Sale', totalAmount: e.salePrice, description: `Sell: ${e.animalCount} to ${e.buyerName}`, date: e.saleDate }),
+    deleteSale: (id: string, path?: string) => remove(path?.split('/')?.slice(-2, -1)[0] || 'farmExpenses', id, path),
 
     addHealthTask: (e: any) => upsert('farmExpenses', undefined, { ...e, category: 'Health', subcategory: e.healthType, totalAmount: e.cost, description: `Treat: ${e.medicineName} (ID: ${e.sheepId})` }),
-    deleteHealthTask: (id: string, path?: string) => remove('farmExpenses', id, path),
+    deleteHealthTask: (id: string, path?: string) => remove(path?.split('/')?.slice(-2, -1)[0] || 'farmExpenses', id, path),
 
     addMedicineExpense: (e: any) => upsert('farmExpenses', undefined, { ...e, category: 'Health', subcategory: 'Pharma Bill', totalAmount: e.totalAmountSpent, description: `Bill: ${e.shopName}` }),
-    deleteMedicineExpense: (id: string, path?: string) => remove('farmExpenses', id, path),
+    deleteMedicineExpense: (id: string, path?: string) => remove(path?.split('/')?.slice(-2, -1)[0] || 'farmExpenses', id, path),
 
-    addDeadAnimal: (e: any) => upsert('farmExpenses', undefined, { ...e, category: 'Health', subcategory: 'Mortality', quantity: e.sheepCount, totalAmount: 0, description: `Dead: ${e.sheepCount} Head (Cause: ${e.causeOfDeath})`, date: e.dateOfDeath }),
-    deleteDeadAnimal: (id: string, path?: string) => remove('farmExpenses', id, path),
+    addDeadAnimal: (e: any) => upsert('farmExpenses', undefined, { ...e, category: 'Health', subcategory: 'Mortality', quantity: e.sheepCount, totalAmount: 0, description: `Dead: ${e.sheepCount} (Cause: ${e.causeOfDeath})`, date: e.dateOfDeath }),
+    deleteDeadAnimal: (id: string, path?: string) => remove(path?.split('/')?.slice(-2, -1)[0] || 'farmExpenses', id, path),
 
-    // Assets
     trackedSheep: qTracked,
     addTrackedSheep: (s: any) => upsert('trackedSheep', undefined, s),
     updateTrackedSheep: (id: string, s: any, path?: string) => upsert('trackedSheep', id, s, path),
     deleteTrackedSheep: (id: string, path?: string) => remove('trackedSheep', id, path),
 
-    // Unified Totals
     totalFeedCost: totals.feed,
     totalLaborCost: totals.labor,
     totalPurchaseCost: totals.purchase,
@@ -253,7 +373,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     totalCreditCardDebt: (qCards || []).reduce((s, c) => s + (c.outstandingAmount || 0), 0),
     totalPrivateDebt: (qDebts || []).reduce((s, d) => s + (d.amount || 0), 0),
     totalMonthlyEmi: (qLoans || []).reduce((s, l) => s + (l.monthlyEmi || 0), 0),
-  }), [qExpenses, eExpenses, feedCosts, laborCosts, medicineExpenses, purchases, sales, deadAnimals, qTracked, qLoans, qCards, qDebts, qIncomes, qMExpenses, qMarket, isUserLoading, isProfileLoading, lExpenses, lTracked, lLoans, lCards, lDebts, lIncomes, lMExpenses, lMarket, userProfile, totals, upsert, remove, mounted]);
+  }), [normalizedExpenses, eExpenses, feedCosts, laborCosts, medicineExpenses, purchases, sales, deadAnimals, qTracked, qLoans, qCards, qDebts, qIncomes, qMExpenses, qMarket, isUserLoading, isProfileLoading, lExpenses, lTracked, lLoans, lCards, lDebts, lIncomes, lMExpenses, lMarket, userProfile, totals, upsert, remove, mounted]);
 
   if (!mounted) return null;
   return <FarmContext.Provider value={value}>{children}</FarmContext.Provider>;
