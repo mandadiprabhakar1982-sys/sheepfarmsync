@@ -1,3 +1,4 @@
+
 'use client';
 
 import { createContext, useContext, ReactNode, useMemo, useCallback, useState, useEffect } from 'react';
@@ -184,7 +185,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const laborCosts = useMemo(() => sort(qLabor, 'date'), [qLabor, sort]);
   const deadAnimals = useMemo(() => sort(qDead, 'dateOfDeath'), [qDead, sort]);
   const trackedSheep = useMemo(() => qTracked ? [...qTracked].sort((a, b) => (a.tagId || '').localeCompare(b.tagId || '', undefined, { numeric: true, sensitivity: 'base' })) : null, [qTracked]);
-  const farmExpenses = useMemo(() => qExpenses, [qExpenses]); // Already sorted by query
+  const farmExpenses = useMemo(() => qExpenses, [qExpenses]);
   const healthTasks = useMemo(() => sort(qHealth, 'nextDueDate'), [qHealth, sort]);
   const bankLoans = useMemo(() => qLoans, [qLoans]);
   const creditCards = useMemo(() => qCards, [qCards]);
