@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -47,13 +48,19 @@ function LedgerContent() {
     totalSales, 
     totalExpenses, 
     addFarmExpense,
-    isLoading 
+    isLoading,
+    ledgerError
   } = useFarm();
   
   const isMobile = isHydrated ? width < 768 : false;
   const [isEntryDialogOpen, setIsEntryDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState<string>('All');
+
+  // TRIGGER ERROR BOUNDARY IF INDEX IS MISSING
+  if (ledgerError) {
+    throw ledgerError;
+  }
 
   const [form, setForm] = useState({
     date: format(new Date(), 'yyyy-MM-dd'),
@@ -113,7 +120,7 @@ function LedgerContent() {
     <div className="h-full flex flex-col">
       <header className="shrink-0 flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 px-4 md:px-0">
         <div>
-          <h1 className="text-2xl md:text-3xl font-black text-[#1a252f] md:text-[#1a252f] text-white uppercase tracking-tight leading-none">Farm Ledger</h1>
+          <h1 className="text-2xl md:text-3xl font-black text-slate-800 md:text-slate-800 text-white uppercase tracking-tight leading-none">Farm Ledger</h1>
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-2">Unified Transactional Audit</p>
         </div>
         <div className="flex items-center gap-4 overflow-x-auto no-scrollbar pb-2 md:pb-0">
