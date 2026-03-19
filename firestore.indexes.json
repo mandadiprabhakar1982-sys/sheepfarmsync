@@ -1,3 +1,4 @@
+
 {
   "indexes": [
     {
@@ -25,24 +26,6 @@
     {
       "collectionGroup": "farmExpenses",
       "fieldPath": "date",
-      "indexes": [
-        {
-          "order": "ASCENDING",
-          "queryScope": "COLLECTION_GROUP"
-        },
-        {
-          "order": "DESCENDING",
-          "queryScope": "COLLECTION_GROUP"
-        },
-        {
-          "arrayConfig": "CONTAINS",
-          "queryScope": "COLLECTION_GROUP"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "trackedSheep",
-      "fieldPath": "tagId",
       "indexes": [
         {
           "order": "ASCENDING",

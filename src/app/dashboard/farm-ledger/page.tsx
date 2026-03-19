@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -21,7 +22,7 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 import type { FarmCategory } from '@/lib/types';
 
 const ledgerConfig = {
-  Health: ["Medicine", "Vaccination", "Deworming", "Doctor Visit", "Supplement"],
+  Health: ["Medicine", "Vaccination", "Deworming", "Doctor Visit", "Supplement", "Mortality"],
   Feed: ["Green Feed", "Dry Feed", "Silage", "Concentrate", "Minerals"],
   Labour: ["Daily Wage", "Monthly Salary", "Transport Labour", "Cleaning"],
   Utility: ["Electricity", "Water", "Fuel", "Repair", "Equipment"],

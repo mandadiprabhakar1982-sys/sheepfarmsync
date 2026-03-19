@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo } from 'react';
@@ -21,7 +22,7 @@ export default function OverviewPage() {
   const router = useRouter();
   
   const { 
-    totalSheep, totalSales, totalDead, farmExpenses, sales,
+    totalSheep, totalSales, totalDead, farmExpenses,
     isLoading 
   } = useFarm();
 
@@ -35,10 +36,11 @@ export default function OverviewPage() {
     return farmExpenses
       .filter(e => {
         try {
-          return isWithinInterval(parseISO(e.expenseDate), currentMonth);
+          if (!e.date || e.category === 'Sale') return false;
+          return isWithinInterval(parseISO(e.date), currentMonth);
         } catch { return false; }
       })
-      .reduce((acc, e) => acc + e.amount, 0);
+      .reduce((acc, e) => acc + (e.totalAmount || 0), 0);
   }, [farmExpenses, currentMonth]);
 
   const mortalityRate = useMemo(() => {

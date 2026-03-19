@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo, useState } from 'react';
@@ -34,9 +35,8 @@ import { useToast } from '@/hooks/use-toast';
 export default function DashboardPage() {
   const { toast } = useToast();
   const { 
-    totalSheep, totalSales, totalDead, farmExpenses, healthTasks, sales,
-    purchases, feedCosts, laborCosts, medicineExpenses,
-    addPurchase, addFeedCost, addMedicineExpense, addLaborCost,
+    totalSheep, totalSales, totalDead, farmExpenses, healthTasks,
+    addFarmExpense,
     isLoading 
   } = useFarm();
 
@@ -60,10 +60,11 @@ export default function DashboardPage() {
     return farmExpenses
       .filter(e => {
         try {
-          return isWithinInterval(parseISO(e.expenseDate), currentMonth);
+          if (!e.date || e.category === 'Sale') return false;
+          return isWithinInterval(parseISO(e.date), currentMonth);
         } catch { return false; }
       })
-      .reduce((acc, e) => acc + e.amount, 0);
+      .reduce((acc, e) => acc + (e.totalAmount || 0), 0);
   }, [farmExpenses, currentMonth]);
 
   const mortalityRate = useMemo(() => {
@@ -74,7 +75,7 @@ export default function DashboardPage() {
 
   const recentTransactions = useMemo(() => {
     const list = [...(farmExpenses || [])]
-      .sort((a, b) => new Date(b.expenseDate).getTime() - new Date(a.expenseDate).getTime())
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
       .slice(0, 5);
     return list;
   }, [farmExpenses]);
@@ -88,13 +89,14 @@ export default function DashboardPage() {
       const mStart = startOfMonth(d);
       const mEnd = endOfMonth(d);
       
-      const monthlyRevenue = (sales || [])
+      const monthlyRevenue = (farmExpenses || [])
         .filter(s => {
           try {
-            return isWithinInterval(parseISO(s.saleDate), { start: mStart, end: mEnd });
+            if (s.category !== 'Sale' || !s.date) return false;
+            return isWithinInterval(parseISO(s.date), { start: mStart, end: mEnd });
           } catch { return false; }
         })
-        .reduce((acc, s) => acc + s.salePrice, 0);
+        .reduce((acc, s) => acc + (s.totalAmount || 0), 0);
         
       data.push({ 
         month: monthLabel, 
@@ -102,7 +104,7 @@ export default function DashboardPage() {
       });
     }
     return data;
-  }, [sales]);
+  }, [farmExpenses]);
 
   const alerts = useMemo(() => {
     const list = [
@@ -111,7 +113,7 @@ export default function DashboardPage() {
     ];
     
     const upcomingTasks = (healthTasks || [])
-      .filter(t => new Date(t.nextDueDate) > new Date())
+      .filter(t => t.nextDueDate && new Date(t.nextDueDate) > new Date())
       .slice(0, 1);
       
     if (upcomingTasks.length > 0) {
@@ -134,10 +136,11 @@ export default function DashboardPage() {
     setIsSaving(true);
     const dateStr = format(new Date(), 'yyyy-MM-dd');
     try {
-      if (pCost && parseFloat(pCost) > 0) addPurchase({ purchaseDate: dateStr, villageName: 'Dashboard Entry', farmerName: 'Supplier', animalCount: 0, purchasePrice: parseFloat(pCost), amountPaid: parseFloat(pCost), dueAmount: 0 });
-      if (fCost && parseFloat(fCost) > 0) addFeedCost({ date: dateStr, feedType: 'Other', cost: parseFloat(fCost), quantity: 0 });
-      if (mCost && parseFloat(mCost) > 0) addMedicineExpense({ date: dateStr, shopName: 'Dashboard Pharma', costOfMedicines: parseFloat(mCost), totalAmountSpent: parseFloat(mCost), outstandingDues: 0 });
-      if (lCost && parseFloat(lCost) > 0) addLaborCost({ employeeName: 'Dashboard Staff', date: dateStr, wages: parseFloat(lCost), numberOfLaborers: 1, totalLaborCosts: parseFloat(lCost), amountPaid: parseFloat(lCost), pendingAmount: 0 });
+      if (pCost && parseFloat(pCost) > 0) addFarmExpense({ date: dateStr, category: 'Purchase', subcategory: 'Animal Purchase', description: 'Dashboard Fast Entry', quantity: 1, unitCost: parseFloat(pCost), totalAmount: parseFloat(pCost), paymentMode: 'Cash' });
+      if (fCost && parseFloat(fCost) > 0) addFarmExpense({ date: dateStr, category: 'Feed', subcategory: 'Concentrate', description: 'Dashboard Fast Entry', quantity: 1, unitCost: parseFloat(fCost), totalAmount: parseFloat(fCost), paymentMode: 'Cash' });
+      if (mCost && parseFloat(mCost) > 0) addFarmExpense({ date: dateStr, category: 'Health', subcategory: 'Medicine', description: 'Dashboard Fast Entry', quantity: 1, unitCost: parseFloat(mCost), totalAmount: parseFloat(mCost), paymentMode: 'Cash' });
+      if (lCost && parseFloat(lCost) > 0) addFarmExpense({ date: dateStr, category: 'Labour', subcategory: 'Daily Wage', description: 'Dashboard Fast Entry', quantity: 1, unitCost: parseFloat(lCost), totalAmount: parseFloat(lCost), paymentMode: 'Cash' });
+      
       toast({ title: "Ledger Synchronized", description: "Records updated successfully." });
       setIsQuickEntryOpen(false);
       setPCost(''); setFCost(''); setMCost(''); setLCost('');
@@ -164,7 +167,7 @@ export default function DashboardPage() {
       <header className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
         <div>
           <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-slate-800">Farm Dashboard</h2>
-          <p className="text-sm md:text-base text-slate-500 font-medium">Premium enterprise farm monitoring</p>
+          <p className="text-sm md:text-base text-slate-50 font-medium">Premium enterprise farm monitoring</p>
         </div>
         <Button 
           onClick={() => setIsQuickEntryOpen(true)} 
@@ -202,9 +205,9 @@ export default function DashboardPage() {
                   <div key={item.id} className="flex justify-between items-center border-b border-slate-50 pb-2 last:border-none">
                     <div className="flex flex-col">
                       <span className="text-sm font-bold text-slate-700">{item.description}</span>
-                      <span className="text-[10px] text-slate-400 font-medium">{item.expenseDate}</span>
+                      <span className="text-[10px] text-slate-400 font-medium">{item.date}</span>
                     </div>
-                    <span className="text-sm font-black text-slate-900">₹{item.amount.toLocaleString()}</span>
+                    <span className="text-sm font-black text-slate-900">₹{item.totalAmount?.toLocaleString()}</span>
                   </div>
                 )) : (
                   <div className="py-10 text-center text-slate-300 text-xs font-bold uppercase">No recent activity</div>
