@@ -1,5 +1,17 @@
+
 {
-  "indexes": [],
+  "indexes": [
+    {
+      "collectionGroup": "farmExpenses",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        {
+          "fieldPath": "expenseDate",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ],
   "fieldOverrides": [
     {
       "collectionGroup": "livestockPurchases",
