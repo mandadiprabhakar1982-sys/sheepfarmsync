@@ -6,7 +6,7 @@ import { useFarm } from '@/context/FarmContext';
 import { WebSheepTable } from '@/components/web/WebSheepTable';
 import { MobileSheepList } from '@/components/mobile/MobileSheepList';
 import { useWindowDimensions } from '@/hooks/use-mobile';
-import { Plus } from 'lucide-react';
+import { Plus, Activity } from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function SheepPage() {
@@ -27,57 +27,79 @@ export default function SheepPage() {
   if (isLoading) {
     return (
       <Shell>
-        <div className="p-12 animate-pulse space-y-12 bg-white h-full">
-          <div className="h-32 bg-slate-100 rounded-3xl w-2/3" />
-          <div className="grid grid-cols-3 gap-12 border-t border-b border-gray-100 py-16">
-            <div className="h-24 bg-slate-50 rounded-2xl" />
-            <div className="h-24 bg-slate-50 rounded-2xl" />
-            <div className="h-24 bg-slate-50 rounded-2xl" />
+        <div className="p-6 animate-pulse space-y-6 h-full flex flex-col">
+          <div className="h-20 bg-white rounded-xl border border-slate-100" />
+          <div className="grid grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map(i => <div key={i} className="h-24 bg-white rounded-xl" />)}
           </div>
+          <div className="flex-1 bg-white rounded-xl" />
         </div>
       </Shell>
     );
   }
 
+  // MOBILE VIEW: Dynamic card list
+  if (isMobile) {
+    return (
+      <Shell>
+        <div className="flex flex-col h-full bg-[#f4f7f6]">
+          <header className="shrink-0 p-5 bg-emerald-600 text-white shadow-lg">
+            <div className="flex justify-between items-center mb-2">
+              <h1 className="text-xl font-black uppercase tracking-tight">Flock Records</h1>
+              <div className="px-2 py-0.5 bg-white/20 rounded text-[9px] font-black uppercase">Live Sync</div>
+            </div>
+            <p className="text-3xl font-black">#{stats.count}</p>
+          </header>
+          <div className="flex-1 overflow-y-auto px-4 pt-6">
+            <MobileSheepList />
+          </div>
+          <button className="fixed bottom-24 right-6 h-14 w-14 rounded-full bg-emerald-600 text-white shadow-2xl flex items-center justify-center active:scale-90 transition-all z-30">
+            <Plus className="h-7 w-7" />
+          </button>
+        </div>
+      </Shell>
+    );
+  }
+
+  // DESKTOP VIEW: High-density compact interface
   return (
     <Shell>
-      <div className="min-h-full bg-white md:p-12 font-sans text-[#1a1a1a] overflow-y-auto no-scrollbar">
-        {/* HEADER SECTION - EDITORIAL STYLE */}
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 md:mb-24 px-4 md:px-0 pt-8 md:pt-0">
+      <div className="h-full bg-[#f8fafc] flex flex-col font-sans text-slate-800 overflow-hidden">
+        {/* COMPACT HEADER */}
+        <header className="shrink-0 flex justify-between items-center mb-6 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
           <div>
-            <p className="text-[10px] md:text-xs uppercase tracking-[0.4em] text-emerald-600 font-black mb-4">
-              Live Asset Registry • {format(new Date(), 'MMMM yyyy')}
-            </p>
-            <h1 className="text-5xl md:text-9xl font-black tracking-tighter leading-none uppercase">
-              SHEEP<br className="hidden md:block" /> INVENTORY
+            <h1 className="text-2xl font-black tracking-tight text-[#005f4b]">
+              SHEEP<span className="text-[#14d5c7] ml-1">SYNC</span> <span className="text-slate-400 font-light ml-1 text-lg">PRO</span>
             </h1>
+            <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold">
+              Inventory Management / {format(new Date(), 'MMMM yyyy')}
+            </p>
           </div>
-          <button className="mt-8 md:mt-0 bg-emerald-500 text-white px-8 md:px-10 py-4 md:py-5 rounded-full font-bold text-base md:text-lg hover:bg-emerald-600 transition-all shadow-2xl shadow-emerald-200 flex items-center gap-3 active:scale-95">
-            <Plus className="h-6 w-6 stroke-[3px]" /> <span className="uppercase tracking-widest">ENROLL ANIMAL</span>
+          <button className="bg-[#0FA5A0] text-white px-6 py-2.5 rounded-lg font-black text-[10px] uppercase tracking-widest hover:bg-[#134E4A] transition-all flex items-center gap-2 shadow-sm active:scale-95">
+            <Plus className="h-4 w-4 stroke-[3px]" /> ENROLL NEW ASSET
           </button>
         </header>
 
-        {/* STATS OVERVIEW - High Fidelity Big Type */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 mb-12 md:mb-24 border-t border-b border-gray-100 py-10 md:py-16 px-4 md:px-0">
-          <div>
-            <p className="text-gray-400 font-bold uppercase text-[10px] md:text-xs tracking-[0.2em] mb-2">Total Head</p>
-            <p className="text-6xl md:text-8xl font-black italic tracking-tighter">{stats.count.toLocaleString()}</p>
-          </div>
-          <div>
-            <p className="text-gray-400 font-bold uppercase text-[10px] md:text-xs tracking-[0.2em] mb-2">Avg. Weight</p>
-            <p className="text-6xl md:text-8xl font-black tracking-tighter">
-              {stats.avgWeight}<span className="text-xl md:text-3xl ml-2 text-gray-300 font-bold">KG</span>
-            </p>
-          </div>
-          <div>
-            <p className="text-gray-400 font-bold uppercase text-[10px] md:text-xs tracking-[0.2em] mb-2">Health Index</p>
-            <p className="text-6xl md:text-8xl font-black text-emerald-500 tracking-tighter">98%</p>
-          </div>
+        {/* MINI STATS - Small Form Factor */}
+        <div className="shrink-0 grid grid-cols-4 gap-4 mb-6">
+          {[
+            { label: "Total Head", val: stats.count.toLocaleString(), color: "text-slate-800" },
+            { label: "Avg Weight", val: `${stats.avgWeight} kg`, color: "text-slate-800" },
+            { label: "Health Index", val: "98%", color: "text-emerald-600" },
+            { label: "Alerts", val: "0", color: "text-slate-400" }
+          ].map((stat, i) => (
+            <div key={i} className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
+              <p className="text-[10px] uppercase font-black text-slate-400 mb-1 tracking-widest">{stat.label}</p>
+              <p className={`text-2xl font-black ${stat.color} tracking-tight`}>{stat.val}</p>
+            </div>
+          ))}
         </div>
 
-        {/* RESPONSIVE DATA VIEW */}
-        <div className="px-4 md:px-0 pb-32">
-          {isMobile ? <MobileSheepList /> : <WebSheepTable />}
+        {/* COMPACT DATA TABLE AREA */}
+        <div className="flex-1 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+          <div className="flex-1 overflow-auto no-scrollbar">
+            <WebSheepTable />
+          </div>
         </div>
       </div>
     </Shell>
