@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { analyzeFarmCosts, type AnalyzeFarmCostsOutput } from '@/ai/flows/analyze-farm-costs';
-import { Loader2, Sparkles, AlertTriangle, TrendingUp, ShieldCheck, Zap, BarChart3, Target } from 'lucide-react';
+import { Loader2, Sparkles, AlertTriangle, ShieldCheck, Zap, BarChart3, Target } from 'lucide-react';
 import { useFarm } from '@/context/FarmContext';
 
 import { PageHeader } from '@/components/page-header';
@@ -66,9 +66,11 @@ export default function AnalysisPage() {
           totalLaborCosts: l.totalLaborCosts,
         })),
         farmExpenses: (farmExpenses || []).map(e => ({
-          expenseDate: e.expenseDate,
+          date: e.date,
+          category: e.category,
+          subcategory: e.subcategory,
           description: e.description,
-          amount: e.amount,
+          totalAmount: e.totalAmount,
         })),
       };
       

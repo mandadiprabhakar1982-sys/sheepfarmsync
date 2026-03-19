@@ -1,7 +1,7 @@
 'use server';
 /**
  * @fileOverview This file implements an AI flow for analyzing farm cost data.
- * It now includes community benchmarking for competitive analysis.
+ * Updated to use the unified master ledger schema (date, totalAmount).
  *
  * - analyzeFarmCosts - A function that triggers the AI cost analysis.
  * - AnalyzeFarmCostsInput - The input type for the analyzeFarmCosts function.
@@ -49,14 +49,14 @@ const LaborCostSchema = z.object({
   foodCosts: z.number().describe('Cost of food provided to employees.'),
   fuelCosts: z.number().describe('Cost of fuel for transport related to employees.'),
   totalLaborCosts: z.number().describe('Total calculated employee costs for this entry.'),
-  amountPaid: z.number().optional().describe('Actual amount paid to the employee.'),
-  pendingAmount: z.number().optional().describe('Amount still pending to be paid.'),
 });
 
 const FarmExpenseSchema = z.object({
-  expenseDate: z.string().describe('Date of expense (YYYY-MM-DD format).'),
+  date: z.string().describe('Date of transaction (YYYY-MM-DD format).'),
+  category: z.string().describe('Category of transaction.'),
+  subcategory: z.string().describe('Subcategory of transaction.'),
   description: z.string().describe('Description of the expense.'),
-  amount: z.number().describe('Amount of the expense.'),
+  totalAmount: z.number().describe('Total value of the transaction.'),
 });
 
 const CommunityAveragesSchema = z.object({
@@ -70,7 +70,7 @@ const AnalyzeFarmCostsInputSchema = z.object({
   medicineExpenses: z.array(MedicineExpenseSchema).describe('List of medicine expense records.'),
   feedCosts: z.array(FeedCostSchema).describe('List of animal feed cost records.'),
   laborCosts: z.array(LaborCostSchema).describe('List of employee cost records.'),
-  farmExpenses: z.array(FarmExpenseSchema).describe('List of general farm expense records.'),
+  farmExpenses: z.array(FarmExpenseSchema).describe('List of general farm expense records from the unified ledger.'),
   communityAverages: CommunityAveragesSchema.optional().describe('Aggregated anonymized data from the community marketplace.'),
 });
 export type AnalyzeFarmCostsInput = z.infer<typeof AnalyzeFarmCostsInputSchema>;
@@ -99,12 +99,12 @@ Analyze the following data and:
 3. Compare the farm's performance (purchases and sales) with the community averages provided.
 4. Offer actionable insights and recommendations to optimize costs.
 
-Farm Cost Data:
+Farm Cost Data (Unified Ledger):
 
-{{#if livestockPurchases}}
-## Livestock Purchases:
-{{#each livestockPurchases}}
-- Date: {{{this.purchaseDate}}}, Sheep: {{{this.animalCount}}}, Price: {{{this.purchasePrice}}}
+{{#if farmExpenses}}
+## Unified Transactional Stream:
+{{#each farmExpenses}}
+- Date: {{{this.date}}}, Category: {{{this.category}}}, Sub: {{{this.subcategory}}}, Desc: {{{this.description}}}, Amount: ₹{{{this.totalAmount}}}
 {{/each}}
 {{/if}}
 
@@ -113,20 +113,6 @@ Farm Cost Data:
 - Avg Market Purchase Price: ₹{{{communityAverages.avgPurchasePricePerAnimal}}}
 - Avg Market Sale Price: ₹{{{communityAverages.avgSalePricePerAnimal}}}
 - Community Listing Volume: {{{communityAverages.totalMarketVolume}}} animals
-{{/if}}
-
-{{#if medicineExpenses}}
-## Medicine:
-{{#each medicineExpenses}}
-- Cost: {{{this.totalAmountSpent}}}, Description: {{{this.description}}}
-{{/each}}
-{{/if}}
-
-{{#if feedCosts}}
-## Feed:
-{{#each feedCosts}}
-- Type: {{{this.feedType}}}, Cost: {{{this.cost}}}, Bags: {{{this.bags}}}
-{{/each}}
 {{/if}}
 
 Based on this data, please provide your analysis, focusing on how the user's costs compare to the community trends.`,
