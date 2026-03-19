@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useRef } from 'react';
@@ -14,6 +15,10 @@ import {
   Camera,
   ImageIcon,
   Upload,
+  ChevronRight,
+  TrendingUp,
+  Scale,
+  Calendar
 } from 'lucide-react';
 import { format, parseISO, isValid } from 'date-fns';
 import Image from 'next/image';
@@ -36,6 +41,8 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { HorizontalDatePicker } from '@/components/horizontal-date-picker';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import type { TrackedSheep } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
@@ -184,11 +191,11 @@ export default function LivestockPage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto py-10 px-10 animate-pulse space-y-8">
-        <div className="h-10 bg-[#edf2f7] rounded-xl w-64 mb-8" />
-        <div className="h-16 bg-[#edf2f7] rounded-[15px] max-w-2xl mb-8" />
-        <div className="space-y-4">
-          {[1, 2, 3, 4].map(i => <div key={i} className="h-20 bg-[#edf2f7] rounded-2xl w-full" />)}
+      <div className="container mx-auto py-10 px-4 md:px-10 animate-pulse space-y-8">
+        <div className="h-10 bg-slate-200 rounded-xl w-64 mb-8" />
+        <div className="h-16 bg-slate-200 rounded-[15px] max-w-2xl mb-8" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="h-48 bg-slate-100 rounded-[2rem] w-full" />)}
         </div>
       </div>
     );
@@ -196,10 +203,10 @@ export default function LivestockPage() {
 
   return (
     <div className="flex flex-col h-full overflow-hidden bg-[#f4f7f6]">
-      <header className="shrink-0 px-10 pt-10 pb-6">
+      <header className="shrink-0 px-4 md:px-10 pt-10 pb-6">
         <h1 className="text-3xl font-[800] text-[#1a252f] tracking-tight mb-8">Sheep Inventory</h1>
 
-        <div className="flex bg-white p-2 rounded-[15px] border border-[#e1e8ed] shadow-sm max-w-2xl mb-8">
+        <div className="flex flex-col sm:flex-row bg-white p-2 rounded-2xl sm:rounded-[15px] border border-[#e1e8ed] shadow-sm max-w-3xl mb-8 gap-2">
           <div className="relative flex-1 flex items-center">
             <Search className="absolute left-4 h-4 w-4 text-[#95a5a6]" />
             <Input 
@@ -209,9 +216,9 @@ export default function LivestockPage() {
               className="border-none shadow-none focus-visible:ring-0 pl-12 h-12 font-semibold" 
             />
           </div>
-          <div className="w-px bg-[#eee] mx-4 my-2" />
+          <div className="hidden sm:block w-px bg-[#eee] mx-2 my-2" />
           <Select value={performanceFilter} onValueChange={setPerformanceFilter}>
-            <SelectTrigger className="border-none shadow-none focus:ring-0 w-48 font-bold text-[#7f8c8d]">
+            <SelectTrigger className="border-none shadow-none focus:ring-0 w-full sm:w-48 font-bold text-[#7f8c8d]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -223,8 +230,53 @@ export default function LivestockPage() {
         </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto px-10 pb-32">
-        <div className="bg-white rounded-[20px] shadow-[0_4px_15px_rgba(0,0,0,0.03)] border border-[#edf2f7] overflow-hidden">
+      <div className="flex-1 overflow-y-auto px-4 md:px-10 pb-32">
+        {/* MOBILE VIEW: Card Grid */}
+        <div className="grid grid-cols-1 gap-4 md:hidden">
+          {filteredAssets.length > 0 ? filteredAssets.map((sheep) => {
+            const gain = sheep.currentWeight - (sheep.previousWeight || 0);
+            return (
+              <Card key={sheep.id} className="border-none shadow-md rounded-[2rem] bg-white overflow-hidden active:scale-[0.98] transition-all" onClick={() => handleEditClick(sheep)}>
+                <CardContent className="p-0">
+                  <div className="flex gap-4 p-5">
+                    <div className="h-20 w-20 rounded-2xl bg-slate-100 flex-shrink-0 relative overflow-hidden">
+                      {sheep.imageUrl ? (
+                        <Image src={sheep.imageUrl} alt={sheep.tagId} fill className="object-cover" />
+                      ) : (
+                        <div className="h-full w-full flex items-center justify-center text-slate-300">
+                          <ImageIcon className="h-8 w-8" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-start mb-1">
+                        <Badge className="bg-[#e0f2f1] text-[#008080] border-none font-black text-[10px] uppercase px-2 py-0.5">
+                          #{sheep.tagId}
+                        </Badge>
+                        <span className={cn("text-xs font-black", gain > 0 ? "text-emerald-500" : "text-slate-400")}>
+                          {gain > 0 ? `+${gain.toFixed(1)}` : gain.toFixed(1)} kg
+                        </span>
+                      </div>
+                      <h3 className="text-lg font-black text-slate-800 leading-tight truncate">{sheep.breed}</h3>
+                      <div className="flex items-center gap-3 mt-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                        <span className="flex items-center gap-1"><Scale className="h-3 w-3" /> {sheep.currentWeight}kg</span>
+                        <span className="flex items-center gap-1"><Calendar className="h-3 w-3" /> {sheep.age}m</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center">
+                      <ChevronRight className="h-5 w-5 text-slate-300" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          }) : (
+            <div className="py-20 text-center opacity-40 font-black uppercase text-[10px] tracking-widest">No assets found</div>
+          )}
+        </div>
+
+        {/* WEB VIEW: High-density data table */}
+        <div className="hidden md:block bg-white rounded-[20px] shadow-[0_4px_15px_rgba(0,0,0,0.03)] border border-[#edf2f7] overflow-hidden">
           <Table>
             <TableHeader className="bg-[#f8fafb]">
               <TableRow className="border-none">
@@ -261,7 +313,7 @@ export default function LivestockPage() {
                         <button onClick={() => handleEditClick(sheep)} className="h-8 w-8 rounded-lg bg-[#f1f4f6] text-[#7f8c8d] hover:bg-[#00d1b2] hover:text-[#1a1a1a] flex items-center justify-center transition-all">
                           <Pencil className="h-3.5 w-3.5" />
                         </button>
-                        <button onClick={() => deleteTrackedSheep(sheep.id, sheep._path)} className="h-8 w-8 rounded-lg bg-[#f1f4f6] text-[#7f8c8d] hover:bg-[#ff4d4d] hover:text-white flex items-center justify-center transition-all">
+                        <button onClick={(e) => { e.stopPropagation(); deleteTrackedSheep(sheep.id, sheep._path); }} className="h-8 w-8 rounded-lg bg-[#f1f4f6] text-[#7f8c8d] hover:bg-[#ff4d4d] hover:text-white flex items-center justify-center transition-all">
                           <Trash2 className="h-3.5 w-3.5" />
                         </button>
                       </div>
@@ -276,18 +328,18 @@ export default function LivestockPage() {
 
       <button 
         onClick={() => { assetForm.reset({ registrationDate: new Date(), breed: 'Standard', age: 6, currentWeight: 25, previousWeight: 0 }); setIsEntryDialogOpen(true); }}
-        className="fixed bottom-10 right-10 h-14 w-14 rounded-full bg-[#005f4b] text-white shadow-xl flex items-center justify-center active:scale-90 transition-all z-30"
+        className="fixed bottom-24 right-6 md:bottom-10 md:right-10 h-14 w-14 rounded-full bg-[#005f4b] text-white shadow-xl flex items-center justify-center active:scale-90 transition-all z-30"
       >
         <Plus className="h-7 w-7" />
       </button>
 
       <Dialog open={isEntryDialogOpen} onOpenChange={(open) => { setIsEntryDialogOpen(open); if (!open) stopCamera(); }}>
-        <DialogContent className="sm:max-w-xl rounded-[24px] p-0 overflow-hidden border-none shadow-2xl bg-white">
-          <div className="bg-[#1a1a1a] p-6 text-white flex justify-between items-center">
+        <DialogContent className="sm:max-w-xl rounded-[24px] p-0 overflow-hidden border-none shadow-2xl bg-white max-h-[90vh] flex flex-col">
+          <div className="bg-[#1a1a1a] p-6 text-white flex justify-between items-center shrink-0">
             <DialogTitle className="text-xl font-bold uppercase tracking-tight">Add Sheep Record</DialogTitle>
             <DialogClose className="text-white/40 hover:text-white transition-colors"><X className="h-5 w-5" /></DialogClose>
           </div>
-          <div className="p-8">
+          <div className="p-8 overflow-y-auto no-scrollbar">
             <Form {...assetForm}>
               <form onSubmit={assetForm.handleSubmit(onAssetSubmit)} className="space-y-6">
                 <div className="grid grid-cols-2 gap-4">
@@ -303,7 +355,7 @@ export default function LivestockPage() {
                   <FormField control={assetForm.control} name="registrationDate" render={({ field }) => (
                     <FormItem className="flex flex-col"><Label className="text-[11px] font-black text-[#95a5a6] uppercase mb-1">Date</Label>
                       <Popover><PopoverTrigger asChild><Button variant="outline" className="h-12 bg-[#f8fafb] border-[#f0f4f8] rounded-xl font-bold justify-start px-3">{field.value ? format(field.value, "MMM dd, yyyy") : "Pick date"}</Button></PopoverTrigger>
-                      <PopoverContent className="w-auto p-0"><HorizontalDatePicker selectedDate={field.value} onSelect={field.onChange} /></PopoverContent></Popover>
+                      <PopoverContent className="w-auto p-0" align="start"><HorizontalDatePicker selectedDate={field.value} onSelect={field.onChange} /></PopoverContent></Popover>
                     </FormItem>
                   )} />
                   <FormField control={assetForm.control} name="previousWeight" render={({ field }) => (
@@ -327,7 +379,7 @@ export default function LivestockPage() {
                     </div>
                   </div>
                 </div>
-                <button type="submit" disabled={isUploading} className="w-full h-14 rounded-xl bg-[#00d1b2] text-[#1a1a1a] font-black uppercase tracking-widest hover:brightness-110 transition-all flex items-center justify-center">
+                <button type="submit" disabled={isUploading} className="w-full h-14 rounded-xl bg-[#00d1b2] text-[#1a1a1a] font-black uppercase tracking-widest hover:brightness-110 transition-all flex items-center justify-center shrink-0">
                   {isUploading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Enroll Sheep Asset'}
                 </button>
               </form>
@@ -337,12 +389,12 @@ export default function LivestockPage() {
       </Dialog>
 
       <Dialog open={isEditDialogOpen} onOpenChange={(open) => { setIsEditDialogOpen(open); if (!open) stopCamera(); }}>
-        <DialogContent className="sm:max-w-xl rounded-[24px] p-0 overflow-hidden border-none shadow-2xl bg-white">
-          <div className="bg-[#1a1a1a] p-6 text-white flex justify-between items-center">
+        <DialogContent className="sm:max-w-xl rounded-[24px] p-0 overflow-hidden border-none shadow-2xl bg-white max-h-[90vh] flex flex-col">
+          <div className="bg-[#1a1a1a] p-6 text-white flex justify-between items-center shrink-0">
             <DialogTitle className="text-xl font-bold uppercase tracking-tight">Edit Record: {editingSheep?.tagId}</DialogTitle>
             <DialogClose className="text-white/40 hover:text-white transition-colors"><X className="h-5 w-5" /></DialogClose>
           </div>
-          <div className="p-8">
+          <div className="p-8 overflow-y-auto no-scrollbar">
             <Form {...editForm}>
               <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-6">
                 <div className="grid grid-cols-2 gap-4">
@@ -358,7 +410,7 @@ export default function LivestockPage() {
                   <FormField control={editForm.control} name="registrationDate" render={({ field }) => (
                     <FormItem className="flex flex-col"><Label className="text-[11px] font-black text-[#95a5a6] uppercase mb-1">Date</Label>
                       <Popover><PopoverTrigger asChild><Button variant="outline" className="h-12 bg-[#f8fafb] border-[#f0f4f8] rounded-xl font-bold justify-start px-3">{field.value ? format(field.value, "MMM dd, yyyy") : "Pick date"}</Button></PopoverTrigger>
-                      <PopoverContent className="w-auto p-0"><HorizontalDatePicker selectedDate={field.value} onSelect={field.onChange} /></PopoverContent></Popover>
+                      <PopoverContent className="w-auto p-0" align="start"><HorizontalDatePicker selectedDate={field.value} onSelect={field.onChange} /></PopoverContent></Popover>
                     </FormItem>
                   )} />
                   <FormField control={editForm.control} name="previousWeight" render={({ field }) => (
@@ -368,7 +420,7 @@ export default function LivestockPage() {
                     <FormItem><Label className="text-[11px] font-black text-[#95a5a6] uppercase mb-1">Curr. Weight (KG)</Label><FormControl><Input type="number" step="0.1" className="h-12 bg-[#f8fafb] border-[#f0f4f8] rounded-xl font-bold" {...field} /></FormControl></FormItem>
                   )} />
                 </div>
-                <button type="submit" disabled={isUploading} className="w-full h-14 rounded-xl bg-[#00d1b2] text-[#1a1a1a] font-black uppercase tracking-widest hover:brightness-110 transition-all flex items-center justify-center">
+                <button type="submit" disabled={isUploading} className="w-full h-14 rounded-xl bg-[#00d1b2] text-[#1a1a1a] font-black uppercase tracking-widest hover:brightness-110 transition-all flex items-center justify-center shrink-0">
                   {isUploading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Save Changes'}
                 </button>
               </form>
