@@ -4,43 +4,63 @@
 
 @layer base {
   :root {
+    /* Primary: Deep Enterprise Teal */
+    --primary: 167 100% 19%;
+    --primary-foreground: 168 33% 96%;
+    
+    /* Accent: Vibrant Farm Teal (#0FA5A0) */
+    --accent: 178 83% 34%;
+    --accent-foreground: 0 0% 100%;
+    
+    /* Background: Soft Mint Slate */
     --background: 165 15% 96%;
     --foreground: 210 29% 14%;
+    
     --card: 0 0% 100%;
     --card-foreground: 210 29% 14%;
+    
     --popover: 0 0% 100%;
     --popover-foreground: 210 29% 14%;
-    --primary: 167 100% 19%;
-    --primary-foreground: 168 33% 76%;
-    --secondary: 171 100% 41%;
-    --secondary-foreground: 210 29% 14%;
+    
     --muted: 165 10% 90%;
     --muted-foreground: 184 9% 52%;
-    --accent: 171 100% 41%;
-    --accent-foreground: 167 100% 19%;
+    
     --destructive: 0 84% 65%;
     --destructive-foreground: 0 0% 100%;
-    --border: 210 20% 93%;
+    
+    --border: 210 20% 90%;
     --input: 210 20% 93%;
-    --ring: 171 100% 41%;
-    --radius: 1.25rem;
+    --ring: 178 83% 34%;
+    --radius: 1rem;
   }
 }
 
 @layer base {
   body {
     font-family: 'Montserrat', sans-serif;
-    @apply bg-[#f4f7f6] text-[#1a252f] h-screen overflow-hidden;
+    @apply bg-background text-foreground h-screen overflow-hidden;
     margin: 0;
     -webkit-tap-highlight-color: transparent;
   }
 }
 
 @layer components {
+  .page-title {
+    @apply text-2xl md:text-3xl font-black tracking-tight uppercase text-primary leading-none;
+  }
+  
+  .subtitle {
+    @apply text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground mt-2;
+  }
+
+  .tactical-card {
+    @apply bg-white rounded-[1.5rem] border border-border shadow-[0_4px_12px_rgba(0,0,0,0.03)] overflow-hidden;
+  }
+
   /* MOBILE TACTICAL STYLES (< 768px) */
   @media (max-width: 767px) {
     .mobile-card {
-      @apply bg-white rounded-[1.5rem] p-5 shadow-md border border-white/60 active:scale-[0.98] transition-all;
+      @apply bg-white rounded-[1.25rem] p-5 shadow-md border border-white/60 active:scale-[0.98] transition-all;
     }
     .safe-bottom {
       padding-bottom: calc(80px + env(safe-area-inset-bottom));
@@ -49,26 +69,26 @@
       @apply text-xl font-black text-white;
     }
     .logo-box span {
-      @apply text-[#00d1b2];
+      @apply text-accent;
     }
   }
 
   /* DESKTOP ENTERPRISE STYLES (>= 768px) */
   @media (min-width: 768px) {
     .header {
-      @apply h-[80px] bg-white border-b border-slate-100 flex items-center justify-between px-8 shrink-0;
+      @apply h-[80px] bg-white border-b border-border flex items-center justify-between px-8 shrink-0;
     }
     .web-table-container {
-      @apply bg-white rounded-[2rem] shadow-2xl border border-slate-50 overflow-hidden;
+      @apply bg-white rounded-[1.5rem] shadow-xl border border-border overflow-hidden;
     }
     .logo-box {
-      @apply text-2xl font-extrabold text-[#1a252f] tracking-tight;
+      @apply text-2xl font-black text-primary tracking-tighter;
     }
     .logo-box span {
-      @apply text-[#00d1b2];
+      @apply text-accent;
     }
     .command-tag { 
-      @apply text-[11px] font-black uppercase tracking-[0.3em] text-slate-400; 
+      @apply text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40; 
     }
   }
 }
