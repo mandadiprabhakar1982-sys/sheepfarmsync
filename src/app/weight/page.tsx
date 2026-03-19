@@ -5,6 +5,7 @@ import { useFarm } from '@/context/FarmContext';
 import { useWindowDimensions } from '@/hooks/use-mobile';
 import { Scale, Calculator, TrendingUp } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import Link from 'next/link';
 
 export default function WeightPage() {
   const { width, isHydrated } = useWindowDimensions();
@@ -19,10 +20,12 @@ export default function WeightPage() {
             <h1 className="text-2xl md:text-3xl font-black text-slate-800 md:text-slate-800 text-white uppercase">Growth Audit</h1>
             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Weight Tracking & Projections</p>
           </div>
-          <button className="h-12 w-12 md:h-14 md:w-auto md:px-8 rounded-2xl bg-[#0FA5A0] text-white flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-all">
-            <Calculator className="h-6 w-6" />
-            <span className="hidden md:inline font-black uppercase text-xs">Nutrition Calc</span>
-          </button>
+          <Link href="/calculator">
+            <button className="h-12 w-12 md:h-14 md:w-auto md:px-8 rounded-2xl bg-[#0FA5A0] text-white flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-all">
+              <Calculator className="h-6 w-6" />
+              <span className="hidden md:inline font-black uppercase text-xs">Nutrition Calc</span>
+            </button>
+          </Link>
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4 md:px-0">

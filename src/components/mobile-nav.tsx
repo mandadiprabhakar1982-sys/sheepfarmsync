@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, Users, BarChart3, Heart, Scale } from 'lucide-react';
+import { LayoutDashboard, Users, BarChart3, Heart, Calculator } from 'lucide-react';
 
 export function MobileNav() {
   const pathname = usePathname();
@@ -13,7 +13,7 @@ export function MobileNav() {
     { href: '/sheep', label: 'FLOCK', icon: Users },
     { href: '/ledger', label: 'AUDIT', icon: BarChart3 },
     { href: '/health', label: 'HEALTH', icon: Heart },
-    { href: '/weight', label: 'WEIGHT', icon: Scale },
+    { href: '/calculator', label: 'CALC', icon: Calculator },
   ];
 
   return (

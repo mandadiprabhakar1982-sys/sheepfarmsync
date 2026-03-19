@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutGrid, ClipboardList, BookOpen, Heart, Scale, ShieldCheck } from 'lucide-react';
+import { LayoutGrid, ClipboardList, BookOpen, Heart, Scale, ShieldCheck, Calculator, HelpCircle } from 'lucide-react';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarGroup, SidebarGroupContent } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 
@@ -16,6 +16,8 @@ export function AppSidebar() {
     { href: '/ledger', label: "Farm Ledger", icon: BookOpen },
     { href: '/health', label: "Health Portal", icon: Heart },
     { href: '/weight', label: "Growth Audit", icon: Scale },
+    { href: '/calculator', label: "Nutrition Calc", icon: Calculator },
+    { href: '/help', label: "Stealth & Setup", icon: ShieldCheck },
   ];
 
   return (
