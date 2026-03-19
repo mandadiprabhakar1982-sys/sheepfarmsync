@@ -43,6 +43,9 @@ export type FarmExpense = AnalyzeFarmCostsInput['farmExpenses'][0] & {
   creatorEmail?: string;
   creatorName?: string;
   imageUrl?: string;
+  paymentMode?: string;
+  notes?: string;
+  expenseType?: string;
 };
 
 export type AnimalSale = {

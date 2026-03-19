@@ -1,117 +1,69 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { 
-  Search, 
-  ShieldCheck, 
-  CheckCircle2,
+  Trash2, 
   Plus,
-  ArrowRightLeft,
   Loader2,
-  Zap,
   X
 } from 'lucide-react';
 import { useFarm } from '@/context/FarmContext';
 import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
-import { format, parseISO, isToday, isYesterday } from 'date-fns';
-import { Badge } from '@/components/ui/badge';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogClose,
-} from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
+import { format, parseISO, isValid } from 'date-fns';
+
+const ledgerCategories = {
+  operational: ["Feed Purchase", "Labour Payment", "Medicine", "Transport", "Veterinary Service"],
+  utility: ["Electricity", "Water Supply", "Equipment Repair", "Miscellaneous"]
+};
 
 export default function FarmLedgerPage() {
   const { 
-    purchases, feedCosts, laborCosts, medicineExpenses, 
-    healthTasks, farmExpenses, totalExpenses, addPurchase, addFeedCost, addMedicineExpense, addLaborCost,
+    farmExpenses, addFarmExpense, deleteFarmExpense, totalExpenses,
     isLoading 
   } = useFarm();
   const { toast } = useToast();
 
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isQuickEntryOpen, setIsQuickEntryOpen] = useState(false);
-  
-  // Quick Entry State
-  const [entryDate, setEntryDate] = useState<Date>(new Date());
-  const [pCost, setPCost] = useState('');
-  const [fCost, setFCost] = useState('');
-  const [mCost, setMCost] = useState('');
-  const [lCost, setLCost] = useState('');
-  const [isSaving, setIsSaving] = useState(false);
+  const [showLedgerForm, setShowLedgerForm] = useState(false);
+  const [ledgerForm, setLedgerForm] = useState({
+    date: format(new Date(), 'yyyy-MM-dd'),
+    expenseType: "",
+    amount: "",
+    paymentMode: "",
+    notes: ""
+  });
 
-  const combinedData = useMemo(() => {
-    const purchaseOutflows = (purchases || []).map(p => ({ 
-      id: p.id, date: p.purchaseDate, source: `Sheep Buying: ${p.farmerName}`, amount: p.amountPaid, cat: 'Buying', color: 'bg-blue-50 text-blue-600', mColor: 'bg-blue-500/10 text-blue-400 border-blue-500/20' 
-    }));
-    const feedOutflows = (feedCosts || []).map(f => ({ 
-      id: f.id, date: f.date, source: `Fodder: ${f.feedType}`, amount: f.cost, cat: 'Feed', color: 'bg-orange-50 text-orange-600', mColor: 'bg-orange-500/10 text-orange-400 border-orange-500/20' 
-    }));
-    const laborOutflows = (laborCosts || []).map(l => ({ 
-      id: l.id, date: l.date, source: `Staff: ${l.employeeName}`, amount: l.amountPaid || 0, cat: 'Labour', color: 'bg-emerald-50 text-[#43A047]', mColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
-    }));
-    const medicineOutflows = (medicineExpenses || []).map(m => ({ 
-      id: m.id, date: m.date, source: `Pharma: ${m.shopName}`, amount: m.totalAmountSpent, cat: 'Pharma', color: 'bg-rose-50 text-rose-600', mColor: 'bg-orange-500/10 text-rose-400 border-rose-500/20' 
-    }));
-    const clinicalOutflows = (healthTasks || []).map(h => ({ 
-      id: h.id, date: h.date, source: `Clinical: ${h.medicineName}`, amount: h.cost, cat: 'Health', color: 'bg-rose-50 text-rose-600', mColor: 'bg-orange-500/10 text-rose-400 border-rose-500/20' 
-    }));
-    const miscOutflows = (farmExpenses || []).map(e => ({ 
-      id: e.id, date: e.expenseDate, source: `Overhead: ${e.description}`, amount: e.amount, cat: 'Expense', color: 'bg-slate-100 text-slate-600', mColor: 'bg-slate-500/10 text-slate-400 border-slate-500/20' 
-    }));
+  const sortedExpenses = useMemo(() => {
+    if (!farmExpenses) return [];
+    return [...farmExpenses].sort((a, b) => new Date(b.expenseDate).getTime() - new Date(a.expenseDate).getTime());
+  }, [farmExpenses]);
 
-    const all = [
-      ...purchaseOutflows, ...feedOutflows, ...laborOutflows, 
-      ...medicineOutflows, ...clinicalOutflows, ...miscOutflows
-    ].filter(item => {
-      if (!item.date) return false;
-      const matchesSearch = item.source.toLowerCase().includes(searchTerm.toLowerCase()) || item.cat.toLowerCase().includes(searchTerm.toLowerCase());
-      return matchesSearch;
-    });
-
-    return all.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }, [purchases, feedCosts, laborCosts, medicineExpenses, healthTasks, farmExpenses, searchTerm]);
-
-  const groupedData = useMemo(() => {
-    const groups: { [key: string]: any[] } = {};
-    combinedData.forEach(item => {
-      if (!groups[item.date]) groups[item.date] = [];
-      groups[item.date].push(item);
-    });
-    return Object.entries(groups).map(([date, items]) => ({ date, items }));
-  }, [combinedData]);
-
-  const handleQuickSync = async () => {
-    setIsSaving(true);
-    const dateStr = format(entryDate, 'yyyy-MM-dd');
-    try {
-      if (pCost && parseFloat(pCost) > 0) addPurchase({ purchaseDate: dateStr, villageName: 'Quick Entry', farmerName: 'Supplier', animalCount: 0, purchasePrice: parseFloat(pCost), amountPaid: parseFloat(pCost), dueAmount: 0 });
-      if (fCost && parseFloat(fCost) > 0) addFeedCost({ date: dateStr, feedType: 'Other', cost: parseFloat(fCost), quantity: 0 });
-      if (mCost && parseFloat(mCost) > 0) addMedicineExpense({ date: dateStr, shopName: 'Quick Pharma', costOfMedicines: parseFloat(mCost), totalAmountSpent: parseFloat(mCost), outstandingDues: 0 });
-      if (lCost && parseFloat(lCost) > 0) addLaborCost({ employeeName: 'Quick Staff', date: dateStr, wages: parseFloat(lCost), numberOfLaborers: 1, totalLaborCosts: parseFloat(lCost), amountPaid: parseFloat(lCost), pendingAmount: 0 });
-      toast({ title: "Ledger Synchronized", description: "Disbursements have been distributed." });
-      setIsQuickEntryOpen(false);
-      setPCost(''); setFCost(''); setMCost(''); setLCost('');
-    } catch (e) {
-      toast({ variant: 'destructive', title: 'Sync Failed' });
-    } finally {
-      setIsSaving(false);
+  const saveLedger = () => {
+    if (!ledgerForm.expenseType || !ledgerForm.amount) {
+      toast({ variant: 'destructive', title: 'Missing Info', description: 'Please enter type and amount.' });
+      return;
     }
-  };
+    
+    addFarmExpense({
+      expenseDate: ledgerForm.date,
+      description: ledgerForm.expenseType,
+      amount: parseFloat(ledgerForm.amount),
+      paymentMode: ledgerForm.paymentMode,
+      notes: ledgerForm.notes,
+      expenseType: ledgerForm.expenseType
+    } as any);
 
-  const formatGroupDate = (dateStr: string) => {
-    const d = parseISO(dateStr);
-    if (isToday(d)) return `Today - ${dateStr}`;
-    if (isYesterday(d)) return `Yesterday - ${dateStr}`;
-    return dateStr;
+    toast({ title: "Ledger Updated", description: "Record has been synchronized." });
+    setLedgerForm({
+      date: format(new Date(), 'yyyy-MM-dd'),
+      expenseType: "",
+      amount: "",
+      paymentMode: "",
+      notes: ""
+    });
+    setShowLedgerForm(false);
   };
 
   if (isLoading) {
@@ -123,96 +75,147 @@ export default function FarmLedgerPage() {
   }
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
-      <header className="shrink-0 px-5 pt-4 pb-8">
-        <h1 className="text-[34px] font-[800] text-white tracking-tight leading-[1.1]">Farm Ledger</h1>
-        <p className="text-sm font-medium text-white/40 mb-6">Verified operational outflow stream.</p>
-
-        <div className="hub-node p-8 border-l-4 border-l-primary bg-white/5">
-          <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1">Total Operational Outflow</p>
-          <h2 className="text-4xl font-black text-white tracking-tighter">₹{totalExpenses.toLocaleString()}</h2>
-          <div className="flex items-center gap-2 text-[9px] font-bold text-primary uppercase tracking-widest mt-2">
-            <ShieldCheck className="h-3 w-3" /> System Audit Clear
-          </div>
-        </div>
+    <div className="container mx-auto py-8 animate-in fade-in duration-700">
+      <header className="mb-10">
+        <h1 className="text-3xl font-black text-slate-800 tracking-tight leading-none mb-2">Farm Ledger</h1>
+        <p className="text-sm font-medium text-slate-500 uppercase tracking-widest">Operational disbursement audit</p>
       </header>
 
-      <div className="flex-1 overflow-y-auto pb-32">
-        <div className="px-5">
-          <div className="relative mb-8">
-            <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/20" />
-            <Input 
-              placeholder="Search Ledger..." 
-              value={searchTerm} 
-              onChange={(e) => setSearchTerm(e.target.value)} 
-              className="h-14 pl-12 rounded-2xl bg-white/5 border-white/10 text-white font-bold placeholder:text-white/20 shadow-xl" 
-            />
-          </div>
-
-          <div className="space-y-10">
-            {groupedData.length > 0 ? groupedData.map((group) => (
-              <div key={group.date} className="space-y-4">
-                <p className="text-[11px] font-black uppercase tracking-widest text-white/30 px-2">{formatGroupDate(group.date)}</p>
-                <div className="space-y-4">
-                  {group.items.map((item) => (
-                    <div key={item.id} className="hub-node p-5 flex items-center justify-between active:scale-[0.98] transition-all bg-white/5">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <Badge className={cn("border-none font-black text-[7px] uppercase px-1.5 py-0.5", item.mColor)}>
-                            {item.cat}
-                          </Badge>
-                          <h3 className="text-lg font-black text-white truncate leading-none">{item.source}</h3>
-                        </div>
-                        <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Disbursement</p>
-                      </div>
-                      <div className="text-right shrink-0">
-                        <p className="text-xl font-black text-white">-₹{item.amount.toLocaleString()}</p>
-                        <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mt-1">
-                          <CheckCircle2 className="h-2.5 w-2.5" />
-                          <span className="text-[8px] font-black uppercase tracking-widest">Verified</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )) : <div className="py-20 text-center opacity-40 font-black uppercase text-xs text-white">No records discovered</div>}
-          </div>
-        </div>
-      </div>
-
-      <button 
-        onClick={() => setIsQuickEntryOpen(true)}
-        className="fixed bottom-24 right-6 h-16 w-16 rounded-full bg-primary text-[#020617] shadow-[0_0_30px_rgba(20,213,199,0.4)] flex items-center justify-center active:scale-90 transition-all z-30"
-      >
-        <Zap className="h-8 w-8" />
-      </button>
-
-      <Dialog open={isQuickEntryOpen} onOpenChange={setIsQuickEntryOpen}>
-        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 overflow-visible border-none shadow-2xl bg-white h-[88dvh] max-h-[88dvh] flex flex-col">
-          <DialogHeader className="bg-neutral-900 p-8 text-left text-white shrink-0">
-            <div className="flex items-center gap-3 mb-2"><div className="p-2.5 rounded-xl bg-[#0FA5A0]/20 text-[#0FA5A0]"><Zap className="h-5 w-5" /></div><DialogTitle className="text-xl font-black uppercase text-white">Quick Sync</DialogTitle></div>
-            <DialogClose className="absolute right-6 top-6 text-white/40"><X className="h-5 w-5" /></DialogClose>
-          </DialogHeader>
-          <div className="dialog-body space-y-6">
-            <div className="min-h-[500px] space-y-6">
-              <div className="grid grid-cols-2 gap-4 mt-4">
-                <div className="space-y-2"><Label className="form-label-tactical">Buying (₹)</Label><Input type="number" value={pCost} onChange={(e) => setPCost(e.target.value)} className="form-input-tactical" /></div>
-                <div className="space-y-2"><Label className="form-label-tactical">Fodder (₹)</Label><Input type="number" value={fCost} onChange={(e) => setFCost(e.target.value)} className="form-input-tactical" /></div>
-              </div>
-              <div className="grid grid-cols-2 gap-4 mt-4">
-                <div className="space-y-2"><Label className="form-label-tactical">Medical (₹)</Label><Input type="number" value={mCost} onChange={(e) => setMCost(e.target.value)} className="form-input-tactical" /></div>
-                <div className="space-y-2"><Label className="form-label-tactical">Labour (₹)</Label><Input type="number" value={lCost} onChange={(e) => setLCost(e.target.value)} className="form-input-tactical" /></div>
-              </div>
+      <Card className="rounded-2xl shadow-lg border-0 overflow-hidden bg-white">
+        <CardContent className="p-8">
+          <div className="mb-10 flex items-center justify-between">
+            <button 
+              onClick={() => setShowLedgerForm(true)} 
+              className="bg-[#0F766E] hover:bg-[#134E4A] text-white rounded-2xl px-10 py-5 text-sm font-black tracking-[0.18em] uppercase shadow-xl transition-all active:scale-95 flex items-center gap-4"
+            >
+              <span className="text-2xl leading-none">+</span>
+              Add Record
+            </button>
+            <div className="text-right">
+              <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">Total Ledger Value</p>
+              <p className="text-3xl font-black text-[#0FA5A0] tracking-tighter">₹{totalExpenses.toLocaleString()}</p>
             </div>
           </div>
-          <div className="p-6 shrink-0 border-t">
-            <Button onClick={handleQuickSync} disabled={isSaving} className="w-full h-16 rounded-2xl bg-[#0FA5A0] text-white font-black uppercase tracking-widest shadow-xl">
-              {isSaving ? <Loader2 className="animate-spin h-5 w-5" /> : 'Commit Sync'}
-            </Button>
+
+          {showLedgerForm && (
+            <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+              <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+                <div className="bg-slate-900 p-8 text-white flex items-center justify-between">
+                  <div>
+                    <h4 className="text-xl font-black uppercase tracking-tight">Add Farm Record</h4>
+                    <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mt-1">Operational disbursement registry</p>
+                  </div>
+                  <button onClick={() => setShowLedgerForm(false)} className="text-white/40 hover:text-white transition-colors">
+                    <X className="h-6 w-6" />
+                  </button>
+                </div>
+                
+                <div className="p-8">
+                  <div className="grid md:grid-cols-2 gap-6 mb-8">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Entry Date</label>
+                      <input 
+                        type="date" 
+                        className="w-full h-14 border-none bg-slate-50 rounded-2xl px-5 font-bold text-slate-700 focus:ring-2 focus:ring-[#0FA5A0]/20 outline-none" 
+                        value={ledgerForm.date} 
+                        onChange={(e) => setLedgerForm({ ...ledgerForm, date: e.target.value })} 
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Expense Type</label>
+                      <select 
+                        className="w-full h-14 border-none bg-slate-50 rounded-2xl px-5 font-bold text-slate-700 focus:ring-2 focus:ring-[#0FA5A0]/20 outline-none appearance-none" 
+                        value={ledgerForm.expenseType} 
+                        onChange={(e) => setLedgerForm({ ...ledgerForm, expenseType: e.target.value })}
+                      >
+                        <option value="">Select Category</option>
+                        <optgroup label="Operational">
+                          {ledgerCategories.operational.map((item) => (
+                            <option key={item} value={item}>{item}</option>
+                          ))}
+                        </optgroup>
+                        <optgroup label="Utility">
+                          {ledgerCategories.utility.map((item) => (
+                            <option key={item} value={item}>{item}</option>
+                          ))}
+                        </optgroup>
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Amount (₹)</label>
+                      <input 
+                        placeholder="0.00" 
+                        className="w-full h-14 border-none bg-slate-50 rounded-2xl px-5 font-bold text-slate-700 focus:ring-2 focus:ring-[#0FA5A0]/20 outline-none" 
+                        value={ledgerForm.amount} 
+                        onChange={(e) => setLedgerForm({ ...ledgerForm, amount: e.target.value })} 
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Payment Mode</label>
+                      <select 
+                        className="w-full h-14 border-none bg-slate-50 rounded-2xl px-5 font-bold text-slate-700 focus:ring-2 focus:ring-[#0FA5A0]/20 outline-none appearance-none" 
+                        value={ledgerForm.paymentMode} 
+                        onChange={(e) => setLedgerForm({ ...ledgerForm, paymentMode: e.target.value })}
+                      >
+                        <option value="">Select Mode</option>
+                        <option value="Cash">Cash</option>
+                        <option value="Credit">Credit</option>
+                        <option value="UPI">UPI / Digital</option>
+                      </select>
+                    </div>
+                    <div className="md:col-span-2 space-y-2">
+                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Notes / Description</label>
+                      <textarea 
+                        placeholder="Transaction details..." 
+                        className="w-full h-32 border-none bg-slate-50 rounded-3xl p-6 font-bold text-slate-700 focus:ring-2 focus:ring-[#0FA5A0]/20 outline-none resize-none" 
+                        value={ledgerForm.notes} 
+                        onChange={(e) => setLedgerForm({ ...ledgerForm, notes: e.target.value })} 
+                      />
+                    </div>
+                  </div>
+                  <button 
+                    onClick={saveLedger} 
+                    className="w-full h-16 bg-[#0FA5A0] hover:bg-[#134E4A] text-white rounded-2xl font-black uppercase tracking-[0.2em] shadow-xl transition-all active:scale-95"
+                  >
+                    Save Ledger Entry
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="space-y-4">
+            <div className="grid grid-cols-6 gap-4 px-6 py-4 bg-slate-50 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-400 border border-slate-100">
+              <span>Date</span>
+              <span>Type</span>
+              <span>Amount</span>
+              <span>Mode</span>
+              <span>Notes</span>
+              <span className="text-right">Action</span>
+            </div>
+            
+            {sortedExpenses.length > 0 ? sortedExpenses.map((row) => (
+              <div key={row.id} className="grid grid-cols-6 gap-4 border border-slate-100 rounded-3xl p-6 text-sm items-center hover:bg-slate-50 transition-colors group">
+                <span className="font-bold text-slate-400 text-xs">{row.expenseDate}</span>
+                <span className="font-black text-slate-800">{row.expenseType || row.description}</span>
+                <span className="font-black text-[#0FA5A0]">₹{row.amount.toLocaleString()}</span>
+                <span className="text-xs font-bold text-slate-500">{row.paymentMode || 'N/A'}</span>
+                <span className="text-xs font-medium text-slate-400 truncate">{row.notes || row.description}</span>
+                <div className="flex justify-end">
+                  <button 
+                    onClick={() => deleteFarmExpense(row.id, row._path)} 
+                    className="h-10 w-10 rounded-full bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            )) : (
+              <div className="py-20 text-center opacity-20 font-black uppercase text-xs">No ledger records discovered</div>
+            )}
           </div>
-        </DialogContent>
-      </Dialog>
+        </CardContent>
+      </Card>
     </div>
   );
 }
