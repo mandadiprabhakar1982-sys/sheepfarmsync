@@ -4,31 +4,22 @@
 
 @layer base {
   :root {
-    /* Mpr Farms - Modern Organic Palette */
     --background: 165 15% 96%;
     --foreground: 210 29% 14%;
-    
     --card: 0 0% 100%;
     --card-foreground: 210 29% 14%;
-    
     --popover: 0 0% 100%;
     --popover-foreground: 210 29% 14%;
-    
     --primary: 167 100% 19%;
     --primary-foreground: 168 33% 76%;
-    
     --secondary: 171 100% 41%;
     --secondary-foreground: 210 29% 14%;
-    
     --muted: 165 10% 90%;
     --muted-foreground: 184 9% 52%;
-    
     --accent: 171 100% 41%;
     --accent-foreground: 167 100% 19%;
-    
     --destructive: 0 84% 65%;
     --destructive-foreground: 0 0% 100%;
-    
     --border: 210 20% 93%;
     --input: 210 20% 93%;
     --ring: 171 100% 41%;
@@ -39,74 +30,48 @@
 @layer base {
   body {
     font-family: 'Montserrat', sans-serif;
-    @apply bg-[#f4f7f6] text-[#1a252f];
+    @apply bg-[#f4f7f6] text-[#1a252f] h-screen overflow-hidden;
     margin: 0;
     -webkit-tap-highlight-color: transparent;
-    height: 100dvh;
-    width: 100vw;
   }
 }
 
 @layer components {
-  /* --- HEADER TACTICAL SUITE --- */
-  .header {
-    @apply h-[80px] bg-white border-b border-slate-100 flex items-center justify-between px-8 shrink-0;
-  }
-  .header-left, .header-right { @apply flex items-center gap-6; }
-  
-  .logo-box { @apply text-2xl font-extrabold text-[#1a252f] tracking-tight; }
-  .logo-box span { @apply text-[#00d1b2]; }
-  
-  .divider-line { @apply w-px h-8 bg-slate-200; }
-  
-  .command-tag { 
-    @apply text-[11px] font-black uppercase tracking-[0.3em] text-slate-400 whitespace-nowrap; 
-  }
-  
-  .notification-btn { 
-    @apply relative h-10 w-10 flex items-center justify-center bg-slate-50 text-slate-400 rounded-full cursor-pointer hover:bg-slate-100 transition-colors; 
-  }
-  .notification-dot { 
-    @apply absolute top-2 right-2.5 w-2 h-2 bg-[#ff4d4d] rounded-full border-2 border-white; 
-  }
-  
-  .account-link { 
-    @apply flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-slate-400 hover:text-[#005f4b] transition-colors; 
-  }
-  
-  .profile-section { @apply flex items-center gap-4 pl-6 border-l border-slate-100 cursor-pointer; }
-  .user-meta { @apply flex flex-col items-end text-right; }
-  .user-name { @apply text-[13px] font-extrabold text-[#1a252f] leading-none; }
-  .user-role { @apply text-[9px] font-black text-[#00d1b2] tracking-widest mt-1; }
-  .user-avatar { @apply w-10 h-10 rounded-full border-2 border-white shadow-sm ring-1 ring-slate-100 transition-transform group-hover:scale-105; }
-
-  .sheep-row-organic {
-    @apply bg-white border border-[#edf2f7] rounded-[15px] transition-all duration-200 hover:border-[#00d1b2] hover:-translate-y-0.5 shadow-sm;
+  /* MOBILE TACTICAL STYLES (< 768px) */
+  @media (max-width: 767px) {
+    .mobile-card {
+      @apply bg-white rounded-[1.5rem] p-5 shadow-md border border-white/60 active:scale-[0.98] transition-all;
+    }
+    .safe-bottom {
+      padding-bottom: calc(80px + env(safe-area-inset-bottom));
+    }
+    .logo-box {
+      @apply text-xl font-black text-white;
+    }
+    .logo-box span {
+      @apply text-[#00d1b2];
+    }
   }
 
-  .hub-node-organic {
-    @apply relative overflow-hidden bg-white border border-[#edf2f7] rounded-[24px] shadow-sm transition-all active:scale-[0.98];
-  }
-
-  .form-input-organic {
-    @apply h-[52px] border border-[#f0f4f8] rounded-[12px] bg-[#f8fafb] text-[#1a252f] font-semibold px-4 w-full focus:outline-none focus:ring-2 focus:ring-[#00d1b2]/30 transition-all;
-  }
-
-  .form-label-organic {
-    @apply text-[11px] font-extrabold text-[#95a5a6] uppercase tracking-wider mb-1.5 ml-0.5 block;
-  }
-
-  .btn-primary-organic {
-    @apply bg-[#00d1b2] text-[#1a252f] font-extrabold uppercase tracking-wide py-4 rounded-[12px] transition-all active:scale-95 shadow-md;
+  /* DESKTOP ENTERPRISE STYLES (>= 768px) */
+  @media (min-width: 768px) {
+    .header {
+      @apply h-[80px] bg-white border-b border-slate-100 flex items-center justify-between px-8 shrink-0;
+    }
+    .web-table-container {
+      @apply bg-white rounded-[2rem] shadow-2xl border border-slate-50 overflow-hidden;
+    }
+    .logo-box {
+      @apply text-2xl font-extrabold text-[#1a252f] tracking-tight;
+    }
+    .logo-box span {
+      @apply text-[#00d1b2];
+    }
+    .command-tag { 
+      @apply text-[11px] font-black uppercase tracking-[0.3em] text-slate-400; 
+    }
   }
 }
-
-.text-gain-positive { color: #2ecc71; font-weight: 800; }
-.tag-id-badge { @apply bg-[#e0f2f1] text-[#008080] px-2.5 py-1 rounded-md text-xs font-bold; }
 
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-.safe-bottom-padding {
-  padding-bottom: calc(80px + env(safe-area-inset-bottom));
-}
