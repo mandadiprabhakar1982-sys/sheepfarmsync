@@ -14,7 +14,6 @@ import {
   Zap, 
   Landmark, 
   ReceiptIndianRupee,
-  BarChart3
 } from 'lucide-react';
 import { 
   Sidebar, 
@@ -47,7 +46,7 @@ export function AppSidebar() {
 
   const adminMenu = [
     { href: '/dashboard/analysis', label: "Neural Audit", icon: Zap },
-    { href: '/dashboard/balance-sheet', label: "Debt Portfolio", icon: Landmark },
+    { href: '/dashboard/balance-sheet', label: "Debit & Credit", icon: Landmark },
     { href: '/dashboard/monthly-ledger', label: "Personal Finance", icon: ReceiptIndianRupee },
   ];
 
