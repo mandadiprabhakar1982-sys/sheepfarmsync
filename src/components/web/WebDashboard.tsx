@@ -1,81 +1,127 @@
 'use client';
 
-import { useFarm } from '@/context/FarmContext';
-import { Card, CardContent } from "@/components/ui/card";
-import { TrendingUp, BarChart3, CalendarDays, PieChart } from 'lucide-react';
+import { Card } from "@/components/ui/card";
+import { TrendingUp, PieChart, CalendarDays } from 'lucide-react';
 import { format } from 'date-fns';
-import { ResponsiveContainer, BarChart, Bar, XAxis, CartesianGrid, Tooltip, Cell } from 'recharts';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+  Cell
+} from 'recharts';
 
-export function WebDashboard() {
-  const { totalSheep, totalSales, totalDead, totalExpenses } = useFarm();
+interface WebDashboardProps {
+  kpis: { title: string; value: string }[];
+  categoryTotals: Record<string, number>;
+  totalCategoryAmount: number;
+  chartData: any[];
+}
 
-  const chartData = [
-    { month: "Jan", value: 40 },
-    { month: "Feb", value: 55 },
-    { month: "Mar", value: 48 },
-    { month: "Apr", value: 70 }
-  ];
-
+export function WebDashboard({ kpis, categoryTotals, totalCategoryAmount, chartData }: WebDashboardProps) {
   return (
-    <div className="space-y-10">
-      <div className="flex items-center justify-between">
+    <div className="space-y-10 font-sans">
+      <header className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-black text-slate-800 uppercase">Executive Overview</h2>
-          <p className="text-sm text-slate-400 font-bold uppercase tracking-widest mt-1">Master Transactional Hub</p>
+          <h2 className="text-3xl font-black text-slate-800 uppercase tracking-tight">Executive Dashboard</h2>
+          <p className="text-sm text-slate-400 font-bold uppercase tracking-widest mt-1">Master Transactional Intelligence</p>
         </div>
         <div className="flex items-center gap-3 px-6 py-3 bg-white rounded-2xl border border-slate-100 shadow-sm">
-          <CalendarDays className="h-5 w-5 text-[#0FA5A0]" />
-          <span className="text-sm font-black text-slate-600 uppercase">{format(new Date(), 'MMMM yyyy')}</span>
+          <CalendarDays className="h-5 w-5 text-emerald-600" />
+          <span className="text-sm font-black text-slate-600 uppercase tracking-widest">
+            {format(new Date(), 'MMMM yyyy')}
+          </span>
         </div>
-      </div>
+      </header>
 
+      {/* KPI GRID */}
       <div className="grid grid-cols-4 gap-6">
-        {[
-          { title: "Live Sheep", value: totalSheep.toLocaleString(), color: "text-[#0FA5A0]" },
-          { title: "Net Expenses", value: `₹${totalExpenses.toLocaleString()}`, color: "text-rose-500" },
-          { title: "Total Revenue", value: `₹${totalSales.toLocaleString()}`, color: "text-emerald-600" },
-          { title: "Mortality", value: `${totalDead} Head`, color: "text-slate-900" }
-        ].map((card, idx) => (
-          <Card key={idx} className="border-none shadow-xl bg-white p-8">
-            <h3 className="text-slate-400 text-[10px] font-black uppercase tracking-widest">{card.title}</h3>
-            <p className={`text-3xl font-black mt-2 tracking-tighter ${card.color}`}>{card.value}</p>
+        {kpis.map((item, i) => (
+          <Card key={i} className="border-none shadow-xl bg-white p-8 group hover:-translate-y-1 transition-all">
+            <h3 className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">{item.title}</h3>
+            <p className="text-3xl font-black tracking-tighter text-slate-800">{item.value}</p>
           </Card>
         ))}
       </div>
 
+      {/* CHARTS & MATRIX */}
       <div className="grid grid-cols-12 gap-8">
-        <Card className="col-span-7 border-none shadow-xl p-10 bg-white">
-          <h3 className="text-lg font-black text-slate-800 uppercase mb-8 flex items-center gap-3">
-            <TrendingUp className="h-5 w-5 text-[#0FA5A0]" /> Revenue Trend
-          </h3>
-          <div className="h-72">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData} barCategoryGap="30%">
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
-                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#94A3B8', fontSize: 11, fontWeight: 800 }} />
-                <Tooltip contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.05)' }} />
-                <Bar dataKey="value" radius={[8, 8, 0, 0]} fill="#0FA5A0" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
-        <Card className="col-span-5 border-none shadow-xl p-10 bg-[#0FA5A0] text-white">
-          <h3 className="text-lg font-black uppercase mb-8 flex items-center gap-3 text-white">
-            <PieChart className="h-5 w-5" /> Operational Matrix
-          </h3>
-          <div className="space-y-6">
-            <p className="text-sm font-medium text-white/70 leading-relaxed">System monitoring active. All transactional nodes are synchronized with the production ledger.</p>
-            <div className="pt-6 border-t border-white/10">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-[10px] font-black uppercase">Fodder Stability</span>
-                <span className="text-xs font-black">82%</span>
+        {/* SPEND MATRIX */}
+        <div className="col-span-5">
+          <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-10 h-full">
+            <div className="flex items-center gap-3 mb-10">
+              <div className="p-3 rounded-2xl bg-emerald-50 text-emerald-600">
+                <PieChart className="h-5 w-5" />
               </div>
-              <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                <div className="h-full bg-emerald-400 w-[82%]" />
+              <div>
+                <h3 className="text-lg font-black text-slate-800 uppercase tracking-tight">Spend Matrix</h3>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Monthly Category Breakdown</p>
               </div>
             </div>
-          </div>
-        </Card>
+
+            <div className="space-y-8">
+              {Object.entries(categoryTotals).length > 0 ? Object.entries(categoryTotals).map(([cat, amt]) => {
+                const percent = totalCategoryAmount > 0 ? (amt / totalCategoryAmount) * 100 : 0;
+                return (
+                  <div key={cat}>
+                    <div className="flex justify-between text-xs font-black mb-3 uppercase tracking-wide">
+                      <span className="text-slate-600">{cat}</span>
+                      <span className="text-emerald-600">₹{amt.toLocaleString()}</span>
+                    </div>
+                    <div className="w-full h-2.5 bg-slate-50 rounded-full overflow-hidden border border-slate-100/50">
+                      <div 
+                        className="h-full bg-emerald-500 rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(16,185,129,0.2)]" 
+                        style={{ width: `${percent}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              }) : (
+                <div className="py-20 text-center opacity-20 uppercase text-[10px] font-black tracking-widest">
+                  Awaiting Transaction Data
+                </div>
+              )}
+            </div>
+          </Card>
+        </div>
+
+        {/* EXPENSE TREND */}
+        <div className="col-span-7">
+          <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-10 h-full">
+            <div className="flex items-center gap-3 mb-10">
+              <div className="p-3 rounded-2xl bg-emerald-50 text-emerald-600">
+                <TrendingUp className="h-5 w-5" />
+              </div>
+              <h3 className="text-lg font-black text-slate-800 uppercase tracking-tight">Expense Trend</h3>
+            </div>
+
+            <div className="h-[350px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                  <CartesianGrid vertical={false} stroke="#f1f5f9" strokeDasharray="3 3" />
+                  <XAxis 
+                    dataKey="month" 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fill: '#94A3B8', fontSize: 11, fontWeight: 800 }}
+                    dy={10}
+                  />
+                  <Tooltip 
+                    cursor={{ fill: '#F8FAFC' }}
+                    contentStyle={{ borderRadius: '1.5rem', border: 'none', boxShadow: '0 20px 50px rgba(0,0,0,0.05)', padding: '1.5rem' }}
+                  />
+                  <Bar dataKey="value" radius={[10, 10, 0, 0]}>
+                    {chartData.map((_, i) => (
+                      <Cell key={i} fill="#10b981" />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+        </div>
       </div>
     </div>
   );

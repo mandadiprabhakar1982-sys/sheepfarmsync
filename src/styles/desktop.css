@@ -1,1 +1,44 @@
 /* Desktop enterprise styles relocated to globals.css to ensure build stability */
+@layer base {
+    :root {
+      /* Modern Organic Palette */
+      --farm-green: #005f4b;
+      --farm-mint: #f0f9f7;
+      --slate-dark: #1a252f;
+      --slate-light: #f8fafc;
+      
+      /* Compact Typography Scale */
+      --text-header: 1.25rem; /* Small & Professional */
+      --text-body: 0.815rem;  /* 13px - High density */
+      --text-tiny: 0.65rem;   /* 10px - For labels */
+    }
+  
+    body {
+      @apply bg-slate-50 text-slate-900 antialiased;
+      font-size: var(--text-body);
+    }
+  }
+  
+  @layer components {
+    /* High-Density Table Style */
+    .enterprise-table {
+      @apply w-full border-separate border-spacing-0;
+    }
+  
+    .enterprise-table th {
+      @apply bg-slate-100 p-2 text-[10px] font-black uppercase tracking-tighter text-slate-500 border-b border-slate-200;
+    }
+  
+    .enterprise-table td {
+      @apply p-2 border-b border-slate-100 bg-white transition-colors;
+    }
+  
+    .enterprise-table tr:hover td {
+      @apply bg-emerald-50/50;
+    }
+  
+    /* Compact Action Button */
+    .btn-primary-sm {
+      @apply bg-[var(--farm-green)] text-white px-3 py-1.5 rounded font-bold text-[11px] hover:opacity-90 transition-all active:scale-95;
+    }
+  }
