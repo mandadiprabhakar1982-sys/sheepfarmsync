@@ -11,6 +11,13 @@ import {
   isWithinInterval
 } from 'date-fns';
 
+import { 
+  PieChart, 
+  Banknote, 
+  DollarSign, 
+  Cloud 
+} from 'lucide-react';
+
 import { WebDashboard } from '@/components/web/WebDashboard';
 import { MobileDashboard } from '@/components/mobile/MobileDashboard';
 
@@ -107,10 +114,10 @@ export function OverviewModule() {
   }
 
   const kpis = [
-    { title: 'Live Sheep', value: totalSheep.toLocaleString() },
-    { title: 'Month Spend', value: `₹${monthlySpend.toLocaleString()}` },
-    { title: 'Revenue', value: `₹${totalSales.toLocaleString()}` },
-    { title: 'Mortality', value: totalDead.toLocaleString() }
+    { title: 'Live Sheep', value: totalSheep.toLocaleString(), icon: PieChart },
+    { title: 'Month Spend', value: `₹${monthlySpend.toLocaleString()}`, icon: Banknote },
+    { title: 'Revenue', value: `₹${totalSales.toLocaleString()}`, icon: DollarSign },
+    { title: 'Mortality', value: `${totalDead} Head`, icon: Cloud }
   ];
 
   if (isMobile) {
