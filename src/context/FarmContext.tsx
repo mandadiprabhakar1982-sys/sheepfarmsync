@@ -74,8 +74,16 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const isAdmin = useMemo(() => !isUserLoading && !isProfileLoading && userProfile?.role === 'admin', [userProfile, isUserLoading, isProfileLoading]);
 
   // Master Ledger - Unified transactions
-  const eRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'farmExpenses'), orderBy('date', 'desc')) : null, [firestore, isVerified]);
-  const tRef = useMemo(() => (firestore && isVerified) ? query(collectionGroup(firestore, 'trackedSheep')) : null, [firestore, isVerified]);
+  const eRef = useMemo(() => {
+    if (!firestore || !isVerified) return null;
+    // CRITICAL: Must match firestore.indexes.json exactly to avoid loops
+    return query(collectionGroup(firestore, 'farmExpenses'), orderBy('date', 'desc'));
+  }, [firestore, isVerified]);
+
+  const tRef = useMemo(() => {
+    if (!firestore || !isVerified) return null;
+    return query(collectionGroup(firestore, 'trackedSheep'), orderBy('tagId', 'asc'));
+  }, [firestore, isVerified]);
   
   // Private Financials
   const blRef = useMemo(() => (firestore && user && isAdmin) ? collection(firestore, 'users', user.uid, 'bankLoans') : null, [firestore, user, isAdmin]);
@@ -100,7 +108,14 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const upsert = useCallback((col: string, id: string | undefined, data: any, path?: string) => {
     if (!user || !firestore) return;
     const docRef = path ? doc(firestore, path) : doc(firestore, 'users', user.uid, col, id || generateId());
-    setDocumentNonBlocking(docRef, { ...data, id: id || docRef.id, updatedAt: serverTimestamp(), createdBy: user.uid }, { merge: true });
+    setDocumentNonBlocking(docRef, { 
+      ...data, 
+      id: id || docRef.id, 
+      updatedAt: serverTimestamp(), 
+      createdBy: user.uid,
+      creatorEmail: user.email,
+      creatorName: user.displayName || 'Shepherd'
+    }, { merge: true });
   }, [user, firestore]);
 
   const remove = useCallback((col: string, id: string, path?: string) => {
@@ -130,16 +145,16 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     monthlyExpenses: qMExpenses, addMonthlyExpense: (e: any) => upsert('monthlyExpenses', undefined, e), deleteMonthlyExpense: (id: string, path?: string) => remove('monthlyExpenses', id, path),
     communitySales: qMarket, postToMarketplace: (s: any) => upsert('communitySales', undefined, s, 'communitySales'), deleteMarketplaceSale: (id: string, path?: string) => remove('communitySales', id, path),
 
-    isLoading: isUserLoading || isProfileLoading || lExpenses || lTracked || lLoans || lCards || lDebts || lIncomes || lMExpenses || lMarket,
+    isLoading: !mounted || isUserLoading || isProfileLoading || lExpenses || lTracked || lLoans || lCards || lDebts || lIncomes || lMExpenses || lMarket,
     userRole: userProfile?.role || null,
     totalSheep: (qTracked || []).length,
     totalExpenses: totalExp,
     totalSales: totalRev,
-    totalDead: 0, // In this model, mortality could be a misc ledger entry or separate
+    totalDead: (qExpenses || []).filter(e => e.category === 'Health' && e.subcategory === 'Mortality').length, 
     totalLoanBalance: (qLoans || []).reduce((s, l) => s + (l.balanceLoan || 0), 0),
     totalCreditCardDebt: (qCards || []).reduce((s, c) => s + (c.outstandingAmount || 0), 0),
     totalPrivateDebt: (qDebts || []).reduce((s, d) => s + (d.amount || 0), 0),
-  }), [qExpenses, qTracked, qLoans, qCards, qDebts, qIncomes, qMExpenses, qMarket, isUserLoading, isProfileLoading, lExpenses, lTracked, lLoans, lCards, lDebts, lIncomes, lMExpenses, lMarket, userProfile, totalExp, totalRev, upsert, remove]);
+  }), [qExpenses, qTracked, qLoans, qCards, qDebts, qIncomes, qMExpenses, qMarket, isUserLoading, isProfileLoading, lExpenses, lTracked, lLoans, lCards, lDebts, lIncomes, lMExpenses, lMarket, userProfile, totalExp, totalRev, upsert, remove, mounted]);
 
   if (!mounted) return null;
   return <FarmContext.Provider value={value}>{children}</FarmContext.Provider>;
