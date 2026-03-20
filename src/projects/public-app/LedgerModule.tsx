@@ -24,7 +24,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import ErrorBoundary from '@/components/ErrorBoundary';
 import type { FarmCategory } from '@/lib/types';
 
 const ledgerConfig = {
@@ -52,10 +51,6 @@ export function LedgerModule() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState<string>('All');
 
-  if (ledgerError) {
-    throw ledgerError;
-  }
-
   const [form, setForm] = useState({
     date: format(new Date(), 'yyyy-MM-dd'),
     category: "Feed" as FarmCategory,
@@ -73,6 +68,11 @@ export function LedgerModule() {
     const unit = parseFloat(form.unitCost) || 0;
     setForm(prev => ({ ...prev, totalAmount: (qty * unit).toFixed(2) }));
   }, [form.quantity, form.unitCost]);
+
+  // Early returns must happen AFTER hooks
+  if (ledgerError) {
+    throw ledgerError;
+  }
 
   const handleSave = () => {
     if (!form.description || parseFloat(form.totalAmount) <= 0) return;
@@ -98,7 +98,7 @@ export function LedgerModule() {
     });
   };
 
-  if (isLoading) {
+  if (isLoading || !isHydrated) {
     return (
       <div className="space-y-6 animate-pulse px-4 md:px-0">
         <div className="h-12 bg-slate-200 rounded-xl w-48" />

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -13,9 +12,7 @@ import {
   ArrowDownCircle,
   Search,
   FileText,
-  AlertCircle,
   Clock,
-  Tag
 } from 'lucide-react';
 import { useFarm } from '@/context/FarmContext';
 import { useToast } from '@/hooks/use-toast';
@@ -58,15 +55,16 @@ function FarmLedgerContent() {
     remarks: ""
   });
 
-  if (ledgerError) {
-    throw ledgerError;
-  }
-
   useEffect(() => {
     const qty = parseFloat(ledgerForm.quantity) || 0;
     const unit = parseFloat(ledgerForm.unitCost) || 0;
     setLedgerForm(prev => ({ ...prev, totalAmount: (qty * unit).toFixed(2) }));
   }, [ledgerForm.quantity, ledgerForm.unitCost]);
+
+  // EARLY ERROR THROW MUST BE AFTER ALL HOOKS
+  if (ledgerError) {
+    throw ledgerError;
+  }
 
   const filteredExpenses = useMemo(() => {
     if (!farmExpenses) return [];
@@ -188,7 +186,6 @@ function FarmLedgerContent() {
         </div>
       </div>
 
-      {/* MOBILE VIEW: Card-based interface */}
       <div className="block md:hidden space-y-4 px-4 pb-32">
         {filteredExpenses.length > 0 ? filteredExpenses.map((e) => (
           <Card key={e.id} className="border-none shadow-md rounded-[1.5rem] bg-white overflow-hidden active:scale-[0.98] transition-all">
@@ -236,7 +233,6 @@ function FarmLedgerContent() {
         )}
       </div>
 
-      {/* WEB VIEW: High-density data table */}
       <div className="hidden md:block bg-white rounded-[2rem] shadow-2xl border border-slate-50 overflow-hidden mx-0">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[1000px]">
