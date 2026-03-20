@@ -8,7 +8,8 @@ import {
   parseISO,
   startOfMonth,
   endOfMonth,
-  isWithinInterval
+  isWithinInterval,
+  isValid
 } from 'date-fns';
 
 import { 
@@ -44,14 +45,13 @@ export function OverviewModule() {
 
   /* ---------------- MONTH EXPENSES (EXCLUDING SALES) ---------------- */
   const monthlyExpenses = useMemo(() => {
-    if (!farmExpenses) return [];
+    if (!farmExpenses || !Array.isArray(farmExpenses)) return [];
     return farmExpenses.filter((item) => {
       try {
-        return (
-          item.date &&
-          item.category !== 'Sale' &&
-          isWithinInterval(parseISO(item.date), currentMonthInterval)
-        );
+        if (!item.date || item.category === 'Sale') return false;
+        const d = parseISO(item.date);
+        if (!isValid(d)) return false;
+        return isWithinInterval(d, currentMonthInterval);
       } catch {
         return false;
       }
@@ -60,6 +60,7 @@ export function OverviewModule() {
 
   /* ---------------- MONTH TOTAL SPEND ---------------- */
   const monthlySpend = useMemo(() => {
+    if (!monthlyExpenses) return 0;
     return monthlyExpenses.reduce(
       (sum, item) => sum + (item.totalAmount || 0),
       0
@@ -68,25 +69,30 @@ export function OverviewModule() {
 
   /* ---------------- CATEGORY BREAKDOWN ---------------- */
   const categoryTotals = useMemo(() => {
+    if (!monthlyExpenses) return {};
     return monthlyExpenses.reduce((acc: any, item) => {
+      if (!item.category) return acc;
       acc[item.category] = (acc[item.category] || 0) + (item.totalAmount || 0);
       return acc;
     }, {});
   }, [monthlyExpenses]);
 
-  const totalCategoryAmount = useMemo(() => 
-    Object.values(categoryTotals).reduce((a: any, b: any) => a + b, 0),
-  [categoryTotals]);
+  const totalCategoryAmount = useMemo(() => {
+    if (!categoryTotals) return 0;
+    return Object.values(categoryTotals).reduce((a: any, b: any) => a + b, 0);
+  }, [categoryTotals]);
 
   /* ---------------- CHRONOLOGICAL CHART DATA ---------------- */
   const chartData = useMemo(() => {
-    if (!farmExpenses) return [];
+    if (!farmExpenses || !Array.isArray(farmExpenses)) return [];
     const grouped: Record<string, number> = {};
 
     farmExpenses.forEach((item) => {
       try {
         if (!item.date || item.category === 'Sale') return;
-        const month = format(parseISO(item.date), 'MMM');
+        const d = parseISO(item.date);
+        if (!isValid(d)) return;
+        const month = format(d, 'MMM');
         grouped[month] = (grouped[month] || 0) + (item.totalAmount || 0);
       } catch {}
     });
@@ -101,6 +107,14 @@ export function OverviewModule() {
       }));
   }, [farmExpenses]);
 
+  // KPIs prepared before potential return to ensure stability
+  const kpis = useMemo(() => [
+    { title: 'Live Sheep', value: totalSheep.toLocaleString(), icon: PieChart },
+    { title: 'Month Spend', value: `₹${monthlySpend.toLocaleString()}`, icon: Banknote },
+    { title: 'Revenue', value: `₹${totalSales.toLocaleString()}`, icon: DollarSign },
+    { title: 'Mortality', value: `${totalDead} Head`, icon: Cloud }
+  ], [totalSheep, monthlySpend, totalSales, totalDead]);
+
   if (isLoading || !isHydrated) {
     return (
       <div className="p-6 space-y-6 animate-pulse">
@@ -112,13 +126,6 @@ export function OverviewModule() {
       </div>
     );
   }
-
-  const kpis = [
-    { title: 'Live Sheep', value: totalSheep.toLocaleString(), icon: PieChart },
-    { title: 'Month Spend', value: `₹${monthlySpend.toLocaleString()}`, icon: Banknote },
-    { title: 'Revenue', value: `₹${totalSales.toLocaleString()}`, icon: DollarSign },
-    { title: 'Mortality', value: `${totalDead} Head`, icon: Cloud }
-  ];
 
   if (isMobile) {
     return (

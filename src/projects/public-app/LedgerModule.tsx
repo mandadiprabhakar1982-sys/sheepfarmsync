@@ -69,9 +69,21 @@ export function LedgerModule() {
     setForm(prev => ({ ...prev, totalAmount: (qty * unit).toFixed(2) }));
   }, [form.quantity, form.unitCost]);
 
-  // Early returns must happen AFTER hooks
+  // Hook count must be consistent. Ensure any error throw happens AFTER all hooks.
   if (ledgerError) {
     throw ledgerError;
+  }
+
+  if (isLoading || !isHydrated) {
+    return (
+      <div className="space-y-6 animate-pulse px-4 md:px-0">
+        <div className="h-12 bg-slate-200 rounded-xl w-48" />
+        <div className="h-14 bg-slate-200 rounded-2xl w-full" />
+        <div className="space-y-4">
+          {[1, 2, 3, 4, 5].map(i => <div key={i} className="h-24 bg-slate-100 rounded-2xl w-full" />)}
+        </div>
+      </div>
+    );
   }
 
   const handleSave = () => {
@@ -97,18 +109,6 @@ export function LedgerModule() {
       remarks: ""
     });
   };
-
-  if (isLoading || !isHydrated) {
-    return (
-      <div className="space-y-6 animate-pulse px-4 md:px-0">
-        <div className="h-12 bg-slate-200 rounded-xl w-48" />
-        <div className="h-14 bg-slate-200 rounded-2xl w-full" />
-        <div className="space-y-4">
-          {[1, 2, 3, 4, 5].map(i => <div key={i} className="h-24 bg-slate-100 rounded-2xl w-full" />)}
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="h-full flex flex-col">
