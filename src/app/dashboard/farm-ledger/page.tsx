@@ -61,11 +61,6 @@ function FarmLedgerContent() {
     setLedgerForm(prev => ({ ...prev, totalAmount: (qty * unit).toFixed(2) }));
   }, [ledgerForm.quantity, ledgerForm.unitCost]);
 
-  // EARLY ERROR THROW MUST BE AFTER ALL HOOKS
-  if (ledgerError) {
-    throw ledgerError;
-  }
-
   const filteredExpenses = useMemo(() => {
     if (!farmExpenses) return [];
     return farmExpenses.filter(e => {
@@ -75,6 +70,11 @@ function FarmLedgerContent() {
       return matchesSearch && matchesCat;
     });
   }, [farmExpenses, searchTerm, filterCategory]);
+
+  // EARLY ERROR THROW MUST BE AFTER ALL HOOKS
+  if (ledgerError) {
+    throw ledgerError;
+  }
 
   const saveLedger = () => {
     const total = parseFloat(ledgerForm.totalAmount);
