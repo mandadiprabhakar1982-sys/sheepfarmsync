@@ -46,7 +46,6 @@ export function LedgerModule() {
     ledgerError
   } = useFarm();
   
-  const isMobile = isHydrated ? width < 768 : false;
   const [isEntryDialogOpen, setIsEntryDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState<string>('All');
@@ -69,7 +68,8 @@ export function LedgerModule() {
     setForm(prev => ({ ...prev, totalAmount: (qty * unit).toFixed(2) }));
   }, [form.quantity, form.unitCost]);
 
-  // Hook count must be consistent. Ensure any error throw happens AFTER all hooks.
+  /* ---------------- RENDERING LOGIC ---------------- */
+
   if (ledgerError) {
     throw ledgerError;
   }
@@ -109,6 +109,8 @@ export function LedgerModule() {
       remarks: ""
     });
   };
+
+  const isMobile = width < 768;
 
   return (
     <div className="h-full flex flex-col">

@@ -32,9 +32,8 @@ export function OverviewModule() {
     isLoading
   } = useFarm();
 
-  const isMobile = isHydrated ? width < 768 : false;
+  /* ---------------- HOOKS MUST BE AT THE TOP ---------------- */
 
-  /* ---------------- CURRENT MONTH INTERVAL ---------------- */
   const currentMonthInterval = useMemo(() => {
     const now = new Date();
     return {
@@ -43,7 +42,6 @@ export function OverviewModule() {
     };
   }, []);
 
-  /* ---------------- MONTH EXPENSES (EXCLUDING SALES) ---------------- */
   const monthlyExpenses = useMemo(() => {
     if (!farmExpenses || !Array.isArray(farmExpenses)) return [];
     return farmExpenses.filter((item) => {
@@ -58,7 +56,6 @@ export function OverviewModule() {
     });
   }, [farmExpenses, currentMonthInterval]);
 
-  /* ---------------- MONTH TOTAL SPEND ---------------- */
   const monthlySpend = useMemo(() => {
     if (!monthlyExpenses) return 0;
     return monthlyExpenses.reduce(
@@ -67,7 +64,6 @@ export function OverviewModule() {
     );
   }, [monthlyExpenses]);
 
-  /* ---------------- CATEGORY BREAKDOWN ---------------- */
   const categoryTotals = useMemo(() => {
     if (!monthlyExpenses) return {};
     return monthlyExpenses.reduce((acc: any, item) => {
@@ -82,7 +78,6 @@ export function OverviewModule() {
     return Object.values(categoryTotals).reduce((a: any, b: any) => a + b, 0);
   }, [categoryTotals]);
 
-  /* ---------------- CHRONOLOGICAL CHART DATA ---------------- */
   const chartData = useMemo(() => {
     if (!farmExpenses || !Array.isArray(farmExpenses)) return [];
     const grouped: Record<string, number> = {};
@@ -107,13 +102,14 @@ export function OverviewModule() {
       }));
   }, [farmExpenses]);
 
-  // KPIs prepared before potential return to ensure stability
   const kpis = useMemo(() => [
     { title: 'Live Sheep', value: totalSheep.toLocaleString(), icon: PieChart },
     { title: 'Month Spend', value: `₹${monthlySpend.toLocaleString()}`, icon: Banknote },
     { title: 'Revenue', value: `₹${totalSales.toLocaleString()}`, icon: DollarSign },
     { title: 'Mortality', value: `${totalDead} Head`, icon: Cloud }
   ], [totalSheep, monthlySpend, totalSales, totalDead]);
+
+  /* ---------------- CONDITIONAL RENDERING AT THE BOTTOM ---------------- */
 
   if (isLoading || !isHydrated) {
     return (
@@ -127,17 +123,15 @@ export function OverviewModule() {
     );
   }
 
-  if (isMobile) {
-    return (
-      <MobileDashboard 
-        kpis={kpis} 
-        categoryTotals={categoryTotals} 
-        totalCategoryAmount={totalCategoryAmount} 
-      />
-    );
-  }
+  const isMobile = width < 768;
 
-  return (
+  return isMobile ? (
+    <MobileDashboard 
+      kpis={kpis} 
+      categoryTotals={categoryTotals} 
+      totalCategoryAmount={totalCategoryAmount} 
+    />
+  ) : (
     <WebDashboard 
       kpis={kpis} 
       categoryTotals={categoryTotals} 

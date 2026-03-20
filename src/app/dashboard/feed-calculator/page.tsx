@@ -55,7 +55,7 @@ export default function FeedCalculatorPage() {
     const gnutPrice = parseFloat(groundnutCost);
     const sizePerBag = parseFloat(bagSize);
 
-    if (isNaN(sheep) || iisNaN(startWeight) || isNaN(tmrPrice) || isNaN(gnutPrice) || isNaN(sizePerBag)) {
+    if (isNaN(sheep) || isNaN(startWeight) || isNaN(tmrPrice) || isNaN(gnutPrice) || isNaN(sizePerBag)) {
       return;
     }
 
