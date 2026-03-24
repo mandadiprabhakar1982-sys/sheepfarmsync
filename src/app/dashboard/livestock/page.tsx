@@ -207,12 +207,12 @@ export default function LivestockPage() {
             onClick={() => { assetForm.reset({ registrationDate: new Date(), breed: 'Standard', age: 6, currentWeight: 25 }); setIsEntryDialogOpen(true); }}
             className="hidden md:flex bg-[#0FA5A0] text-white px-10 py-5 rounded-full font-black text-lg hover:bg-[#134E4A] transition-all shadow-2xl shadow-[#0FA5A0]/20 items-center gap-3 active:scale-95"
           >
-            <span className="text-2xl">+</span> ENROLL ANIMAL
+            <span className="text-2xl">+</span> ENROLL NEW ASSET
           </button>
         </div>
 
         {/* STATS OVERVIEW - Big Letters */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-12 mb-12 border-t border-b border-slate-200 py-12">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-12 mb-12 border-t border-bottom border-slate-200 py-12">
           <div>
             <p className="text-slate-400 font-black uppercase text-[10px] tracking-widest mb-2">Total Head</p>
             <p className="text-5xl md:text-7xl font-black italic text-slate-800">{totalSheep.toLocaleString()}</p>
@@ -307,7 +307,7 @@ export default function LivestockPage() {
 
       {/* SHEEP POPUP - ENROLLMENT DIALOG */}
       <Dialog open={isEntryDialogOpen} onOpenChange={(open) => { setIsEntryDialogOpen(open); if (!open) stopCamera(); }}>
-        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white max-h-[90vh] flex flex-col font-sans">
+        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white max-h-[90vh] flex flex-col">
           <div className="bg-neutral-900 p-8 text-white flex justify-between items-center shrink-0">
             <div>
               <DialogTitle className="text-2xl font-black uppercase tracking-tight">Sheep Popup</DialogTitle>
