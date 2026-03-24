@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useRef } from 'react';
@@ -280,7 +279,8 @@ export default function LivestockPage() {
           <Table>
             <TableHeader className="bg-[#f8fafb]">
               <TableRow className="border-none">
-                <TableHead className="text-[11px] font-black text-[#7f8c8d] px-6 py-5">Tag ID</TableHead>
+                <TableHead className="text-[11px] font-black text-[#7f8c8d] px-6 py-5">Profile</TableHead>
+                <TableHead className="text-[11px] font-black text-[#7f8c8d]">Tag ID</TableHead>
                 <TableHead className="text-[11px] font-black text-[#7f8c8d]">Breed</TableHead>
                 <TableHead className="text-[11px] font-black text-[#7f8c8d]">Age</TableHead>
                 <TableHead className="text-[11px] font-black text-[#7f8c8d]">Date</TableHead>
@@ -295,7 +295,18 @@ export default function LivestockPage() {
                 const gain = sheep.currentWeight - (sheep.previousWeight || 0);
                 return (
                   <TableRow key={sheep.id} className="group hover:bg-[#f1f4f6] border-t border-[#f0f4f8] transition-colors">
-                    <TableCell className="px-6 py-5">
+                    <TableCell className="px-6 py-4">
+                      <div className="h-10 w-10 rounded-lg bg-slate-100 relative overflow-hidden flex-shrink-0">
+                        {sheep.imageUrl ? (
+                          <Image src={sheep.imageUrl} alt={sheep.tagId} fill className="object-cover" />
+                        ) : (
+                          <div className="h-full w-full flex items-center justify-center text-slate-300">
+                            <ImageIcon className="h-4 w-4" />
+                          </div>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
                       <span className="bg-[#e0f2f1] text-[#008080] px-2.5 py-1 rounded-md text-xs font-bold">{sheep.tagId}</span>
                     </TableCell>
                     <TableCell className="font-semibold">{sheep.breed}</TableCell>

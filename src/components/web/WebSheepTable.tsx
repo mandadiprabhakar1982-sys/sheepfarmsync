@@ -1,7 +1,8 @@
 'use client';
 
 import { useFarm } from '@/context/FarmContext';
-import { Pencil, Trash2, CheckCircle2 } from 'lucide-react';
+import { Pencil, Trash2, CheckCircle2, ImageIcon } from 'lucide-react';
+import Image from 'next/image';
 
 export function WebSheepTable() {
   const { trackedSheep, deleteTrackedSheep } = useFarm();
@@ -10,6 +11,7 @@ export function WebSheepTable() {
     <table className="w-full text-left border-collapse min-w-[800px]">
       <thead className="sticky top-0 bg-slate-50 border-b border-slate-200 z-10">
         <tr className="text-[10px] uppercase tracking-[0.15em] text-slate-500">
+          <th className="p-4 font-black">Profile</th>
           <th className="p-4 font-black">Tag Identity</th>
           <th className="p-4 font-black text-center">Gender</th>
           <th className="p-4 font-black">Genetic Breed</th>
@@ -23,6 +25,17 @@ export function WebSheepTable() {
         {trackedSheep?.length ? (
           trackedSheep.map((sheep) => (
             <tr key={sheep.id} className="hover:bg-emerald-50/30 transition-colors text-sm group">
+              <td className="p-4">
+                <div className="h-12 w-12 rounded-xl bg-slate-100 relative overflow-hidden flex-shrink-0">
+                  {sheep.imageUrl ? (
+                    <Image src={sheep.imageUrl} alt={sheep.tagId} fill className="object-cover" />
+                  ) : (
+                    <div className="h-full w-full flex items-center justify-center text-slate-300">
+                      <ImageIcon className="h-5 w-5" />
+                    </div>
+                  )}
+                </div>
+              </td>
               <td className="p-4 font-black text-slate-700 tracking-tight">
                 <span className="bg-slate-100 px-2 py-1 rounded text-xs">#{sheep.tagId}</span>
               </td>
@@ -70,7 +83,7 @@ export function WebSheepTable() {
           ))
         ) : (
           <tr>
-            <td colSpan={7} className="py-20 text-center">
+            <td colSpan={8} className="py-20 text-center">
               <p className="text-slate-300 font-black uppercase tracking-[0.3em] text-[10px]">Awaiting Global Asset Sync...</p>
             </td>
           </tr>
