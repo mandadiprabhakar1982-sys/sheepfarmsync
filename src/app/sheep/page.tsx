@@ -16,9 +16,10 @@ import {
   Camera, 
   ImageIcon, 
   Upload, 
-  Calendar as CalendarIcon 
+  Calendar as CalendarIcon,
+  Pencil
 } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, parseISO, isValid } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { useStorage } from '@/firebase';
 import { uploadToStorage } from '@/lib/upload';
@@ -36,6 +37,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { HorizontalDatePicker } from '@/components/horizontal-date-picker';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
+import type { TrackedSheep } from '@/lib/types';
 
 const assetSchema = z.object({
   tagId: z.string().min(1, 'Tag ID is required'),
@@ -53,9 +55,11 @@ export default function SheepPage() {
   const { toast } = useToast();
   const storage = useStorage();
   const { width, isHydrated } = useWindowDimensions();
-  const { trackedSheep, addTrackedSheep, isLoading } = useFarm();
+  const { trackedSheep, addTrackedSheep, updateTrackedSheep, isLoading } = useFarm();
   
   const [isEntryDialogOpen, setIsEntryDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingSheep, setEditingSheep] = useState<TrackedSheep | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -63,6 +67,10 @@ export default function SheepPage() {
   const assetForm = useForm<AssetFormData>({
     resolver: zodResolver(assetSchema),
     defaultValues: { tagId: '', breed: 'Standard', age: 6, currentWeight: 25, gender: 'female', registrationDate: new Date() },
+  });
+
+  const editForm = useForm<AssetFormData>({
+    resolver: zodResolver(assetSchema),
   });
 
   const stats = useMemo(() => {
@@ -74,6 +82,21 @@ export default function SheepPage() {
       avgWeight: (totalWeight / count).toFixed(1)
     };
   }, [trackedSheep]);
+
+  const handleEdit = (sheep: TrackedSheep) => {
+    setEditingSheep(sheep);
+    const regDate = sheep.registrationDate ? parseISO(sheep.registrationDate) : new Date();
+    editForm.reset({
+      tagId: sheep.tagId,
+      breed: sheep.breed || 'Standard',
+      age: sheep.age,
+      registrationDate: isValid(regDate) ? regDate : new Date(),
+      currentWeight: sheep.currentWeight,
+      gender: (sheep.gender as 'male' | 'female') || 'female',
+      imageUrl: sheep.imageUrl || '',
+    });
+    setIsEditDialogOpen(true);
+  };
 
   const startCamera = async () => {
     try {
@@ -98,7 +121,8 @@ export default function SheepPage() {
       const canvas = document.createElement('canvas');
       canvas.width = videoRef.current.videoWidth; canvas.height = videoRef.current.videoHeight;
       canvas.getContext('2d')?.drawImage(videoRef.current, 0, 0);
-      assetForm.setValue('imageUrl', canvas.toDataURL('image/jpeg'));
+      const activeForm = isEntryDialogOpen ? assetForm : editForm;
+      activeForm.setValue('imageUrl', canvas.toDataURL('image/jpeg'));
       stopCamera();
     }
   };
@@ -107,7 +131,8 @@ export default function SheepPage() {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => assetForm.setValue('imageUrl', reader.result as string);
+      const activeForm = isEntryDialogOpen ? assetForm : editForm;
+      reader.onloadend = () => activeForm.setValue('imageUrl', reader.result as string);
       reader.readAsDataURL(file);
     }
   };
@@ -124,6 +149,22 @@ export default function SheepPage() {
       toast({ title: 'Record Saved', description: `Sheep ${data.tagId} enrolled.` });
     } catch (e) {
       toast({ variant: 'destructive', title: 'Error', description: 'Save failed.' });
+    } finally { setIsUploading(false); }
+  };
+
+  const onEditSubmit: SubmitHandler<AssetFormData> = async (data) => {
+    if (!editingSheep) return;
+    setIsUploading(true);
+    try {
+      let finalUrl = data.imageUrl;
+      if (storage && data.imageUrl?.startsWith('data:')) {
+        finalUrl = await uploadToStorage(storage, data.imageUrl, 'sheep_profiles');
+      }
+      updateTrackedSheep(editingSheep.id, { ...data, imageUrl: finalUrl || '', registrationDate: format(data.registrationDate, 'yyyy-MM-dd') }, editingSheep._path);
+      setIsEditDialogOpen(false); setEditingSheep(null);
+      toast({ title: 'Synchronized', description: 'Record updated.' });
+    } catch (e) {
+      toast({ variant: 'destructive', title: 'Error', description: 'Update failed.' });
     } finally { setIsUploading(false); }
   };
 
@@ -156,7 +197,7 @@ export default function SheepPage() {
               <p className="text-3xl font-black">#{stats.count}</p>
             </header>
             <div className="flex-1 overflow-y-auto px-4 pt-6">
-              <MobileSheepList />
+              <MobileSheepList onEdit={handleEdit} />
             </div>
           </div>
         ) : (
@@ -194,7 +235,7 @@ export default function SheepPage() {
 
             <div className="flex-1 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
               <div className="flex-1 overflow-auto no-scrollbar">
-                <WebSheepTable />
+                <WebSheepTable onEdit={handleEdit} />
               </div>
             </div>
           </div>
@@ -264,6 +305,69 @@ export default function SheepPage() {
                     className="w-full h-16 rounded-2xl bg-[#0FA5A0] text-white font-black uppercase tracking-[0.2em] hover:bg-[#134E4A] transition-all flex items-center justify-center shadow-xl shadow-[#0FA5A0]/20 active:scale-95"
                   >
                     {isUploading ? <Loader2 className="animate-spin h-6 w-6" /> : 'Save Sheep'}
+                  </button>
+                </form>
+              </Form>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* EDIT DIALOG */}
+        <Dialog open={isEditDialogOpen} onOpenChange={(open) => { setIsEditDialogOpen(open); if (!open) stopCamera(); }}>
+          <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white max-h-[90vh] flex flex-col">
+            <div className="bg-neutral-900 p-8 text-white flex justify-between items-center shrink-0">
+              <div>
+                <DialogTitle className="text-2xl font-black uppercase tracking-tight">Edit Record: {editingSheep?.tagId}</DialogTitle>
+                <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mt-1">Asset Modification Audit</p>
+              </div>
+              <DialogClose className="text-white/40 hover:text-white transition-colors"><X className="h-6 w-6" /></DialogClose>
+            </div>
+            
+            <div className="p-8 overflow-y-auto no-scrollbar">
+              <Form {...editForm}>
+                <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField control={editForm.control} name="tagId" render={({ field }) => (
+                      <FormItem><Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ml-1">Tag ID</Label><FormControl><Input className="h-14 bg-slate-50 border-none rounded-2xl font-black text-lg px-6" {...field} /></FormControl></FormItem>
+                    )} />
+                    <FormField control={editForm.control} name="breed" render={({ field }) => (
+                      <FormItem><Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ml-1">Breed</Label><FormControl><Input className="h-14 bg-slate-50 border-none rounded-2xl font-black text-lg px-6" {...field} /></FormControl></FormItem>
+                    )} />
+                    <FormField control={editForm.control} name="age" render={({ field }) => (
+                      <FormItem><Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ml-1">Age (Months)</Label><FormControl><Input type="number" className="h-14 bg-slate-50 border-none rounded-2xl font-black text-lg px-6" {...field} /></FormControl></FormItem>
+                    )} />
+                    <FormField control={editForm.control} name="registrationDate" render={({ field }) => (
+                      <FormItem className="flex flex-col"><Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ml-1">Date</Label>
+                        <Popover><PopoverTrigger asChild><Button variant="outline" className="h-14 bg-slate-50 border-none rounded-2xl font-black text-lg justify-between px-6">{field.value ? format(field.value, "MMM dd, yyyy") : "Pick date"}<CalendarIcon className="h-4 w-4 opacity-20" /></Button></PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start"><HorizontalDatePicker selectedDate={field.value} onSelect={field.onChange} /></PopoverContent></Popover>
+                      </FormItem>
+                    )} />
+                    <FormField control={editForm.control} name="currentWeight" render={({ field }) => (
+                      <FormItem className="md:col-span-2"><Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ml-1">Weight (KG)</Label><FormControl><Input type="number" step="0.1" className="h-14 bg-[#D7F2F1] border-none rounded-2xl font-black text-2xl px-6 text-[#0FA5A0]" {...field} /></FormControl></FormItem>
+                    )} />
+                  </div>
+
+                  <div className="flex flex-col gap-4">
+                    <div className="h-32 w-full rounded-[2rem] bg-slate-50 border-2 border-dashed border-slate-200 flex items-center justify-center overflow-hidden relative group">
+                      <video ref={videoRef} className={cn("w-full h-full object-cover", !isCameraActive && "hidden")} autoPlay muted playsInline />
+                      {!isCameraActive && (editForm.watch('imageUrl') ? <Image src={editForm.watch('imageUrl')!} alt="Sheep" fill className="object-cover" /> : <ImageIcon className="h-10 w-10 text-slate-200" />)}
+                      {isCameraActive && <Button type="button" onClick={capturePhoto} className="absolute bottom-2 left-1/2 -translate-x-1/2 h-8 w-8 rounded-full bg-[#0FA5A0]" />}
+                    </div>
+                    <div className="flex gap-2">
+                      <Button type="button" onClick={startCamera} className="flex-1 h-12 rounded-xl bg-neutral-900 text-white text-[10px] font-black uppercase tracking-widest"><Camera className="h-4 w-4 mr-2 text-[#0FA5A0]" /> Camera</Button>
+                      <div className="relative flex-1">
+                        <Button type="button" className="w-full h-12 rounded-xl bg-neutral-900 text-white text-[10px] font-black uppercase tracking-widest"><Upload className="h-4 w-4 mr-2 text-[#0FA5A0]" /> File</Button>
+                        <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={handleImageChange} />
+                      </div>
+                    </div>
+                  </div>
+
+                  <button 
+                    type="submit" 
+                    disabled={isUploading} 
+                    className="w-full h-16 rounded-2xl bg-neutral-900 text-white font-black uppercase tracking-[0.2em] hover:bg-black transition-all flex items-center justify-center shadow-xl active:scale-95"
+                  >
+                    {isUploading ? <Loader2 className="animate-spin h-6 w-6" /> : 'Save Changes'}
                   </button>
                 </form>
               </Form>

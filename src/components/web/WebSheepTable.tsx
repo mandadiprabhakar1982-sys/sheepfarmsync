@@ -3,8 +3,13 @@
 import { useFarm } from '@/context/FarmContext';
 import { Pencil, Trash2, CheckCircle2, ImageIcon } from 'lucide-react';
 import Image from 'next/image';
+import type { TrackedSheep } from '@/lib/types';
 
-export function WebSheepTable() {
+interface WebSheepTableProps {
+  onEdit: (sheep: TrackedSheep) => void;
+}
+
+export function WebSheepTable({ onEdit }: WebSheepTableProps) {
   const { trackedSheep, deleteTrackedSheep } = useFarm();
 
   return (
@@ -61,6 +66,7 @@ export function WebSheepTable() {
               <td className="p-4 text-right pr-6">
                 <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all">
                   <button 
+                    onClick={() => onEdit(sheep)}
                     className="h-8 w-8 rounded-lg bg-slate-50 text-slate-400 hover:text-[#0FA5A0] hover:bg-white hover:shadow-sm flex items-center justify-center transition-all active:scale-90"
                     title="Edit Record"
                   >

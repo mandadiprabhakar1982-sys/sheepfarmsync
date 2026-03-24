@@ -2,16 +2,25 @@
 
 import { useFarm } from '@/context/FarmContext';
 import { Badge } from '@/components/ui/badge';
-import { Scale, Calendar, ChevronRight, Activity, ImageIcon } from 'lucide-react';
+import { Scale, Calendar, ChevronRight, Activity, ImageIcon, Pencil } from 'lucide-react';
 import Image from 'next/image';
+import type { TrackedSheep } from '@/lib/types';
 
-export function MobileSheepList() {
+interface MobileSheepListProps {
+  onEdit: (sheep: TrackedSheep) => void;
+}
+
+export function MobileSheepList({ onEdit }: MobileSheepListProps) {
   const { trackedSheep } = useFarm();
 
   return (
     <div className="space-y-6 pb-32">
       {trackedSheep?.length ? trackedSheep.map((sheep) => (
-        <div key={sheep.id} className="bg-white border-b border-gray-100 pb-6 flex items-center gap-5 active:scale-[0.98] transition-all">
+        <div 
+          key={sheep.id} 
+          onClick={() => onEdit(sheep)}
+          className="bg-white border-b border-gray-100 pb-6 flex items-center gap-5 active:scale-[0.98] transition-all"
+        >
           <div className="h-20 w-20 rounded-2xl bg-slate-100 flex-shrink-0 relative overflow-hidden">
             {sheep.imageUrl ? (
               <Image src={sheep.imageUrl} alt={sheep.tagId} fill className="object-cover" />
@@ -34,8 +43,8 @@ export function MobileSheepList() {
               <span className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5 opacity-40" /> {sheep.age} MOS</span>
             </div>
           </div>
-          <div className="h-12 w-12 rounded-full bg-slate-50 flex items-center justify-center">
-            <ChevronRight className="h-6 w-6 text-slate-300" />
+          <div className="h-12 w-12 rounded-full bg-slate-50 flex items-center justify-center text-slate-300">
+            <Pencil className="h-5 w-5" />
           </div>
         </div>
       )) : (
